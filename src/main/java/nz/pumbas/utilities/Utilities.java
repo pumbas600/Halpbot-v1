@@ -1,15 +1,11 @@
 package nz.pumbas.utilities;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +24,13 @@ public final class Utilities
 
     //A constant 'empty' UUID
     public static final UUID emptyUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
+    public static final float PI = 3.141592F;
+
+    public static final float fullCircle = 360F;
+    public static final float threeQuarterCircle = 270F;
+    public static final float halfCircle = 180F;
+    public static final float quarterCircle = 90F;
 
     /**
      * Retrieves all the methods of a class with the specified annotation.

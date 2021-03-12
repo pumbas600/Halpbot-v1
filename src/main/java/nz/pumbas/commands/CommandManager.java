@@ -1,11 +1,14 @@
 package nz.pumbas.commands;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +26,17 @@ public final class CommandManager extends ListenerAdapter
     private static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
         String.class, s -> s,
         int.class, Integer::parseInt,
-        float.class, Float::parseFloat
+        float.class, Float::parseFloat,
+        double.class, Double::parseDouble,
+        char.class, s -> s.charAt(0)
+    );
+
+    private static final Map<String, String> CommandRegex = Map.of(
+            "INT", "([0-9]+)",
+            "FLOAT", "([0-9]+\\\\.?[0-9]*)",
+            "DOUBLE", "([0-9]+\\\\.?[0-9]*)",
+            "STRING", "([a-zA-Z ]+)",
+            "CHAR", "([a-zA-Z])"
     );
 
     private final Map<String, CommandMethod> registeredCommands;
@@ -49,7 +62,7 @@ public final class CommandManager extends ListenerAdapter
     {
         if (event.getAuthor().isBot()) return;
 
-        String[] splitText = event.getMessage().getContentRaw().split(" ", 1);
+        String[] splitText = event.getMessage().getContentRaw().split(" ", 2);
         String commandAlias = splitText[0];
 
         if (this.registeredCommands.containsKey(commandAlias)) {
@@ -65,34 +78,41 @@ public final class CommandManager extends ListenerAdapter
                 return;
             }
 
-            String content = splitText[1];
+            if (1 < splitText.length) {
+                String content = splitText[1];
 
-            Matcher matcher = command.getCommand().matcher(content);
-            if (matcher.matches()) {
-                Class<?>[] parameters = command.getMethod().getParameterTypes();
-                Object[] args = new Object[parameters.length];
-                args[0] = event;
+                Matcher matcher = command.getCommand().matcher(content);
+                if (matcher.matches()) {
+                    Class<?>[] parameters = command.getMethod().getParameterTypes();
+                    Object[] args = new Object[parameters.length];
+                    args[0] = event;
 
-                for (int i = 1; i < Math.min(matcher.groupCount(), parameters.length); i++) {
-                    String match = matcher.group(i);
-                    Object argValue = null;
+                    for (int i = 1; i <= Math.min(matcher.groupCount(), parameters.length); i++) {
+                        String match = matcher.group(i);
+                        Object argValue = null;
 
-                    if (null != match && TypeParsers.containsKey(parameters[i])) {
-                        argValue = TypeParsers.get(parameters[i]).apply(match);
+                        if (null != match && TypeParsers.containsKey(parameters[i])) {
+                            argValue = TypeParsers.get(parameters[i]).apply(match);
+                        }
+                        args[i] = argValue;
                     }
-                    args[i] = argValue;
-                }
 
-                command.InvokeMethod(args);
-                return;
+                    command.InvokeMethod(args);
+                    return;
+                }
             }
 
-            String helpMessage = String.format(
-                    "HALP: %s\n-----------------------------------\n%s",
-                    commandAlias, command.hasHelp() ? command.getHelp() : "Your command doesn't seem to have been formated correctly."
-            );
+            String helpMessage = command.hasHelp() ? command.getHelp() : "Your command doesn't seem to have been formated correctly.";
 
-            event.getChannel().sendMessage(helpMessage).queue();
+            MessageEmbed help = new EmbedBuilder()
+                    .setColor(Color.cyan)
+                    .setTitle("HALP")
+                    .addField("Command", commandAlias, true)
+                    .addBlankField(true)
+                    .addField("Description", helpMessage, true)
+                    .build();
+
+            event.getChannel().sendMessage(help).queue();
         }
     }
 
@@ -118,6 +138,13 @@ public final class CommandManager extends ListenerAdapter
 
             this.registeredCommands.put(commandAlias, new CommandMethod(method, object, annotation));
         }
+    }
+
+    public static String FormatCommand(String command) {
+        for (String key : CommandRegex.keySet()) {
+            command = command.replaceAll(key, CommandRegex.get(key));
+        }
+        return "^" + command;
     }
 
 }

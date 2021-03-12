@@ -28,7 +28,7 @@ public class CommandMethod
         this.hasCommand = !Utilities.isEmpty(command.command());
 
         if (this.hasCommand) {
-            this.command = Pattern.compile(command.command());
+            this.command = Pattern.compile(CommandManager.FormatCommand(command.command()));
         }
     }
 
@@ -36,7 +36,9 @@ public class CommandMethod
     {
         try {
             this.method.invoke(this.object, args);
-        } catch (java.lang.IllegalAccessException | java.lang.reflect.InvocationTargetException ignored) {
+        } catch (java.lang.IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+            System.out.println("There was an error invoking the command method");
+            e.printStackTrace();
         }
     }
 

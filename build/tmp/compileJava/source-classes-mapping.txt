@@ -1,22 +1,22 @@
+nz/pumbas/commands/Annotations/Command.java
+ nz.pumbas.commands.Annotations.Command
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/Exceptions/IllegalCommandException.java
  nz.pumbas.commands.Exceptions.IllegalCommandException
+nz/pumbas/HalpBotCommands.java
+ nz.pumbas.HalpBotCommands
+nz/pumbas/commands/Annotations/CommandGroup.java
+ nz.pumbas.commands.Annotations.CommandGroup
 nz/pumbas/utilities/Vector2.java
  nz.pumbas.utilities.Vector2
 nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
-nz/pumbas/commands/Annotations/CommandGroup.java
- nz.pumbas.commands.Annotations.CommandGroup
-nz/pumbas/commands/Annotations/Command.java
- nz.pumbas.commands.Annotations.Command
 nz/pumbas/Main.java
  nz.pumbas.Main
 nz/pumbas/commands/CommandManager.java
  nz.pumbas.commands.CommandManager
 nz/pumbas/HalpBot.java
  nz.pumbas.HalpBot
-nz/pumbas/HalpBotCommands.java
- nz.pumbas.HalpBotCommands
 nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod

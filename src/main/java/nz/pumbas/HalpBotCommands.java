@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
+import nz.pumbas.utilities.Vector2;
 
 @CommandGroup(defaultPrefix = "$")
 public class HalpBotCommands
@@ -20,12 +21,13 @@ public class HalpBotCommands
                 "https://github.com/pumbas600/HalpBot :kissing_heart:").queue();
     }
 
-    @Command(alias = "components", command = "^([0-9]+)n?N? (?:from)? ?(x|x-axis|y|y-axis)",
+    @Command(alias = "components", command = "FLOATn?N? (?:at)? ?FLOAT (?:from)? ?(x|x-axis|y|y-axis)",
              help = "Splits a force into its x and y components:\n" +
-                    "magnitude [from] x|x-axis|y|y-axis")
-    public void onComponents(MessageReceivedEvent event, int magnitude, String axis) {
+                    "magnitude(N) [at] angle(degrees) [from] x|x-axis|y|y-axis")
+    public void onComponents(MessageReceivedEvent event, float magnitude, float angle, String axis) {
         boolean fromX = "x".equals(axis) || "x-axis".equals(axis);
-        
-        event.getChannel().sendMessage(magnitude + " From X:" + fromX);
+        Vector2 force = new Vector2(magnitude, angle, fromX);
+
+        event.getChannel().sendMessage(force.toString()).queue();
     }
 }
