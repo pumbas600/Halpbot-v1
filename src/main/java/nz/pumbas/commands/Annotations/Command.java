@@ -13,4 +13,8 @@ public @interface Command
     String prefix() default "";
 
     String alias();
+
+    String command() default "";
+
+    String help() default "";
 }

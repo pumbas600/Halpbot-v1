@@ -234,6 +234,13 @@ public final class Utilities
         return defaultValue;
     }
 
+    /**
+     * Retrieves the InputStream for a file in the resources folder.
+     *
+     * @param filename The name of the file to retrieve
+     *
+     * @return The InputStream, if there were no errors retrieving it
+     */
     private static Optional<InputStream> retrieveReader(String filename) {
         InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(filename);
 
@@ -243,5 +250,9 @@ public final class Utilities
         }
         return Optional.of(in);
 
+    }
+
+    public static boolean isEmpty(String str) {
+        return "".equals(str);
     }
 }

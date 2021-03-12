@@ -2,13 +2,11 @@ package nz.pumbas;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
-import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -16,14 +14,13 @@ import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.CommandManager;
 
-public class HalpBot
+public class HalpBot extends ListenerAdapter
 {
     private final JDA jda;
 
-    public HalpBot(String token) throws LoginException, InterruptedException
+    public HalpBot(String token) throws LoginException
     {
         JDABuilder builder = JDABuilder.createDefault(token)
-                .setEventManager(new AnnotatedEventManager())
                 .addEventListeners(this);
 
         CommandManager manager = new CommandManager(builder);
@@ -32,15 +29,15 @@ public class HalpBot
         this.jda = builder.build();
     }
 
-    @SubscribeEvent
-    public void onReadyEvent(@NotNull ReadyEvent event)
+    @Override
+    public void onReady(@NotNull ReadyEvent event)
     {
-        this.jda.getPresence().setPresence(Activity.of(ActivityType.CUSTOM_STATUS, "Trying to halp everyone"), false);
+        this.jda.getPresence().setPresence(Activity.of(ActivityType.WATCHING, "Trying to halp everyone"), false);
         System.out.printf("The bot is initialised and running in %s servers%n", event.getGuildTotalCount());
     }
 
-    @SubscribeEvent
-    public void onShutdownEvent(@NotNull ShutdownEvent event)
+    @Override
+    public void onShutdown(@NotNull ShutdownEvent event)
     {
         System.out.println("Shutting down the bot!");
     }

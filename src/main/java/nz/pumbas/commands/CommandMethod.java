@@ -3,29 +3,67 @@ package nz.pumbas.commands;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.regex.Pattern;
+
+import nz.pumbas.commands.Annotations.Command;
+import nz.pumbas.utilities.Utilities;
 
 public class CommandMethod
 {
 
     private final @NotNull Method method;
     private final @NotNull Object object;
-    private final boolean hasParamaters;
+    private final @NotNull String help;
 
-    public CommandMethod(@NotNull Method method, @NotNull Object object)
+    private final boolean hasCommand;
+
+    private Pattern command;
+
+    public CommandMethod(@NotNull Method method, @NotNull Object object, @NotNull Command command)
     {
         this.method = method;
         this.object = object;
+        this.help = command.help();
 
-        this.hasParamaters = 0 != method.getParameterCount();
+        this.hasCommand = !Utilities.isEmpty(command.command());
+
+        if (this.hasCommand) {
+            this.command = Pattern.compile(command.command());
+        }
     }
 
     public void InvokeMethod(Object... args)
     {
-        Object[] methodArgs = this.hasParamaters ? args : new Object[0];
-
         try {
-            this.method.invoke(this.object, methodArgs);
+            this.method.invoke(this.object, args);
         } catch (java.lang.IllegalAccessException | java.lang.reflect.InvocationTargetException ignored) {
         }
+    }
+
+    public @NotNull Method getMethod()
+    {
+        return this.method;
+    }
+
+    public @NotNull String getHelp() {
+        return this.help;
+    }
+
+    public Pattern getCommand()
+    {
+        return this.command;
+    }
+
+    public boolean hasCommand()
+    {
+        return this.hasCommand;
+    }
+
+    public boolean hasParamaters() {
+        return 0 != this.method.getParameterCount();
+    }
+
+    public boolean hasHelp() {
+        return !Utilities.isEmpty(this.help);
     }
 }

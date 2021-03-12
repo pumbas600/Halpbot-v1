@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
@@ -18,6 +20,11 @@ import nz.pumbas.utilities.Utilities;
 
 public final class CommandManager extends ListenerAdapter
 {
+    private static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
+        String.class, s -> s,
+        int.class, Integer::parseInt,
+        float.class, Float::parseFloat
+    );
 
     private final Map<String, CommandMethod> registeredCommands;
 
@@ -42,10 +49,50 @@ public final class CommandManager extends ListenerAdapter
     {
         if (event.getAuthor().isBot()) return;
 
-        String commandAlias = event.getMessage().getContentRaw().split(" ", 1)[0];
+        String[] splitText = event.getMessage().getContentRaw().split(" ", 1);
+        String commandAlias = splitText[0];
 
         if (this.registeredCommands.containsKey(commandAlias)) {
-            this.registeredCommands.get(commandAlias).InvokeMethod(event);
+            CommandMethod command = this.registeredCommands.get(commandAlias);
+
+            if (!command.hasParamaters()) {
+                command.InvokeMethod();
+                return;
+            }
+
+            if (!command.hasCommand()) {
+                command.InvokeMethod(event);
+                return;
+            }
+
+            String content = splitText[1];
+
+            Matcher matcher = command.getCommand().matcher(content);
+            if (matcher.matches()) {
+                Class<?>[] parameters = command.getMethod().getParameterTypes();
+                Object[] args = new Object[parameters.length];
+                args[0] = event;
+
+                for (int i = 1; i < Math.min(matcher.groupCount(), parameters.length); i++) {
+                    String match = matcher.group(i);
+                    Object argValue = null;
+
+                    if (null != match && TypeParsers.containsKey(parameters[i])) {
+                        argValue = TypeParsers.get(parameters[i]).apply(match);
+                    }
+                    args[i] = argValue;
+                }
+
+                command.InvokeMethod(args);
+                return;
+            }
+
+            String helpMessage = String.format(
+                    "HALP: %s\n-----------------------------------\n%s",
+                    commandAlias, command.hasHelp() ? command.getHelp() : "Your command doesn't seem to have been formated correctly."
+            );
+
+            event.getChannel().sendMessage(helpMessage).queue();
         }
     }
 
@@ -53,15 +100,11 @@ public final class CommandManager extends ListenerAdapter
     {
         String defaultPrefix = Utilities.getAnnotationFieldElse(
                 object, CommandGroup.class, CommandGroup::defaultPrefix, "");
-        boolean hasDefaultPrefix = hasPrefix(defaultPrefix);
+        boolean hasDefaultPrefix = !Utilities.isEmpty(defaultPrefix);
 
         for (Method method : methods) {
-            if (!(0 == method.getParameterCount() ||
-                    (1 == method.getParameterCount() && MessageReceivedEvent.class != method.getParameterTypes()[0])))
-                throw new IllegalCommandException("A command should only take the one parameter, MessageReceivedEvent");
-
             Command annotation = method.getAnnotation(Command.class);
-            boolean hasPrefix = hasPrefix(annotation.prefix());
+            boolean hasPrefix = !Utilities.isEmpty(annotation.prefix());
 
             if (!hasDefaultPrefix && !hasPrefix)
                 throw new IllegalCommandException(
@@ -73,13 +116,8 @@ public final class CommandManager extends ListenerAdapter
                 throw new IllegalCommandException(
                         String.format("There is already a command registered with the alias %s.", commandAlias));
 
-            this.registeredCommands.put(commandAlias, new CommandMethod(method, object));
+            this.registeredCommands.put(commandAlias, new CommandMethod(method, object, annotation));
         }
-    }
-
-    private static boolean hasPrefix(String prefix)
-    {
-        return !"".equals(prefix);
     }
 
 }
