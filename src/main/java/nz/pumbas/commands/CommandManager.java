@@ -23,6 +23,11 @@ import nz.pumbas.utilities.Utilities;
 
 public final class CommandManager extends ListenerAdapter
 {
+    //TODO: Custom types (using named groups?) Will need an ID: e.g: SHAPE, regex (can use INT, FLOAT),
+    //TODO: Class<T>, Function<String,T>
+    //TODO: Multiple commands with same alias but different command string
+    //TODO: Optional arguments
+
     private static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
         String.class, s -> s,
         int.class, Integer::parseInt,
@@ -30,12 +35,14 @@ public final class CommandManager extends ListenerAdapter
         double.class, Double::parseDouble,
         char.class, s -> s.charAt(0)
     );
+    private static final Map<String, String> CustomTypesRegex = new HashMap<>();
 
     private static final Map<String, String> CommandRegex = Map.of(
-            "INT", "([0-9]+)",
-            "FLOAT", "([0-9]+\\\\.?[0-9]*)",
-            "DOUBLE", "([0-9]+\\\\.?[0-9]*)",
-            "STRING", "([a-zA-Z ]+)",
+            "INT", "(\\d+)",
+            "FLOAT", "(\\d+\\.?\\d*)",
+            "DOUBLE", "(\\d+\\.?\\d*)",
+            "WORD", "([a-zA-Z]+)",
+            "SENTENCE", "([a-zA-Z ]+)",
             "CHAR", "([a-zA-Z])"
     );
 
@@ -82,7 +89,7 @@ public final class CommandManager extends ListenerAdapter
                 String content = splitText[1];
 
                 Matcher matcher = command.getCommand().matcher(content);
-                if (matcher.matches()) {
+                if (matcher.lookingAt()) {
                     Class<?>[] parameters = command.getMethod().getParameterTypes();
                     Object[] args = new Object[parameters.length];
                     args[0] = event;
@@ -140,11 +147,35 @@ public final class CommandManager extends ListenerAdapter
         }
     }
 
-    public static String FormatCommand(String command) {
-        for (String key : CommandRegex.keySet()) {
-            command = command.replaceAll(key, CommandRegex.get(key));
+    public static String formatCommand(String command) {
+        for (String key : CustomTypesRegex.keySet()) {
+            command = command.replace(key, CommandRegex.get(key));
         }
+
+        for (String key : CommandRegex.keySet()) {
+            command = command.replace(key, CommandRegex.get(key));
+        }
+
+        //Turns the optional non-capture formatting <...> into REGEX
+        int noncaptureIndex;
+        while (-1 != (noncaptureIndex = command.indexOf('<'))) {
+
+            if (0 != noncaptureIndex && ' ' == command.charAt(noncaptureIndex - 1)) {
+                command = Utilities.replaceFirst(command, "> ", ")? ?");
+            }
+            else {
+                command = Utilities.replaceFirst(command, ">", ")?");
+            }
+            command = Utilities.replaceFirst(command, "<", "(?:");
+        }
+
         return "^" + command;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> void RegisterCustomCommandType(String name, Class<T> type, Function<String, T> parser, String regex)
+    {
+        TypeParsers.put(type, (Function<String, Object>) parser);
+        CustomTypesRegex.put(name, String.format("(?<%s>%s)", name, regex));
+    }
 }

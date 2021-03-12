@@ -13,8 +13,9 @@ public class CommandMethod
 
     private final @NotNull Method method;
     private final @NotNull Object object;
-    private final @NotNull String help;
+    private final @NotNull Command commandAnotation;
 
+    //Save this, as it will be repeatedly checked
     private final boolean hasCommand;
 
     private Pattern command;
@@ -23,12 +24,12 @@ public class CommandMethod
     {
         this.method = method;
         this.object = object;
-        this.help = command.help();
+        this.commandAnotation = command;
 
         this.hasCommand = !Utilities.isEmpty(command.command());
 
         if (this.hasCommand) {
-            this.command = Pattern.compile(CommandManager.FormatCommand(command.command()));
+            this.command = Pattern.compile(CommandManager.formatCommand(command.command()));
         }
     }
 
@@ -48,7 +49,7 @@ public class CommandMethod
     }
 
     public @NotNull String getHelp() {
-        return this.help;
+        return this.commandAnotation.help();
     }
 
     public Pattern getCommand()
@@ -66,6 +67,6 @@ public class CommandMethod
     }
 
     public boolean hasHelp() {
-        return !Utilities.isEmpty(this.help);
+        return !Utilities.isEmpty(this.getHelp());
     }
 }

@@ -1,5 +1,7 @@
 package nz.pumbas.utilities;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +27,10 @@ public final class Utilities
     //A constant 'empty' UUID
     public static final UUID emptyUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-    public static final float PI = 3.141592F;
-
-    public static final float fullCircle = 360F;
-    public static final float threeQuarterCircle = 270F;
-    public static final float halfCircle = 180F;
-    public static final float quarterCircle = 90F;
+    public static final float fullRotation = 360F;
+    public static final float threeQuarterRotation = 270F;
+    public static final float halfRotation = 180F;
+    public static final float quarterRotation = 90F;
 
     /**
      * Retrieves all the methods of a class with the specified annotation.
@@ -255,7 +255,39 @@ public final class Utilities
 
     }
 
+    /**
+     * Returns true if the passed string is empty.
+     *
+     * @param str The string to check if empty
+     *
+     * @return true if the string is empty
+     */
     public static boolean isEmpty(String str) {
         return "".equals(str);
     }
+
+    /**
+     * Replaces the first occurance of the target in the passed str with the replacement without using regex.
+     *
+     * @param str The string being searched for the target
+     * @param target The string to replace
+     * @param replacement What to replace the target with
+     *
+     * @return The string with the first occurance of the target replaced with the replacement
+     */
+    public static String replaceFirst(@NotNull String str, @NotNull String target, @NotNull String replacement) {
+        int targetIndex = str.indexOf(target);
+        int endIndex = targetIndex + target.length();
+
+        if (-1 != targetIndex) {
+            String before = str.substring(0, targetIndex);
+            String after = endIndex < str.length() ? str.substring(endIndex) : "";
+
+            return before + replacement + after;
+        }
+
+        return str;
+    }
+
+
 }
