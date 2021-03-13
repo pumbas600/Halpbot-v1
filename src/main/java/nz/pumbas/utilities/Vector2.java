@@ -5,12 +5,14 @@ public class Vector2
     private final double x;
     private final double y;
 
-    public Vector2(double x, double y) {
+    public Vector2(double x, double y)
+    {
         this.x = x;
         this.y = y;
     }
 
-    public Vector2(double magnitude, double angle, boolean fromX) {
+    public Vector2(double magnitude, double angle, boolean fromX)
+    {
         if (!fromX) //Makes the angle from the x-axis
             angle += Utilities.quarterRotation;
         angle %= Utilities.fullRotation;
@@ -32,11 +34,13 @@ public class Vector2
         this.y = magnitude * Math.sin(radians);
     }
 
-    public double getSqrMagnitude() {
+    public double getSqrMagnitude()
+    {
         return this.x * this.x + this.y * this.y;
     }
 
-    public double getMagnitude() {
+    public double getMagnitude()
+    {
         return Math.sqrt(this.getSqrMagnitude());
     }
 
@@ -51,7 +55,8 @@ public class Vector2
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.format("%.1fi + %.1fj N", this.getX(), this.getY());
     }
 }

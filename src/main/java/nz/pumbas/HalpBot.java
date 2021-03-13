@@ -21,7 +21,7 @@ public class HalpBot extends ListenerAdapter
     public HalpBot(String token) throws LoginException
     {
         JDABuilder builder = JDABuilder.createDefault(token)
-                .addEventListeners(this);
+            .addEventListeners(this);
 
         CommandManager manager = new CommandManager(builder);
         manager.registerCommands(new HalpBotCommands());

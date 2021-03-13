@@ -15,7 +15,8 @@ public class Main
         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
     }
 
-    private static void registerCustomParamaters() {
+    private static void registerCustomParamaters()
+    {
         CommandManager.registerCustomParameterType(Shape.class);
 
     }

@@ -18,19 +18,22 @@ public class CommandMethod
 
     //Save this, as it will be repeatedly checked
     private final boolean hasCommand;
-
     private Pattern command;
 
-    public CommandMethod(@NotNull Method method, @NotNull Object object, @NotNull Command command)
+    public CommandMethod(@NotNull Method method, @NotNull Object object, @NotNull Command commandAnnotation)
     {
         this.method = method;
         this.object = object;
-        this.commandAnotation = command;
+        this.commandAnotation = commandAnnotation;
 
-        this.hasCommand = !Utilities.isEmpty(command.command());
+        this.hasCommand = 1 < method.getParameterCount();
 
         if (this.hasCommand) {
-            this.command = Pattern.compile(CommandManager.formatCommand(command.command()));
+            String command = Utilities.isEmpty(commandAnnotation.command())
+                ? CommandManager.automaticallyGenerateCommand(method.getParameterTypes())
+                : commandAnnotation.command();
+
+            this.command = Pattern.compile(CommandManager.formatCommand(command));
         }
     }
 
@@ -40,7 +43,7 @@ public class CommandMethod
             this.method.invoke(this.object, args);
         } catch (java.lang.IllegalAccessException e) {
             CommandManager.handle(e, String.format("There was an error invoking the command method, %s",
-                    this.method.getName()));
+                this.method.getName()));
         }
     }
 
@@ -49,7 +52,8 @@ public class CommandMethod
         return this.method;
     }
 
-    public @NotNull String getDescription() {
+    public @NotNull String getDescription()
+    {
         return this.commandAnotation.description();
     }
 
@@ -63,11 +67,13 @@ public class CommandMethod
         return this.hasCommand;
     }
 
-    public boolean hasParamaters() {
+    public boolean hasParamaters()
+    {
         return 0 != this.method.getParameterCount();
     }
 
-    public boolean hasDescription() {
+    public boolean hasDescription()
+    {
         return !Utilities.isEmpty(this.getDescription());
     }
 }

@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,24 +21,26 @@ import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
 import nz.pumbas.commands.Annotations.CustomParameter;
 import nz.pumbas.commands.Exceptions.IllegalCommandException;
+import nz.pumbas.commands.Exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.utilities.Utilities;
 
 public final class CommandManager extends ListenerAdapter
 {
+    //TODO: Unit Manager
     //TODO: varargs
     //TODO: Optional arguments
 
     public static final Map<String, String> CommandRegex = Map.of(
-            "SENTENCE", "([a-zA-Z ]+)"
+        "SENTENCE", "([a-zA-Z ]+)"
     );
 
     public static final Map<Class<?>, CommandType> CommandTypes = Map.of(
-            String.class, new CommandType(String.class, "WORD", "([a-zA-Z]+)", s -> s),
-            int.class, new CommandType(int.class, "INT", "(-?\\d+)", Integer::parseInt),
-            float.class, new CommandType(float.class, "FLOAT", "(-?\\d+\\.?\\d*)", Float::parseFloat),
-            double.class, new CommandType(double.class, "DOUBLE", "(-?\\d+\\.?\\d*)", Double::parseDouble),
-            char.class, new CommandType(char.class, "CHAR", "([a-zA-Z])", s -> s.charAt(0))
+        String.class, new CommandType(String.class, "WORD", "([a-zA-Z]+)", s -> s),
+        int.class, new CommandType(int.class, "INT", "(-?\\d+)", Integer::parseInt),
+        float.class, new CommandType(float.class, "FLOAT", "(-?\\d+\\.?\\d*)", Float::parseFloat),
+        double.class, new CommandType(double.class, "DOUBLE", "(-?\\d+\\.?\\d*)", Double::parseDouble),
+        char.class, new CommandType(char.class, "CHAR", "([a-zA-Z])", s -> s.charAt(0))
     );
 
     private static final Map<Class<?>, CustomParameterType> CustomParameterTypes = new HashMap<>();
@@ -55,8 +58,8 @@ public final class CommandManager extends ListenerAdapter
     {
         for (Object object : objects) {
             this.registerCommandMethods(Utilities.getAnnotatedMethods(
-                    object.getClass(), Command.class, false),
-                    object);
+                object.getClass(), Command.class, false),
+                object);
         }
         return this;
     }
@@ -97,13 +100,13 @@ public final class CommandManager extends ListenerAdapter
             event.getChannel().sendMessage(
                 this.buildHelpMessage(
                     new EmbedBuilder().setColor(Color.cyan).setTitle("HALP"), commandAlias)
-                .build())
+                    .build())
                 .queue();
         }
     }
 
     private boolean handleCommandMethodRegexCall(CommandMethod command, MessageReceivedEvent event, String commandContent)
-            throws InvocationTargetException
+        throws InvocationTargetException
     {
         Matcher matcher = command.getCommand().matcher(commandContent);
         if (matcher.lookingAt()) {
@@ -111,14 +114,15 @@ public final class CommandManager extends ListenerAdapter
             Object[] parameters = new Object[parameterTypes.length];
             parameters[0] = event;
 
-            this.parseValues(parameterTypes, parameters, 1,matcher, 1);
+            this.parseValues(parameterTypes, parameters, 1, matcher, 1);
             command.InvokeMethod(parameters);
             return true;
         }
         return false;
     }
 
-    private int handleCustomParameterType(CustomParameterType customParameter, Object[] parameters, int parameterIndex, Matcher matcher, int groupIndex) {
+    private int handleCustomParameterType(CustomParameterType customParameter, Object[] parameters, int parameterIndex, Matcher matcher, int groupIndex)
+    {
         Constructor<?> constructor = customParameter.getType().getDeclaredConstructors()[0];
 
         Object[] constructorParameters = new Object[constructor.getParameterCount()];
@@ -128,13 +132,14 @@ public final class CommandManager extends ListenerAdapter
             parameters[parameterIndex] = constructor.newInstance(constructorParameters);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             handle(e, String.format("There was an error trying to create an instance of %s",
-                    customParameter.getType().getSimpleName()));
+                customParameter.getType().getSimpleName()));
         }
 
         return groupIndex;
     }
 
-    private int parseValues(Class<?>[] parameterTypes, Object[] parameters, int startParameterIndex, Matcher matcher, int groupIndex) {
+    private int parseValues(Class<?>[] parameterTypes, Object[] parameters, int startParameterIndex, Matcher matcher, int groupIndex)
+    {
         for (int parameterIndex = startParameterIndex; parameterIndex < parameterTypes.length; parameterIndex++) {
             String match = matcher.group(groupIndex);
             Class<?> currentParameter = parameterTypes[parameterIndex];
@@ -142,8 +147,7 @@ public final class CommandManager extends ListenerAdapter
             if (CommandTypes.containsKey(currentParameter)) {
                 parameters[parameterIndex] = CommandTypes.get(currentParameter).getTypeParser().apply(match);
                 groupIndex++;
-            }
-            else if (CustomParameterTypes.containsKey(currentParameter)) {
+            } else if (CustomParameterTypes.containsKey(currentParameter)) {
                 CustomParameterType customParameter = CustomParameterTypes.get(currentParameter);
                 groupIndex = this.handleCustomParameterType(customParameter, parameters, parameterIndex, matcher, groupIndex);
             }
@@ -151,7 +155,8 @@ public final class CommandManager extends ListenerAdapter
         return groupIndex;
     }
 
-    private EmbedBuilder buildHelpMessage(EmbedBuilder builder, String commandAlias) {
+    private EmbedBuilder buildHelpMessage(EmbedBuilder builder, String commandAlias)
+    {
         builder.addField("Command", commandAlias, true);
 
         //Couldn't find a command that matched
@@ -166,7 +171,7 @@ public final class CommandManager extends ListenerAdapter
     private void registerCommandMethods(List<Method> methods, Object object)
     {
         String defaultPrefix = Utilities.getAnnotationFieldElse(
-                object, CommandGroup.class, CommandGroup::defaultPrefix, "");
+            object, CommandGroup.class, CommandGroup::defaultPrefix, "");
         boolean hasDefaultPrefix = !Utilities.isEmpty(defaultPrefix);
 
         for (Method method : methods) {
@@ -176,7 +181,7 @@ public final class CommandManager extends ListenerAdapter
 
             if (!hasDefaultPrefix && !hasPrefix)
                 throw new IllegalCommandException(
-                        String.format("There's no default prefix for the method %s, so the command must define one.", method.getName()));
+                    String.format("There's no default prefix for the method %s, so the command must define one.", method.getName()));
 
             String commandAlias = hasPrefix ? annotation.prefix() : defaultPrefix + annotation.alias();
 
@@ -188,18 +193,9 @@ public final class CommandManager extends ListenerAdapter
         }
     }
 
-    public static String formatCommand(String command) {
-        boolean contains;
-        do {
-            //An inefficient way to check for multi-level custom parameters, e.g: SQUARE might use SHAPE in its command.
-            contains = false;
-            for (CustomParameterType customParameter : CustomParameterTypes.values()) {
-                if (command.contains(customParameter.getTypeAlias())) {
-                    command = command.replace(customParameter.getTypeAlias(), customParameter.getTypeConstructor());
-                    contains = true;
-                }
-            }
-        } while (contains);
+    public static String formatCommand(String command)
+    {
+        command = formatCustomTypes(command);
 
         //For SENTENCE
         for (String key : CommandRegex.keySet()) {
@@ -216,14 +212,24 @@ public final class CommandManager extends ListenerAdapter
 
             if (0 != noncaptureIndex && ' ' == command.charAt(noncaptureIndex - 1)) {
                 command = Utilities.replaceFirst(command, "> ", ")? ?");
-            }
-            else {
+            } else {
                 command = Utilities.replaceFirst(command, ">", ")?");
             }
             command = Utilities.replaceFirst(command, "<", "(?:");
         }
 
         return "^" + command;
+    }
+
+    private static String formatCustomTypes(String command)
+    {
+        for (CustomParameterType customParameter : CustomParameterTypes.values()) {
+            if (command.contains(customParameter.getTypeAlias())) {
+                command = command.replace(customParameter.getTypeAlias(),
+                    formatCustomTypes(customParameter.getTypeConstructor()));
+            }
+        }
+        return command;
     }
 
     public static void registerCustomParameterType(Class<?>... customParameters)
@@ -235,6 +241,25 @@ public final class CommandManager extends ListenerAdapter
             }
 
         }
+    }
+
+    public static String automaticallyGenerateCommand(Class<?>[] parameterTypes) {
+        List<String> constructorString = new ArrayList<>();
+        for (Class<?> parameterType : parameterTypes) {
+            //These are manually passed and don't need to be included in the command
+            if (parameterType.isAssignableFrom(MessageReceivedEvent.class))
+                continue;
+
+            if (CommandManager.CommandTypes.containsKey(parameterType)) {
+                constructorString.add(CommandManager.CommandTypes.get(parameterType).getAlias());
+            } else {
+                throw new IllegalCustomParameterException(
+                    String.format("The type %s is not a default type. The command must be explicitly defined " +
+                        "in the annotation if it uses custom types", parameterType.getSimpleName()));
+            }
+        }
+
+        return String.join(" ", constructorString);
     }
 
     public static void handle(Throwable e)
@@ -259,17 +284,17 @@ public final class CommandManager extends ListenerAdapter
 
         if (e instanceof UnimplementedFeatureException) {
             unimplementedFeatureEmbed(event, e.getMessage());
-        }
-        else e.printStackTrace();
+        } else e.printStackTrace();
     }
 
-    public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message) {
+    public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message)
+    {
         event.getChannel().sendMessage(
-                new EmbedBuilder().setTitle(":confounded: Sorry...")
+            new EmbedBuilder().setTitle(":confounded: Sorry...")
                 .setColor(Color.red)
                 .addField("This feature is not implemented yet", message, false)
                 .build())
-                .queue();
+            .queue();
 
     }
 }

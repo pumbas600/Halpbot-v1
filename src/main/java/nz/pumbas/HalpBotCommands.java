@@ -22,12 +22,12 @@ public class HalpBotCommands
     public void onSource(MessageReceivedEvent event)
     {
         event.getChannel().sendMessage("You can see the source code for me here: " +
-                "https://github.com/pumbas600/HalpBot :kissing_heart:").queue();
+            "https://github.com/pumbas600/HalpBot :kissing_heart:").queue();
     }
 
     @Command(alias = "components", command = "DOUBLE<n|N> <at> DOUBLE <from> (x|y)",
              description = "Splits a force into its x and y components:\n" +
-                    "magnitude(N) <at> angle(degrees) <from> x|y")
+                 "magnitude(N) <at> angle(degrees) <from> x|y")
     public void onComponents(MessageReceivedEvent event, double magnitude, double angle, String axis)
     {
         boolean fromX = "x".equals(axis) || "x-axis".equals(axis);
@@ -38,13 +38,15 @@ public class HalpBotCommands
 
     @Command(alias = "shape", command = "SHAPE",
              description = "Creates a shape object from a name and a number of sides")
-    public void onShape(MessageReceivedEvent event, Shape shape) {
+    public void onShape(MessageReceivedEvent event, Shape shape)
+    {
         event.getChannel()
-                .sendMessage("You defined the shape " + shape.getName() + " with " + shape.getSides() + " sides!").queue();
+            .sendMessage("You defined the shape " + shape.getName() + " with " + shape.getSides() + " sides!").queue();
     }
 
     @Command(alias = "ping")
-    public void onPing() {
+    public void onPing()
+    {
         throw new UnimplementedFeatureException("This is still a work in progress, we'll try and get it finished as soon as possible!");
     }
 }
