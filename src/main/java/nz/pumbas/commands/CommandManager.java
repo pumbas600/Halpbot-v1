@@ -2,51 +2,48 @@ package nz.pumbas.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
+import nz.pumbas.commands.Annotations.CustomParameter;
 import nz.pumbas.commands.Exceptions.IllegalCommandException;
+import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.utilities.Utilities;
 
 public final class CommandManager extends ListenerAdapter
 {
-    //TODO: Custom types (using named groups?) Will need an ID: e.g: SHAPE, regex (can use INT, FLOAT),
-    //TODO: Class<T>, Function<String,T>
-    //TODO: Multiple commands with same alias but different command string
+    //TODO: varargs
     //TODO: Optional arguments
 
-    private static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
-        String.class, s -> s,
-        int.class, Integer::parseInt,
-        float.class, Float::parseFloat,
-        double.class, Double::parseDouble,
-        char.class, s -> s.charAt(0)
-    );
-    private static final Map<String, String> CustomTypesRegex = new HashMap<>();
-
-    private static final Map<String, String> CommandRegex = Map.of(
-            "INT", "(\\d+)",
-            "FLOAT", "(\\d+\\.?\\d*)",
-            "DOUBLE", "(\\d+\\.?\\d*)",
-            "WORD", "([a-zA-Z]+)",
-            "SENTENCE", "([a-zA-Z ]+)",
-            "CHAR", "([a-zA-Z])"
+    public static final Map<String, String> CommandRegex = Map.of(
+            "SENTENCE", "([a-zA-Z ]+)"
     );
 
-    private final Map<String, CommandMethod> registeredCommands;
+    public static final Map<Class<?>, CommandType> CommandTypes = Map.of(
+            String.class, new CommandType(String.class, "WORD", "([a-zA-Z]+)", s -> s),
+            int.class, new CommandType(int.class, "INT", "(-?\\d+)", Integer::parseInt),
+            float.class, new CommandType(float.class, "FLOAT", "(-?\\d+\\.?\\d*)", Float::parseFloat),
+            double.class, new CommandType(double.class, "DOUBLE", "(-?\\d+\\.?\\d*)", Double::parseDouble),
+            char.class, new CommandType(char.class, "CHAR", "([a-zA-Z])", s -> s.charAt(0))
+    );
+
+    private static final Map<Class<?>, CustomParameterType> CustomParameterTypes = new HashMap<>();
+
+
+    private final Map<String, List<CommandMethod>> registeredCommands;
 
     public CommandManager(JDABuilder builder)
     {
@@ -73,54 +70,97 @@ public final class CommandManager extends ListenerAdapter
         String commandAlias = splitText[0];
 
         if (this.registeredCommands.containsKey(commandAlias)) {
-            CommandMethod command = this.registeredCommands.get(commandAlias);
-
-            if (!command.hasParamaters()) {
-                command.InvokeMethod();
-                return;
-            }
-
-            if (!command.hasCommand()) {
-                command.InvokeMethod(event);
-                return;
-            }
-
-            if (1 < splitText.length) {
-                String content = splitText[1];
-
-                Matcher matcher = command.getCommand().matcher(content);
-                if (matcher.lookingAt()) {
-                    Class<?>[] parameters = command.getMethod().getParameterTypes();
-                    Object[] args = new Object[parameters.length];
-                    args[0] = event;
-
-                    for (int i = 1; i <= Math.min(matcher.groupCount(), parameters.length); i++) {
-                        String match = matcher.group(i);
-                        Object argValue = null;
-
-                        if (null != match && TypeParsers.containsKey(parameters[i])) {
-                            argValue = TypeParsers.get(parameters[i]).apply(match);
+            for (CommandMethod command : this.registeredCommands.get(commandAlias)) {
+                try {
+                    if (1 == splitText.length) {
+                        if (!command.hasParamaters()) {
+                            command.InvokeMethod();
+                            return;
                         }
-                        args[i] = argValue;
-                    }
 
-                    command.InvokeMethod(args);
+                        if (!command.hasCommand()) {
+                            command.InvokeMethod(event);
+                            return;
+                        }
+                    } else {
+                        String content = splitText[1];
+
+                        if (this.handleCommandMethodRegexCall(command, event, content))
+                            return;
+                    }
+                } catch (InvocationTargetException e) {
+                    handle(event, e.getTargetException());
                     return;
                 }
             }
-
-            String helpMessage = command.hasHelp() ? command.getHelp() : "Your command doesn't seem to have been formated correctly.";
-
-            MessageEmbed help = new EmbedBuilder()
-                    .setColor(Color.cyan)
-                    .setTitle("HALP")
-                    .addField("Command", commandAlias, true)
-                    .addBlankField(true)
-                    .addField("Description", helpMessage, true)
-                    .build();
-
-            event.getChannel().sendMessage(help).queue();
+            //Couldn't find a matching command
+            event.getChannel().sendMessage(
+                this.buildHelpMessage(
+                    new EmbedBuilder().setColor(Color.cyan).setTitle("HALP"), commandAlias)
+                .build())
+                .queue();
         }
+    }
+
+    private boolean handleCommandMethodRegexCall(CommandMethod command, MessageReceivedEvent event, String commandContent)
+            throws InvocationTargetException
+    {
+        Matcher matcher = command.getCommand().matcher(commandContent);
+        if (matcher.lookingAt()) {
+            Class<?>[] parameterTypes = command.getMethod().getParameterTypes();
+            Object[] parameters = new Object[parameterTypes.length];
+            parameters[0] = event;
+
+            this.parseValues(parameterTypes, parameters, 1,matcher, 1);
+            command.InvokeMethod(parameters);
+            return true;
+        }
+        return false;
+    }
+
+    private int handleCustomParameterType(CustomParameterType customParameter, Object[] parameters, int parameterIndex, Matcher matcher, int groupIndex) {
+        Constructor<?> constructor = customParameter.getType().getDeclaredConstructors()[0];
+
+        Object[] constructorParameters = new Object[constructor.getParameterCount()];
+        groupIndex = this.parseValues(constructor.getParameterTypes(), constructorParameters, 0, matcher, groupIndex);
+
+        try {
+            parameters[parameterIndex] = constructor.newInstance(constructorParameters);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            handle(e, String.format("There was an error trying to create an instance of %s",
+                    customParameter.getType().getSimpleName()));
+        }
+
+        return groupIndex;
+    }
+
+    private int parseValues(Class<?>[] parameterTypes, Object[] parameters, int startParameterIndex, Matcher matcher, int groupIndex) {
+        for (int parameterIndex = startParameterIndex; parameterIndex < parameterTypes.length; parameterIndex++) {
+            String match = matcher.group(groupIndex);
+            Class<?> currentParameter = parameterTypes[parameterIndex];
+
+            if (CommandTypes.containsKey(currentParameter)) {
+                parameters[parameterIndex] = CommandTypes.get(currentParameter).getTypeParser().apply(match);
+                groupIndex++;
+            }
+            else if (CustomParameterTypes.containsKey(currentParameter)) {
+                CustomParameterType customParameter = CustomParameterTypes.get(currentParameter);
+                groupIndex = this.handleCustomParameterType(customParameter, parameters, parameterIndex, matcher, groupIndex);
+            }
+        }
+        return groupIndex;
+    }
+
+    private EmbedBuilder buildHelpMessage(EmbedBuilder builder, String commandAlias) {
+        builder.addField("Command", commandAlias, true);
+
+        //Couldn't find a command that matched
+        this.registeredCommands.get(commandAlias).forEach(c -> {
+            String description = c.hasDescription() ? c.getDescription() : "This command doesn't have a description.";
+            builder.addField("Description", description, false);
+        });
+
+        return builder;
     }
 
     private void registerCommandMethods(List<Method> methods, Object object)
@@ -130,6 +170,7 @@ public final class CommandManager extends ListenerAdapter
         boolean hasDefaultPrefix = !Utilities.isEmpty(defaultPrefix);
 
         for (Method method : methods) {
+            method.setAccessible(true);
             Command annotation = method.getAnnotation(Command.class);
             boolean hasPrefix = !Utilities.isEmpty(annotation.prefix());
 
@@ -139,21 +180,34 @@ public final class CommandManager extends ListenerAdapter
 
             String commandAlias = hasPrefix ? annotation.prefix() : defaultPrefix + annotation.alias();
 
+            CommandMethod commandMethod = new CommandMethod(method, object, annotation);
             if (this.registeredCommands.containsKey(commandAlias))
-                throw new IllegalCommandException(
-                        String.format("There is already a command registered with the alias %s.", commandAlias));
-
-            this.registeredCommands.put(commandAlias, new CommandMethod(method, object, annotation));
+                this.registeredCommands.get(commandAlias).add(commandMethod);
+            else
+                this.registeredCommands.put(commandAlias, List.of(commandMethod));
         }
     }
 
     public static String formatCommand(String command) {
-        for (String key : CustomTypesRegex.keySet()) {
+        boolean contains;
+        do {
+            //An inefficient way to check for multi-level custom parameters, e.g: SQUARE might use SHAPE in its command.
+            contains = false;
+            for (CustomParameterType customParameter : CustomParameterTypes.values()) {
+                if (command.contains(customParameter.getTypeAlias())) {
+                    command = command.replace(customParameter.getTypeAlias(), customParameter.getTypeConstructor());
+                    contains = true;
+                }
+            }
+        } while (contains);
+
+        //For SENTENCE
+        for (String key : CommandRegex.keySet()) {
             command = command.replace(key, CommandRegex.get(key));
         }
 
-        for (String key : CommandRegex.keySet()) {
-            command = command.replace(key, CommandRegex.get(key));
+        for (CommandType commandType : CommandTypes.values()) {
+            command = command.replace(commandType.getAlias(), commandType.getCommand());
         }
 
         //Turns the optional non-capture formatting <...> into REGEX
@@ -172,10 +226,50 @@ public final class CommandManager extends ListenerAdapter
         return "^" + command;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> void RegisterCustomCommandType(String name, Class<T> type, Function<String, T> parser, String regex)
+    public static void registerCustomParameterType(Class<?>... customParameters)
     {
-        TypeParsers.put(type, (Function<String, Object>) parser);
-        CustomTypesRegex.put(name, String.format("(?<%s>%s)", name, regex));
+        for (Class<?> clazz : customParameters) {
+            if (clazz.isAnnotationPresent(CustomParameter.class)) {
+                CustomParameter customParameter = clazz.getAnnotation(CustomParameter.class);
+                CustomParameterTypes.put(clazz, new CustomParameterType(clazz, customParameter));
+            }
+
+        }
+    }
+
+    public static void handle(Throwable e)
+    {
+        handle(null, e, null);
+    }
+
+    public static void handle(MessageReceivedEvent event, Throwable e)
+    {
+        handle(event, e, null);
+    }
+
+    public static void handle(Throwable e, String message)
+    {
+        handle(null, e, message);
+    }
+
+    public static void handle(MessageReceivedEvent event, Throwable e, String message)
+    {
+        if (null != message)
+            System.out.println(message);
+
+        if (e instanceof UnimplementedFeatureException) {
+            unimplementedFeatureEmbed(event, e.getMessage());
+        }
+        else e.printStackTrace();
+    }
+
+    public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message) {
+        event.getChannel().sendMessage(
+                new EmbedBuilder().setTitle(":confounded: Sorry...")
+                .setColor(Color.red)
+                .addField("This feature is not implemented yet", message, false)
+                .build())
+                .queue();
+
     }
 }

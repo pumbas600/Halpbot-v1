@@ -2,6 +2,7 @@ package nz.pumbas.commands;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
@@ -33,13 +34,13 @@ public class CommandMethod
         }
     }
 
-    public void InvokeMethod(Object... args)
+    public void InvokeMethod(Object... args) throws InvocationTargetException
     {
         try {
             this.method.invoke(this.object, args);
-        } catch (java.lang.IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
-            System.out.println("There was an error invoking the command method");
-            e.printStackTrace();
+        } catch (java.lang.IllegalAccessException e) {
+            CommandManager.handle(e, String.format("There was an error invoking the command method, %s",
+                    this.method.getName()));
         }
     }
 
@@ -48,8 +49,8 @@ public class CommandMethod
         return this.method;
     }
 
-    public @NotNull String getHelp() {
-        return this.commandAnotation.help();
+    public @NotNull String getDescription() {
+        return this.commandAnotation.description();
     }
 
     public Pattern getCommand()
@@ -66,7 +67,7 @@ public class CommandMethod
         return 0 != this.method.getParameterCount();
     }
 
-    public boolean hasHelp() {
-        return !Utilities.isEmpty(this.getHelp());
+    public boolean hasDescription() {
+        return !Utilities.isEmpty(this.getDescription());
     }
 }
