@@ -20,15 +20,15 @@ nz/pumbas/commands/CustomParameterType.java
  nz.pumbas.commands.CustomParameterType
 nz/pumbas/customparameters/Shape.java
  nz.pumbas.customparameters.Shape
-nz/pumbas/HalpBot.java
- nz.pumbas.HalpBot
-nz/pumbas/HalpBotCommands.java
- nz.pumbas.HalpBotCommands
+nz/pumbas/utilities/functionalinterfaces/IOFunction.java
+ nz.pumbas.utilities.functionalinterfaces.IOFunction
+nz/pumbas/commands/Exceptions/IllegalCommandException.java
+ nz.pumbas.commands.Exceptions.IllegalCommandException
 nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod
 nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
-nz/pumbas/commands/Exceptions/IllegalCommandException.java
- nz.pumbas.commands.Exceptions.IllegalCommandException
-nz/pumbas/utilities/functionalinterfaces/IOFunction.java
- nz.pumbas.utilities.functionalinterfaces.IOFunction
+nz/pumbas/HalpBot.java
+ nz.pumbas.HalpBot
+nz/pumbas/HalpBotCommands.java
+ nz.pumbas.HalpBotCommands

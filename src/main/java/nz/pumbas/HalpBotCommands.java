@@ -25,6 +25,12 @@ public class HalpBotCommands
             "https://github.com/pumbas600/HalpBot :kissing_heart:").queue();
     }
 
+    @Command(alias = "suggestion")
+    public void onSuggestion(MessageReceivedEvent event) {
+        event.getChannel().sendMessage("You can note issues and suggestions for me here: " +
+            "https://github.com/pumbas600/HalpBot/issues").queue();
+    }
+
     @Command(alias = "components", command = "DOUBLE<n|N> <at> DOUBLE <from> (x|y)",
              description = "Splits a force into its x and y components:\n" +
                  "magnitude(N) <at> angle(degrees) <from> x|y")

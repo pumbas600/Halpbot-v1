@@ -18,23 +18,16 @@ public class CommandMethod
 
     //Save this, as it will be repeatedly checked
     private final boolean hasCommand;
-    private Pattern command;
+    private final Pattern command;
 
-    public CommandMethod(@NotNull Method method, @NotNull Object object, @NotNull Command commandAnnotation)
+    public CommandMethod(@NotNull Method method, @NotNull Object object, @NotNull Command commandAnnotation,
+                         boolean hasCommand, Pattern command)
     {
         this.method = method;
         this.object = object;
         this.commandAnotation = commandAnnotation;
-
-        this.hasCommand = 1 < method.getParameterCount();
-
-        if (this.hasCommand) {
-            String command = Utilities.isEmpty(commandAnnotation.command())
-                ? CommandManager.automaticallyGenerateCommand(method.getParameterTypes())
-                : commandAnnotation.command();
-
-            this.command = Pattern.compile(CommandManager.formatCommand(command));
-        }
+        this.hasCommand = hasCommand;
+        this.command = command;
     }
 
     public void InvokeMethod(Object... args) throws InvocationTargetException
