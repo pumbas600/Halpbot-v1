@@ -33,7 +33,7 @@ public final class CommandManager extends ListenerAdapter
     //TODO: Optional arguments
 
     public static final Map<String, String> CommandRegex = Map.of(
-        "SENTENCE", "([a-zA-Z ]+)"
+        "SENTENCE", "([\\w\\d ,\\.!\\?]+)"
     );
 
     public static final Map<Class<?>, CommandType> CommandTypes = Map.of(
@@ -286,6 +286,7 @@ public final class CommandManager extends ListenerAdapter
             else if (this.customParameterTypes.containsKey(parameterType)) {
                 constructorString.add(this.customParameterTypes.get(parameterType).getTypeAlias());
             }
+            else throw new IllegalCustomParameterException(String.format("Couldn't find the parameter type %s", parameterType));
         }
 
         return String.join(" ", constructorString);
