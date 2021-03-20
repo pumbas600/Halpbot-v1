@@ -2,8 +2,10 @@ package nz.pumbas.commands;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import nz.pumbas.commands.Annotations.Command;
@@ -18,16 +20,20 @@ public class CommandMethod
 
     //Save this, as it will be repeatedly checked
     private final boolean hasCommand;
+    private final String displayCommand;
     private final Pattern command;
+    private final List<Constructor<?>> constructors;
 
     public CommandMethod(@NotNull Method method, @NotNull Object object, @NotNull Command commandAnnotation,
-                         boolean hasCommand, Pattern command)
+                         boolean hasCommand, String displayCommand, Pattern command, List<Constructor<?>> constructors)
     {
         this.method = method;
         this.object = object;
         this.commandAnotation = commandAnnotation;
         this.hasCommand = hasCommand;
+        this.displayCommand = displayCommand;
         this.command = command;
+        this.constructors = constructors;
     }
 
     public void InvokeMethod(Object... args) throws InvocationTargetException
@@ -55,6 +61,10 @@ public class CommandMethod
         return this.command;
     }
 
+    public String getDisplayCommand() {
+        return this.displayCommand;
+    }
+
     public boolean hasCommand()
     {
         return this.hasCommand;
@@ -67,6 +77,11 @@ public class CommandMethod
 
     public boolean hasDescription()
     {
-        return !Utilities.isEmpty(this.getDescription());
+        return !this.getDescription().isEmpty();
+    }
+
+    public List<Constructor<?>> getConstructors()
+    {
+        return this.constructors;
     }
 }

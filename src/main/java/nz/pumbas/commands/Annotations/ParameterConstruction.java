@@ -6,10 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface CustomParameter
+@Target(ElementType.CONSTRUCTOR)
+public @interface ParameterConstruction
 {
-    String alias() default "";
-
     String constructor() default "";
 }

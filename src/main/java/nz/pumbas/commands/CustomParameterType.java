@@ -2,20 +2,19 @@ package nz.pumbas.commands;
 
 import org.jetbrains.annotations.NotNull;
 
-import nz.pumbas.commands.Annotations.CustomParameter;
-import nz.pumbas.utilities.Utilities;
+import java.util.List;
 
 public class CustomParameterType
 {
     private final @NotNull String alias;
     private final @NotNull Class<?> type;
-    private final @NotNull String constructor;
+    private final @NotNull List<ConstructorPair> constructors;
 
-    public CustomParameterType(@NotNull Class<?> type, @NotNull CustomParameter customParameter, @NotNull String constructor)
+    public CustomParameterType(@NotNull Class<?> type, @NotNull List<ConstructorPair> constructors)
     {
-        this.alias = Utilities.isEmpty(customParameter.alias()) ? type.getSimpleName().toUpperCase() : customParameter.alias();
+        this.alias = type.getSimpleName().toUpperCase();
         this.type = type;
-        this.constructor = constructor;
+        this.constructors = constructors;
     }
 
     public @NotNull String getTypeAlias()
@@ -23,9 +22,9 @@ public class CustomParameterType
         return this.alias;
     }
 
-    public @NotNull String getTypeConstructor()
+    public @NotNull List<ConstructorPair> getTypeConstructors()
     {
-        return this.constructor;
+        return this.constructors;
     }
 
     public @NotNull Class<?> getType()

@@ -6,7 +6,7 @@ import nz.pumbas.utilities.Utilities;
 public class Main
 {
 
-    public static void main(String[] args) throws LoginException, InterruptedException
+    public static void main(String[] args) throws LoginException
     {
         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
     }

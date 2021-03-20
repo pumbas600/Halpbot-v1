@@ -32,8 +32,7 @@ public class HalpBotCommands
     }
 
     @Command(alias = "components", command = "DOUBLE<n|N> <at> DOUBLE <from> (x|y)",
-             description = "Splits a force into its x and y components:\n" +
-                 "magnitude(N) <at> angle(degrees) <from> x|y")
+             description = "Splits a force into its x and y components")
     public void onComponents(MessageReceivedEvent event, double magnitude, double angle, String axis)
     {
         boolean fromX = "x".equals(axis) || "x-axis".equals(axis);
@@ -42,12 +41,13 @@ public class HalpBotCommands
         event.getChannel().sendMessage(force.toString()).queue();
     }
 
-    @Command(alias = "shape", command = "SHAPE",
-             description = "Creates a shape object from a name and a number of sides")
-    public void onShape(MessageReceivedEvent event, Shape shape)
+    @Command(alias = "shape", description = "Creates a shape object from a name and a number of sides")
+    public void onShape(MessageReceivedEvent event, Shape shape, Shape shapeb)
     {
         event.getChannel()
-            .sendMessage("You defined the shape " + shape.getName() + " with " + shape.getSides() + " sides!").queue();
+            .sendMessage("You defined shape A as: " + shape.getName() + " with " + shape.getSides() + " sides!").queue();
+        event.getChannel()
+            .sendMessage("You defined shape B as: " + shapeb.getName() + " with " + shapeb.getSides() + " sides!").queue();
     }
 
     @Command(alias = "ping")

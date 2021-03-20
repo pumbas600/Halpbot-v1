@@ -17,10 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
-import nz.pumbas.commands.Annotations.CustomParameter;
+import nz.pumbas.commands.Annotations.ParameterConstruction;
 import nz.pumbas.commands.Exceptions.IllegalCommandException;
 import nz.pumbas.commands.Exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
@@ -31,9 +33,10 @@ public final class CommandManager extends ListenerAdapter
     //TODO: Unit Manager
     //TODO: varargs
     //TODO: Optional arguments
+    //TODO: Flags
 
     public static final Map<String, String> CommandRegex = Map.of(
-        "SENTENCE", "([\\w\\d ,\\.!\\?]+)"
+        "SENTENCE", "([\\w ,\\.!\\?]+)"
     );
 
     public static final Map<Class<?>, CommandType> CommandTypes = Map.of(
@@ -116,19 +119,31 @@ public final class CommandManager extends ListenerAdapter
             Object[] parameters = new Object[parameterTypes.length];
             parameters[0] = event;
 
-            this.parseValues(parameterTypes, parameters, 1, matcher, 1);
+            this.parseValues(parameterTypes,
+                command.getConstructors(), 0,
+                    parameters, 1,
+                    matcher, 1);
             command.InvokeMethod(parameters);
             return true;
         }
         return false;
     }
 
-    private int handleCustomParameterType(CustomParameterType customParameter, Object[] parameters, int parameterIndex, Matcher matcher, int groupIndex)
+    private int[] handleCustomParameterType(CustomParameterType customParameter,
+                                            List<Constructor<?>> customConstructors, int constructorIndex,
+                                            Object[] parameters, int parameterIndex,
+                                            Matcher matcher, int groupIndex)
     {
-        Constructor<?> constructor = customParameter.getType().getDeclaredConstructors()[0];
+        Constructor<?> constructor = customConstructors.get(constructorIndex);
+        constructorIndex++;
 
         Object[] constructorParameters = new Object[constructor.getParameterCount()];
-        groupIndex = this.parseValues(constructor.getParameterTypes(), constructorParameters, 0, matcher, groupIndex);
+        int[] result = this.parseValues(constructor.getParameterTypes(),
+            customConstructors, constructorIndex,
+            constructorParameters,0,
+            matcher,groupIndex);
+        constructorIndex = result[0];
+        groupIndex = result[1];
 
         try {
             parameters[parameterIndex] = constructor.newInstance(constructorParameters);
@@ -137,10 +152,13 @@ public final class CommandManager extends ListenerAdapter
                 customParameter.getType().getSimpleName()));
         }
 
-        return groupIndex;
+        return new int[] { constructorIndex, groupIndex} ;
     }
 
-    private int parseValues(Class<?>[] parameterTypes, Object[] parameters, int startParameterIndex, Matcher matcher, int groupIndex)
+    private int[] parseValues(Class<?>[] parameterTypes,
+                              List<Constructor<?>> customConstructors, int constructorIndex,
+                              Object[] parameters, int startParameterIndex,
+                              Matcher matcher, int groupIndex)
     {
         for (int parameterIndex = startParameterIndex; parameterIndex < parameterTypes.length; parameterIndex++) {
             String match = matcher.group(groupIndex);
@@ -151,20 +169,27 @@ public final class CommandManager extends ListenerAdapter
                 groupIndex++;
             } else if (this.customParameterTypes.containsKey(currentParameter)) {
                 CustomParameterType customParameter = this.customParameterTypes.get(currentParameter);
-                groupIndex = this.handleCustomParameterType(customParameter, parameters, parameterIndex, matcher, groupIndex);
+                int[] result = this.handleCustomParameterType(customParameter,
+                    customConstructors,constructorIndex,
+                    parameters,parameterIndex,
+                    matcher,groupIndex);
+                constructorIndex = result[0];
+                groupIndex = result[1];
             }
         }
-        return groupIndex;
+        return new int[] { constructorIndex, groupIndex };
     }
 
     private EmbedBuilder buildHelpMessage(EmbedBuilder builder, String commandAlias)
     {
-        builder.addField("Command", commandAlias, true);
+        builder.addField(Utilities.line, String.format("**Command:**    %s", commandAlias), false);
 
         //Couldn't find a command that matched
         this.registeredCommands.get(commandAlias).forEach(c -> {
             String description = c.hasDescription() ? c.getDescription() : "This command doesn't have a description.";
-            builder.addField("Description", description, false);
+            String parameters = c.hasCommand() ? c.getDisplayCommand() : "This command doesn't have any parameters.";
+            builder.addField("", String.format("**Parameters:**    %s\n**Description:**    %s", parameters,
+                description), false);
         });
 
         return builder;
@@ -174,12 +199,12 @@ public final class CommandManager extends ListenerAdapter
     {
         String defaultPrefix = Utilities.getAnnotationFieldElse(
             object, CommandGroup.class, CommandGroup::defaultPrefix, "");
-        boolean hasDefaultPrefix = !Utilities.isEmpty(defaultPrefix);
+        boolean hasDefaultPrefix = !defaultPrefix.isEmpty();
 
         for (Method method : methods) {
             method.setAccessible(true);
             Command annotation = method.getAnnotation(Command.class);
-            boolean hasPrefix = !Utilities.isEmpty(annotation.prefix());
+            boolean hasPrefix = !annotation.prefix().isEmpty();
 
             if (!hasDefaultPrefix && !hasPrefix)
                 throw new IllegalCommandException(
@@ -187,89 +212,152 @@ public final class CommandManager extends ListenerAdapter
 
             String commandAlias = hasPrefix ? annotation.prefix() : defaultPrefix + annotation.alias();
 
-            CommandMethod commandMethod = this.createCommandMethod(method, object, annotation);
-            if (this.registeredCommands.containsKey(commandAlias))
-                this.registeredCommands.get(commandAlias).add(commandMethod);
-            else
-                this.registeredCommands.put(commandAlias, List.of(commandMethod));
+            this.createCommandMethods(method, object, annotation).forEach(commandMethod -> {
+                if (this.registeredCommands.containsKey(commandAlias))
+                    this.registeredCommands.get(commandAlias).add(commandMethod);
+                else {
+                    List<CommandMethod> commandMethods = new ArrayList<>();
+                    commandMethods.add(commandMethod);
+                    this.registeredCommands.put(commandAlias, commandMethods);
+                }
+            });
         }
     }
 
-    private CommandMethod createCommandMethod(Method method, Object object, Command commandAnnotation) {
+    private List<CommandMethod> createCommandMethods(Method method, Object object, Command commandAnnotation) {
         boolean hasCommand = 1 < method.getParameterCount();
 
-        Pattern commandRegex = null;
         if (hasCommand) {
-            String command = Utilities.isEmpty(commandAnnotation.command())
+            String command = commandAnnotation.command().isEmpty()
                 ? this.automaticallyGenerateCommand(method.getParameterTypes())
                 : commandAnnotation.command();
 
-            commandRegex = Pattern.compile(this.formatCommand(command));
+            return this.formatCommand(method.getParameterTypes(), command).map(commandInfo ->
+                new CommandMethod(method, object, commandAnnotation, hasCommand,
+                    commandInfo.displayCommand, Pattern.compile(commandInfo.regexCommand), commandInfo.constructors))
+                .collect(Collectors.toList());
         }
-        return new CommandMethod(method, object, commandAnnotation, hasCommand, commandRegex);
+        return List.of(
+            new CommandMethod(method, object, commandAnnotation,
+                hasCommand, null, null, null));
     }
 
-    public String formatCommand(String command)
+    private Stream<CommandInfo> formatCommand(Class<?>[] parameterTypes, String command)
     {
-        command = this.formatCustomTypes(command);
+        return this.generateCommandInfo(parameterTypes,command)
+            .stream()
+            .peek(commandInfo -> {
+                //For SENTENCE
+                for (String key : CommandRegex.keySet()) {
+                    commandInfo.regexCommand = commandInfo.regexCommand.replace(key, CommandRegex.get(key));
+                }
 
-        //For SENTENCE
-        for (String key : CommandRegex.keySet()) {
-            command = command.replace(key, CommandRegex.get(key));
-        }
+                for (CommandType commandType : CommandTypes.values()) {
+                    commandInfo.regexCommand = commandInfo.regexCommand.replace(commandType.getAlias(), commandType.getCommand());
+                }
 
-        for (CommandType commandType : CommandTypes.values()) {
-            command = command.replace(commandType.getAlias(), commandType.getCommand());
-        }
+                //Turns the optional non-capture formatting <...> into REGEX
+                int noncaptureIndex;
+                while (-1 != (noncaptureIndex = commandInfo.regexCommand.indexOf('<'))) {
 
-        //Turns the optional non-capture formatting <...> into REGEX
-        int noncaptureIndex;
-        while (-1 != (noncaptureIndex = command.indexOf('<'))) {
+                    commandInfo.regexCommand = (0 != noncaptureIndex && ' ' == commandInfo.regexCommand.charAt(noncaptureIndex - 1) )
+                        ? Utilities.replaceFirst(commandInfo.regexCommand, "> ", ")? ?")
+                        : Utilities.replaceFirst(commandInfo.regexCommand, ">", ")?");
 
-            if (0 != noncaptureIndex && ' ' == command.charAt(noncaptureIndex - 1)) {
-                command = Utilities.replaceFirst(command, "> ", ")? ?");
-            } else {
-                command = Utilities.replaceFirst(command, ">", ")?");
-            }
-            command = Utilities.replaceFirst(command, "<", "(?:");
-        }
+                    commandInfo.regexCommand = Utilities.replaceFirst(commandInfo.regexCommand, "<", "(?:");
+                }
 
-        return "^" + command;
+                commandInfo.regexCommand = "^" + commandInfo.regexCommand;
+            });
     }
 
-    private String formatCustomTypes(String command)
-    {
-        for (CustomParameterType customParameter : this.customParameterTypes.values()) {
-            if (command.contains(customParameter.getTypeAlias())) {
-                command = command.replace(customParameter.getTypeAlias(),
-                    this.formatCustomTypes(customParameter.getTypeConstructor()));
+//    private List<CommandInfo> generateCommandInfo(String command)
+//    {
+//        return this.generateCommandInfo(List.of(command));
+//    }
+//
+//    //I barely understand whats happening here, so this will definitely need to be reworked at some point...
+//    private List<CommandInfo> generateCommandInfo(List<String> commands) {
+//        List<CommandInfo> results = new ArrayList<>();
+//        for (String command : commands) {
+//            for (CustomParameterType customParameter : this.customParameterTypes.values()) {
+//                if (!command.contains(customParameter.getTypeAlias())) continue;
+//
+//                for (CommandInfo constructor : this.generateCommandInfo(customParameter.getTypeConstructors())) {
+//                    CommandInfo commandInfo = new CommandInfo(
+//                        command.replace(customParameter.getTypeAlias(),constructor.regexCommand),
+//                        command.replace(customParameter.getTypeAlias(),
+//                            String.format("%s [%s]", customParameter.getTypeAlias(), constructor.displayCommand)),
+//                        constructor.parameterTypes);
+//                    results.add(commandInfo);
+//                }
+//            }
+//        }
+//        if (results.isEmpty())
+//            results.addAll(
+//                commands.stream()
+//                    .map(c -> new CommandInfo(c, c))
+//                    .collect(Collectors.toList()));
+//        return results;
+//    }
+
+    //I barely understand whats happening here, so this will definitely need to be reworked at some point...
+    private List<CommandInfo> generateCommandInfo(Class<?>[] parameterTypes,
+                                                  String command) {
+        List<CommandInfo> results = new ArrayList<>();
+        results.add(new CommandInfo(command, command));
+        for (Class<?> parameterType : parameterTypes) {
+            if (!this.customParameterTypes.containsKey(parameterType)) continue;
+
+            CustomParameterType customParameter = this.customParameterTypes.get(parameterType);
+            List<CommandInfo> resultCopy = new ArrayList<>(results);
+            List<CommandInfo> tempResults = new ArrayList<>();
+            for (ConstructorPair constructorPair : customParameter.getTypeConstructors()) {
+                this.generateCommandInfo(constructorPair.constructor.getParameterTypes(), constructorPair.constructorRegex)
+                    .forEach(ci ->
+                        resultCopy.forEach(resultCI-> {
+                            CommandInfo commandInfo = new CommandInfo(
+                                Utilities.replaceFirst(resultCI.regexCommand, customParameter.getTypeAlias(), ci.regexCommand),
+                                Utilities.replaceFirst(resultCI.displayCommand, customParameter.getTypeAlias(),
+                                    String.format("%s[%s] ", Utilities.capitalise(customParameter.getTypeAlias()),
+                                        ci.displayCommand)));
+                            commandInfo.constructors.addAll(resultCI.constructors);
+                            commandInfo.constructors.add(constructorPair.constructor);
+                            commandInfo.constructors.addAll(ci.constructors);
+                            tempResults.add(commandInfo);
+                        })
+                    );
             }
+            results = tempResults;
         }
-        return command;
+        return results;
     }
 
     private void registerCustomParameterType(Class<?>... customParameters)
     {
         for (Class<?> clazz : customParameters) {
-            if (clazz.isAnnotationPresent(CustomParameter.class)) {
-                CustomParameter customParameter = clazz.getAnnotation(CustomParameter.class);
+            if (0 == clazz.getDeclaredConstructors().length)
+                throw new IllegalCustomParameterException(
+                    String.format("The custom parameter type %s, must define a constructor", clazz.getSimpleName()));
 
-                if (0 == clazz.getDeclaredConstructors().length)
-                    throw new IllegalCustomParameterException(
-                        String.format("The custom parameter type %s, must define a constructor", clazz.getSimpleName()));
+            List<ConstructorPair> constructors = new ArrayList<>();
+            for (Constructor<?> constructor : clazz.getConstructors()) {
+                if (!constructor.isAnnotationPresent(ParameterConstruction.class)) continue;
 
-                Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
+                ParameterConstruction parameterConstruction = constructor.getAnnotation(ParameterConstruction.class);
                 constructor.setAccessible(true);
 
-                String constructorString = Utilities.isEmpty(customParameter.constructor())
+                String constructorRegex = parameterConstruction.constructor().isEmpty()
                     ? this.automaticallyGenerateCommand(constructor.getParameterTypes())
-                    : customParameter.constructor();
+                    : parameterConstruction.constructor();
 
-                CustomParameterType customParameterType = new CustomParameterType(clazz, customParameter,
-                    constructorString);
-                this.customParameterTypes.put(clazz, customParameterType);
+                constructors.add(new ConstructorPair(constructorRegex, constructor));
             }
 
+            if (constructors.isEmpty()) continue;
+
+            CustomParameterType customParameterType = new CustomParameterType(clazz, constructors);
+            this.customParameterTypes.put(clazz, customParameterType);
         }
     }
 
@@ -325,6 +413,5 @@ public final class CommandManager extends ListenerAdapter
                 .addField("This feature is not implemented yet", message, false)
                 .build())
             .queue();
-
     }
 }

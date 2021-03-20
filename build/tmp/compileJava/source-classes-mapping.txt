@@ -1,13 +1,13 @@
+nz/pumbas/commands/ConstructorPair.java
+ nz.pumbas.commands.ConstructorPair
 nz/pumbas/utilities/Vector2.java
  nz.pumbas.utilities.Vector2
-nz/pumbas/commands/CommandManager.java
- nz.pumbas.commands.CommandManager
+nz/pumbas/utilities/functionalinterfaces/IOFunction.java
+ nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/Annotations/CommandGroup.java
  nz.pumbas.commands.Annotations.CommandGroup
 nz/pumbas/commands/Exceptions/IllegalCustomParameterException.java
  nz.pumbas.commands.Exceptions.IllegalCustomParameterException
-nz/pumbas/commands/Annotations/CustomParameter.java
- nz.pumbas.commands.Annotations.CustomParameter
 nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
 nz/pumbas/commands/Exceptions/UnimplementedFeatureException.java
@@ -16,19 +16,23 @@ nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
 nz/pumbas/Main.java
  nz.pumbas.Main
+nz/pumbas/commands/Annotations/ParameterConstruction.java
+ nz.pumbas.commands.Annotations.ParameterConstruction
 nz/pumbas/commands/CustomParameterType.java
  nz.pumbas.commands.CustomParameterType
 nz/pumbas/customparameters/Shape.java
  nz.pumbas.customparameters.Shape
-nz/pumbas/utilities/functionalinterfaces/IOFunction.java
- nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/Exceptions/IllegalCommandException.java
  nz.pumbas.commands.Exceptions.IllegalCommandException
-nz/pumbas/commands/CommandMethod.java
- nz.pumbas.commands.CommandMethod
+nz/pumbas/commands/CommandInfo.java
+ nz.pumbas.commands.CommandInfo
 nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
-nz/pumbas/HalpBot.java
- nz.pumbas.HalpBot
 nz/pumbas/HalpBotCommands.java
  nz.pumbas.HalpBotCommands
+nz/pumbas/commands/CommandManager.java
+ nz.pumbas.commands.CommandManager
+nz/pumbas/HalpBot.java
+ nz.pumbas.HalpBot
+nz/pumbas/commands/CommandMethod.java
+ nz.pumbas.commands.CommandMethod

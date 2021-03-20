@@ -33,6 +33,8 @@ public final class Utilities
     public static final float halfRotation = 180F;
     public static final float quarterRotation = 90F;
 
+    public static final String line = "-----------------------------------------------------------";
+
     /**
      * Retrieves all the methods of a class with the specified annotation.
      *
@@ -286,19 +288,6 @@ public final class Utilities
     }
 
     /**
-     * Returns true if the passed string is empty.
-     *
-     * @param str
-     *     The string to check if empty
-     *
-     * @return true if the string is empty
-     */
-    public static boolean isEmpty(String str)
-    {
-        return "".equals(str);
-    }
-
-    /**
      * Replaces the first occurance of the target in the passed str with the replacement without using regex.
      *
      * @param str
@@ -325,5 +314,33 @@ public final class Utilities
         return str;
     }
 
+    /**
+     * Capitalises the first letter of the {@link String} and sets the rest of the word to lowercase.
+     *
+     * @param str
+     *      The {@link String} to capitalise
+     *
+     * @return The capitalised {@link String}
+     */
+    public static String capitalise(String str) {
+        if (null == str || str.isEmpty())
+            return str;
 
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+    /**
+     * Capitalises the first letter of each word in the {@link String} and sets the rest of the word to lowercase.
+     *
+     * @param str
+     *      The {@link String sentence} to have each word capitalised
+     *
+     * @return The capitalised sentence
+     */
+    public static String capitaliseEachWord(@NotNull String str) {
+        String[] words = str.split(" ");
+        return Arrays.stream(words)
+            .map(Utilities::capitalise)
+            .collect(Collectors.joining(" "));
+    }
 }

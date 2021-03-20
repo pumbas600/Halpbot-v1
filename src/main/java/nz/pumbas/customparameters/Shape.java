@@ -1,16 +1,23 @@
 package nz.pumbas.customparameters;
 
-import nz.pumbas.commands.Annotations.CustomParameter;
+import nz.pumbas.commands.Annotations.ParameterConstruction;
 
-@CustomParameter
 public class Shape
 {
     private final String name;
     private final int sides;
 
+    @ParameterConstruction
     public Shape(String name, int sides)
     {
         this.name = name;
+        this.sides = sides;
+    }
+
+    @ParameterConstruction
+    public Shape(int sides)
+    {
+        this.name = "shape";
         this.sides = sides;
     }
 
