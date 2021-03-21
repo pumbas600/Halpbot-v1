@@ -1,19 +1,23 @@
 package nz.pumbas.utilities;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
@@ -37,6 +41,14 @@ public final class Utilities
     public static final float quarterRotation = 90F;
 
     public static final String line = "-----------------------------------------------------------";
+
+    public static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
+        String.class,s -> s,
+        int.class,Integer::parseInt,
+        float.class,Float::parseFloat,
+        double.class,Double::parseDouble,
+        char.class, s -> s.charAt(0)
+    );
 
     /**
      * Retrieves all the methods of a class with the specified annotation.
@@ -136,10 +148,11 @@ public final class Utilities
     }
 
     /**
-     * If an object has the specific annotation, retrieve a field using the {@link Function} otherwise return the default value.
+     * If a class has the specific annotation, retrieve a field using the {@link Function} otherwise return the
+     * default value.
      *
-     * @param object
-     *     The object being checked for the annotation
+     * @param target
+     *     The class being checked for the annotation
      * @param annotationClass
      *     The class of the annotation
      * @param function
@@ -151,12 +164,13 @@ public final class Utilities
      * @param <R>
      *     The type of the annotation's field being retreived
      *
-     * @return
+     * @return The annotation's field value
      */
-    public static <T extends Annotation, R> R getAnnotationFieldElse(Object object, Class<T> annotationClass, Function<T, R> function, R defaultValue)
+    public static <T extends Annotation, R> R getAnnotationFieldElse(Class<?> target, Class<T> annotationClass,
+                                                                     Function<T, R> function, R defaultValue)
     {
-        if (object.getClass().isAnnotationPresent(annotationClass)) {
-            return function.apply(object.getClass().getAnnotation(annotationClass));
+        if (target.isAnnotationPresent(annotationClass)) {
+            return function.apply(target.getAnnotation(annotationClass));
         }
         return defaultValue;
     }
@@ -202,6 +216,35 @@ public final class Utilities
         }
 
         return fields;
+    }
+
+    /**
+     * Creates an instance of an {@link Class} using its first constructor.
+     *
+     * @param clazz
+     *      The {@link Class} of the object to create an instance of
+     * @param parameters
+     *      The parameters to pass to the constructor
+     * @param <T>
+     *      The type of the object to create
+     *
+     * @return The instantiated object
+     */
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public static <T> T createInstance(Class<T> clazz, Object... parameters) {
+        try {
+            if (0 == clazz.getDeclaredConstructors().length)
+                throw new IllegalArgumentException(
+                    String.format("The class %s, needs to have atleast 1 constructor", clazz.getSimpleName()));
+
+            Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
+            constructor.setAccessible(true);
+            return (T) constructor.newInstance(parameters);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            ErrorManager.handle(e);
+        }
+        return null;
     }
 
     /**

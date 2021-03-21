@@ -21,26 +21,24 @@ public class Main
 
     public static void main(String[] args) throws LoginException
     {
-        HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
+        //HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
 
-//        StringBuilder stringBuilder = new StringBuilder(String.format("|%15s|", "Temperature"));
-//        System.out.println(stringBuilder);
+        SteamTableManager manager = Singleton.getInstance(SteamTableManager.class);
+        Connection connection = manager.connect();
+        try {
+            String whereColumn = "temperature";
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM saturated WHERE ? = ?");
+            statement.setString(1, whereColumn);
+            statement.setDouble(2, 60D);
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                System.out.println(result.getString(whereColumn) + "\t" + result.getDouble("Pressure"));
+            }
 
-//        SteamTableManager manager = Singleton.getInstance(SteamTableManager.class);
-//        Connection connection = manager.connect();
-//        try {
-//            String whereColumn = "Temperature";
-//            PreparedStatement statement = connection.prepareStatement("SELECT * FROM saturated WHERE " + whereColumn +
-//                " = ?");
-//            statement.setDouble(1, 60D);
-//            ResultSet result = statement.executeQuery();
-//            while (result.next()) {
-//                System.out.println(result.getString(whereColumn) + "\t" + result.getDouble("Pressure"));
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
 //        SteamTableManager manager = new SteamTableManager();
 //
 //        var file = Utilities.parseCSVFile("H2O_Sat.csv");

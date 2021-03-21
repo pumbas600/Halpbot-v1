@@ -13,8 +13,8 @@ import nz.pumbas.commands.Annotations.CommandGroup;
 import nz.pumbas.commands.Exceptions.ErrorMessageException;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.customparameters.Shape;
-import nz.pumbas.steamtables.ModelHelper;
-import nz.pumbas.steamtables.SaturatedSteamModel;
+import nz.pumbas.steamtables.models.ModelHelper;
+import nz.pumbas.steamtables.models.SaturatedSteamModel;
 import nz.pumbas.steamtables.SteamTableManager;
 import nz.pumbas.steamtables.annotations.Column;
 import nz.pumbas.utilities.Singleton;
@@ -75,7 +75,7 @@ public class HalpBotCommands
         embedBuilder.setTitle("Steam Table Columns");
 
         StringBuilder columns = new StringBuilder();
-        for (String column : SteamTableManager.Columns) {
+        for (String column : ModelHelper.getColumnNames(SaturatedSteamModel.class)) {
             columns.append(column).append(" (").append(
                 ModelHelper.getAnnotationFrom(SaturatedSteamModel.class, column).units())
                 .append(")\n");
@@ -92,7 +92,7 @@ public class HalpBotCommands
 
         SteamTableManager steamTableManager = Singleton.getInstance(SteamTableManager.class);
 
-        Optional<ResultSet> oResult = steamTableManager.selectRecord(
+        Optional<ResultSet> oResult = steamTableManager.selectSaturatedRecord(
             selectColumn,whereColumn,value);
         if (oResult.isPresent()) {
 
@@ -104,7 +104,8 @@ public class HalpBotCommands
             embedBuilder.setColor(Color.orange);
             embedBuilder.setTitle("Saturated Steam Look Up");
             embedBuilder.addField("Query",
-                String.format("%s, where %s = %s %s", select.displayName(), where.displayName(), value, where.units()), false);
+                String.format("Select %s where %s = %s %s", select.displayName(), where.displayName(), value,
+                    where.units()), false);
 
             StringBuilder resultBuilder = new StringBuilder();
             while (result.next()) {

@@ -203,7 +203,7 @@ public final class CommandManager extends ListenerAdapter
     private void registerCommandMethods(List<Method> methods, Object object)
     {
         String defaultPrefix = Utilities.getAnnotationFieldElse(
-            object, CommandGroup.class, CommandGroup::defaultPrefix, "");
+            object.getClass(), CommandGroup.class, CommandGroup::defaultPrefix, "");
         boolean hasDefaultPrefix = !defaultPrefix.isEmpty();
 
         for (Method method : methods) {

@@ -2,7 +2,7 @@ package nz.pumbas.steamtables;
 
 public enum SteamInserts
 {
-    SATURATED("INSERT INTO saturated(pPressure, temperature, volumeliquid, volumevapour, internalenergyliquid, " +
+    SATURATED("INSERT INTO saturated(pressure, temperature, volumeliquid, volumevapour, internalenergyliquid, " +
         "internalenergyvapour, enthalpyliquid, enthalpyvapour, entropyliquid, entropyvapour) " +
         "VALUES (?,?,?,?,?,?,?,?,?,?)");
 
