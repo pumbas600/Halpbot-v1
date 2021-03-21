@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.utilities.Utilities;
 
 public class CommandMethod
 {
@@ -41,7 +40,7 @@ public class CommandMethod
         try {
             this.method.invoke(this.object, args);
         } catch (java.lang.IllegalAccessException e) {
-            CommandManager.handle(e, String.format("There was an error invoking the command method, %s",
+            ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
                 this.method.getName()));
         }
     }

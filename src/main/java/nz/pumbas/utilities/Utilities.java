@@ -1,14 +1,16 @@
 package nz.pumbas.utilities;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.utilities.functionalinterfaces.IOFunction;
 
 public final class Utilities
@@ -179,6 +182,27 @@ public final class Utilities
         return Optional.empty();
     }
 
+    /**
+     * Retrieves all the fields of a class with the specified annotation.
+     *
+     * @param target
+     *     The class to search for fields with the specified annotation
+     * @param annotation
+     *     The annotation to check if fields have
+     *
+     * @return A {@link List} containing all the fields with the specified annotation
+     */
+    public static List<Field> getAnnotatedFields(Class<?> target, Class<? extends Annotation> annotation)
+    {
+        List<Field> fields = new ArrayList<>();
+
+        for (Field field : target.getDeclaredFields()) {
+            if (field.isAnnotationPresent(annotation))
+                fields.add(field);
+        }
+
+        return fields;
+    }
 
     /**
      * Calls a method on each element in a queue as they're dequeued.
@@ -288,6 +312,31 @@ public final class Utilities
     }
 
     /**
+     * A simple csv parser, which automatically splits the rows.
+     *
+     * @param filename
+     *      The name of the csv to parse
+     *
+     * @return A {@link List} of split rows.
+     */
+    public static List<String[]> parseCSVFile(String filename) {
+        if (!filename.endsWith(".csv"))
+            throw new IllegalArgumentException(
+                String.format("The filename, %s does not end with .csv", filename));
+
+        return parseFile(filename, bufferedReader -> {
+            List<String[]> lines = new ArrayList<>();
+
+            String line;
+            while(null != (line = bufferedReader.readLine())) {
+                lines.add(line.split(","));
+            }
+            return lines;
+
+        }, new ArrayList<>());
+    }
+
+    /**
      * Replaces the first occurance of the target in the passed str with the replacement without using regex.
      *
      * @param str
@@ -342,5 +391,37 @@ public final class Utilities
         return Arrays.stream(words)
             .map(Utilities::capitalise)
             .collect(Collectors.joining(" "));
+    }
+
+    public static String buildTable(String[] headers, String[] subrow, String[] columns, ResultSet result,
+                                    int columnWidth) {
+        StringBuilder builder = new StringBuilder();
+        String columnTemplate = "%" + columnWidth + "s";
+
+        buildRow(builder, headers, columnTemplate, "**");
+        buildRow(builder, subrow, columnTemplate, "*");
+
+        try {
+            while (result.next()) {
+                String[] row = new String[columns.length];
+                for (int i = 0; i < row.length; i++) {
+                    row[i] = result.getString(columns[i]);
+                }
+                buildRow(builder, row, columnTemplate, "");
+            }
+        } catch (SQLException e) {
+            ErrorManager.handle(e);
+        }
+        return builder.toString();
+    }
+
+    private static void buildRow(StringBuilder builder, String[] columns, String columnTemplate, String formatting) {
+        if (null == columns) return;
+
+        for (String column : columns) {
+            builder.append("|").append(formatting).append(String.format(columnTemplate, column)
+                .replace(" ","\\_")).append(formatting);
+        }
+        builder.append("|\n");
     }
 }

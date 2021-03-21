@@ -1,12 +1,24 @@
 package nz.pumbas;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.awt.Color;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Optional;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
+import nz.pumbas.commands.Exceptions.ErrorMessageException;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.customparameters.Shape;
-import nz.pumbas.utilities.Vector2;
+import nz.pumbas.steamtables.ModelHelper;
+import nz.pumbas.steamtables.SteamRow;
+import nz.pumbas.steamtables.SteamTableManager;
+import nz.pumbas.steamtables.annotations.Column;
+import nz.pumbas.utilities.Singleton;
+import nz.pumbas.customparameters.Vector2;
 
 @CommandGroup(defaultPrefix = "$")
 public class HalpBotCommands
@@ -54,5 +66,62 @@ public class HalpBotCommands
     public void onPing()
     {
         throw new UnimplementedFeatureException("This is still a work in progress, we'll try and get it finished as soon as possible!");
+    }
+
+    @Command(alias = "columns")
+    public void onSteamColumn(MessageReceivedEvent event) {
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setColor(Color.orange);
+        embedBuilder.setTitle("Steam Table Columns");
+
+        StringBuilder columns = new StringBuilder();
+        for (String column : SteamTableManager.Columns) {
+            columns.append(column).append(" (").append(
+                ModelHelper.getAnnotationFrom(SteamRow.class, column).units())
+                .append(")\n");
+        }
+        embedBuilder.addField("Columns", columns.toString(), false);
+        event.getChannel().sendMessage(embedBuilder.build()).queue();
+    }
+
+    @Command(alias = "saturated", command = "<steam> WORD,? <where|when> WORD <=|is> DOUBLE")
+    public void onSaturated(MessageReceivedEvent event, String selectColumn, String whereColumn, double value)
+        throws SQLException
+    {
+        //TODO: WITHIN when there's not an exact value
+
+        SteamTableManager steamTableManager = Singleton.getInstance(SteamTableManager.class);
+
+        Optional<ResultSet> oResult = steamTableManager.selectRecord(
+            selectColumn,whereColumn,value);
+        if (oResult.isPresent()) {
+
+            Column select =  ModelHelper.getAnnotationFrom(SteamRow.class, selectColumn);
+            Column where = ModelHelper.getAnnotationFrom(SteamRow.class, whereColumn);
+
+            ResultSet result = oResult.get();
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setColor(Color.orange);
+            embedBuilder.setTitle("Saturated Steam Look Up");
+            embedBuilder.addField("Query",
+                String.format("%s, where %s = %s %s", select.displayName(), where.displayName(), value, where.units()), false);
+
+            StringBuilder resultBuilder = new StringBuilder();
+            while (result.next()) {
+                resultBuilder
+                    .append(result.getString(selectColumn.toLowerCase()))
+                    .append(" ")
+                    .append(select.units());
+            }
+            String displayResult = resultBuilder.toString();
+            if (displayResult.isEmpty()) {
+                throw new ErrorMessageException(
+                    "There doesn't seem to be any data for that query. Are you definitely looking for saturated steam?");
+            }
+
+            embedBuilder.addField("Result", displayResult, false);
+            event.getChannel().sendMessage(embedBuilder.build()).queue();
+        }
+        else throw new ErrorMessageException("That doesn't seem to be a valid query.");
     }
 }

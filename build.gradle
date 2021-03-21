@@ -13,7 +13,8 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    compile("net.dv8tion:JDA:4.2.0_168")
+    compile "net.dv8tion:JDA:4.2.0_168"
+    implementation 'org.xerial:sqlite-jdbc:3.34.0'
 }
 
 test {

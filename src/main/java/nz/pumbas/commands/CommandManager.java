@@ -25,7 +25,6 @@ import nz.pumbas.commands.Annotations.CommandGroup;
 import nz.pumbas.commands.Annotations.ParameterConstruction;
 import nz.pumbas.commands.Exceptions.IllegalCommandException;
 import nz.pumbas.commands.Exceptions.IllegalCustomParameterException;
-import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.utilities.Utilities;
 
 public final class CommandManager extends ListenerAdapter
@@ -40,7 +39,7 @@ public final class CommandManager extends ListenerAdapter
     );
 
     public static final Map<Class<?>, CommandType> CommandTypes = Map.of(
-        String.class, new CommandType(String.class, "WORD", "([a-zA-Z]+)", s -> s),
+        String.class, new CommandType(String.class, "WORD", "([\\w]+)", s -> s),
         int.class, new CommandType(int.class, "INT", "(-?\\d+)", Integer::parseInt),
         float.class, new CommandType(float.class, "FLOAT", "(-?\\d+\\.?\\d*)", Float::parseFloat),
         double.class, new CommandType(double.class, "DOUBLE", "(-?\\d+\\.?\\d*)", Double::parseDouble),
@@ -97,7 +96,7 @@ public final class CommandManager extends ListenerAdapter
                             return;
                     }
                 } catch (InvocationTargetException e) {
-                    handle(event, e.getTargetException());
+                    ErrorManager.handle(event, e.getTargetException());
                     return;
                 }
             }
@@ -148,13 +147,14 @@ public final class CommandManager extends ListenerAdapter
         try {
             parameters[parameterIndex] = constructor.newInstance(constructorParameters);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            handle(e, String.format("There was an error trying to create an instance of %s",
+            ErrorManager.handle(e, String.format("There was an error trying to create an instance of %s",
                 customParameter.getType().getSimpleName()));
         }
 
         return new int[] { constructorIndex, groupIndex} ;
     }
 
+    @SuppressWarnings("unchecked")
     private int[] parseValues(Class<?>[] parameterTypes,
                               List<Constructor<?>> customConstructors, int constructorIndex,
                               Object[] parameters, int startParameterIndex,
@@ -164,10 +164,15 @@ public final class CommandManager extends ListenerAdapter
             String match = matcher.group(groupIndex);
             Class<?> currentParameter = parameterTypes[parameterIndex];
 
-            if (CommandTypes.containsKey(currentParameter)) {
+            if (currentParameter.isEnum()) {
+                parameters[parameterIndex] = Enum.valueOf((Class<? extends Enum>)currentParameter,match.toUpperCase());
+                groupIndex++;
+            }
+            else if (CommandTypes.containsKey(currentParameter)) {
                 parameters[parameterIndex] = CommandTypes.get(currentParameter).getTypeParser().apply(match);
                 groupIndex++;
-            } else if (this.customParameterTypes.containsKey(currentParameter)) {
+            }
+            else if (this.customParameterTypes.containsKey(currentParameter)) {
                 CustomParameterType customParameter = this.customParameterTypes.get(currentParameter);
                 int[] result = this.handleCustomParameterType(customParameter,
                     customConstructors,constructorIndex,
@@ -368,7 +373,10 @@ public final class CommandManager extends ListenerAdapter
             if (parameterType.isAssignableFrom(MessageReceivedEvent.class))
                 continue;
 
-            if (CommandManager.CommandTypes.containsKey(parameterType)) {
+            if (parameterType.isEnum()) {
+                constructorString.add(CommandManager.CommandTypes.get(String.class).getAlias());
+            }
+            else if (CommandManager.CommandTypes.containsKey(parameterType)) {
                 constructorString.add(CommandManager.CommandTypes.get(parameterType).getAlias());
             }
             else if (this.customParameterTypes.containsKey(parameterType)) {
@@ -380,38 +388,4 @@ public final class CommandManager extends ListenerAdapter
         return String.join(" ", constructorString);
     }
 
-    public static void handle(Throwable e)
-    {
-        handle(null, e, null);
-    }
-
-    public static void handle(MessageReceivedEvent event, Throwable e)
-    {
-        handle(event, e, null);
-    }
-
-    public static void handle(Throwable e, String message)
-    {
-        handle(null, e, message);
-    }
-
-    public static void handle(MessageReceivedEvent event, Throwable e, String message)
-    {
-        if (null != message)
-            System.out.println(message);
-
-        if (e instanceof UnimplementedFeatureException) {
-            unimplementedFeatureEmbed(event, e.getMessage());
-        } else e.printStackTrace();
-    }
-
-    public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message)
-    {
-        event.getChannel().sendMessage(
-            new EmbedBuilder().setTitle(":confounded: Sorry...")
-                .setColor(Color.red)
-                .addField("This feature is not implemented yet", message, false)
-                .build())
-            .queue();
-    }
 }

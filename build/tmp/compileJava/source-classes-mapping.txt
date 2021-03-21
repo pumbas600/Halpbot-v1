@@ -1,38 +1,54 @@
-nz/pumbas/commands/ConstructorPair.java
- nz.pumbas.commands.ConstructorPair
 nz/pumbas/utilities/Vector2.java
  nz.pumbas.utilities.Vector2
-nz/pumbas/utilities/functionalinterfaces/IOFunction.java
- nz.pumbas.utilities.functionalinterfaces.IOFunction
-nz/pumbas/commands/Annotations/CommandGroup.java
- nz.pumbas.commands.Annotations.CommandGroup
+nz/pumbas/commands/Exceptions/ErrorMessageException.java
+ nz.pumbas.commands.Exceptions.ErrorMessageException
+nz/pumbas/customparameters/Shape.java
+ nz.pumbas.customparameters.Shape
 nz/pumbas/commands/Exceptions/IllegalCustomParameterException.java
  nz.pumbas.commands.Exceptions.IllegalCustomParameterException
-nz/pumbas/utilities/Utilities.java
- nz.pumbas.utilities.Utilities
-nz/pumbas/commands/Exceptions/UnimplementedFeatureException.java
- nz.pumbas.commands.Exceptions.UnimplementedFeatureException
 nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
 nz/pumbas/Main.java
  nz.pumbas.Main
+nz/pumbas/steamtables/ModelHelper.java
+ nz.pumbas.steamtables.ModelHelper
 nz/pumbas/commands/Annotations/ParameterConstruction.java
  nz.pumbas.commands.Annotations.ParameterConstruction
-nz/pumbas/commands/CustomParameterType.java
- nz.pumbas.commands.CustomParameterType
-nz/pumbas/customparameters/Shape.java
- nz.pumbas.customparameters.Shape
-nz/pumbas/commands/Exceptions/IllegalCommandException.java
- nz.pumbas.commands.Exceptions.IllegalCommandException
+nz/pumbas/commands/CommandMethod.java
+ nz.pumbas.commands.CommandMethod
+nz/pumbas/utilities/Singleton.java
+ nz.pumbas.utilities.Singleton
+nz/pumbas/commands/Exceptions/UnimplementedFeatureException.java
+ nz.pumbas.commands.Exceptions.UnimplementedFeatureException
 nz/pumbas/commands/CommandInfo.java
  nz.pumbas.commands.CommandInfo
 nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
-nz/pumbas/HalpBotCommands.java
- nz.pumbas.HalpBotCommands
-nz/pumbas/commands/CommandManager.java
- nz.pumbas.commands.CommandManager
+nz/pumbas/commands/Exceptions/IllegalCommandException.java
+ nz.pumbas.commands.Exceptions.IllegalCommandException
+nz/pumbas/steamtables/annotations/Column.java
+ nz.pumbas.steamtables.annotations.Column
+nz/pumbas/utilities/functionalinterfaces/IOFunction.java
+ nz.pumbas.utilities.functionalinterfaces.IOFunction
+nz/pumbas/commands/ConstructorPair.java
+ nz.pumbas.commands.ConstructorPair
+nz/pumbas/commands/CustomParameterType.java
+ nz.pumbas.commands.CustomParameterType
+nz/pumbas/steamtables/SteamInserts.java
+ nz.pumbas.steamtables.SteamInserts
 nz/pumbas/HalpBot.java
  nz.pumbas.HalpBot
-nz/pumbas/commands/CommandMethod.java
- nz.pumbas.commands.CommandMethod
+nz/pumbas/commands/Annotations/CommandGroup.java
+ nz.pumbas.commands.Annotations.CommandGroup
+nz/pumbas/utilities/Utilities.java
+ nz.pumbas.utilities.Utilities
+nz/pumbas/commands/CommandManager.java
+ nz.pumbas.commands.CommandManager
+nz/pumbas/commands/ErrorManager.java
+ nz.pumbas.commands.ErrorManager
+nz/pumbas/steamtables/SteamTableManager.java
+ nz.pumbas.steamtables.SteamTableManager
+nz/pumbas/steamtables/SteamRow.java
+ nz.pumbas.steamtables.SteamRow
+nz/pumbas/HalpBotCommands.java
+ nz.pumbas.HalpBotCommands

@@ -1,4 +1,6 @@
-package nz.pumbas.utilities;
+package nz.pumbas.customparameters;
+
+import nz.pumbas.utilities.Utilities;
 
 public class Vector2
 {
