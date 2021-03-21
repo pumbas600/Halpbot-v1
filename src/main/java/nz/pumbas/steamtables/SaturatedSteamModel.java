@@ -2,7 +2,7 @@ package nz.pumbas.steamtables;
 
 import nz.pumbas.steamtables.annotations.Column;
 
-public class SteamRow
+public class SaturatedSteamModel
 {
     @Column(displayName = "Temperature", units = "Celsius")
     private double temperature;

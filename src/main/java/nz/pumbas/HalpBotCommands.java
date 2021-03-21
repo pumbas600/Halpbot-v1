@@ -14,7 +14,7 @@ import nz.pumbas.commands.Exceptions.ErrorMessageException;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.customparameters.Shape;
 import nz.pumbas.steamtables.ModelHelper;
-import nz.pumbas.steamtables.SteamRow;
+import nz.pumbas.steamtables.SaturatedSteamModel;
 import nz.pumbas.steamtables.SteamTableManager;
 import nz.pumbas.steamtables.annotations.Column;
 import nz.pumbas.utilities.Singleton;
@@ -68,7 +68,7 @@ public class HalpBotCommands
         throw new UnimplementedFeatureException("This is still a work in progress, we'll try and get it finished as soon as possible!");
     }
 
-    @Command(alias = "columns")
+    @Command(alias = "saturated", description = "Lists all the available columns for saturated steam look ups")
     public void onSteamColumn(MessageReceivedEvent event) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.orange);
@@ -77,10 +77,10 @@ public class HalpBotCommands
         StringBuilder columns = new StringBuilder();
         for (String column : SteamTableManager.Columns) {
             columns.append(column).append(" (").append(
-                ModelHelper.getAnnotationFrom(SteamRow.class, column).units())
+                ModelHelper.getAnnotationFrom(SaturatedSteamModel.class, column).units())
                 .append(")\n");
         }
-        embedBuilder.addField("Columns", columns.toString(), false);
+        embedBuilder.addField("Saturated Steam Columns", columns.toString(), false);
         event.getChannel().sendMessage(embedBuilder.build()).queue();
     }
 
@@ -96,8 +96,8 @@ public class HalpBotCommands
             selectColumn,whereColumn,value);
         if (oResult.isPresent()) {
 
-            Column select =  ModelHelper.getAnnotationFrom(SteamRow.class, selectColumn);
-            Column where = ModelHelper.getAnnotationFrom(SteamRow.class, whereColumn);
+            Column select =  ModelHelper.getAnnotationFrom(SaturatedSteamModel.class, selectColumn);
+            Column where = ModelHelper.getAnnotationFrom(SaturatedSteamModel.class, whereColumn);
 
             ResultSet result = oResult.get();
             EmbedBuilder embedBuilder = new EmbedBuilder();

@@ -1,5 +1,5 @@
-nz/pumbas/utilities/Vector2.java
- nz.pumbas.utilities.Vector2
+nz/pumbas/commands/ErrorManager.java
+ nz.pumbas.commands.ErrorManager
 nz/pumbas/commands/Exceptions/ErrorMessageException.java
  nz.pumbas.commands.Exceptions.ErrorMessageException
 nz/pumbas/customparameters/Shape.java
@@ -36,19 +36,19 @@ nz/pumbas/commands/CustomParameterType.java
  nz.pumbas.commands.CustomParameterType
 nz/pumbas/steamtables/SteamInserts.java
  nz.pumbas.steamtables.SteamInserts
-nz/pumbas/HalpBot.java
- nz.pumbas.HalpBot
+nz/pumbas/steamtables/SteamTableManager.java
+ nz.pumbas.steamtables.SteamTableManager
 nz/pumbas/commands/Annotations/CommandGroup.java
  nz.pumbas.commands.Annotations.CommandGroup
 nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
-nz/pumbas/commands/CommandManager.java
- nz.pumbas.commands.CommandManager
-nz/pumbas/commands/ErrorManager.java
- nz.pumbas.commands.ErrorManager
-nz/pumbas/steamtables/SteamTableManager.java
- nz.pumbas.steamtables.SteamTableManager
-nz/pumbas/steamtables/SteamRow.java
- nz.pumbas.steamtables.SteamRow
 nz/pumbas/HalpBotCommands.java
  nz.pumbas.HalpBotCommands
+nz/pumbas/customparameters/Vector2.java
+ nz.pumbas.customparameters.Vector2
+nz/pumbas/steamtables/SaturatedSteamModel.java
+ nz.pumbas.steamtables.SaturatedSteamModel
+nz/pumbas/commands/CommandManager.java
+ nz.pumbas.commands.CommandManager
+nz/pumbas/HalpBot.java
+ nz.pumbas.HalpBot

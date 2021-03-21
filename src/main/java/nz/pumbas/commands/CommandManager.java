@@ -89,7 +89,7 @@ public final class CommandManager extends ListenerAdapter
                             command.InvokeMethod(event);
                             return;
                         }
-                    } else {
+                    } else if (!"?".equals(splitText[1])){
                         String content = splitText[1];
 
                         if (this.handleCommandMethodRegexCall(command, event, content))
