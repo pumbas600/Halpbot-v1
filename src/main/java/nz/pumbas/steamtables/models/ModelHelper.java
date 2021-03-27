@@ -1,55 +1,57 @@
 package nz.pumbas.steamtables.models;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import nz.pumbas.steamtables.annotations.Column;
+import nz.pumbas.commands.ErrorManager;
+import nz.pumbas.steamtables.annotations.IgnoreColumn;
 import nz.pumbas.steamtables.annotations.Model;
 import nz.pumbas.utilities.Utilities;
 
 public final class ModelHelper
 {
-    private static final Map<Class<?>, ModelInfo> mappedModels = new HashMap<>();
-
     private ModelHelper() {}
 
-    public static Column getAnnotationFrom(Class<?> clazz, String column) {
-        return getModelData(clazz).getMappedColumns().get(column.toLowerCase());
+    public static List<String> getColumnNames(Class<? extends IModel> clazz) {
+        return Utilities.getFieldsNotAnnotatedWith(clazz, IgnoreColumn.class)
+            .stream().map(Field::getName)
+            .collect(Collectors.toList());
     }
 
-    public static double getDouble(Object object, String fieldName) {
+    public static String getTableName(Class<? extends IModel> clazz) {
+        return Utilities.getAnnotationFieldElse(
+            clazz, Model.class, Model::tableName, null);
+    }
+
+    public static <T extends IModel> T parseModel(Class<T> clazz, ResultSet result) {
+        T model = Utilities.createInstance(clazz);
+
+        getColumnNames(clazz).forEach(n -> {
+            try {
+                Field field = model.getClass().getField(n);
+                field.setAccessible(true);
+                field.set(model, Utilities.TypeParsers.get(field.getType()).apply(result.getString(n)));
+            } catch (NoSuchFieldException | SQLException | IllegalAccessException e) {
+                ErrorManager.handle(e);
+            }
+        });
+        return model;
+    }
+
+    public static <T extends IModel> List<T> parseModels(Class<T> clazz, ResultSet result) {
+        List<T> models = new ArrayList<>();
+
         try {
-            return (double) object.getClass().getField(fieldName).get(object);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            return -1;
+            while (result.next()) {
+                models.add(parseModel(clazz, result));
+            }
+        } catch (SQLException e) {
+            ErrorManager.handle(e);
         }
-    }
-
-    public static Set<String> getColumnNames(Class<?> clazz) {
-        return getModelData(clazz).getMappedColumns().keySet();
-    }
-
-    public static String getTableName(Class<?> clazz) {
-        return getModelData(clazz).getTableName();
-    }
-
-    private static ModelInfo getModelData(Class<?> clazz) {
-        if (!mappedModels.containsKey(clazz)) {
-            String tableName = Utilities.getAnnotationFieldElse(
-                clazz, Model.class, Model::tableName, "");
-
-            if (tableName.isEmpty())
-                throw new IllegalArgumentException(
-                    String.format("The class %s doesn't have the @Model annotation.", clazz.getSimpleName()));
-
-            Map<String, Column> mappedColumns = new HashMap<>();
-
-            Utilities.getAnnotatedFields(clazz, Column.class).forEach(f ->
-                mappedColumns.put(f.getName().toLowerCase(), f.getAnnotation(Column.class)));
-
-            mappedModels.put(clazz,new ModelInfo(tableName, mappedColumns));
-        }
-        return mappedModels.get(clazz);
+        return models;
     }
 }

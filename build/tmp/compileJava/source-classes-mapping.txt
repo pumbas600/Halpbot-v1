@@ -1,3 +1,5 @@
+nz/pumbas/utilities/maps/MapHelper.java
+ nz.pumbas.utilities.maps.MapHelper
 nz/pumbas/commands/Exceptions/ErrorMessageException.java
  nz.pumbas.commands.Exceptions.ErrorMessageException
 nz/pumbas/commands/ErrorManager.java
@@ -8,18 +10,20 @@ nz/pumbas/steamtables/annotations/Model.java
  nz.pumbas.steamtables.annotations.Model
 nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
-nz/pumbas/steamtables/models/SaturatedSteamModel.java
- nz.pumbas.steamtables.models.SaturatedSteamModel
+nz/pumbas/Main.java
+ nz.pumbas.Main
 nz/pumbas/commands/Annotations/ParameterConstruction.java
  nz.pumbas.commands.Annotations.ParameterConstruction
 nz/pumbas/customparameters/Vector2.java
  nz.pumbas.customparameters.Vector2
-nz/pumbas/steamtables/models/ModelHelper.java
- nz.pumbas.steamtables.models.ModelHelper
-nz/pumbas/HalpBot.java
- nz.pumbas.HalpBot
-nz/pumbas/HalpBotCommands.java
- nz.pumbas.HalpBotCommands
+nz/pumbas/utilities/functionalinterfaces/SQLFunction.java
+ nz.pumbas.utilities.functionalinterfaces.SQLFunction
+nz/pumbas/utilities/maps/Row.java
+ nz.pumbas.utilities.maps.Row
+nz/pumbas/commands/CustomParameterType.java
+ nz.pumbas.commands.CustomParameterType
+nz/pumbas/customparameters/Shape.java
+ nz.pumbas.customparameters.Shape
 nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod
 nz/pumbas/commands/CommandInfo.java
@@ -28,20 +32,20 @@ nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
 nz/pumbas/commands/Exceptions/IllegalCommandException.java
  nz.pumbas.commands.Exceptions.IllegalCommandException
-nz/pumbas/steamtables/annotations/Column.java
- nz.pumbas.steamtables.annotations.Column
+nz/pumbas/steamtables/annotations/IgnoreColumn.java
+ nz.pumbas.steamtables.annotations.IgnoreColumn
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/ConstructorPair.java
  nz.pumbas.commands.ConstructorPair
-nz/pumbas/steamtables/models/ModelInfo.java
- nz.pumbas.steamtables.models.ModelInfo
+nz/pumbas/utilities/maps/ClassMap.java
+ nz.pumbas.utilities.maps.ClassMap
 nz/pumbas/commands/CommandManager.java
  nz.pumbas.commands.CommandManager
 nz/pumbas/steamtables/SteamInserts.java
  nz.pumbas.steamtables.SteamInserts
-nz/pumbas/steamtables/models/SuperheatedSteamModel.java
- nz.pumbas.steamtables.models.SuperheatedSteamModel
+nz/pumbas/steamtables/SteamTable.java
+ nz.pumbas.steamtables.SteamTable
 nz/pumbas/commands/Annotations/CommandGroup.java
  nz.pumbas.commands.Annotations.CommandGroup
 nz/pumbas/utilities/Singleton.java
@@ -50,13 +54,21 @@ nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
 nz/pumbas/commands/Exceptions/UnimplementedFeatureException.java
  nz.pumbas.commands.Exceptions.UnimplementedFeatureException
+nz/pumbas/utilities/Test.java
+ nz.pumbas.utilities.Test
+nz/pumbas/utilities/maps/FieldMap.java
+ nz.pumbas.utilities.maps.FieldMap
 nz/pumbas/steamtables/SteamTableManager.java
  nz.pumbas.steamtables.SteamTableManager
-nz/pumbas/commands/CustomParameterType.java
- nz.pumbas.commands.CustomParameterType
-nz/pumbas/customparameters/Shape.java
- nz.pumbas.customparameters.Shape
-nz/pumbas/utilities/functionalinterfaces/SQLFunction.java
- nz.pumbas.utilities.functionalinterfaces.SQLFunction
-nz/pumbas/Main.java
- nz.pumbas.Main
+nz/pumbas/steamtables/models/IModel.java
+ nz.pumbas.steamtables.models.IModel
+nz/pumbas/steamtables/models/SuperheatedSteamModel.java
+ nz.pumbas.steamtables.models.SuperheatedSteamModel
+nz/pumbas/steamtables/models/ModelHelper.java
+ nz.pumbas.steamtables.models.ModelHelper
+nz/pumbas/steamtables/models/SaturatedSteamModel.java
+ nz.pumbas.steamtables.models.SaturatedSteamModel
+nz/pumbas/HalpBot.java
+ nz.pumbas.HalpBot
+nz/pumbas/HalpBotCommands.java
+ nz.pumbas.HalpBotCommands

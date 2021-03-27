@@ -12,10 +12,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +26,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import nz.pumbas.commands.ErrorManager;
+import nz.pumbas.utilities.maps.ClassMap;
+import nz.pumbas.utilities.maps.FieldMap;
 import nz.pumbas.utilities.functionalinterfaces.IOFunction;
 
 public final class Utilities
@@ -49,6 +50,8 @@ public final class Utilities
         double.class,Double::parseDouble,
         char.class, s -> s.charAt(0)
     );
+
+    private Utilities() {}
 
     /**
      * Retrieves all the methods of a class with the specified annotation.
@@ -216,6 +219,55 @@ public final class Utilities
         }
 
         return fields;
+    }
+
+    /**
+     * Retrieves all the fields of a class without the specified annotation.
+     *
+     * @param target
+     *     The class to search for fields without the specified annotation
+     * @param annotation
+     *     The annotation to check that fields don't have
+     *
+     * @return A {@link List} containing all the fields without the specified annotation
+     */
+    public static List<Field> getFieldsNotAnnotatedWith(Class<?> target, Class<? extends Annotation> annotation)
+    {
+        List<Field> fields = new ArrayList<>();
+
+        for (Field field : target.getDeclaredFields()) {
+            if (!field.isAnnotationPresent(annotation))
+                fields.add(field);
+        }
+
+        return fields;
+    }
+
+    /**
+     * Gets a field from an object by its name and casts it to the appropriate type. If that field doesn't exist, it
+     * instead returns the passed default value.
+     *
+     * @param object
+     *      The object to get the field from
+     * @param name
+     *      The name of the field to get
+     * @param defaultValue
+     *      The default value to return if the field doesn't exist
+     * @param <T>
+     *      The type of the field
+     *
+     * @return The field's value or the default value if the field doesn't exist
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getField(Object object, String name, T defaultValue) {
+        try {
+            Field field = object.getClass().getField(name);
+            field.setAccessible(true);
+            return (T) field.get(object);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            ErrorManager.handle(e);
+        }
+        return defaultValue;
     }
 
     /**
@@ -434,37 +486,5 @@ public final class Utilities
         return Arrays.stream(words)
             .map(Utilities::capitalise)
             .collect(Collectors.joining(" "));
-    }
-
-    public static String buildTable(String[] headers, String[] subrow, String[] columns, ResultSet result,
-                                    int columnWidth) {
-        StringBuilder builder = new StringBuilder();
-        String columnTemplate = "%" + columnWidth + "s";
-
-        buildRow(builder, headers, columnTemplate, "**");
-        buildRow(builder, subrow, columnTemplate, "*");
-
-        try {
-            while (result.next()) {
-                String[] row = new String[columns.length];
-                for (int i = 0; i < row.length; i++) {
-                    row[i] = result.getString(columns[i]);
-                }
-                buildRow(builder, row, columnTemplate, "");
-            }
-        } catch (SQLException e) {
-            ErrorManager.handle(e);
-        }
-        return builder.toString();
-    }
-
-    private static void buildRow(StringBuilder builder, String[] columns, String columnTemplate, String formatting) {
-        if (null == columns) return;
-
-        for (String column : columns) {
-            builder.append("|").append(formatting).append(String.format(columnTemplate, column)
-                .replace(" ","\\_")).append(formatting);
-        }
-        builder.append("|\n");
     }
 }

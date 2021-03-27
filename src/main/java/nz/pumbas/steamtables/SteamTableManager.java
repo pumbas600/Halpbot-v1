@@ -1,27 +1,47 @@
 package nz.pumbas.steamtables;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-
-import javax.xml.transform.Result;
 
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.Exceptions.ErrorMessageException;
+import nz.pumbas.steamtables.models.IModel;
 import nz.pumbas.steamtables.models.ModelHelper;
-import nz.pumbas.steamtables.models.SaturatedSteamModel;
-import nz.pumbas.utilities.Utilities;
-import nz.pumbas.utilities.functionalinterfaces.SQLFunction;
 
 public class SteamTableManager
 {
+    private Map<String, String> columnMappings;
+
+    public SteamTableManager() {
+        this.retrieveColumnMappings();
+    }
+
+    private void retrieveColumnMappings() {
+        this.columnMappings = new HashMap<>();
+        String sql = "SELECT * FROM columns";
+
+        try (Connection connection = this.connect()){
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                this.columnMappings.put(resultSet.getString("columnalias"), resultSet.getString("columnname"));
+            }
+
+        } catch (SQLException e) {
+            ErrorManager.handle(e);
+        }
+    }
+
     public Connection connect() {
         Connection connection = null;
         try {
@@ -30,6 +50,10 @@ public class SteamTableManager
             ErrorManager.handle(e, "There was an error establishing a connection to the steamtables");
         }
         return connection;
+    }
+
+    public Map<String, String> getColumnMappings() {
+        return Collections.unmodifiableMap(this.columnMappings);
     }
 
     public void insertRecord(SteamInserts insertStatement, List<Double> records) {
@@ -74,53 +98,45 @@ public class SteamTableManager
         return Optional.empty();
     }
 
-    private String selectColumn(Connection connection, String columnAlias) throws SQLException
+    public String selectColumn(String columnAlias)
     {
-        String sql = "SELECT columnname FROM columns WHERE columnalias = ?";
-
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, columnAlias.toLowerCase());
-        ResultSet result = statement.executeQuery();
-
-        if (result.next())
-            return result.getString("columnname");
+        if (this.columnMappings.containsKey(columnAlias))
+            return this.columnMappings.get(columnAlias);
         else throw new ErrorMessageException(
             String.format("The column name '%s' is not valid", columnAlias));
     }
 
-    public double selectRecord(Class<?> model, String selectColumn, String whereColumn, double value) {
-        try (Connection connection = this.connect()) {
-            selectColumn = this.selectColumn(connection, selectColumn);
-            whereColumn = this.selectColumn(connection, whereColumn);
+    public <T extends IModel> Optional<T> selectRecord(Class<T> clazz, String selectColumn, String whereColumn,
+                                  double target) {
+        selectColumn = this.selectColumn(selectColumn);
+        whereColumn = this.selectColumn(whereColumn);
 
-            String sql = "SELECT " + selectColumn + " FROM " + ModelHelper.getTableName(model) +
+        try (Connection connection = this.connect()) {
+            String sql = "SELECT * FROM " + ModelHelper.getTableName(clazz) +
                 " WHERE " + whereColumn + " = ? LIMIT 1";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setDouble(1, value);
+            statement.setDouble(1, target);
 
             ResultSet result = statement.executeQuery();
 
             if (result.next())
-                return result.getDouble(selectColumn);
+                return Optional.of(ModelHelper.parseModel(clazz, result));
             else {
-                //Find between
+                return this.selectRecordBetween(connection, clazz, whereColumn,
+                    0.95D * target, 1.05D * target, target);
             }
-
-
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }
-        return -1;
+        return Optional.empty();
     }
 
-    private <T> Optional<T> selectRecordBetween(Class<T> model, String selectColumn, String whereColumn, double min,
-                                         double max)
+    private <T extends IModel> Optional<T> selectRecordBetween(Connection connection, Class<T> clazz,
+                                                               String whereColumn, double min,
+                                                                double max, double target)
     {
-        try (Connection connection = this.connect()) {
-            selectColumn = this.selectColumn(connection, selectColumn);
-            whereColumn = this.selectColumn(connection, whereColumn);
-
-            String sql = "SELECT * FROM " + ModelHelper.getTableName(model) +
+        try {
+            String sql = "SELECT * FROM " + ModelHelper.getTableName(clazz) +
                 " WHERE " + whereColumn + " BETWEEN ? AND ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setDouble(1, min);
@@ -128,32 +144,26 @@ public class SteamTableManager
 
             ResultSet result = statement.executeQuery();
 
-            List<T> results = new ArrayList<>();
-            while (result.next())
-                results.add(this.parseModel(model, result));
+            List<T> models = ModelHelper.parseModels(clazz, result);
 
-            if (!results.isEmpty()) {
-                //Find closest
+            if (!models.isEmpty()) {
+                double smallestDifference = Math.abs(target - models.get(0).getDouble(whereColumn));
+                int closestIndex = 0;
+                for (int i = 1; i < models.size(); i++) {
+                    T model = models.get(i);
+
+                    double difference = Math.abs(target - model.getDouble(whereColumn));
+                    if (difference < smallestDifference) {
+                        smallestDifference = difference;
+                        closestIndex = i;
+                    }
+                }
+                return Optional.of(models.get(closestIndex));
             }
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }
 
         return Optional.empty();
-    }
-
-    private <T> T parseModel(Class<T> clazz, ResultSet result) {
-        T model = Utilities.createInstance(clazz);
-
-        ModelHelper.getColumnNames(clazz).forEach(n -> {
-            try {
-                Field field = model.getClass().getField(n);
-                field.setAccessible(true);
-                field.set(model, Utilities.TypeParsers.get(field.getType()).apply(result.getString(n)));
-            } catch (NoSuchFieldException | SQLException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        });
-        return model;
     }
 }

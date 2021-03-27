@@ -1,38 +1,40 @@
 package nz.pumbas.steamtables.models;
 
-import nz.pumbas.steamtables.annotations.Column;
+import nz.pumbas.utilities.maps.ClassMap;
+import nz.pumbas.utilities.maps.FieldMap;
 import nz.pumbas.steamtables.annotations.Model;
 
+@ClassMap(keys = {"displayName", "units"})
 @Model(tableName = "saturated")
-public class SaturatedSteamModel
+public class SaturatedSteamModel implements IModel
 {
-    @Column(displayName = "Temperature", units = "Celsius")
+    @FieldMap({"Temperature", "Celsius"})
     public double temperature;
 
-    @Column(displayName = "Pressure", units = "MPa")
+    @FieldMap({"Pressure", "MPa"})
     public double pressure;
 
-    @Column(displayName = "Specific Volume (L)", units = "m^3/kg")
+    @FieldMap({"Specific Volume (L)", "m^3/kg"})
     public double volumeliquid;
 
-    @Column(displayName = "Specific Volume (V)", units = "m^3/kg")
+    @FieldMap({"Specific Volume (V)", "m^3/kg"})
     public double volumevapour;
 
-    @Column(displayName = "Specific Internal Energy (L)", units = "kJ/kg")
+    @FieldMap({"Specific Internal Energy (L)", "kJ/kg"})
     public double internalenergyliquid;
 
-    @Column(displayName = "Specific Internal Energy (V)", units = "kJ/kg")
+    @FieldMap({"Specific Internal Energy (V)", "kJ/kg"})
     public double internalenergyvapour;
 
-    @Column(displayName = "Specific Enthalpy (L)", units = "kJ/kg")
+    @FieldMap({"Specific Enthalpy (L)", "kJ/kg"})
     public double enthalpyliquid;
 
-    @Column(displayName = "Specific Enthalpy (V)", units = "kJ/kg")
+    @FieldMap({"Specific Enthalpy (V)", "kJ/kg"})
     public double enthalpyvapour;
 
-    @Column(displayName = "Specific Entropy (L)", units = "kJ/kg.K")
+    @FieldMap({"Specific Entropy (L)", "kJ/kg.K"})
     public double entropyliquid;
 
-    @Column(displayName = "Specific Entropy (V)", units = "kJ/kg.K")
+    @FieldMap({"Specific Entropy (V)", "kJ/kg.K"})
     public double entropyvapour;
 }

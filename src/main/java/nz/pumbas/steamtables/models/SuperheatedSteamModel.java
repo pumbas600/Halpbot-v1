@@ -1,23 +1,25 @@
 package nz.pumbas.steamtables.models;
 
-import nz.pumbas.steamtables.annotations.Column;
 import nz.pumbas.steamtables.annotations.Model;
+import nz.pumbas.utilities.maps.ClassMap;
+import nz.pumbas.utilities.maps.FieldMap;
 
 @Model(tableName = "superheated")
-public class SuperheatedSteamModel
+@ClassMap(keys = {"displayName", "units"})
+public class SuperheatedSteamModel implements IModel
 {
-    @Column(displayName = "Temperature", units = "Celsius")
+    @FieldMap({"Temperature", "Celsius"})
     public double temperature;
 
-    @Column(displayName = "Specific Volume", units = "m^3/kg")
+    @FieldMap({"Specific Volume", "m^3/kg"})
     public double volume;
 
-    @Column(displayName = "Specific Internal Energy", units = "kJ/kg")
+    @FieldMap({"Specific Internal Energy", "kJ/kg"})
     public double internalenergy;
 
-    @Column(displayName = "Specific Enthalpy", units = "kJ/kg")
+    @FieldMap({"Specific Enthalpy", "kJ/kg"})
     public double enthalpy;
 
-    @Column(displayName = "Specific Entropy", units = "kJ/kg.K")
+    @FieldMap({"Specific Entropy", "kJ/kg.K"})
     public double entropy;
 }
