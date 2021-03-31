@@ -10,8 +10,8 @@ nz/pumbas/steamtables/annotations/Model.java
  nz.pumbas.steamtables.annotations.Model
 nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
-nz/pumbas/Main.java
- nz.pumbas.Main
+nz/pumbas/steamtables/models/SaturatedSteamModel.java
+ nz.pumbas.steamtables.models.SaturatedSteamModel
 nz/pumbas/commands/Annotations/ParameterConstruction.java
  nz.pumbas.commands.Annotations.ParameterConstruction
 nz/pumbas/customparameters/Vector2.java
@@ -28,8 +28,8 @@ nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod
 nz/pumbas/commands/CommandInfo.java
  nz.pumbas.commands.CommandInfo
-nz/pumbas/commands/CommandType.java
- nz.pumbas.commands.CommandType
+nz/pumbas/steamtables/models/SuperheatedSteamModel.java
+ nz.pumbas.steamtables.models.SuperheatedSteamModel
 nz/pumbas/commands/Exceptions/IllegalCommandException.java
  nz.pumbas.commands.Exceptions.IllegalCommandException
 nz/pumbas/steamtables/annotations/IgnoreColumn.java
@@ -40,8 +40,8 @@ nz/pumbas/commands/ConstructorPair.java
  nz.pumbas.commands.ConstructorPair
 nz/pumbas/utilities/maps/ClassMap.java
  nz.pumbas.utilities.maps.ClassMap
-nz/pumbas/commands/CommandManager.java
- nz.pumbas.commands.CommandManager
+nz/pumbas/steamtables/models/ModelHelper.java
+ nz.pumbas.steamtables.models.ModelHelper
 nz/pumbas/steamtables/SteamInserts.java
  nz.pumbas.steamtables.SteamInserts
 nz/pumbas/steamtables/SteamTable.java
@@ -62,13 +62,15 @@ nz/pumbas/steamtables/SteamTableManager.java
  nz.pumbas.steamtables.SteamTableManager
 nz/pumbas/steamtables/models/IModel.java
  nz.pumbas.steamtables.models.IModel
-nz/pumbas/steamtables/models/SuperheatedSteamModel.java
- nz.pumbas.steamtables.models.SuperheatedSteamModel
-nz/pumbas/steamtables/models/ModelHelper.java
- nz.pumbas.steamtables.models.ModelHelper
-nz/pumbas/steamtables/models/SaturatedSteamModel.java
- nz.pumbas.steamtables.models.SaturatedSteamModel
-nz/pumbas/HalpBot.java
- nz.pumbas.HalpBot
-nz/pumbas/HalpBotCommands.java
- nz.pumbas.HalpBotCommands
+nz/pumbas/commands/CommandType.java
+ nz.pumbas.commands.CommandType
+nz/pumbas/halpbot/SteamLookupCommands.java
+ nz.pumbas.halpbot.SteamLookupCommands
+nz/pumbas/halpbot/HalpBotCommands.java
+ nz.pumbas.halpbot.HalpBotCommands
+nz/pumbas/halpbot/HalpBot.java
+ nz.pumbas.halpbot.HalpBot
+nz/pumbas/commands/CommandManager.java
+ nz.pumbas.commands.CommandManager
+nz/pumbas/Main.java
+ nz.pumbas.Main

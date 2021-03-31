@@ -1,4 +1,4 @@
-package nz.pumbas;
+package nz.pumbas.halpbot;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.CommandManager;
-import nz.pumbas.customparameters.Shape;
 
 public class HalpBot extends ListenerAdapter
 {
@@ -24,8 +23,8 @@ public class HalpBot extends ListenerAdapter
         JDABuilder builder = JDABuilder.createDefault(token)
             .addEventListeners(this);
 
-        CommandManager manager = new CommandManager(builder, Shape.class);
-        manager.registerCommands(new HalpBotCommands());
+        CommandManager manager = new CommandManager(builder);
+        manager.registerCommands(new HalpBotCommands(), new SteamLookupCommands());
 
         this.jda = builder.build();
     }

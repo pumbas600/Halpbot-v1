@@ -31,8 +31,9 @@ public final class CommandManager extends ListenerAdapter
 {
     //TODO: Unit Manager
     //TODO: varargs
-    //TODO: Optional arguments
+    //TODO: Optional arguments -> Using @Optional annotation
     //TODO: Flags
+    //TODO: Manually submit type parsers (E.g: For types you don't have access to)?
 
     public static final Map<String, String> CommandRegex = Map.of(
         "SENTENCE", "([\\w ,\\.!\\?]+)"
@@ -49,13 +50,18 @@ public final class CommandManager extends ListenerAdapter
     private final Map<Class<?>, CustomParameterType> customParameterTypes;
     private final Map<String, List<CommandMethod>> registeredCommands;
 
-    public CommandManager(JDABuilder builder, Class<?>... customParameters)
+    public CommandManager()
+    {
+        this.customParameterTypes = new HashMap<>();
+        this.registeredCommands = new HashMap<>();
+    }
+
+    public CommandManager(@NotNull JDABuilder builder)
     {
         this.customParameterTypes = new HashMap<>();
         this.registeredCommands = new HashMap<>();
 
         builder.addEventListeners(this);
-        this.registerCustomParameterType(customParameters);
     }
 
     public CommandManager registerCommands(Object... objects)
@@ -164,6 +170,10 @@ public final class CommandManager extends ListenerAdapter
             String match = matcher.group(groupIndex);
             Class<?> currentParameter = parameterTypes[parameterIndex];
 
+            if (null == match) {
+                parameters[parameterIndex] = null;
+                groupIndex++;
+            }
             if (currentParameter.isEnum()) {
                 parameters[parameterIndex] = Enum.valueOf((Class<? extends Enum>)currentParameter,match.toUpperCase());
                 groupIndex++;
@@ -233,6 +243,8 @@ public final class CommandManager extends ListenerAdapter
         boolean hasCommand = 1 < method.getParameterCount();
 
         if (hasCommand) {
+            this.checkForCustomTypes(method.getParameterTypes());
+
             String command = commandAnnotation.command().isEmpty()
                 ? this.automaticallyGenerateCommand(method.getParameterTypes())
                 : commandAnnotation.command();
@@ -266,8 +278,8 @@ public final class CommandManager extends ListenerAdapter
                 while (-1 != (noncaptureIndex = commandInfo.regexCommand.indexOf('<'))) {
 
                     commandInfo.regexCommand = (0 != noncaptureIndex && ' ' == commandInfo.regexCommand.charAt(noncaptureIndex - 1) )
-                        ? Utilities.replaceFirst(commandInfo.regexCommand, "> ", ")? ?")
-                        : Utilities.replaceFirst(commandInfo.regexCommand, ">", ")?");
+                        ? Utilities.replaceFirst(commandInfo.regexCommand, "> ", ")*? ?")
+                        : Utilities.replaceFirst(commandInfo.regexCommand, ">", ")*?");
 
                     commandInfo.regexCommand = Utilities.replaceFirst(commandInfo.regexCommand, "<", "(?:");
                 }
@@ -275,36 +287,6 @@ public final class CommandManager extends ListenerAdapter
                 commandInfo.regexCommand = "^" + commandInfo.regexCommand;
             });
     }
-
-//    private List<CommandInfo> generateCommandInfo(String command)
-//    {
-//        return this.generateCommandInfo(List.of(command));
-//    }
-//
-//    //I barely understand whats happening here, so this will definitely need to be reworked at some point...
-//    private List<CommandInfo> generateCommandInfo(List<String> commands) {
-//        List<CommandInfo> results = new ArrayList<>();
-//        for (String command : commands) {
-//            for (CustomParameterType customParameter : this.customParameterTypes.values()) {
-//                if (!command.contains(customParameter.getTypeAlias())) continue;
-//
-//                for (CommandInfo constructor : this.generateCommandInfo(customParameter.getTypeConstructors())) {
-//                    CommandInfo commandInfo = new CommandInfo(
-//                        command.replace(customParameter.getTypeAlias(),constructor.regexCommand),
-//                        command.replace(customParameter.getTypeAlias(),
-//                            String.format("%s [%s]", customParameter.getTypeAlias(), constructor.displayCommand)),
-//                        constructor.parameterTypes);
-//                    results.add(commandInfo);
-//                }
-//            }
-//        }
-//        if (results.isEmpty())
-//            results.addAll(
-//                commands.stream()
-//                    .map(c -> new CommandInfo(c, c))
-//                    .collect(Collectors.toList()));
-//        return results;
-//    }
 
     //I barely understand whats happening here, so this will definitely need to be reworked at some point...
     private List<CommandInfo> generateCommandInfo(Class<?>[] parameterTypes,
@@ -369,12 +351,11 @@ public final class CommandManager extends ListenerAdapter
     public String automaticallyGenerateCommand(Class<?>[] parameterTypes) {
         List<String> constructorString = new ArrayList<>();
         for (Class<?> parameterType : parameterTypes) {
-            //These are manually passed and don't need to be included in the command
-            if (parameterType.isAssignableFrom(MessageReceivedEvent.class))
-                continue;
 
-            if (parameterType.isEnum()) {
-                constructorString.add(CommandManager.CommandTypes.get(String.class).getAlias());
+            if (parameterType.isAssignableFrom(MessageReceivedEvent.class)) continue;
+
+            else if (parameterType.isEnum()) {
+               constructorString.add(CommandManager.CommandTypes.get(String.class).getAlias());
             }
             else if (CommandManager.CommandTypes.containsKey(parameterType)) {
                 constructorString.add(CommandManager.CommandTypes.get(parameterType).getAlias());
@@ -382,10 +363,22 @@ public final class CommandManager extends ListenerAdapter
             else if (this.customParameterTypes.containsKey(parameterType)) {
                 constructorString.add(this.customParameterTypes.get(parameterType).getTypeAlias());
             }
-            else throw new IllegalCustomParameterException(String.format("Couldn't find the parameter type %s", parameterType));
         }
 
         return String.join(" ", constructorString);
     }
 
+    private void checkForCustomTypes(Class<?>[] parameterTypes) {
+        for (Class<?> parameterType : parameterTypes) {
+            boolean isRegisteredType =
+                parameterType.isAssignableFrom(MessageReceivedEvent.class) ||
+                parameterType.isEnum() ||
+                CommandManager.CommandTypes.containsKey(parameterType) ||
+                this.customParameterTypes.containsKey(parameterType);
+
+            if (!isRegisteredType) {
+                this.registerCustomParameterType(parameterType);
+            }
+        }
+    }
 }

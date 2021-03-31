@@ -19,22 +19,22 @@ public class CommandType
         this.typeParser = typeParser;
     }
 
-    public Class<?> getType()
+    public @NotNull Class<?> getType()
     {
         return this.type;
     }
 
-    public String getAlias()
+    public @NotNull String getAlias()
     {
         return this.alias;
     }
 
-    public String getCommand()
+    public @NotNull String getCommand()
     {
         return this.command;
     }
 
-    public Function<String, Object> getTypeParser()
+    public @NotNull Function<String, Object> getTypeParser()
     {
         return this.typeParser;
     }
