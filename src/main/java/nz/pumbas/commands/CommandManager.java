@@ -5,9 +5,11 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import nz.pumbas.commands.Annotations.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,7 +33,7 @@ public final class CommandManager extends ListenerAdapter
 {
     //TODO: Unit Manager
     //TODO: varargs
-    //TODO: Optional arguments -> Using @Optional annotation
+    //TODO: Optional arguments -> Using @Optional annotation - Need to take this into consideration when automatically generating command
     //TODO: Flags
     //TODO: Manually submit type parsers (E.g: For types you don't have access to)?
 
@@ -124,8 +126,8 @@ public final class CommandManager extends ListenerAdapter
             Object[] parameters = new Object[parameterTypes.length];
             parameters[0] = event;
 
-            this.parseValues(parameterTypes,
-                command.getConstructors(), 0,
+            this.parseValues(command.getMethod().getParameterAnnotations(),
+                parameterTypes, command.getConstructors(), 0,
                     parameters, 1,
                     matcher, 1);
             command.InvokeMethod(parameters);
@@ -143,7 +145,8 @@ public final class CommandManager extends ListenerAdapter
         constructorIndex++;
 
         Object[] constructorParameters = new Object[constructor.getParameterCount()];
-        int[] result = this.parseValues(constructor.getParameterTypes(),
+        int[] result = this.parseValues(constructor.getParameterAnnotations(),
+            constructor.getParameterTypes(),
             customConstructors, constructorIndex,
             constructorParameters,0,
             matcher,groupIndex);
@@ -161,7 +164,8 @@ public final class CommandManager extends ListenerAdapter
     }
 
     @SuppressWarnings("unchecked")
-    private int[] parseValues(Class<?>[] parameterTypes,
+    private int[] parseValues(Annotation[][] parameterAnnotations,
+                              Class<?>[] parameterTypes,
                               List<Constructor<?>> customConstructors, int constructorIndex,
                               Object[] parameters, int startParameterIndex,
                               Matcher matcher, int groupIndex)
@@ -171,8 +175,20 @@ public final class CommandManager extends ListenerAdapter
             Class<?> currentParameter = parameterTypes[parameterIndex];
 
             if (null == match) {
-                parameters[parameterIndex] = null;
-                groupIndex++;
+                for (Annotation annotation : parameterAnnotations[parameterIndex]) {
+                    if (annotation.getClass().isAssignableFrom(Optional.class)) {
+                        Optional optional = (Optional) annotation;
+                        if (!optional.value().isEmpty())
+                            match = optional.value();
+                        break;
+                    }
+                }
+                //If the match is still null, there is no default value
+                if (null == match) {
+                    parameters[parameterIndex] = null;
+                    groupIndex++;
+                    continue;
+                }
             }
             if (currentParameter.isEnum()) {
                 parameters[parameterIndex] = Enum.valueOf((Class<? extends Enum>)currentParameter,match.toUpperCase());

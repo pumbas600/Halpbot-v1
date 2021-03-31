@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
+import nz.pumbas.commands.Annotations.Optional;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.customparameters.Shape;
 import nz.pumbas.customparameters.Vector2;
@@ -54,5 +55,10 @@ public class HalpBotCommands
     public void onPing()
     {
         throw new UnimplementedFeatureException("This is still a work in progress, we'll try and get it finished as soon as possible!");
+    }
+
+    @Command(alias = "optional", description = "Tests optional")
+    public void onOptional(MessageReceivedEvent event, @Optional("No value passed") String value) {
+        event.getChannel().sendMessage(value).queue();
     }
 }
