@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import nz.pumbas.commands.Annotations.Optional;
+import nz.pumbas.commands.Annotations.Unrequired;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -97,6 +98,10 @@ public final class CommandManager extends ListenerAdapter
                             command.InvokeMethod(event);
                             return;
                         }
+                        //Only optionals (So there's the possibility of no text after the alias)
+                        if (this.handleCommandMethodRegexCall(command, event, "")) {
+                            return;
+                        }
                     } else if (!"?".equals(splitText[1])){
                         String content = splitText[1];
 
@@ -175,16 +180,14 @@ public final class CommandManager extends ListenerAdapter
             Class<?> currentParameter = parameterTypes[parameterIndex];
 
             if (null == match) {
-                for (Annotation annotation : parameterAnnotations[parameterIndex]) {
-                    if (annotation.getClass().isAssignableFrom(Optional.class)) {
-                        Optional optional = (Optional) annotation;
-                        if (!optional.value().isEmpty())
-                            match = optional.value();
-                        break;
-                    }
+                Optional<Unrequired> oUnrequired =
+                    Utilities.retrieveAnnotation(parameterAnnotations[parameterIndex], Unrequired.class);
+                if (oUnrequired.isPresent()) {
+                    Unrequired unrequired = oUnrequired.get();
+                    if (!unrequired.value().isEmpty())
+                        match = unrequired.value();
                 }
-                //If the match is still null, there is no default value
-                if (null == match) {
+                else {
                     parameters[parameterIndex] = null;
                     groupIndex++;
                     continue;
@@ -219,8 +222,8 @@ public final class CommandManager extends ListenerAdapter
         this.registeredCommands.get(commandAlias).forEach(c -> {
             String description = c.hasDescription() ? c.getDescription() : "This command doesn't have a description.";
             String parameters = c.hasCommand() ? c.getDisplayCommand() : "This command doesn't have any parameters.";
-            builder.addField("", String.format("**Parameters:**    %s\n**Description:**    %s", parameters,
-                description), false);
+            builder.addField("", String.format("**Parameters:** %s\n**Regex:** %s\n**Description:** %s", parameters,
+                c.getCommand().pattern(), description), false);
         });
 
         return builder;
@@ -262,7 +265,7 @@ public final class CommandManager extends ListenerAdapter
             this.checkForCustomTypes(method.getParameterTypes());
 
             String command = commandAnnotation.command().isEmpty()
-                ? this.automaticallyGenerateCommand(method.getParameterTypes())
+                ? this.automaticallyGenerateCommand(method.getParameterAnnotations(), method.getParameterTypes())
                 : commandAnnotation.command();
 
             return this.formatCommand(method.getParameterTypes(), command).map(commandInfo ->
@@ -279,29 +282,42 @@ public final class CommandManager extends ListenerAdapter
     {
         return this.generateCommandInfo(parameterTypes,command)
             .stream()
-            .peek(commandInfo -> {
-                //For SENTENCE
-                for (String key : CommandRegex.keySet()) {
-                    commandInfo.regexCommand = commandInfo.regexCommand.replace(key, CommandRegex.get(key));
-                }
+            .peek(this::formatCommandInfo);
+    }
 
-                for (CommandType commandType : CommandTypes.values()) {
-                    commandInfo.regexCommand = commandInfo.regexCommand.replace(commandType.getAlias(), commandType.getCommand());
-                }
+    private void formatCommandInfo(CommandInfo commandInfo) {
+        //For SENTENCE
+        for (String key : CommandRegex.keySet()) {
+            commandInfo.regexCommand = commandInfo.regexCommand.replace(key, CommandRegex.get(key));
+        }
 
-                //Turns the optional non-capture formatting <...> into REGEX
-                int noncaptureIndex;
-                while (-1 != (noncaptureIndex = commandInfo.regexCommand.indexOf('<'))) {
+        for (CommandType commandType : CommandTypes.values()) {
+            commandInfo.regexCommand = commandInfo.regexCommand.replace(commandType.getAlias(), commandType.getCommand());
+        }
 
-                    commandInfo.regexCommand = (0 != noncaptureIndex && ' ' == commandInfo.regexCommand.charAt(noncaptureIndex - 1) )
-                        ? Utilities.replaceFirst(commandInfo.regexCommand, "> ", ")*? ?")
-                        : Utilities.replaceFirst(commandInfo.regexCommand, ">", ")*?");
+        //Turns the optional non-capture formatting <...> into REGEX
+        int openNonClosingIndex;
+        while (-1 != (openNonClosingIndex = commandInfo.regexCommand.indexOf('<'))) {
+            int closeNonCapturingIndex = commandInfo.regexCommand.indexOf('>');
+            if (-1 == closeNonCapturingIndex)
+                throw new IllegalCommandException(
+                    String.format("Unclosed non-capturing group. Open '<' at %s", openNonClosingIndex));
 
-                    commandInfo.regexCommand = Utilities.replaceFirst(commandInfo.regexCommand, "<", "(?:");
-                }
+            boolean spaceBefore
+                = 0 != openNonClosingIndex && ' ' == commandInfo.regexCommand.charAt(openNonClosingIndex - 1);
+            boolean spaceAfter
+                = commandInfo.regexCommand.length() -1 > closeNonCapturingIndex && ' ' == commandInfo.regexCommand.charAt(closeNonCapturingIndex + 1);
 
-                commandInfo.regexCommand = "^" + commandInfo.regexCommand;
-            });
+            commandInfo.regexCommand = (spaceBefore && spaceAfter)
+                    ? Utilities.replaceFirst(commandInfo.regexCommand, "> ", ")* ?")
+                    : Utilities.replaceFirst(commandInfo.regexCommand, ">", ")*");
+
+            commandInfo.regexCommand = (spaceBefore && !spaceAfter)
+                    ? Utilities.replaceFirst(commandInfo.regexCommand, " <", " ?(?:")
+                    : Utilities.replaceFirst(commandInfo.regexCommand, "<", "(?:");
+        }
+
+        commandInfo.regexCommand = "^" + commandInfo.regexCommand;
     }
 
     //I barely understand whats happening here, so this will definitely need to be reworked at some point...
@@ -351,7 +367,8 @@ public final class CommandManager extends ListenerAdapter
                 constructor.setAccessible(true);
 
                 String constructorRegex = parameterConstruction.constructor().isEmpty()
-                    ? this.automaticallyGenerateCommand(constructor.getParameterTypes())
+                    ? this.automaticallyGenerateCommand(constructor.getParameterAnnotations(),
+                                                        constructor.getParameterTypes())
                     : parameterConstruction.constructor();
 
                 constructors.add(new ConstructorPair(constructorRegex, constructor));
@@ -364,21 +381,31 @@ public final class CommandManager extends ListenerAdapter
         }
     }
 
-    public String automaticallyGenerateCommand(Class<?>[] parameterTypes) {
+    public String automaticallyGenerateCommand(Annotation[][] parameterAnnotations, Class<?>[] parameterTypes) {
         List<String> constructorString = new ArrayList<>();
-        for (Class<?> parameterType : parameterTypes) {
+        for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++) {
+            Class<?> parameterType = parameterTypes[parameterIndex];
 
             if (parameterType.isAssignableFrom(MessageReceivedEvent.class)) continue;
 
-            else if (parameterType.isEnum()) {
-               constructorString.add(CommandManager.CommandTypes.get(String.class).getAlias());
+            String command = null;
+            if (parameterType.isEnum()) {
+                command = CommandManager.CommandTypes.get(String.class).getAlias();
             }
             else if (CommandManager.CommandTypes.containsKey(parameterType)) {
-                constructorString.add(CommandManager.CommandTypes.get(parameterType).getAlias());
+                command = CommandManager.CommandTypes.get(parameterType).getAlias();
             }
             else if (this.customParameterTypes.containsKey(parameterType)) {
-                constructorString.add(this.customParameterTypes.get(parameterType).getTypeAlias());
+                command = this.customParameterTypes.get(parameterType).getTypeAlias();
             }
+
+            if (null != command &&
+                Utilities.retrieveAnnotation(parameterAnnotations[parameterIndex], Unrequired.class)
+                    .isPresent()) {
+                command = "<" + command + ">";
+            }
+
+            constructorString.add(command);
         }
 
         return String.join(" ", constructorString);

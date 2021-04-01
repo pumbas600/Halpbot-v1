@@ -1,18 +1,12 @@
 package nz.pumbas;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.commands.CommandManager;
+import nz.pumbas.commands.Annotations.Unrequired;
 import nz.pumbas.halpbot.HalpBot;
-import nz.pumbas.halpbot.HalpBotCommands;
 import nz.pumbas.utilities.Utilities;
 
 public class Main
@@ -20,24 +14,16 @@ public class Main
 
     public static void main(String[] args) throws LoginException, NoSuchMethodException
     {
-        //HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
+        HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
+//
+//        Pattern pattern = Pattern.compile("^(?:([\\w]+))* ?(?:([\\w]+))*");
+//        Matcher matcher = pattern.matcher("");
+//
+//        if (matcher.lookingAt()) {
+//            System.out.println(matcher.groupCount());
+//        }
 
-        Pattern pattern = Pattern.compile("([\\w]+)? (?:([\\w]+))*?");
-        Matcher matcher = pattern.matcher("Hi");
-        if (matcher.lookingAt()) {
-            for (int i = 1; i <= matcher.groupCount(); i++) {
-                System.out.println(matcher.group(i));
-            }
-        }
-
-        Optional<String> test = Optional.empty();
-        var type =
-            (Class<?>)
-                (test.getClass()
-                    .getGenericSuperclass()).getClass();
-
-
-        System.out.println(type);
+        //System.out.println(Unrequired.class.isAssignableFrom(Unrequired.class));
 
 //        SteamTableManager manager = new SteamTableManager();
 //
@@ -53,9 +39,5 @@ public class Main
 //            }
 //            manager.insertRecord(SteamInserts.SATURATED, records);
 //        });
-    }
-
-    private void test(Optional<String> optional) {
-
     }
 }

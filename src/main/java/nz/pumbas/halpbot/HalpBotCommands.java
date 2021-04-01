@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
-import nz.pumbas.commands.Annotations.Optional;
+import nz.pumbas.commands.Annotations.Unrequired;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
 import nz.pumbas.customparameters.Shape;
 import nz.pumbas.customparameters.Vector2;
@@ -32,12 +32,13 @@ public class HalpBotCommands
             "https://github.com/pumbas600/HalpBot/issues").queue();
     }
 
-    @Command(alias = "components", command = "DOUBLE<n|N> <at> DOUBLE <from> (x|y)",
+    @Command(alias = "components", command = "DOUBLE<WORD> <at> DOUBLE <from> (x|y)",
              description = "Splits a force into its x and y components")
-    public void onComponents(MessageReceivedEvent event, double magnitude, double angle, String axis)
+    public void onComponents(MessageReceivedEvent event, double magnitude, @Unrequired("N") String units, double angle,
+                             String axis)
     {
         boolean fromX = "x".equals(axis) || "x-axis".equals(axis);
-        Vector2 force = new Vector2(magnitude, angle, fromX);
+        Vector2 force = new Vector2(magnitude, angle, fromX, units);
 
         event.getChannel().sendMessage(force.toString()).queue();
     }
@@ -57,8 +58,9 @@ public class HalpBotCommands
         throw new UnimplementedFeatureException("This is still a work in progress, we'll try and get it finished as soon as possible!");
     }
 
-    @Command(alias = "optional", description = "Tests optional")
-    public void onOptional(MessageReceivedEvent event, @Optional("No value passed") String value) {
-        event.getChannel().sendMessage(value).queue();
+    @Command(alias = "unrequired", description = "Tests unrequired annotation")
+    public void onOptional(MessageReceivedEvent event, @Unrequired("No value passed") String word,
+                                                       @Unrequired("No value passed") String value) {
+        event.getChannel().sendMessage(word + " and " + value).queue();
     }
 }

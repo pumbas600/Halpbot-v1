@@ -14,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,8 +25,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import nz.pumbas.commands.ErrorManager;
-import nz.pumbas.utilities.maps.ClassMap;
-import nz.pumbas.utilities.maps.FieldMap;
 import nz.pumbas.utilities.functionalinterfaces.IOFunction;
 
 public final class Utilities
@@ -268,6 +265,27 @@ public final class Utilities
             ErrorManager.handle(e);
         }
         return defaultValue;
+    }
+
+    /**
+     * Checks an array of annotations for if it contains an annotation of the specified type. If it does, the first
+     * instance of this annotation is returned.
+     *
+     * @param annotations The array of annotations to search through
+     * @param annotationType The type of the annotation to search for
+     * @param <T> The type of the annotation
+     *
+     * @return An {@link Optional} containing the annotation if its present
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> Optional<T> retrieveAnnotation(Annotation[] annotations,
+                                                                        Class<T> annotationType) {
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().isAssignableFrom(annotationType)) {
+                return Optional.of((T) annotation);
+            }
+        }
+        return Optional.empty();
     }
 
     /**

@@ -6,34 +6,26 @@ public class Vector2
 {
     private final double x;
     private final double y;
+    private final String units;
 
-    public Vector2(double x, double y)
+    public Vector2(double x, double y, String units)
     {
         this.x = x;
         this.y = y;
+        this.units = units;
     }
 
-    public Vector2(double magnitude, double angle, boolean fromX)
+    public Vector2(double magnitude, double angle, boolean fromX, String units)
     {
         if (!fromX) //Makes the angle from the x-axis
             angle += Utilities.quarterRotation;
         angle %= Utilities.fullRotation;
 
-//        if (Utilities.quarterRotation < angle) {
-//            if (Utilities.halfRotation > angle) {
-//                angle = Utilities.halfRotation - angle;
-//            }
-//            else if (Utilities.threeQuarterRotation > angle) {
-//                angle -= Utilities.halfRotation;
-//            }
-//            else {
-//                angle = Utilities.fullRotation - angle;
-//            }
-//        }
-
         double radians = Math.toRadians(angle);
         this.x = magnitude * Math.cos(radians);
         this.y = magnitude * Math.sin(radians);
+
+        this.units = units;
     }
 
     public double getSqrMagnitude()
@@ -56,9 +48,14 @@ public class Vector2
         return this.y;
     }
 
+    public String getUnits()
+    {
+        return this.units;
+    }
+
     @Override
     public String toString()
     {
-        return String.format("%.1fi + %.1fj N", this.getX(), this.getY());
+        return String.format("%.1fi + %.1fj %s", this.getX(), this.getY(), this.getUnits());
     }
 }
