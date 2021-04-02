@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 public @interface ClassMap
 {
     Class<?>[] value() default Void.class;
+
     String[] keys();
 }

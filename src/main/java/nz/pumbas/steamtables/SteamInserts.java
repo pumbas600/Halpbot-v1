@@ -8,7 +8,8 @@ public enum SteamInserts
 
     private final String sql;
 
-    SteamInserts(String sql) {
+    SteamInserts(String sql)
+    {
         this.sql = sql;
     }
 

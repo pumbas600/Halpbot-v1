@@ -34,11 +34,9 @@ public final class ErrorManager
 
         if (e instanceof UnimplementedFeatureException) {
             unimplementedFeatureEmbed(event, e.getMessage());
-        }
-        else if (e instanceof ErrorMessageException) {
+        } else if (e instanceof ErrorMessageException) {
             event.getChannel().sendMessage(":warning: " + e.getMessage()).queue();
-        }
-        else e.printStackTrace();
+        } else e.printStackTrace();
     }
 
     public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message)

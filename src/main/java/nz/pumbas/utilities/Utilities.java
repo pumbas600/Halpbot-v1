@@ -8,9 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +44,10 @@ public final class Utilities
     public static final String line = "-----------------------------------------------------------";
 
     public static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
-        String.class,s -> s,
-        int.class,Integer::parseInt,
-        float.class,Float::parseFloat,
-        double.class,Double::parseDouble,
+        String.class, s -> s,
+        int.class, Integer::parseInt,
+        float.class, Float::parseFloat,
+        double.class, Double::parseDouble,
         char.class, s -> s.charAt(0)
     );
 
@@ -129,6 +132,42 @@ public final class Utilities
     }
 
     /**
+     * Builds an {@link Predicate} to test a {@link Member} for the passed modifiers. Modifiers can be specified
+     * using {@code Modifier::isPublic, Modifier::isStatic}, etc.
+     *
+     * @param modifierFilters
+     *      The modifiers to test the {@link Member} for
+     *
+     * @return An {@link Predicate} which can test a {@link Member} for the passed modifiers.
+     */
+    @SafeVarargs
+    public static Predicate<? extends Member> buildModifiersPredicate(Predicate<Integer>... modifierFilters)
+    {
+        return m -> Arrays.stream(modifierFilters).allMatch(modifier -> modifier.test(m.getModifiers()));
+    }
+
+    /**
+     * Filters an array of {@link AccessibleObject reflections} by the passed {@link Predicate filters}.
+     *
+     * @param reflections
+     *      The array of {@link AccessibleObject} to filter through
+     * @param filters
+     *      The {@link Predicate}s to filter by
+     * @param <T>
+     *      The type of the {@link AccessibleObject}
+     *
+     * @return A {@link List} of {@link AccessibleObject}s that passed all the filters
+     */
+    @SafeVarargs
+    public static <T extends AccessibleObject & Member> List<T> filterReflections(T[] reflections, Predicate<T>... filters)
+    {
+        return Arrays.stream(reflections)
+            .filter(m ->
+                Arrays.stream(filters).allMatch(filter -> filter.test(m)))
+            .collect(Collectors.toList());
+    }
+
+    /**
      * If an object has the specified annotation, call the {@link Consumer} with the annotation.
      *
      * @param object
@@ -179,9 +218,9 @@ public final class Utilities
      * Returns the first {@link Method} in a class with the specified name.
      *
      * @param clazz
-     *      The class to check, for the method with the specified name
+     *     The class to check, for the method with the specified name
      * @param name
-     *      The name of the method to find
+     *     The name of the method to find
      *
      * @return An {@link Optional} containing the {@link Method}
      */
@@ -245,18 +284,19 @@ public final class Utilities
      * instead returns the passed default value.
      *
      * @param object
-     *      The object to get the field from
+     *     The object to get the field from
      * @param name
-     *      The name of the field to get
+     *     The name of the field to get
      * @param defaultValue
-     *      The default value to return if the field doesn't exist
+     *     The default value to return if the field doesn't exist
      * @param <T>
-     *      The type of the field
+     *     The type of the field
      *
      * @return The field's value or the default value if the field doesn't exist
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getField(Object object, String name, T defaultValue) {
+    public static <T> T getField(Object object, String name, T defaultValue)
+    {
         try {
             Field field = object.getClass().getField(name);
             field.setAccessible(true);
@@ -271,15 +311,19 @@ public final class Utilities
      * Checks an array of annotations for if it contains an annotation of the specified type. If it does, the first
      * instance of this annotation is returned.
      *
-     * @param annotations The array of annotations to search through
-     * @param annotationType The type of the annotation to search for
-     * @param <T> The type of the annotation
+     * @param annotations
+     *     The array of annotations to search through
+     * @param annotationType
+     *     The type of the annotation to search for
+     * @param <T>
+     *     The type of the annotation
      *
      * @return An {@link Optional} containing the annotation if its present
      */
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> Optional<T> retrieveAnnotation(Annotation[] annotations,
-                                                                        Class<T> annotationType) {
+                                                                        Class<T> annotationType)
+    {
         for (Annotation annotation : annotations) {
             if (annotation.annotationType().isAssignableFrom(annotationType)) {
                 return Optional.of((T) annotation);
@@ -292,17 +336,18 @@ public final class Utilities
      * Creates an instance of an {@link Class} using its first constructor.
      *
      * @param clazz
-     *      The {@link Class} of the object to create an instance of
+     *     The {@link Class} of the object to create an instance of
      * @param parameters
-     *      The parameters to pass to the constructor
+     *     The parameters to pass to the constructor
      * @param <T>
-     *      The type of the object to create
+     *     The type of the object to create
      *
      * @return The instantiated object
      */
     @Nullable
     @SuppressWarnings("unchecked")
-    public static <T> T createInstance(Class<T> clazz, Object... parameters) {
+    public static <T> T createInstance(Class<T> clazz, Object... parameters)
+    {
         try {
             if (0 == clazz.getDeclaredConstructors().length)
                 throw new IllegalArgumentException(
@@ -428,11 +473,12 @@ public final class Utilities
      * A simple csv parser, which automatically splits the rows.
      *
      * @param filename
-     *      The name of the csv to parse
+     *     The name of the csv to parse
      *
      * @return A {@link List} of split rows.
      */
-    public static List<String[]> parseCSVFile(String filename) {
+    public static List<String[]> parseCSVFile(String filename)
+    {
         if (!filename.endsWith(".csv"))
             throw new IllegalArgumentException(
                 String.format("The filename, %s does not end with .csv", filename));
@@ -441,7 +487,7 @@ public final class Utilities
             List<String[]> lines = new ArrayList<>();
 
             String line;
-            while(null != (line = bufferedReader.readLine())) {
+            while (null != (line = bufferedReader.readLine())) {
                 lines.add(line.split(","));
             }
             return lines;
@@ -480,11 +526,12 @@ public final class Utilities
      * Capitalises the first letter of the {@link String} and sets the rest of the word to lowercase.
      *
      * @param str
-     *      The {@link String} to capitalise
+     *     The {@link String} to capitalise
      *
      * @return The capitalised {@link String}
      */
-    public static String capitalise(String str) {
+    public static String capitalise(String str)
+    {
         if (null == str || str.isEmpty())
             return str;
 
@@ -495,11 +542,12 @@ public final class Utilities
      * Capitalises the first letter of each word in the {@link String} and sets the rest of the word to lowercase.
      *
      * @param str
-     *      The {@link String sentence} to have each word capitalised
+     *     The {@link String sentence} to have each word capitalised
      *
      * @return The capitalised sentence
      */
-    public static String capitaliseEachWord(@NotNull String str) {
+    public static String capitaliseEachWord(@NotNull String str)
+    {
         String[] words = str.split(" ");
         return Arrays.stream(words)
             .map(Utilities::capitalise)

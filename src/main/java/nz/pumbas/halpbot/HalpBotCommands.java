@@ -27,7 +27,8 @@ public class HalpBotCommands
     }
 
     @Command(alias = "suggestion")
-    public void onSuggestion(MessageReceivedEvent event) {
+    public void onSuggestion(MessageReceivedEvent event)
+    {
         event.getChannel().sendMessage("You can note issues and suggestions for me here: " +
             "https://github.com/pumbas600/HalpBot/issues").queue();
     }
@@ -59,8 +60,10 @@ public class HalpBotCommands
     }
 
     @Command(alias = "unrequired", description = "Tests unrequired annotation")
-    public void onOptional(MessageReceivedEvent event, @Unrequired("No value passed") String word,
-                                                       @Unrequired("No value passed") String value) {
-        event.getChannel().sendMessage(word + " and " + value).queue();
+    public void onOptional(MessageReceivedEvent event,
+                           @Unrequired("No value passed") String a,
+                           @Unrequired("No value passed") String b)
+    {
+        event.getChannel().sendMessage(a + " and " + b).queue();
     }
 }

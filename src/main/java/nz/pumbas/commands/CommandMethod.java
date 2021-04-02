@@ -60,7 +60,8 @@ public class CommandMethod
         return this.command;
     }
 
-    public String getDisplayCommand() {
+    public String getDisplayCommand()
+    {
         return this.displayCommand;
     }
 

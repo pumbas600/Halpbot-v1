@@ -12,10 +12,11 @@ public final class Singleton
     private Singleton() {}
 
     @SuppressWarnings("unchecked")
-    public static <T> T getInstance(@NotNull Class<T> clazz) {
+    public static <T> T getInstance(@NotNull Class<T> clazz)
+    {
         if (!singletons.containsKey(clazz)) {
             singletons.put(clazz, Utilities.createInstance(clazz));
         }
-        return (T)singletons.get(clazz);
+        return (T) singletons.get(clazz);
     }
 }

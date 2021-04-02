@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 public @interface FieldMap
 {
     String[] value();
+
     Class<?>[] types() default Void.class;
 }

@@ -12,16 +12,19 @@ public enum SteamTable
     private final Class<? extends IModel> modelType;
     private final String displayName;
 
-    SteamTable(Class<? extends IModel> modelType, String displayName) {
+    SteamTable(Class<? extends IModel> modelType, String displayName)
+    {
         this.modelType = modelType;
         this.displayName = displayName;
     }
 
-    public Class<? extends IModel> getModelType() {
+    public Class<? extends IModel> getModelType()
+    {
         return this.modelType;
     }
 
-    public String getDisplayName() {
+    public String getDisplayName()
+    {
         return this.displayName;
     }
 

@@ -1,8 +1,9 @@
 package nz.pumbas.utilities;
 
+import nz.pumbas.objects.keys.KeyHolder;
 import nz.pumbas.utilities.maps.FieldMap;
 
-public class Test
+public class Test implements KeyHolder<Test>
 {
     @FieldMap(value = {"displayName=Field", "quantity=5F"},
               types = {String.class, float.class})

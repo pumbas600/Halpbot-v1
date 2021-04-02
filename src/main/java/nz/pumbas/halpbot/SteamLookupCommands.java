@@ -26,7 +26,8 @@ import nz.pumbas.utilities.maps.Row;
 public class SteamLookupCommands
 {
     @Command(alias = "columns", description = "Lists all the available columns for saturated steam look ups")
-    public void onSteamColumn(MessageReceivedEvent event, SteamTable steamTable) {
+    public void onSteamColumn(MessageReceivedEvent event, SteamTable steamTable)
+    {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.orange);
         embedBuilder.setTitle("Steam Table Columns");
@@ -66,7 +67,7 @@ public class SteamLookupCommands
         if (oSaturatedModel.isPresent()) {
             SaturatedSteamModel saturatedModel = oSaturatedModel.get();
 
-            Row select =  MapHelper.getFieldMap(SaturatedSteamModel.class, selectColumn);
+            Row select = MapHelper.getFieldMap(SaturatedSteamModel.class, selectColumn);
             Row where = MapHelper.getFieldMap(SaturatedSteamModel.class, whereColumn);
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -87,7 +88,6 @@ public class SteamLookupCommands
             }
 
             event.getChannel().sendMessage(embedBuilder.build()).queue();
-        }
-        else throw new ErrorMessageException("That doesn't seem to be a valid query.");
+        } else throw new ErrorMessageException("That doesn't seem to be a valid query.");
     }
 }

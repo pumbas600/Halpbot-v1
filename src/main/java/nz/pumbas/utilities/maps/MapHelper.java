@@ -23,7 +23,8 @@ public final class MapHelper
         return parsedClassMaps.get(clazz);
     }
 
-    public static Row getFieldMap(Class<?> clazz, String field) {
+    public static Row getFieldMap(Class<?> clazz, String field)
+    {
         Map<String, Row> parsedClassMap = getClassMap(clazz);
 
         if (!parsedClassMap.containsKey(field))
@@ -33,7 +34,8 @@ public final class MapHelper
         return parsedClassMap.get(field);
     }
 
-    public static <T> T getValue(Class<?> clazz, String field, String key) {
+    public static <T> T getValue(Class<?> clazz, String field, String key)
+    {
         return getFieldMap(clazz, field).getValue(key);
     }
 

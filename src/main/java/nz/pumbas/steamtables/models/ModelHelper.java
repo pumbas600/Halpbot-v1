@@ -16,18 +16,21 @@ public final class ModelHelper
 {
     private ModelHelper() {}
 
-    public static List<String> getColumnNames(Class<? extends IModel> clazz) {
+    public static List<String> getColumnNames(Class<? extends IModel> clazz)
+    {
         return Utilities.getFieldsNotAnnotatedWith(clazz, IgnoreColumn.class)
             .stream().map(Field::getName)
             .collect(Collectors.toList());
     }
 
-    public static String getTableName(Class<? extends IModel> clazz) {
+    public static String getTableName(Class<? extends IModel> clazz)
+    {
         return Utilities.getAnnotationFieldElse(
             clazz, Model.class, Model::tableName, null);
     }
 
-    public static <T extends IModel> T parseModel(Class<T> clazz, ResultSet result) {
+    public static <T extends IModel> T parseModel(Class<T> clazz, ResultSet result)
+    {
         T model = Utilities.createInstance(clazz);
 
         getColumnNames(clazz).forEach(n -> {
@@ -42,7 +45,8 @@ public final class ModelHelper
         return model;
     }
 
-    public static <T extends IModel> List<T> parseModels(Class<T> clazz, ResultSet result) {
+    public static <T extends IModel> List<T> parseModels(Class<T> clazz, ResultSet result)
+    {
         List<T> models = new ArrayList<>();
 
         try {

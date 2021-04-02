@@ -21,15 +21,17 @@ public class SteamTableManager
 {
     private Map<String, String> columnMappings;
 
-    public SteamTableManager() {
+    public SteamTableManager()
+    {
         this.retrieveColumnMappings();
     }
 
-    private void retrieveColumnMappings() {
+    private void retrieveColumnMappings()
+    {
         this.columnMappings = new HashMap<>();
         String sql = "SELECT * FROM columns";
 
-        try (Connection connection = this.connect()){
+        try (Connection connection = this.connect()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
 
@@ -42,7 +44,8 @@ public class SteamTableManager
         }
     }
 
-    public Connection connect() {
+    public Connection connect()
+    {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:steamtables.sqlite");
@@ -52,11 +55,13 @@ public class SteamTableManager
         return connection;
     }
 
-    public Map<String, String> getColumnMappings() {
+    public Map<String, String> getColumnMappings()
+    {
         return Collections.unmodifiableMap(this.columnMappings);
     }
 
-    public void insertRecord(SteamInserts insertStatement, List<Double> records) {
+    public void insertRecord(SteamInserts insertStatement, List<Double> records)
+    {
         if (null == records) return;
 
         try {
@@ -79,7 +84,8 @@ public class SteamTableManager
         }
     }
 
-    public Optional<ResultSet> selectSaturatedRecord(String selectColumn, String whereColumn, double value) {
+    public Optional<ResultSet> selectSaturatedRecord(String selectColumn, String whereColumn, double value)
+    {
         selectColumn = selectColumn.toLowerCase();
         whereColumn = whereColumn.toLowerCase();
 
@@ -107,7 +113,8 @@ public class SteamTableManager
     }
 
     public <T extends IModel> Optional<T> selectRecord(Class<T> clazz, String selectColumn, String whereColumn,
-                                  double target) {
+                                                       double target)
+    {
         selectColumn = this.selectColumn(selectColumn);
         whereColumn = this.selectColumn(whereColumn);
 
@@ -133,7 +140,7 @@ public class SteamTableManager
 
     private <T extends IModel> Optional<T> selectRecordBetween(Connection connection, Class<T> clazz,
                                                                String whereColumn, double min,
-                                                                double max, double target)
+                                                               double max, double target)
     {
         try {
             String sql = "SELECT * FROM " + ModelHelper.getTableName(clazz) +

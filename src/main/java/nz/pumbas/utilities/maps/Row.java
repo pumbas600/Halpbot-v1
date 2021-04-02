@@ -6,15 +6,18 @@ public final class Row
 {
     private final Map<String, Object> fieldMap;
 
-    private Row(Map<String, Object> fieldMap) {
+    private Row(Map<String, Object> fieldMap)
+    {
         this.fieldMap = fieldMap;
     }
 
-    public static Row of(Map<String, Object> fieldMap) {
+    public static Row of(Map<String, Object> fieldMap)
+    {
         return new Row(fieldMap);
     }
 
-    public Object get(String key) {
+    public Object get(String key)
+    {
         if (!this.fieldMap.containsKey(key))
             throw new IllegalArgumentException(
                 String.format("The key %s is not mapped to this column", key));
@@ -23,22 +26,25 @@ public final class Row
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getValue(String key) {
+    public <T> T getValue(String key)
+    {
         return (T) this.get(key);
     }
 
-    public String getString(String key) {
+    public String getString(String key)
+    {
         return this.getValue(key);
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         StringBuilder builder = new StringBuilder();
         this.fieldMap.forEach((k, v) ->
             builder.append(k).append(": ").append(v).append('\n'));
 
         //Remove the last newline character
-        builder.deleteCharAt(builder.length() -1);
+        builder.deleteCharAt(builder.length() - 1);
 
         return builder.toString();
     }

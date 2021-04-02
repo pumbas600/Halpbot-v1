@@ -1,12 +1,11 @@
 package nz.pumbas;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.commands.Annotations.Unrequired;
 import nz.pumbas.halpbot.HalpBot;
+import nz.pumbas.objects.keys.Keys;
+import nz.pumbas.objects.keys.StorageKey;
+import nz.pumbas.utilities.Test;
 import nz.pumbas.utilities.Utilities;
 
 public class Main
@@ -15,15 +14,15 @@ public class Main
     public static void main(String[] args) throws LoginException, NoSuchMethodException
     {
         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
-//
-//        Pattern pattern = Pattern.compile("^(?:([\\w]+))* ?(?:([\\w]+))*");
-//        Matcher matcher = pattern.matcher("");
-//
-//        if (matcher.lookingAt()) {
-//            System.out.println(matcher.groupCount());
-//        }
 
-        //System.out.println(Unrequired.class.isAssignableFrom(Unrequired.class));
+//        StorageKey<Test, String> NAME = Keys.storageKey();
+//        Test test = new Test();
+//        test.set(NAME, "Josh");
+//        Test test2 = new Test();
+//        NAME.set(test2, "pumbas600");
+//
+//        System.out.println(test.getUnchecked(NAME));
+//        System.out.println(NAME.getUnchecked(test2));
 
 //        SteamTableManager manager = new SteamTableManager();
 //
