@@ -2,11 +2,11 @@ package nz.pumbas.steamtables.models;
 
 import nz.pumbas.utilities.maps.ClassMap;
 import nz.pumbas.utilities.maps.FieldMap;
-import nz.pumbas.steamtables.annotations.Model;
+import nz.pumbas.steamtables.annotations.ModelObject;
 
 @ClassMap(keys = {"displayName", "units"})
-@Model(tableName = "saturated")
-public class SaturatedSteamModel implements IModel
+@ModelObject(tableName = "saturated")
+public class SaturatedSteamModel implements Model
 {
     @FieldMap({"Temperature", "Celsius"})
     public double temperature;

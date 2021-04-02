@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="steamtables.sqlite" uuid="b18ab14d-ece6-4c7e-a3b3-2f99f316cec1">
+    <data-source source="LOCAL" name="steamtables" uuid="d69f9925-eef4-4c18-a2b4-f146536ca43b">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:steamtables.sqlite</jdbc-url>
+      <jdbc-url>jdbc:sqlite:D:\Java\HalpBot\steamtables.sqlite</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="steamtables" uuid="56360a38-88c5-4c94-9fbb-78cca1f99848">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\User\Documents\Java\HalpBot\steamtables.sqlite</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.34.0/sqlite-jdbc-3.34.0.jar</url>
+        </library>
+      </libraries>
     </data-source>
   </component>
 </project>

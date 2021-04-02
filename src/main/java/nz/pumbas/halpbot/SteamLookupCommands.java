@@ -16,9 +16,11 @@ import nz.pumbas.commands.Annotations.CommandGroup;
 import nz.pumbas.commands.Exceptions.ErrorMessageException;
 import nz.pumbas.steamtables.SteamTable;
 import nz.pumbas.steamtables.SteamTableManager;
+import nz.pumbas.steamtables.models.Model;
 import nz.pumbas.steamtables.models.ModelHelper;
 import nz.pumbas.steamtables.models.SaturatedSteamModel;
 import nz.pumbas.utilities.Singleton;
+import nz.pumbas.utilities.enums.Flags;
 import nz.pumbas.utilities.maps.MapHelper;
 import nz.pumbas.utilities.maps.Row;
 
@@ -32,13 +34,12 @@ public class SteamLookupCommands
         embedBuilder.setColor(Color.orange);
         embedBuilder.setTitle("Steam Table Columns");
 
-        List<String> columnNames = ModelHelper.getColumnNames(steamTable.getModelType());
         Map<String, List<String>> columnAliases = new HashMap<>();
-        Singleton.getInstance(SteamTableManager.class).getColumnMappings().forEach((alias, column) -> {
-            if (columnNames.contains(column)) {
-                if (!columnAliases.containsKey(column))
-                    columnAliases.put(column, new ArrayList<>());
-                columnAliases.get(column).add(alias);
+        Singleton.getInstance(SteamTableManager.class).getColumnMappings().forEach(columnModel -> {
+            if (Flags.hasFlag(columnModel.tables, steamTable)) {
+                if (!columnAliases.containsKey(columnModel.columnname))
+                    columnAliases.put(columnModel.columnname, new ArrayList<>());
+                columnAliases.get(columnModel.columnalias).add(columnModel.columnalias);
             }
         });
         StringBuilder columns = new StringBuilder();
@@ -54,40 +55,83 @@ public class SteamLookupCommands
         event.getChannel().sendMessage(embedBuilder.build()).queue();
     }
 
-    @Command(alias = "saturated", command = "<steam> WORD,? <where|when> WORD <=|is> DOUBLE")
-    public void onSaturated(MessageReceivedEvent event, String selectColumn, String whereColumn, double target)
+    private <T extends Model> void steamLookup(MessageReceivedEvent event, String selectColumn, String whereColumn,
+                                               double target, Class<T> steamModelType)
     {
         SteamTableManager steamTableManager = Singleton.getInstance(SteamTableManager.class);
-        Optional<SaturatedSteamModel> oSaturatedModel = steamTableManager.selectRecord(SaturatedSteamModel.class,
-            selectColumn, whereColumn, target);
+        SteamTable steamTable = SteamTable.of(steamModelType);
 
-        selectColumn = steamTableManager.selectColumn(selectColumn);
-        whereColumn = steamTableManager.selectColumn(whereColumn);
+        Optional<T> oSteamModel = steamTableManager.selectRecord(
+            steamModelType,
+            selectColumn,
+            whereColumn,
+            target);
 
-        if (oSaturatedModel.isPresent()) {
-            SaturatedSteamModel saturatedModel = oSaturatedModel.get();
+        selectColumn = steamTableManager.selectColumn(selectColumn, steamTable);
+        whereColumn = steamTableManager.selectColumn(whereColumn, steamTable);
 
-            Row select = MapHelper.getFieldMap(SaturatedSteamModel.class, selectColumn);
-            Row where = MapHelper.getFieldMap(SaturatedSteamModel.class, whereColumn);
+        if (oSteamModel.isPresent()) {
+            T steamModel = oSteamModel.get();
+
+            Row select = MapHelper.getFieldMap(steamModelType, selectColumn);
+            Row where = MapHelper.getFieldMap(steamModelType, whereColumn);
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setColor(Color.orange);
-            embedBuilder.setTitle("Saturated Steam Look Up");
+            embedBuilder.setTitle(String.format("%s Look Up", steamTable.getDisplayName()));
             embedBuilder.addField("Query",
                 String.format("Select %s when %s = %s %s", select.getValue("displayName"), where.getValue(
                     "displayName"), target, where.getValue("units")), false);
 
-            String result = String.format("%s %s", saturatedModel.getDouble(selectColumn), select.getString("units"));
+            String result = String.format("%s %s", steamModel.getDouble(selectColumn), select.getString("units"));
             embedBuilder.addField("Result", result, false);
 
-            if (saturatedModel.getDouble(whereColumn) != target) {
+            if (steamModel.getDouble(whereColumn) != target) {
                 embedBuilder.setFooter(String.format("I didn't have any information for when %s = %s %s,\nso I got " +
                         "the next closest thing (%s = %s %s).",
                     where.getValue("displayName"), target, where.getValue("units"),
-                    where.getValue("displayName"), saturatedModel.getDouble(whereColumn), where.getValue("units")));
+                    where.getValue("displayName"), steamModel.getDouble(whereColumn), where.getValue("units")));
             }
 
             event.getChannel().sendMessage(embedBuilder.build()).queue();
         } else throw new ErrorMessageException("That doesn't seem to be a valid query.");
+    }
+
+    @Command(alias = "saturated", command = "<steam> WORD,? <where|when> WORD <=|is> DOUBLE")
+    public void onSaturated(MessageReceivedEvent event, String selectColumn, String whereColumn, double target)
+    {
+        this.steamLookup(event, selectColumn, whereColumn, target, SaturatedSteamModel.class);
+//        SteamTableManager steamTableManager = Singleton.getInstance(SteamTableManager.class);
+//        Optional<SaturatedSteamModel> oSaturatedModel = steamTableManager.selectRecord(SaturatedSteamModel.class,
+//            selectColumn, whereColumn, target);
+//
+//        selectColumn = steamTableManager.selectColumn(selectColumn, SteamTable.SATURATED);
+//        whereColumn = steamTableManager.selectColumn(whereColumn, SteamTable.SATURATED);
+//
+//        if (oSaturatedModel.isPresent()) {
+//            SaturatedSteamModel saturatedModel = oSaturatedModel.get();
+//
+//            Row select = MapHelper.getFieldMap(SaturatedSteamModel.class, selectColumn);
+//            Row where = MapHelper.getFieldMap(SaturatedSteamModel.class, whereColumn);
+//
+//            EmbedBuilder embedBuilder = new EmbedBuilder();
+//            embedBuilder.setColor(Color.orange);
+//            embedBuilder.setTitle("Saturated Steam Look Up");
+//            embedBuilder.addField("Query",
+//                String.format("Select %s when %s = %s %s", select.getValue("displayName"), where.getValue(
+//                    "displayName"), target, where.getValue("units")), false);
+//
+//            String result = String.format("%s %s", saturatedModel.getDouble(selectColumn), select.getString("units"));
+//            embedBuilder.addField("Result", result, false);
+//
+//            if (saturatedModel.getDouble(whereColumn) != target) {
+//                embedBuilder.setFooter(String.format("I didn't have any information for when %s = %s %s,\nso I got " +
+//                        "the next closest thing (%s = %s %s).",
+//                    where.getValue("displayName"), target, where.getValue("units"),
+//                    where.getValue("displayName"), saturatedModel.getDouble(whereColumn), where.getValue("units")));
+//            }
+//
+//            event.getChannel().sendMessage(embedBuilder.build()).queue();
+//        } else throw new ErrorMessageException("That doesn't seem to be a valid query.");
     }
 }

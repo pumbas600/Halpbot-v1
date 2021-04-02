@@ -1,12 +1,12 @@
 package nz.pumbas.steamtables.models;
 
-import nz.pumbas.steamtables.annotations.Model;
+import nz.pumbas.steamtables.annotations.ModelObject;
 import nz.pumbas.utilities.maps.ClassMap;
 import nz.pumbas.utilities.maps.FieldMap;
 
-@Model(tableName = "superheated")
+@ModelObject(tableName = "superheated")
 @ClassMap(keys = {"displayName", "units"})
-public class SuperheatedSteamModel implements IModel
+public class SuperheatedSteamModel implements Model
 {
     @FieldMap({"Temperature", "Celsius"})
     public double temperature;

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +15,15 @@ import java.util.Optional;
 
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.Exceptions.ErrorMessageException;
-import nz.pumbas.steamtables.models.IModel;
+import nz.pumbas.steamtables.models.ColumnModel;
+import nz.pumbas.steamtables.models.Model;
 import nz.pumbas.steamtables.models.ModelHelper;
+import nz.pumbas.utilities.enums.Flags;
 
 public class SteamTableManager
 {
-    private Map<String, String> columnMappings;
+    private static final double Tolerance = 0.05D;
+    private Map<String, ColumnModel> columnMappings;
 
     public SteamTableManager()
     {
@@ -35,9 +39,10 @@ public class SteamTableManager
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
 
-            while (resultSet.next()) {
-                this.columnMappings.put(resultSet.getString("columnalias"), resultSet.getString("columnname"));
-            }
+            ModelHelper.parseModels(ColumnModel.class, resultSet)
+                .forEach(columnModel ->
+                    this.columnMappings.put(columnModel.columnalias, columnModel)
+                );
 
         } catch (SQLException e) {
             ErrorManager.handle(e);
@@ -55,9 +60,9 @@ public class SteamTableManager
         return connection;
     }
 
-    public Map<String, String> getColumnMappings()
+    public Collection<ColumnModel> getColumnMappings()
     {
-        return Collections.unmodifiableMap(this.columnMappings);
+        return this.columnMappings.values();
     }
 
     public void insertRecord(SteamInserts insertStatement, List<Double> records)
@@ -84,53 +89,37 @@ public class SteamTableManager
         }
     }
 
-    public Optional<ResultSet> selectSaturatedRecord(String selectColumn, String whereColumn, double value)
+    public String selectColumn(String columnAlias, SteamTable steamTable)
     {
-        selectColumn = selectColumn.toLowerCase();
-        whereColumn = whereColumn.toLowerCase();
-
-        String sql = "SELECT * FROM saturated WHERE " + whereColumn + " = ?";
-
-        try (Connection connection = this.connect()) {
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setDouble(1, value);
-
-            ResultSet result = statement.executeQuery();
-
-            return Optional.of(result);
-        } catch (SQLException e) {
-            ErrorManager.handle(e);
+        if (this.columnMappings.containsKey(columnAlias)) {
+            ColumnModel columnModel = this.columnMappings.get(columnAlias);
+            if (Flags.hasFlag(columnModel.tables, steamTable))
+                return columnModel.columnname;
         }
-        return Optional.empty();
-    }
-
-    public String selectColumn(String columnAlias)
-    {
-        if (this.columnMappings.containsKey(columnAlias))
-            return this.columnMappings.get(columnAlias);
-        else throw new ErrorMessageException(
+        throw new ErrorMessageException(
             String.format("The column name '%s' is not valid", columnAlias));
     }
 
-    public <T extends IModel> Optional<T> selectRecord(Class<T> clazz, String selectColumn, String whereColumn,
-                                                       double target)
+    public <T extends Model> Optional<T> selectRecord(Class<T> clazz, String selectColumn, String whereColumn,
+                                                      double target)
     {
-        selectColumn = this.selectColumn(selectColumn);
-        whereColumn = this.selectColumn(whereColumn);
+        SteamTable steamTable = SteamTable.of(clazz);
+        selectColumn = this.selectColumn(selectColumn, steamTable);
+        whereColumn = this.selectColumn(whereColumn, steamTable);
 
         try (Connection connection = this.connect()) {
             String sql = "SELECT * FROM " + ModelHelper.getTableName(clazz) +
                 " WHERE " + whereColumn + " = ? LIMIT 1";
+
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setDouble(1, target);
-
             ResultSet result = statement.executeQuery();
 
             if (result.next())
                 return Optional.of(ModelHelper.parseModel(clazz, result));
             else {
                 return this.selectRecordBetween(connection, clazz, whereColumn,
-                    0.95D * target, 1.05D * target, target);
+                    (1 - Tolerance) * target, (1 + Tolerance) * target, target);
             }
         } catch (SQLException e) {
             ErrorManager.handle(e);
@@ -138,9 +127,9 @@ public class SteamTableManager
         return Optional.empty();
     }
 
-    private <T extends IModel> Optional<T> selectRecordBetween(Connection connection, Class<T> clazz,
-                                                               String whereColumn, double min,
-                                                               double max, double target)
+    private <T extends Model> Optional<T> selectRecordBetween(Connection connection, Class<T> clazz,
+                                                              String whereColumn, double min,
+                                                              double max, double target)
     {
         try {
             String sql = "SELECT * FROM " + ModelHelper.getTableName(clazz) +

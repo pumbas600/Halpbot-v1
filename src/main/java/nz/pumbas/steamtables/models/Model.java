@@ -1,10 +1,10 @@
 package nz.pumbas.steamtables.models;
 
+import nz.pumbas.objects.keys.KeyHolder;
 import nz.pumbas.utilities.Utilities;
 
-public interface IModel
+public interface Model extends KeyHolder<Model>
 {
-
     default double getDouble(String name)
     {
         return Utilities.getField(this, name, 0D);
