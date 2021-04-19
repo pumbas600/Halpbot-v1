@@ -24,7 +24,7 @@ public class HalpBot extends ListenerAdapter
             .addEventListeners(this);
 
         CommandManager manager = new CommandManager(builder);
-        manager.registerCommands(new HalpBotCommands(), new SteamLookupCommands());
+        manager.registerCommands(new HalpBotCommands(), new SteamLookupCommands(), new FrictionCommands());
 
         this.jda = builder.build();
     }
