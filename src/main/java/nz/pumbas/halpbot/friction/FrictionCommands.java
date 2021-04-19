@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot;
+package nz.pumbas.halpbot.friction;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -28,7 +28,7 @@ public class FrictionCommands
         double angleInRad = Math.toRadians(angle);
         double normalA = weightA * Math.cos(angleInRad);
         double normalB = normalA + weightB * Math.cos(angleInRad);
-        double normalC = normalA + normalB + weightC * Math.cos(angleInRad);
+        double normalC = normalA + (weightB + weightC) * Math.cos(angleInRad);
 
         double frictionAB = Uab * normalA;
         double frictionBC = Ubc * normalB;

@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.CommandManager;
+import nz.pumbas.halpbot.friction.FrictionCommands;
 
 public class HalpBot extends ListenerAdapter
 {
