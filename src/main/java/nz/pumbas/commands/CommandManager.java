@@ -257,7 +257,7 @@ public final class CommandManager extends ListenerAdapter
 
     private List<CommandMethod> createCommandMethods(Method method, Object object, Command commandAnnotation)
     {
-        boolean hasCommand = 1 < method.getParameterCount();
+        boolean hasCommand = 1 < method.getParameterCount() || !commandAnnotation.command().isEmpty();
 
         if (hasCommand) {
             this.checkForCustomTypes(method.getParameterTypes());

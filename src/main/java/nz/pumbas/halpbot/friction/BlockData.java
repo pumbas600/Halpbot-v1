@@ -37,7 +37,7 @@ public class BlockData
         this.normal = normal;
     }
 
-    public double getFriction()
+    public double getMaxFriction()
     {
         return this.normal * this.frictionalConstant;
     }
