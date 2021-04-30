@@ -13,6 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.CommandManager;
+import nz.pumbas.halpbot.commands.HalpBotCommands;
+import nz.pumbas.halpbot.commands.ImageCommands;
+import nz.pumbas.halpbot.commands.SteamLookupCommands;
 import nz.pumbas.halpbot.friction.FrictionCommands;
 
 public class HalpBot extends ListenerAdapter
@@ -25,7 +28,7 @@ public class HalpBot extends ListenerAdapter
             .addEventListeners(this);
 
         CommandManager manager = new CommandManager(builder);
-        manager.registerCommands(new HalpBotCommands(), new SteamLookupCommands(), new FrictionCommands());
+        manager.registerCommands(new HalpBotCommands(), new SteamLookupCommands(), new FrictionCommands(), new ImageCommands());
 
         this.jda = builder.build();
     }

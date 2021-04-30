@@ -3,7 +3,11 @@ package nz.pumbas.utilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,13 +25,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.utilities.functionalinterfaces.IOFunction;
+import nz.pumbas.utilities.io.ImageType;
 
 public final class Utilities
 {
@@ -551,5 +559,94 @@ public final class Utilities
         return Arrays.stream(words)
             .map(Utilities::capitalise)
             .collect(Collectors.joining(" "));
+    }
+
+    /**
+     * Combines 4, 256 bit ints for alpha, red, green and blue into a single int that can be used in images.
+     *
+     * @param a
+     *      A 256 bit number describing the alpha
+     * @param r
+     *      A 256 bit number describing the red
+     * @param g
+     *      A 256 bit number describing the green
+     * @param b
+     *      A 256 bit number describing the blue
+     *
+     * @return A single int, containing the alpha, red, green and blue information
+     */
+    @SuppressWarnings({"OverlyComplexBooleanExpression", "MagicNumber"})
+    public static int argbToInt(int a, int r, int g, int b)
+    {
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    /**
+     * Generates a ARGB {@link BufferedImage} of the specified size, using an {@link BiFunction} which takes in a pixels x
+     * and y position respectively and returns a integer specifying the colour for that pixel.
+     *
+     * @param width
+     *      The width of the image in pixels
+     * @param height
+     *      The height of the image in pixels
+     * @param positionFunction
+     *      The {@link BiFunction} which specifies a pixels colour based on its x and y position respectively
+     *
+     * @return The generated {@link BufferedImage}
+     */
+    public static BufferedImage generateImageByPosition(int width, int height,
+                                                        @NotNull BiFunction<Integer, Integer, Integer> positionFunction)
+    {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int colour = positionFunction.apply(x, y);
+                image.setRGB(x, y, colour);
+            }
+        }
+
+        return image;
+    }
+
+    /**
+     * Converts an {@link BufferedImage} to an array of bytes.
+     *
+     * @param image
+     *      The {@link BufferedImage} to convert to bytes
+     * @param imageType
+     *      The {@link ImageType} of the {@link BufferedImage}
+     *
+     * @return An array of bytes
+     */
+    public static byte[] toByteArray(BufferedImage image, ImageType imageType)
+    {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(image, imageType.getType(), outputStream);
+            return outputStream.toByteArray();
+
+        } catch (IOException e) {
+            ErrorManager.handle(e);
+        }
+
+        return new byte[0];
+    }
+
+    /**
+     * Determines if two values are approximately equal, by checking if the difference between them is less than the
+     * specified tolerance.
+     *
+     * @param a
+     *      The first value
+     * @param b
+     *      The second value
+     * @param tolerance
+     *      How similar they need to be, to be considered approximately equal
+     *
+     * @return if they're approximately equal
+     */
+    public static boolean approximatelyEqual(double a, double b, double tolerance)
+    {
+        return Math.abs(a - b) < tolerance;
     }
 }

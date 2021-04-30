@@ -1,7 +1,7 @@
+nz/pumbas/halpbot/commands/HalpBotCommands.java
+ nz.pumbas.halpbot.commands.HalpBotCommands
 nz/pumbas/halpbot/friction/FrictionData.java
  nz.pumbas.halpbot.friction.FrictionData
-nz/pumbas/halpbot/HalpBotCommands.java
- nz.pumbas.halpbot.HalpBotCommands
 nz/pumbas/commands/Exceptions/ErrorMessageException.java
  nz.pumbas.commands.Exceptions.ErrorMessageException
 nz/pumbas/commands/ErrorManager.java
@@ -10,6 +10,8 @@ nz/pumbas/commands/Exceptions/IllegalCustomParameterException.java
  nz.pumbas.commands.Exceptions.IllegalCustomParameterException
 nz/pumbas/utilities/enums/Flag.java
  nz.pumbas.utilities.enums.Flag
+nz/pumbas/halpbot/commands/ImageCommands.java
+ nz.pumbas.halpbot.commands.ImageCommands
 nz/pumbas/commands/Annotations/ParameterConstruction.java
  nz.pumbas.commands.Annotations.ParameterConstruction
 nz/pumbas/commands/CommandInfo.java
@@ -32,10 +34,10 @@ nz/pumbas/steamtables/models/SuperheatedSteamModel.java
  nz.pumbas.steamtables.models.SuperheatedSteamModel
 nz/pumbas/utilities/Singleton.java
  nz.pumbas.utilities.Singleton
+nz/pumbas/halpbot/commands/SteamLookupCommands.java
+ nz.pumbas.halpbot.commands.SteamLookupCommands
 nz/pumbas/commands/Exceptions/UnimplementedFeatureException.java
  nz.pumbas.commands.Exceptions.UnimplementedFeatureException
-nz/pumbas/halpbot/SteamLookupCommands.java
- nz.pumbas.halpbot.SteamLookupCommands
 nz/pumbas/utilities/maps/FieldMap.java
  nz.pumbas.utilities.maps.FieldMap
 nz/pumbas/steamtables/SteamTableManager.java
@@ -54,6 +56,8 @@ nz/pumbas/utilities/enums/Flags.java
  nz.pumbas.utilities.enums.Flags
 nz/pumbas/halpbot/friction/BlockData.java
  nz.pumbas.halpbot.friction.BlockData
+nz/pumbas/utilities/io/ImageType.java
+ nz.pumbas.utilities.io.ImageType
 nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
 nz/pumbas/Main.java
@@ -84,8 +88,6 @@ nz/pumbas/commands/Annotations/CommandGroup.java
  nz.pumbas.commands.Annotations.CommandGroup
 nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
-nz/pumbas/utilities/Test.java
- nz.pumbas.utilities.Test
 nz/pumbas/objects/keys/Key.java
  nz.pumbas.objects.keys.Key
 nz/pumbas/commands/CustomParameterType.java

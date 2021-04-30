@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot;
+package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -17,7 +17,6 @@ import nz.pumbas.commands.Exceptions.ErrorMessageException;
 import nz.pumbas.steamtables.SteamTable;
 import nz.pumbas.steamtables.SteamTableManager;
 import nz.pumbas.steamtables.models.Model;
-import nz.pumbas.steamtables.models.ModelHelper;
 import nz.pumbas.steamtables.models.SaturatedSteamModel;
 import nz.pumbas.utilities.Singleton;
 import nz.pumbas.utilities.enums.Flags;

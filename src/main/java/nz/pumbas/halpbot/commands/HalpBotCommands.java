@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot;
+package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
