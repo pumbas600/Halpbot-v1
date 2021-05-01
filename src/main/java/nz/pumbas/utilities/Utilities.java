@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -469,11 +470,24 @@ public final class Utilities
         InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(filename);
 
         if (null == in) {
-            System.out.printf("The file, %s, couldn't be found!%n", filename);
             return Optional.empty();
         }
         return Optional.of(in);
+    }
 
+    /**
+     * Gets the full path of a resource if its present.
+     *
+     * @param filename
+     *      The filename of the resource
+     *
+     * @return The full path to the resource
+     */
+    public static Optional<String> retrieveResourcePath(String filename) {
+        URL url = ClassLoader.getSystemClassLoader().getResource(filename);
+        if (null == url)
+            return Optional.empty();
+        return Optional.of(url.getPath());
     }
 
     /**

@@ -39,6 +39,7 @@ public final class CommandManager extends ListenerAdapter
     //TODO: Manually submit type parsers (E.g: For types you don't have access to)?
 
     public static final Map<String, String> CommandRegex = Map.of(
+        "ANY", "(.*)",
         "SENTENCE", "([\\w ,\\.!\\?]+)"
     );
 

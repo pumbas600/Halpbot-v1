@@ -6,8 +6,8 @@ import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CommandGroup;
 import nz.pumbas.commands.Annotations.Unrequired;
 import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
-import nz.pumbas.customparameters.Shape;
-import nz.pumbas.customparameters.Vector2;
+import nz.pumbas.halpbot.customparameters.Shape;
+import nz.pumbas.halpbot.customparameters.Vector2;
 
 @CommandGroup(defaultPrefix = "$")
 public class HalpBotCommands

@@ -13,22 +13,32 @@ import org.jetbrains.annotations.NotNull;
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.CommandManager;
+import nz.pumbas.halpbot.commands.CalculusCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.ImageCommands;
 import nz.pumbas.halpbot.commands.SteamLookupCommands;
 import nz.pumbas.halpbot.friction.FrictionCommands;
+import nz.pumbas.processes.PipeProcess;
 
 public class HalpBot extends ListenerAdapter
 {
     private final JDA jda;
+    private final PipeProcess process;
 
     public HalpBot(String token) throws LoginException
     {
         JDABuilder builder = JDABuilder.createDefault(token)
             .addEventListeners(this);
 
+        this.process = new PipeProcess("python", "PythonProcess.py");
+
         CommandManager manager = new CommandManager(builder);
-        manager.registerCommands(new HalpBotCommands(), new SteamLookupCommands(), new FrictionCommands(), new ImageCommands());
+        manager.registerCommands(
+            new HalpBotCommands(),
+            new SteamLookupCommands(),
+            new FrictionCommands(),
+            new ImageCommands(),
+            new CalculusCommands(this.process));
 
         this.jda = builder.build();
     }
@@ -43,6 +53,7 @@ public class HalpBot extends ListenerAdapter
     @Override
     public void onShutdown(@NotNull ShutdownEvent event)
     {
+        this.process.closeProcess();
         System.out.println("Shutting down the bot!");
     }
 }

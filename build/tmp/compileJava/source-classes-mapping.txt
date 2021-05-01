@@ -4,6 +4,8 @@ nz/pumbas/halpbot/friction/FrictionData.java
  nz.pumbas.halpbot.friction.FrictionData
 nz/pumbas/commands/Exceptions/ErrorMessageException.java
  nz.pumbas.commands.Exceptions.ErrorMessageException
+nz/pumbas/halpbot/commands/steamtables/SteamInserts.java
+ nz.pumbas.halpbot.commands.steamtables.SteamInserts
 nz/pumbas/commands/ErrorManager.java
  nz.pumbas.commands.ErrorManager
 nz/pumbas/commands/Exceptions/IllegalCustomParameterException.java
@@ -18,8 +20,10 @@ nz/pumbas/commands/CommandInfo.java
  nz.pumbas.commands.CommandInfo
 nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
-nz/pumbas/halpbot/HalpBot.java
- nz.pumbas.halpbot.HalpBot
+nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
+ nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
+nz/pumbas/commands/CommandManager.java
+ nz.pumbas.commands.CommandManager
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/ConstructorPair.java
@@ -28,10 +32,8 @@ nz/pumbas/halpbot/friction/FrictionCommands.java
  nz.pumbas.halpbot.friction.FrictionCommands
 nz/pumbas/objects/keys/KeyHolder.java
  nz.pumbas.objects.keys.KeyHolder
-nz/pumbas/steamtables/SteamInserts.java
- nz.pumbas.steamtables.SteamInserts
-nz/pumbas/steamtables/models/SuperheatedSteamModel.java
- nz.pumbas.steamtables.models.SuperheatedSteamModel
+nz/pumbas/halpbot/customparameters/Vector2.java
+ nz.pumbas.halpbot.customparameters.Vector2
 nz/pumbas/utilities/Singleton.java
  nz.pumbas.utilities.Singleton
 nz/pumbas/halpbot/commands/SteamLookupCommands.java
@@ -40,18 +42,16 @@ nz/pumbas/commands/Exceptions/UnimplementedFeatureException.java
  nz.pumbas.commands.Exceptions.UnimplementedFeatureException
 nz/pumbas/utilities/maps/FieldMap.java
  nz.pumbas.utilities.maps.FieldMap
-nz/pumbas/steamtables/SteamTableManager.java
- nz.pumbas.steamtables.SteamTableManager
+nz/pumbas/halpbot/commands/steamtables/models/SuperheatedSteamModel.java
+ nz.pumbas.halpbot.commands.steamtables.models.SuperheatedSteamModel
 nz/pumbas/utilities/functionalinterfaces/SQLFunction.java
  nz.pumbas.utilities.functionalinterfaces.SQLFunction
 nz/pumbas/utilities/maps/Row.java
  nz.pumbas.utilities.maps.Row
-nz/pumbas/steamtables/models/Model.java
- nz.pumbas.steamtables.models.Model
 nz/pumbas/utilities/maps/ClassMap.java
  nz.pumbas.utilities.maps.ClassMap
-nz/pumbas/steamtables/models/ColumnModel.java
- nz.pumbas.steamtables.models.ColumnModel
+nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
+ nz.pumbas.halpbot.commands.steamtables.SteamTableManager
 nz/pumbas/utilities/enums/Flags.java
  nz.pumbas.utilities.enums.Flags
 nz/pumbas/halpbot/friction/BlockData.java
@@ -60,41 +60,47 @@ nz/pumbas/utilities/io/ImageType.java
  nz.pumbas.utilities.io.ImageType
 nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
-nz/pumbas/Main.java
- nz.pumbas.Main
-nz/pumbas/customparameters/Vector2.java
- nz.pumbas.customparameters.Vector2
+nz/pumbas/objects/keys/Keys.java
+ nz.pumbas.objects.keys.Keys
+nz/pumbas/halpbot/commands/steamtables/models/Model.java
+ nz.pumbas.halpbot.commands.steamtables.models.Model
 nz/pumbas/commands/Annotations/Unrequired.java
  nz.pumbas.commands.Annotations.Unrequired
-nz/pumbas/steamtables/models/ModelHelper.java
- nz.pumbas.steamtables.models.ModelHelper
-nz/pumbas/steamtables/SteamTable.java
- nz.pumbas.steamtables.SteamTable
+nz/pumbas/halpbot/commands/steamtables/annotations/IgnoreColumn.java
+ nz.pumbas.halpbot.commands.steamtables.annotations.IgnoreColumn
+nz/pumbas/halpbot/commands/steamtables/SteamTable.java
+ nz.pumbas.halpbot.commands.steamtables.SteamTable
 nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod
 nz/pumbas/commands/Exceptions/IllegalCommandException.java
  nz.pumbas.commands.Exceptions.IllegalCommandException
-nz/pumbas/steamtables/annotations/IgnoreColumn.java
- nz.pumbas.steamtables.annotations.IgnoreColumn
+nz/pumbas/halpbot/customparameters/Shape.java
+ nz.pumbas.halpbot.customparameters.Shape
+nz/pumbas/halpbot/commands/steamtables/annotations/ModelObject.java
+ nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject
 nz/pumbas/objects/keys/StorageKey.java
  nz.pumbas.objects.keys.StorageKey
 nz/pumbas/utilities/maps/MapHelper.java
  nz.pumbas.utilities.maps.MapHelper
-nz/pumbas/commands/CommandManager.java
- nz.pumbas.commands.CommandManager
-nz/pumbas/steamtables/annotations/ModelObject.java
- nz.pumbas.steamtables.annotations.ModelObject
+nz/pumbas/Main.java
+ nz.pumbas.Main
 nz/pumbas/commands/Annotations/CommandGroup.java
  nz.pumbas.commands.Annotations.CommandGroup
+nz/pumbas/halpbot/commands/steamtables/models/ModelHelper.java
+ nz.pumbas.halpbot.commands.steamtables.models.ModelHelper
 nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
+nz/pumbas/halpbot/commands/steamtables/models/SaturatedSteamModel.java
+ nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel
 nz/pumbas/objects/keys/Key.java
  nz.pumbas.objects.keys.Key
 nz/pumbas/commands/CustomParameterType.java
  nz.pumbas.commands.CustomParameterType
-nz/pumbas/customparameters/Shape.java
- nz.pumbas.customparameters.Shape
-nz/pumbas/objects/keys/Keys.java
- nz.pumbas.objects.keys.Keys
-nz/pumbas/steamtables/models/SaturatedSteamModel.java
- nz.pumbas.steamtables.models.SaturatedSteamModel
+nz/pumbas/utilities/enums/StatusCode.java
+ nz.pumbas.utilities.enums.StatusCode
+nz/pumbas/halpbot/commands/CalculusCommands.java
+ nz.pumbas.halpbot.commands.CalculusCommands
+nz/pumbas/processes/PipeProcess.java
+ nz.pumbas.processes.PipeProcess
+nz/pumbas/halpbot/HalpBot.java
+ nz.pumbas.halpbot.HalpBot

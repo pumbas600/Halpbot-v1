@@ -1,18 +1,16 @@
 package nz.pumbas;
 
-
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.halpbot.HalpBot;
-
 import nz.pumbas.utilities.Utilities;
 
 public class Main
 {
 
-    public static void main(String[] args) throws LoginException, NoSuchMethodException
+    public static void main(String[] args) throws LoginException
     {
-        HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
+         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
 
 //        SteamTableManager manager = new SteamTableManager();
 //
