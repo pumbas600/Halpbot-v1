@@ -39,7 +39,7 @@ public final class CommandManager extends ListenerAdapter
     //TODO: Manually submit type parsers (E.g: For types you don't have access to)?
 
     public static final Map<String, String> CommandRegex = Map.of(
-        "ANY", "(.*)",
+        "ANY", "([^,'\"]*)",
         "SENTENCE", "([\\w ,\\.!\\?]+)"
     );
 
@@ -317,7 +317,7 @@ public final class CommandManager extends ListenerAdapter
                 : Utilities.replaceFirst(commandInfo.regexCommand, "<", "(?:");
         }
 
-        commandInfo.regexCommand = "^" + commandInfo.regexCommand;
+        commandInfo.regexCommand = "^" + commandInfo.regexCommand + "$";
     }
 
     //I barely understand whats happening here, so this will definitely need to be reworked at some point...

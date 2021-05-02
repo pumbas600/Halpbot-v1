@@ -53,6 +53,16 @@ public class PipeProcess
         return result.isEmpty() ? StatusCode.UNKNOWN : StatusCode.of(result);
     }
 
+    public String getResponse()
+    {
+        try {
+            return this.input.readLine();
+        } catch (IOException e) {
+            ErrorManager.handle(e);
+        }
+        return "";
+    }
+
     public void printInput() {
         try {
             String line;

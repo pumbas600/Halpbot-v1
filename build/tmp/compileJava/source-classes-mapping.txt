@@ -22,8 +22,8 @@ nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
 nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
  nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
-nz/pumbas/commands/CommandManager.java
- nz.pumbas.commands.CommandManager
+nz/pumbas/commands/CustomParameterType.java
+ nz.pumbas.commands.CustomParameterType
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/ConstructorPair.java
@@ -50,8 +50,10 @@ nz/pumbas/utilities/maps/Row.java
  nz.pumbas.utilities.maps.Row
 nz/pumbas/utilities/maps/ClassMap.java
  nz.pumbas.utilities.maps.ClassMap
-nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
- nz.pumbas.halpbot.commands.steamtables.SteamTableManager
+nz/pumbas/objects/keys/Key.java
+ nz.pumbas.objects.keys.Key
+nz/pumbas/utilities/enums/StatusCode.java
+ nz.pumbas.utilities.enums.StatusCode
 nz/pumbas/utilities/enums/Flags.java
  nz.pumbas.utilities.enums.Flags
 nz/pumbas/halpbot/friction/BlockData.java
@@ -78,6 +80,8 @@ nz/pumbas/halpbot/customparameters/Shape.java
  nz.pumbas.halpbot.customparameters.Shape
 nz/pumbas/halpbot/commands/steamtables/annotations/ModelObject.java
  nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject
+nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
+ nz.pumbas.halpbot.commands.steamtables.SteamTableManager
 nz/pumbas/objects/keys/StorageKey.java
  nz.pumbas.objects.keys.StorageKey
 nz/pumbas/utilities/maps/MapHelper.java
@@ -92,15 +96,11 @@ nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
 nz/pumbas/halpbot/commands/steamtables/models/SaturatedSteamModel.java
  nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel
-nz/pumbas/objects/keys/Key.java
- nz.pumbas.objects.keys.Key
-nz/pumbas/commands/CustomParameterType.java
- nz.pumbas.commands.CustomParameterType
-nz/pumbas/utilities/enums/StatusCode.java
- nz.pumbas.utilities.enums.StatusCode
-nz/pumbas/halpbot/commands/CalculusCommands.java
- nz.pumbas.halpbot.commands.CalculusCommands
 nz/pumbas/processes/PipeProcess.java
  nz.pumbas.processes.PipeProcess
+nz/pumbas/commands/CommandManager.java
+ nz.pumbas.commands.CommandManager
+nz/pumbas/halpbot/commands/CalculusCommands.java
+ nz.pumbas.halpbot.commands.CalculusCommands
 nz/pumbas/halpbot/HalpBot.java
  nz.pumbas.halpbot.HalpBot
