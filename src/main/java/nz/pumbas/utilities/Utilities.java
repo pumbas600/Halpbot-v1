@@ -341,6 +341,68 @@ public final class Utilities
     }
 
     /**
+     * Returns an {@link Optional} containing the annotation if present.
+     *
+     * @param clazz
+     *      The class to check for the annotation
+     * @param annotationType
+     *      The type of the annotation
+     * @param <T>
+     *      The type of the annotation
+     *
+     * @return An {@link Optional} containing the annotation if present
+     */
+    public static <T extends Annotation> Optional<T> getAnnotation(Class<?> clazz, Class<T> annotationType)
+    {
+        return Optional.ofNullable(clazz.getAnnotation(annotationType));
+    }
+
+    /**
+     * Returns true if the {@link Class} has the specified annotation.
+     *
+     * @param clazz
+     *      The {@link Class} to check for the annotation
+     * @param annotationType
+     *      The type of the annotation
+     *
+     * @return whether the {@link Class} has the annotation
+     */
+    public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotationType)
+    {
+        return null != clazz.getAnnotation(annotationType);
+    }
+
+    /**
+     * Returns true if the {@link Method} has the specified annotation.
+     *
+     * @param method
+     *      The {@link Method} to check for the annotation
+     * @param annotationType
+     *      The type of the annotation
+     *
+     * @return whether the {@link Method} has the annotation
+     */
+    public static boolean hasAnnotation(Method method, Class<? extends Annotation> annotationType)
+    {
+        return null != method.getAnnotation(annotationType);
+    }
+
+    /**
+     * Returns true if the {@link Field} has the specified annotation.
+     *
+     * @param field
+     *      The {@link Field} to check for the annotation
+     * @param annotationType
+     *      The type of the annotation
+     *
+     * @return whether the {@link Field} has the annotation
+     */
+    public static boolean hasAnnotation(Field field, Class<? extends Annotation> annotationType)
+    {
+        return null != field.getAnnotation(annotationType);
+    }
+
+    /**
      * Creates an instance of an {@link Class} using its first constructor.
      *
      * @param clazz

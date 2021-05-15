@@ -2,15 +2,17 @@ package nz.pumbas;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.halpbot.HalpBot;
-import nz.pumbas.utilities.Utilities;
+import nz.pumbas.commands.tokens.TokenManager;
 
 public class Main
 {
 
-    public static void main(String[] args) throws LoginException
-    {
-         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
+    public static void main(String[] args) throws LoginException, ClassNotFoundException {
+        TokenManager.parseCommand("#Double <at> #Int <degrees>", new Class[] { Double.class, Double.class })
+                .forEach(System.out::println);
+
+
+         //HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
 
 //        SteamTableManager manager = new SteamTableManager();
 //

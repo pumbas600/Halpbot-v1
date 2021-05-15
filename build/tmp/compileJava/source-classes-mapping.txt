@@ -10,6 +10,8 @@ nz/pumbas/commands/ErrorManager.java
  nz.pumbas.commands.ErrorManager
 nz/pumbas/commands/Exceptions/IllegalCustomParameterException.java
  nz.pumbas.commands.Exceptions.IllegalCustomParameterException
+nz/pumbas/commands/Annotations/CustomParameter.java
+ nz.pumbas.commands.Annotations.CustomParameter
 nz/pumbas/utilities/enums/Flag.java
  nz.pumbas.utilities.enums.Flag
 nz/pumbas/halpbot/commands/ImageCommands.java
@@ -22,8 +24,8 @@ nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
 nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
  nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
-nz/pumbas/commands/CustomParameterType.java
- nz.pumbas.commands.CustomParameterType
+nz/pumbas/halpbot/HalpBot.java
+ nz.pumbas.halpbot.HalpBot
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/ConstructorPair.java
@@ -50,8 +52,8 @@ nz/pumbas/utilities/maps/Row.java
  nz.pumbas.utilities.maps.Row
 nz/pumbas/utilities/maps/ClassMap.java
  nz.pumbas.utilities.maps.ClassMap
-nz/pumbas/objects/keys/Key.java
- nz.pumbas.objects.keys.Key
+nz/pumbas/processes/PipeProcess.java
+ nz.pumbas.processes.PipeProcess
 nz/pumbas/utilities/enums/StatusCode.java
  nz.pumbas.utilities.enums.StatusCode
 nz/pumbas/utilities/enums/Flags.java
@@ -62,16 +64,22 @@ nz/pumbas/utilities/io/ImageType.java
  nz.pumbas.utilities.io.ImageType
 nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
+nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
+ nz.pumbas.halpbot.commands.steamtables.SteamTableManager
 nz/pumbas/objects/keys/Keys.java
  nz.pumbas.objects.keys.Keys
 nz/pumbas/halpbot/commands/steamtables/models/Model.java
  nz.pumbas.halpbot.commands.steamtables.models.Model
+nz/pumbas/objects/Tuple.java
+ nz.pumbas.objects.Tuple
 nz/pumbas/commands/Annotations/Unrequired.java
  nz.pumbas.commands.Annotations.Unrequired
 nz/pumbas/halpbot/commands/steamtables/annotations/IgnoreColumn.java
  nz.pumbas.halpbot.commands.steamtables.annotations.IgnoreColumn
 nz/pumbas/halpbot/commands/steamtables/SteamTable.java
  nz.pumbas.halpbot.commands.steamtables.SteamTable
+nz/pumbas/commands/CustomParameterType.java
+ nz.pumbas.commands.CustomParameterType
 nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod
 nz/pumbas/commands/Exceptions/IllegalCommandException.java
@@ -80,14 +88,16 @@ nz/pumbas/halpbot/customparameters/Shape.java
  nz.pumbas.halpbot.customparameters.Shape
 nz/pumbas/halpbot/commands/steamtables/annotations/ModelObject.java
  nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject
-nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
- nz.pumbas.halpbot.commands.steamtables.SteamTableManager
+nz/pumbas/halpbot/commands/CalculusCommands.java
+ nz.pumbas.halpbot.commands.CalculusCommands
 nz/pumbas/objects/keys/StorageKey.java
  nz.pumbas.objects.keys.StorageKey
 nz/pumbas/utilities/maps/MapHelper.java
  nz.pumbas.utilities.maps.MapHelper
-nz/pumbas/Main.java
- nz.pumbas.Main
+nz/pumbas/commands/CommandManager.java
+ nz.pumbas.commands.CommandManager
+nz/pumbas/commands/parsing/TokenType.java
+ nz.pumbas.commands.parsing.TokenType
 nz/pumbas/commands/Annotations/CommandGroup.java
  nz.pumbas.commands.Annotations.CommandGroup
 nz/pumbas/halpbot/commands/steamtables/models/ModelHelper.java
@@ -96,11 +106,11 @@ nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
 nz/pumbas/halpbot/commands/steamtables/models/SaturatedSteamModel.java
  nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel
-nz/pumbas/processes/PipeProcess.java
- nz.pumbas.processes.PipeProcess
-nz/pumbas/commands/CommandManager.java
- nz.pumbas.commands.CommandManager
-nz/pumbas/halpbot/commands/CalculusCommands.java
- nz.pumbas.halpbot.commands.CalculusCommands
-nz/pumbas/halpbot/HalpBot.java
- nz.pumbas.halpbot.HalpBot
+nz/pumbas/objects/keys/Key.java
+ nz.pumbas.objects.keys.Key
+nz/pumbas/commands/parsing/CommandToken.java
+ nz.pumbas.commands.parsing.CommandToken
+nz/pumbas/commands/parsing/TokenManager.java
+ nz.pumbas.commands.parsing.TokenManager
+nz/pumbas/Main.java
+ nz.pumbas.Main
