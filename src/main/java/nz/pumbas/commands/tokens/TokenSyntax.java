@@ -1,15 +1,15 @@
 package nz.pumbas.commands.tokens;
 
-public enum TokenType {
+public enum TokenSyntax
+{
 
     OPTIONAL("<[^<>]+>"),
     OBJECT("#[^#]+\\[.+\\]"),
-    TYPE("#[^#]+"),
-    TEXT("[^\\s]+");
+    TYPE("#[^#]+");
 
     private final String syntax;
 
-    TokenType(String syntax) {
+    TokenSyntax(String syntax) {
         this.syntax = syntax;
     }
 

@@ -1,15 +1,17 @@
 package nz.pumbas.commands.tokens;
 
-public class GenericCommandToken {
+import org.jetbrains.annotations.NotNull;
+
+public class GenericCommandToken implements CommandToken {
 
     protected final String token;
-    protected final TokenType tokenType;
+    protected final TokenSyntax tokenSyntax;
     protected final Class<?> type;
     protected final boolean isOptional;
 
-    public GenericCommandToken(String token, TokenType tokenType, Class<?> type, boolean isOptional) {
+    public GenericCommandToken(String token, TokenSyntax tokenSyntax, Class<?> type, boolean isOptional) {
         this.token = token;
-        this.tokenType = tokenType;
+        this.tokenSyntax = tokenSyntax;
         this.type = type;
         this.isOptional = isOptional;
     }
@@ -18,21 +20,28 @@ public class GenericCommandToken {
         return this.token;
     }
 
-    public TokenType getTokenType() {
-        return this.tokenType;
+    public TokenSyntax getTokenType() {
+        return this.tokenSyntax;
     }
 
     public Class<?> getType() {
         return this.type;
     }
 
+    @Override
     public boolean isOptional() {
         return this.isOptional;
     }
 
     @Override
+    public boolean matches(@NotNull String invocationToken)
+    {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return String.format("CommandToken{token=%s, tokenType=%s, type=%s, isOptional=%s}",
-                this.token, this.tokenType, this.type.getSimpleName(), this.isOptional);
+                this.token, this.tokenSyntax, this.type.getSimpleName(), this.isOptional);
     }
 }

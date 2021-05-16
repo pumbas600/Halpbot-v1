@@ -10,11 +10,9 @@ public class Main
 {
 
     public static void main(String[] args) throws LoginException, ClassNotFoundException {
-//        TokenManager.parseCommand("#Double <at> #Int <degrees>", new Class[] { Double.class, Double.class })
-//                .forEach(System.out::println);
-
-        Class<?> clazz = int[].class;
-        System.out.println(clazz.getComponentType());
+        TokenManager.parseCommand("#Double at <#Double degrees from the x-axis>",
+            new Class[] { Double.class, Double.class})
+                .forEach(System.out::println);
 
          //HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
 
