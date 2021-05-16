@@ -17,6 +17,7 @@ import nz.pumbas.halpbot.commands.CalculusCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.ImageCommands;
 import nz.pumbas.halpbot.commands.SteamLookupCommands;
+import nz.pumbas.halpbot.commands.VectorCommands;
 import nz.pumbas.halpbot.friction.FrictionCommands;
 import nz.pumbas.processes.PipeProcess;
 
@@ -38,7 +39,9 @@ public class HalpBot extends ListenerAdapter
             new SteamLookupCommands(),
             new FrictionCommands(),
             new ImageCommands(),
-            new CalculusCommands(this.process));
+            new CalculusCommands(this.process),
+            new VectorCommands()
+        );
 
         this.jda = builder.build();
     }

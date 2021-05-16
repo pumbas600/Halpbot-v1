@@ -3,6 +3,8 @@ package nz.pumbas;
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.halpbot.HalpBot;
+import nz.pumbas.utilities.Utilities;
 
 import java.util.Arrays;
 
@@ -10,11 +12,11 @@ public class Main
 {
 
     public static void main(String[] args) throws LoginException, ClassNotFoundException {
-        TokenManager.parseCommand("#Double at <#Double degrees from the x-axis>",
-            new Class[] { Double.class, Double.class})
-                .forEach(System.out::println);
+//        TokenManager.parseCommand("#Double at <#Double degrees from the x-axis>",
+//            new Class[] { Double.class, Double.class})
+//                .forEach(System.out::println);
 
-         //HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
+         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
 
 //        SteamTableManager manager = new SteamTableManager();
 //

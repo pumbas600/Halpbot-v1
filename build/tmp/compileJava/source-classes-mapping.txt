@@ -24,8 +24,8 @@ nz/pumbas/commands/CommandType.java
  nz.pumbas.commands.CommandType
 nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
  nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
-nz/pumbas/halpbot/HalpBot.java
- nz.pumbas.halpbot.HalpBot
+nz/pumbas/commands/tokens/BuiltInTypeToken.java
+ nz.pumbas.commands.tokens.BuiltInTypeToken
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/ConstructorPair.java
@@ -124,5 +124,9 @@ nz/pumbas/commands/tokens/PlaceholderToken.java
  nz.pumbas.commands.tokens.PlaceholderToken
 nz/pumbas/Main.java
  nz.pumbas.Main
-nz/pumbas/commands/tokens/BuiltInTypeToken.java
- nz.pumbas.commands.tokens.BuiltInTypeToken
+nz/pumbas/halpbot/HalpBot.java
+ nz.pumbas.halpbot.HalpBot
+nz/pumbas/halpbot/customparameters/Vector3.java
+ nz.pumbas.halpbot.customparameters.Vector3
+nz/pumbas/halpbot/commands/VectorCommands.java
+ nz.pumbas.halpbot.commands.VectorCommands
