@@ -9,20 +9,22 @@ import nz.pumbas.utilities.Utilities;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class TokenManager {
+/**
+ * A static {@link CommandToken} manager, that handles the parsing of commands into {@link CommandToken command tokens}.
+ */
+public final class TokenManager {
 
-    private static final List<Class<?>> BuiltInTypes = List.of(
+    private TokenManager() {}
+
+    /**
+     * A {@link List} of the built-in {@link Class classes}.
+     */
+    public static final List<Class<?>> BuiltInTypes = List.of(
             int.class, float.class, double.class, char.class, String.class
     );
 
-    public static boolean isBuiltInType(Class<?> type)
-    {
-        return BuiltInTypes.contains(type);
-    }
-
-    public static List<CommandToken> parseCommand(Method method) {
+    public static List<GenericCommandToken> parseCommand(Method method) {
         if (!Utilities.hasAnnotation(method, Command.class))
             throw new IllegalCommandException(
                     String.format("Cannot parse the method %s as it isn't annotated with Command", method.getName()));
@@ -38,12 +40,12 @@ public class TokenManager {
         return parseCommand(command.command(), parameterTypes, startParameterIndex);
     }
 
-    public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes) {
+    public static List<GenericCommandToken> parseCommand(String command, Class<?>[] parameterTypes) {
         return parseCommand(command, parameterTypes, 0);
     }
 
-    public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes, int startParameterIndex) {
-        List<String> tokens = splitCommandTokens(command);
+    public static List<GenericCommandToken> parseCommand(String command, Class<?>[] parameterTypes, int startParameterIndex) {
+        String[] tokens = command.split(" ");
 
         return parseCommandTokens(tokens, parameterTypes, startParameterIndex);
     }
@@ -76,15 +78,15 @@ public class TokenManager {
         return tokens;
     }
 
-    public static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes, int currentTypeIndex) {
+    public static List<GenericCommandToken> parseCommandTokens(String[] tokens, Class<?>[] parameterTypes, int currentTypeIndex) {
         return parseCommandTokens(new ArrayList<>(), tokens, 0, parameterTypes, currentTypeIndex);
     }
 
-    private static List<CommandToken> parseCommandTokens(List<CommandToken> commandTokens, List<String> tokens, int currentTokenIndex, Class<?>[] parameterTypes, int currentTypeIndex) {
-        if (currentTokenIndex >= tokens.size())
-            return commandTokens;
+    private static List<GenericCommandToken> parseCommandTokens(List<GenericCommandToken> genericCommandTokens, String[] tokens, int currentTokenIndex, Class<?>[] parameterTypes, int currentTypeIndex) {
+        if (currentTokenIndex >= tokens.length)
+            return genericCommandTokens;
 
-        String token = tokens.get(currentTokenIndex);
+        String token = tokens[currentTokenIndex];
         boolean isOptional = false;
 
         if (token.matches(TokenType.OPTIONAL.getSyntax())) {
@@ -105,34 +107,42 @@ public class TokenManager {
                         String.format("The token %s doesn't have a corresponding parameter in the method.", token));
 
             Class<?> type = parameterTypes[currentTypeIndex];
-            boolean isBuiltInType = isBuiltInType(type);
+            boolean isBuiltInType = BuiltInTypes.contains(type);
 
-            if (!isValidCommandTypeToken(token, type, isBuiltInType))
+            if (!isValidCommandTypeToken(token, type))
                 throw new IllegalCommandException(
                         String.format("The token %s doesn't match the corresponding parameter type of %s", token, type));
 
             TokenType tokenType = isBuiltInType ? TokenType.TYPE : TokenType.OBJECT;
             currentTypeIndex++;
 
-            commandTokens.add(new CommandToken(token, tokenType, type, isOptional));
+            genericCommandTokens.add(new GenericCommandToken(token, tokenType, type, isOptional));
         }
         else {
             //Just text formatting.
-            commandTokens.add(new CommandToken(token, TokenType.TEXT, String.class, isOptional));
+            genericCommandTokens.add(new GenericCommandToken(token, TokenType.TEXT, String.class, isOptional));
         }
 
-        return parseCommandTokens(commandTokens, tokens, currentTokenIndex + 1, parameterTypes, currentTypeIndex);
+        return parseCommandTokens(genericCommandTokens, tokens, currentTokenIndex + 1, parameterTypes, currentTypeIndex);
     }
 
-    public static boolean isValidCommandTypeToken(String token, Class<?> type, boolean isBuiltInType) {
+    /**
+     * Returns if the {@link String parsing token} matches the required {@link Class type} of the method parameter. This will check the {@link Class} for an {@link CustomParameter}
+     * and use the specified identifier if present, otherwise, it will check that the {@link Class type's} name matches the {@link String parsing token}.
+     *
+     * @param token
+     *      The {@link String} representation of an {@link ParsingToken}, in the format #type
+     *
+     * @param type
+     *      The required {@link Class type} of the {@link ParsingToken}
+     *
+     * @return if the {@link String parsing token} is valid
+     */
+    public static boolean isValidCommandTypeToken(String token, Class<?> type) {
         String tokenIdentifier = token.substring(1);
 
-        if (!isBuiltInType) {
-            Optional<CustomParameter> oCustomParameter = Utilities.getAnnotation(type, CustomParameter.class);
-            if (oCustomParameter.isPresent())
-                return oCustomParameter.get().identifier().equalsIgnoreCase(tokenIdentifier);
-        }
-
-        return type.getSimpleName().equalsIgnoreCase(tokenIdentifier);
+        return Utilities.getAnnotation(type, CustomParameter.class)
+                .map(customParameter -> customParameter.identifier().equalsIgnoreCase(tokenIdentifier))
+                .orElseGet(() -> type.getSimpleName().equalsIgnoreCase(tokenIdentifier));
     }
 }

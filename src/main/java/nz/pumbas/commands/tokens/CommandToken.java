@@ -1,38 +1,24 @@
 package nz.pumbas.commands.tokens;
 
-public class CommandToken {
+import org.jetbrains.annotations.NotNull;
 
-    protected final TokenType tokenType;
-    protected final Class<?> type;
-    protected final boolean isOptional;
-    protected final String token;
+/**
+ * A representation of an individual element in an {@link nz.pumbas.commands.Annotations.Command}.
+ */
+public interface CommandToken {
 
-    public CommandToken(String token, TokenType tokenType, Class<?> type, boolean isOptional) {
-        this.token = token;
-        this.tokenType = tokenType;
-        this.type = type;
-        this.isOptional = isOptional;
-    }
+    /**
+     * @return If this {@link CommandToken} is optional or not
+     */
+    boolean isOptional();
 
-    public String getToken() {
-        return this.token;
-    }
-
-    public TokenType getTokenType() {
-        return this.tokenType;
-    }
-
-    public Class<?> getType() {
-        return this.type;
-    }
-
-    public boolean isOptional() {
-        return this.isOptional;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("CommandToken{token=%s, tokenType=%s, type=%s, isOptional=%s}",
-                this.token, this.tokenType, this.type.getSimpleName(), this.isOptional);
-    }
+    /**
+     * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
+     *
+     * @param invocationToken
+     *      An individual element in the invocation of an {@link nz.pumbas.commands.Annotations.Command}.
+     *
+     * @return If the {@link String invocation token} matches this {@link CommandToken}
+     */
+    boolean matches(@NotNull String invocationToken);
 }

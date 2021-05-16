@@ -403,6 +403,20 @@ public final class Utilities
     }
 
     /**
+     * Returns the {@link Class type} of an array. If its not an array, it'll just return the passed in {@link Class}.
+     * For example the array type of int[] is int.
+     *
+     * @param clazz
+     *      The {@link Class} to get the array type of
+     *
+     * @return The {@link Class type} of the array, or the passed in {@link Class} if its not an array
+     */
+    public static Class<?> getArrayType(Class<?> clazz)
+    {
+        return clazz.isArray() ? clazz.getComponentType() : clazz;
+    }
+
+    /**
      * Creates an instance of an {@link Class} using its first constructor.
      *
      * @param clazz
@@ -421,7 +435,7 @@ public final class Utilities
         try {
             if (0 == clazz.getDeclaredConstructors().length)
                 throw new IllegalArgumentException(
-                    String.format("The class %s, needs to have atleast 1 constructor", clazz.getSimpleName()));
+                    String.format("The class %s, needs to have at least 1 constructor", clazz.getSimpleName()));
 
             Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
             constructor.setAccessible(true);
