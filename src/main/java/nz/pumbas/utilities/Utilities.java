@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -105,7 +106,8 @@ public final class Utilities
      * @return A {@link List} containing all the matching methods
      */
     @SafeVarargs
-    public static List<Method> getAnnotatedMethods(Class<?> target, Class<? extends Annotation> annotation, boolean getSuperMethods, Predicate<Method>... filters)
+    public static List<Method> getAnnotatedMethods(Class<?> target, Class<? extends Annotation> annotation,
+                                                   boolean getSuperMethods, Predicate<Method>... filters)
     {
         return getAnnotatedMethods(target, annotation, getSuperMethods)
             .stream()
@@ -130,7 +132,8 @@ public final class Utilities
      * @return A {@link List} containing all the matching methods
      */
     @SafeVarargs
-    public static List<Method> getAnnotatedMethodsWithModifiers(Class<?> target, Class<? extends Annotation> annotation, boolean getSuperMethods, Predicate<Integer>... modifierFilters)
+    public static List<Method> getAnnotatedMethodsWithModifiers(Class<?> target, Class<? extends Annotation> annotation,
+                                                                boolean getSuperMethods, Predicate<Integer>... modifierFilters)
     {
         return getAnnotatedMethods(target, annotation, getSuperMethods)
             .stream()
@@ -195,15 +198,15 @@ public final class Utilities
     }
 
     /**
-     * If a class has the specific annotation, retrieve a field using the {@link Function} otherwise return the
-     * default value.
+     * If an {@link AnnotatedElement} has the specific annotation, retrieve a specific field using the {@link Function}
+     * otherwise return the default value.
      *
      * @param target
-     *     The class being checked for the annotation
+     *     The {@link AnnotatedElement} being checked for the annotation
      * @param annotationClass
-     *     The class of the annotation
+     *     The {@link Class} of the annotation
      * @param function
-     *     The function to retrieve the annotation field
+     *     The {@link Function} to retrieve the annotation field
      * @param defaultValue
      *     The default value to return if the object doesn't have the annotation
      * @param <T>
@@ -211,9 +214,9 @@ public final class Utilities
      * @param <R>
      *     The type of the annotation's field being retreived
      *
-     * @return The annotation's field value
+     * @return The annotation's field value or the default value if it doesn't have the annotation
      */
-    public static <T extends Annotation, R> R getAnnotationFieldElse(Class<?> target, Class<T> annotationClass,
+    public static <T extends Annotation, R> R getAnnotationFieldElse(AnnotatedElement target, Class<T> annotationClass,
                                                                      Function<T, R> function, R defaultValue)
     {
         if (target.isAnnotationPresent(annotationClass)) {
@@ -355,51 +358,6 @@ public final class Utilities
     public static <T extends Annotation> Optional<T> getAnnotation(Class<?> clazz, Class<T> annotationType)
     {
         return Optional.ofNullable(clazz.getAnnotation(annotationType));
-    }
-
-    /**
-     * Returns true if the {@link Class} has the specified annotation.
-     *
-     * @param clazz
-     *      The {@link Class} to check for the annotation
-     * @param annotationType
-     *      The type of the annotation
-     *
-     * @return whether the {@link Class} has the annotation
-     */
-    public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotationType)
-    {
-        return null != clazz.getAnnotation(annotationType);
-    }
-
-    /**
-     * Returns true if the {@link Method} has the specified annotation.
-     *
-     * @param method
-     *      The {@link Method} to check for the annotation
-     * @param annotationType
-     *      The type of the annotation
-     *
-     * @return whether the {@link Method} has the annotation
-     */
-    public static boolean hasAnnotation(Method method, Class<? extends Annotation> annotationType)
-    {
-        return null != method.getAnnotation(annotationType);
-    }
-
-    /**
-     * Returns true if the {@link Field} has the specified annotation.
-     *
-     * @param field
-     *      The {@link Field} to check for the annotation
-     * @param annotationType
-     *      The type of the annotation
-     *
-     * @return whether the {@link Field} has the annotation
-     */
-    public static boolean hasAnnotation(Field field, Class<? extends Annotation> annotationType)
-    {
-        return null != field.getAnnotation(annotationType);
     }
 
     /**
@@ -738,5 +696,30 @@ public final class Utilities
     public static boolean approximatelyEqual(double a, double b, double tolerance)
     {
         return Math.abs(a - b) < tolerance;
+    }
+
+    /**
+     * Returns if the passed in {@link String value} is a valid value of the {@link Enum}.
+     * Note: This method is case sensitive.
+     *
+     * @param enumClass
+     *      The {@link Class} of the {@link Enum}
+     * @param value
+     *      The {@link String value} to test
+     *
+     * @return if the {@link String value} is a valid value of the {@link Enum}
+     */
+    @SuppressWarnings("unchecked")
+    public static boolean isValidValue(Class<?> enumClass, String value) {
+        if (!enumClass.isEnum())
+            throw new IllegalArgumentException(
+                String.format("The type %s must be an enum.", enumClass.getSimpleName()));
+
+        try {
+            Enum.valueOf((Class<? extends Enum>) enumClass, value);
+            return true;
+        } catch (IllegalArgumentException exception) {
+            return false;
+        }
     }
 }

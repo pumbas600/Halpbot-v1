@@ -16,23 +16,41 @@ public class PlaceholderToken implements CommandToken
         this.placeHolder = placeHolder;
     }
 
+    /**
+     * @return The placeholder text
+     */
     public String getPlaceHolder()
     {
         return this.placeHolder;
     }
 
+    /**
+     * @return If this {@link CommandToken} is optional or not
+     */
     @Override
     public boolean isOptional()
     {
         return this.isOptional;
     }
 
+    /**
+     * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
+     *
+     * @param invocationToken
+     *      An individual element in the invocation of an {@link nz.pumbas.commands.Annotations.Command}.
+     *
+     * @return If the {@link String invocation token} matches this {@link CommandToken}
+     */
     @Override
     public boolean matches(@NotNull String invocationToken)
     {
         return this.placeHolder.equalsIgnoreCase(invocationToken);
     }
 
+    /**
+     * @return A {@link String} representation of this token in the format {@code PlaceholderToken{isOptional=%s,
+     * placeHolder=%s}}
+     */
     @Override
     public String toString()
     {

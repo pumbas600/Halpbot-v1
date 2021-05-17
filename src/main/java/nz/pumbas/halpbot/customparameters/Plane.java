@@ -23,7 +23,7 @@ public class Plane {
     }
 
     public boolean isOnPlane(Vector3 point) {
-        return normal.dot(point) == normal.dot(this.point);
+        return this.normal.dot(point) == this.normal.dot(this.point);
     }
 
     public Vector3 findIntercept(Line line) {

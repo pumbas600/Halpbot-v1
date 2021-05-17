@@ -12,7 +12,6 @@ public class ArrayToken implements CommandToken, ParsingToken {
         this.arrayType = arrayType;
     }
 
-
     @Override
     public boolean isOptional() {
         return this.isOptional;

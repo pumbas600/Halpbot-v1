@@ -6,12 +6,21 @@ import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.CustomParameter;
+import nz.pumbas.commands.Annotations.ParameterConstruction;
+import nz.pumbas.commands.Annotations.Unrequired;
+import nz.pumbas.commands.CommandManager;
+import nz.pumbas.commands.ConstructorPair;
+import nz.pumbas.commands.CustomParameterType;
 import nz.pumbas.commands.Exceptions.IllegalCommandException;
+import nz.pumbas.commands.Exceptions.IllegalCustomParameterException;
 import nz.pumbas.objects.Tuple;
 import nz.pumbas.utilities.Utilities;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,7 +36,7 @@ public final class TokenManager {
      * A {@link List} of the built-in {@link Class classes}.
      */
     public static final List<Class<?>> BuiltInTypes = List.of(
-            int.class, float.class, double.class, char.class, String.class
+            int.class, float.class, double.class, char.class, String.class, boolean.class
     );
 
     /**
@@ -39,12 +48,122 @@ public final class TokenManager {
         int.class,    Tuple.of("-?\\d+", Integer::parseInt),
         float.class,  Tuple.of("-?\\d+\\.?\\d*", Float::parseFloat),
         double.class, Tuple.of("-?\\d+\\.?\\d*", Double::parseDouble),
-        char.class,   Tuple.of("[a-zA-Z]", s -> s.charAt(0))
+        char.class,   Tuple.of("[a-zA-Z]", s -> s.charAt(0)),
+        boolean.class,Tuple.of("true|yes|false|no", s -> "true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s))
     );
+
+    /**
+     * An {@link Map} which maps custom classes to their parsed {@link Constructor}.
+     */
+    private static final Map<Class<?>, List<Tuple<Constructor<?>, List<CommandToken>>>> CustomClassConstructors =
+        new HashMap<>();
+
+    /**
+     * Retrieves the {@link List} of parsed {@link Constructor constructors} and their {@link CommandToken command
+     * tokens} for the specified {@link Class}. If the specified {@link Class} hasn't had their {@link Constructor
+     * constructors} parsed, then it calls {@link TokenManager#parseCustomClassConstructors(Class)} and automatically
+     * returns the result.
+     *
+     * @param customClass
+     *      The {@link Class} to retrieve the parsed data from.
+     *
+     * @return The {@link List} of parsed {@link Constructor constructors} and their {@link CommandToken command tokens}
+     */
+    public static List<Tuple<Constructor<?>, List<CommandToken>>> getParsedConstructors(Class<?> customClass)
+    {
+        if (!CustomClassConstructors.containsKey(customClass))
+            parseCustomClassConstructors(customClass);
+        return CustomClassConstructors.get(customClass);
+    }
+
+    /**
+     * Generates the {@link CommandToken command tokens} for the {@link Constructor constructors} of the
+     * {@link Class custom class} and adds it to {@link TokenManager#CustomClassConstructors}.
+     *
+     * @param customClass
+     *      The {@link Class custom class} to parse the {@link Constructor constructors} for
+     */
+    public static void parseCustomClassConstructors(Class<?> customClass)
+    {
+        if (BuiltInTypes.contains(customClass))
+            throw new IllegalArgumentException(
+                String.format("The class %s is a built in type.", customClass.getSimpleName()));
+
+        if (CustomClassConstructors.containsKey(customClass))
+            return;
+
+        Constructor<?>[] constructors = customClass.getDeclaredConstructors();
+        if (0 == constructors.length)
+            throw new IllegalCustomParameterException(
+                String.format("The custom class %s, must define a constructor", customClass.getSimpleName()));
+
+        List<Tuple<Constructor<?>, List<CommandToken>>> parsedConstructors = new ArrayList<>();
+        List<Constructor<?>> customConstructors = Utilities.filterReflections(constructors,
+            c -> c.isAnnotationPresent(ParameterConstruction.class));
+
+        if (customConstructors.isEmpty()) {
+            customConstructors.add(constructors[0]);
+        }
+        customConstructors.forEach(c -> parsedConstructors.add(Tuple.of(c, parseConstructor(c))));
+        CustomClassConstructors.put(customClass, parsedConstructors);
+    }
+
+    /**
+     * Generates the {@link CommandToken command tokens} for the specified {@link Constructor}.
+     *
+     * @param constructor
+     *      The {@link Constructor} to generate the {@link CommandToken command tokens} for
+     *
+     * @return The generated {@link CommandToken command tokens}
+     */
+    private static List<CommandToken> parseConstructor(Constructor<?> constructor)
+    {
+        constructor.setAccessible(true);
+        String constructorCommand = Utilities.getAnnotationFieldElse(constructor, ParameterConstruction.class,
+            ParameterConstruction::constructor, "");
+
+        if (constructorCommand.isEmpty())
+            constructorCommand = generateCommand(constructor.getParameterAnnotations(),
+                constructor.getParameterTypes());
+
+        return parseCommand(constructorCommand, constructor.getParameterTypes());
+    }
+
+    /**
+     * Generates the {@link String command} from an array of {@link Class parameter types} and a 2D
+     * array of {@link Annotation annotations}.
+     *
+     * @param parameterAnnotations
+     *      A 2D array of {@link Annotation annotations}, with an array for each of the {@link Class} parameter types
+     * @param parameterTypes
+     *      The {@link Class parameter types} for the command {@link Method}
+     *
+     * @return The generating {@link String command}
+     */
+    public static String generateCommand(Annotation[][] parameterAnnotations, Class<?>[] parameterTypes)
+    {
+        List<String> commandString = new ArrayList<>();
+        for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++) {
+            Class<?> parameterType = parameterTypes[parameterIndex];
+
+            if (parameterType.isAssignableFrom(MessageReceivedEvent.class)) continue;
+
+            String command = "#" + parameterType.getSimpleName();
+
+            if (Utilities.retrieveAnnotation(
+                parameterAnnotations[parameterIndex], Unrequired.class).isPresent()) {
+                command = "<" + command + ">";
+            }
+
+            commandString.add(command);
+        }
+
+        return String.join(" ", commandString);
+    }
 
     public static List<CommandToken> parseCommand(Method method)
     {
-        if (!Utilities.hasAnnotation(method, Command.class))
+        if (!method.isAnnotationPresent(Command.class))
             throw new IllegalCommandException(
                     String.format("Cannot parse the method %s as it isn't annotated with Command", method.getName()));
 
@@ -163,16 +282,18 @@ public final class TokenManager {
                         String.format("The token %s doesn't have a corresponding parameter in the method.", token));
 
             Class<?> type = parameterTypes[currentTypeIndex];
-            boolean isBuiltInType = BuiltInTypes.contains(type);
-
             if (!isValidCommandTypeToken(token, type))
                 throw new IllegalCommandException(
-                        String.format("The token %s doesn't match the corresponding parameter type of %s", token, type));
+                    String.format("The token %s doesn't match the corresponding parameter type of %s", token, type));
 
-            TokenSyntax tokenSyntax = isBuiltInType ? TokenSyntax.TYPE : TokenSyntax.OBJECT;
+            boolean isBuiltInType = BuiltInTypes.contains(type);
+            if (isBuiltInType || type.isEnum()) {
+                commandTokens.add(new BuiltInTypeToken(isOptional, type));
+            }
+            else {
+                commandTokens.add(new ObjectTypeToken(isOptional, type));
+            }
             currentTypeIndex++;
-
-            commandTokens.add(new GenericCommandToken(token, tokenSyntax, type, isOptional));
         }
         else {
             //Just text formatting.

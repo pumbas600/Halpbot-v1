@@ -4,29 +4,28 @@ import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.tokens.BuiltInTypeToken;
 import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.commands.tokens.TokenSyntax;
 import nz.pumbas.halpbot.HalpBot;
 import nz.pumbas.halpbot.customparameters.Line;
 import nz.pumbas.halpbot.customparameters.Plane;
 import nz.pumbas.halpbot.customparameters.Vector3;
 import nz.pumbas.utilities.Utilities;
 
-import java.util.Arrays;
+import java.lang.annotation.Annotation;
 
 public class Main
 {
 
     public static void main(String[] args) throws LoginException, ClassNotFoundException {
-        TokenManager.parseCommand("#Double at <#Double degrees from the x-axis>",
-            new Class[] { Double.class, Double.class})
-                .forEach(System.out::println);
 
-        Plane plane = new Plane(Vector3.j, Vector3.Zero);
-        Line line = new Line(new Vector3(0, 1), Vector3.i);
+        System.out.println(Enum.valueOf(TokenSyntax.class, "ARRAY"));
+        System.out.println(Enum.valueOf(TokenSyntax.class, "TEST"));
 
-        System.out.println(plane.findIntercept(line));
+        Class<?>[] types = new Class[] { Double.class, String.class, int[].class };
+        String command = TokenManager.generateCommand(new Annotation[3][0], types);
 
-
-        System.out.println(new BuiltInTypeToken(false, int.class).matches("-51"));
+        System.out.println(command);
+        System.out.println(TokenManager.parseCommand(command, types));
 
 //         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
 
