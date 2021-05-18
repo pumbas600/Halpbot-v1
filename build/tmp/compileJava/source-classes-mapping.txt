@@ -68,8 +68,8 @@ nz/pumbas/utilities/enums/Flags.java
  nz.pumbas.utilities.enums.Flags
 nz/pumbas/halpbot/friction/BlockData.java
  nz.pumbas.halpbot.friction.BlockData
-nz/pumbas/objects/keys/Keys.java
- nz.pumbas.objects.keys.Keys
+nz/pumbas/commands/tokens/BuiltInTypeToken.java
+ nz.pumbas.commands.tokens.BuiltInTypeToken
 nz/pumbas/halpbot/commands/VectorCommands.java
  nz.pumbas.halpbot.commands.VectorCommands
 nz/pumbas/utilities/io/ImageType.java
@@ -106,8 +106,8 @@ nz/pumbas/halpbot/commands/CalculusCommands.java
  nz.pumbas.halpbot.commands.CalculusCommands
 nz/pumbas/objects/keys/StorageKey.java
  nz.pumbas.objects.keys.StorageKey
-nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
- nz.pumbas.halpbot.commands.steamtables.SteamTableManager
+nz/pumbas/commands/tokens/TokenManager.java
+ nz.pumbas.commands.tokens.TokenManager
 nz/pumbas/commands/tokens/CommandToken.java
  nz.pumbas.commands.tokens.CommandToken
 nz/pumbas/utilities/maps/MapHelper.java
@@ -130,9 +130,9 @@ nz/pumbas/objects/keys/Key.java
  nz.pumbas.objects.keys.Key
 nz/pumbas/commands/CustomParameterType.java
  nz.pumbas.commands.CustomParameterType
+nz/pumbas/objects/keys/Keys.java
+ nz.pumbas.objects.keys.Keys
+nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
+ nz.pumbas.halpbot.commands.steamtables.SteamTableManager
 nz/pumbas/Main.java
  nz.pumbas.Main
-nz/pumbas/commands/tokens/TokenManager.java
- nz.pumbas.commands.tokens.TokenManager
-nz/pumbas/commands/tokens/BuiltInTypeToken.java
- nz.pumbas.commands.tokens.BuiltInTypeToken

@@ -2,7 +2,7 @@ package nz.pumbas.commands.tokens;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ObjectTypeToken implements CommandToken, ParsingToken
+public class ObjectTypeToken implements ParsingToken
 {
     private final boolean isOptional;
     private final Class<?> type;

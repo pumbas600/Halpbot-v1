@@ -2,9 +2,7 @@ package nz.pumbas;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.commands.tokens.BuiltInTypeToken;
-import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.TokenSyntax;
+import nz.pumbas.commands.tokens.*;
 import nz.pumbas.halpbot.HalpBot;
 import nz.pumbas.halpbot.customparameters.Line;
 import nz.pumbas.halpbot.customparameters.Plane;
@@ -12,14 +10,14 @@ import nz.pumbas.halpbot.customparameters.Vector3;
 import nz.pumbas.utilities.Utilities;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 
 public class Main
 {
 
     public static void main(String[] args) throws LoginException, ClassNotFoundException {
-
-        System.out.println(Enum.valueOf(TokenSyntax.class, "ARRAY"));
-        System.out.println(Enum.valueOf(TokenSyntax.class, "TEST"));
+        ParsingToken token = new ArrayToken(false, int[].class);
+        System.out.println(Arrays.toString((Object[]) token.parse("[2 3 4 5]")));
 
         Class<?>[] types = new Class[] { Double.class, String.class, int[].class };
         String command = TokenManager.generateCommand(new Annotation[3][0], types);

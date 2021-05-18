@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.utilities.Utilities;
 
-public class BuiltInTypeToken implements CommandToken, ParsingToken
+public class BuiltInTypeToken implements ParsingToken
 {
     private final boolean isOptional;
     private final Class<?> type;

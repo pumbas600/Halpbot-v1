@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
  */
-public interface ParsingToken {
+public interface ParsingToken extends CommandToken {
 
     /**
      * @return The required {@link Class type} of this {@link ParsingToken}
