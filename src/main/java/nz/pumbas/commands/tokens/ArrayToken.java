@@ -61,7 +61,7 @@ public class ArrayToken implements ParsingToken {
      * @return An {@link Object} of the {@link String invocation token} parsed to the correct type
      */
     @Override
-    public Object parse(@NotNull String invocationToken) {
+    public Object[] parse(@NotNull String invocationToken) {
         List<String> invocationTokens = TokenManager.splitInvocationTokens(invocationToken.substring(1, invocationToken.length() - 1));
         Object[] array = new Object[invocationTokens.size()];
 

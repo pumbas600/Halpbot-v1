@@ -21,7 +21,15 @@ public class ObjectTypeToken implements ParsingToken
     @Override
     public boolean matches(@NotNull String invocationToken)
     {
-        return false;
+        if (!invocationToken.matches(TokenSyntax.OBJECT.getSyntax()))
+            return false;
+
+        String typeAlias = invocationToken.substring(1, invocationToken.indexOf('['));
+        if (!typeAlias.equalsIgnoreCase(TokenManager.getTypeAlias(this.type)))
+            return false;
+
+        String parameters = invocationToken.substring(invocationToken.indexOf("[") + 1, invocationToken.lastIndexOf("]"));
+        return false; //TODO: getCommand and check it matches
     }
 
     @Override

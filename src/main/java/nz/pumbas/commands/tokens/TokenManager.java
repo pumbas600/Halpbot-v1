@@ -317,9 +317,22 @@ public final class TokenManager {
      */
     public static boolean isValidCommandTypeToken(String token, Class<?> type) {
         String tokenIdentifier = token.substring(1);
+        return getTypeAlias(type).equalsIgnoreCase(tokenIdentifier);
+    }
 
-        return Utilities.getAnnotation(type, CustomParameter.class)
-                .map(customParameter -> customParameter.identifier().equalsIgnoreCase(tokenIdentifier))
-                .orElseGet(() -> type.getSimpleName().equalsIgnoreCase(tokenIdentifier));
+    /**
+     * Gets the {@link String alias} of the specified {@link Class type} by first checking if it has the {@link CustomParameter} annotation. If it does, it
+     * retrieves the specified {@link String identifier}, otherwise it just gets the name of the {@link Class type}.
+     *
+     * @param type
+     *      The {@link Class type} to get the alias of
+     *
+     * @return The {@link String alias} of the specified {@link Class type}
+     */
+    public static String getTypeAlias(Class<?> type)
+    {
+        return type.isAnnotationPresent(CustomParameter.class)
+                ? type.getAnnotation(CustomParameter.class).identifier()
+                : type.getSimpleName();
     }
 }

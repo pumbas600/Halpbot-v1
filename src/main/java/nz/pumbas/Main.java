@@ -16,7 +16,10 @@ public class Main
 {
 
     public static void main(String[] args) throws LoginException, ClassNotFoundException {
+        System.out.println(TokenManager.splitInvocationTokens("This is a 3 element array [2 1 -6]").toString());
+
         ParsingToken token = new ArrayToken(false, int[].class);
+        System.out.println(token.matches("[1 2 a alpha]"));
         System.out.println(Arrays.toString((Object[]) token.parse("[2 3 4 5]")));
 
         Class<?>[] types = new Class[] { Double.class, String.class, int[].class };

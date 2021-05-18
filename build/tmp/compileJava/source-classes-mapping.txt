@@ -74,8 +74,8 @@ nz/pumbas/halpbot/commands/VectorCommands.java
  nz.pumbas.halpbot.commands.VectorCommands
 nz/pumbas/utilities/io/ImageType.java
  nz.pumbas.utilities.io.ImageType
-nz/pumbas/commands/tokens/ArrayToken.java
- nz.pumbas.commands.tokens.ArrayToken
+nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
+ nz.pumbas.halpbot.commands.steamtables.SteamTableManager
 nz/pumbas/commands/Annotations/Command.java
  nz.pumbas.commands.Annotations.Command
 nz/pumbas/halpbot/customparameters/Line.java
@@ -132,7 +132,7 @@ nz/pumbas/commands/CustomParameterType.java
  nz.pumbas.commands.CustomParameterType
 nz/pumbas/objects/keys/Keys.java
  nz.pumbas.objects.keys.Keys
-nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
- nz.pumbas.halpbot.commands.steamtables.SteamTableManager
 nz/pumbas/Main.java
  nz.pumbas.Main
+nz/pumbas/commands/tokens/ArrayToken.java
+ nz.pumbas.commands.tokens.ArrayToken

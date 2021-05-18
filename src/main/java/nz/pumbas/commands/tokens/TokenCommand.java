@@ -67,4 +67,16 @@ public class TokenCommand {
 
         return Optional.empty();
     }
+
+    /**
+     * Determines if the {@link List} of {@link String invocation tokens} match with this {@link TokenCommand}.
+     *
+     * @param invocationTokens
+     *      The {@link List} of {@link String invocation tokens} to check that matches with this {@link TokenCommand}
+     * @return
+     */
+    public boolean matches(List<String> invocationTokens)
+    {
+        return false; //TODO: This
+    }
 }
