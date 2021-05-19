@@ -16,21 +16,21 @@ import java.util.Optional;
 public class TokenCommand {
 
     private final @NotNull Object instance;
-    private final @NotNull Method method;
+    private final @NotNull Executable executable;
     private final @NotNull List<CommandToken> commandTokens;
 
-    public TokenCommand(@NotNull Object instance, @NotNull Method method, @NotNull List<CommandToken> commandTokens) {
+    public TokenCommand(@NotNull Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
         this.instance = instance;
-        this.method = method;
+        this.executable = executable;
         this.commandTokens = commandTokens;
     }
 
     /**
-     * @return The {@link Method} for this {@link nz.pumbas.commands.Annotations.Command}
+     * @return The {@link Executable} for this {@link nz.pumbas.commands.Annotations.Command}
      */
     @NotNull
-    public Method getMethod() {
-        return this.method;
+    public Executable getExecutable() {
+        return this.executable;
     }
 
     /**
@@ -42,29 +42,32 @@ public class TokenCommand {
     }
 
     /**
-     * @return The an array of the {@link Class parameter types} of the {@link Method} for this {@link nz.pumbas.commands.Annotations.Command}
+     * @return The an array of the {@link Class parameter types} of the {@link Executable} for this {@link nz.pumbas.commands.Annotations.Command}
      */
     @NotNull
     public Class<?>[] getParameterTypes() {
-        return this.method.getParameterTypes();
+        return this.executable.getParameterTypes();
     }
 
     /**
-     * Invokes the {@link Method} for this {@link nz.pumbas.commands.Annotations.Command} with the specified arguments.
+     * Invokes the {@link Executable} for this {@link nz.pumbas.commands.Annotations.Command} with the specified arguments.
      *
      * @param args
-     *      The {@link Object} arguments to invoke the {@link Method} with
+     *      The {@link Object} arguments to invoke the {@link Executable} with
      *
-     * @return An {@link Optional} containing the result of the {@link Method} if there is one
-     * @throws InvocationTargetException Any exception thrown within the {@link Method}
+     * @return An {@link Optional} containing the result of the {@link Executable} if there is one
+     * @throws InvocationTargetException Any exception thrown within the {@link Executable}
      */
-    public Optional<Object> InvokeMethod(Object... args) throws InvocationTargetException
+    public Optional<Object> Invoke(Object... args) throws InvocationTargetException
     {
         try {
-            return Optional.ofNullable(this.method.invoke(this.instance, args));
-        } catch (java.lang.IllegalAccessException e) {
+            if (executable instanceof Method)
+                return Optional.ofNullable(((Method) this.executable).invoke(this.instance, args));
+            else if (executable instanceof Constructor<?>)
+                return Optional.of(((Constructor<?>) this.executable).newInstance(args));
+        } catch (java.lang.IllegalAccessException | InstantiationException e) {
             ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
-                    this.method.getName()));
+                    this.executable.getName()));
         }
 
         return Optional.empty();
@@ -75,6 +78,7 @@ public class TokenCommand {
      *
      * @param invocationTokens
      *      The {@link List} of {@link String invocation tokens} to check that matches with this {@link TokenCommand}
+     *
      * @return
      */
     public boolean matches(List<String> invocationTokens)

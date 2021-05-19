@@ -10,7 +10,7 @@ public class ArrayToken implements ParsingToken {
     private final boolean isOptional;
     private final Class<?> type;
     private final ParsingToken commandToken;
-    private final Object defaultValue;
+    private final Object[] defaultValue;
 
     public ArrayToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
         if (!type.isArray())
@@ -22,7 +22,7 @@ public class ArrayToken implements ParsingToken {
         this.commandToken = TokenManager.BuiltInTypes.contains(this.type.getComponentType())
                 ? new BuiltInTypeToken(false, this.type.getComponentType(), null)
                 : new ObjectTypeToken(false, this.type.getComponentType(), null);
-        this.defaultValue = this.parseDefaultValue(defaultValue);
+        this.defaultValue = (Object[]) this.parseDefaultValue(defaultValue);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ArrayToken implements ParsingToken {
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Override
-    public @Nullable Object getDefaultValue() {
+    public @Nullable Object[] getDefaultValue() {
         return this.defaultValue;
     }
 }

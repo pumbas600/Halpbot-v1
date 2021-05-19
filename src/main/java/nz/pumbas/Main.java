@@ -23,12 +23,6 @@ public class Main
         System.out.println(Arrays.toString((Object[]) token.parse("[2 3 4 5]")));
         System.out.println(Arrays.toString((Object[]) token.getDefaultValue()));
 
-        Class<?>[] types = new Class[] { Double.class, String.class, int[].class };
-        String command = TokenManager.generateCommand(types, new Annotation[3][0]);
-
-        System.out.println(command);
-        System.out.println(TokenManager.parseCommand(command, types));
-
 //         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
 
 //        SteamTableManager manager = new SteamTableManager();

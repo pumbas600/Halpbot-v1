@@ -30,16 +30,17 @@ public interface ParsingToken extends CommandToken {
     Object getDefaultValue();
 
     /**
-     * Parses the {@link String default value} for a token. If this {@link String default value} is null, then it returns null.
+     * Parses the {@link String default value} for a token. If this {@link String default value} is null or a string of 'null',
+     * then it returns null.
      * 
      * @param defaultValue
      *      {@link String default value} to be parsed into an {@link Object} using {@link ParsingToken#parse(String)}
      *      
-     * @return The {@link Object} parsed default value
+     * @return The parsed {@link Object default value}
      */
     @Nullable
     default Object parseDefaultValue(@Nullable String defaultValue) {
-        if (null == defaultValue)
+        if (null == defaultValue || "null".equalsIgnoreCase(defaultValue))
             return null;
         else {
             if (!this.matches(defaultValue))
