@@ -1,6 +1,7 @@
 package nz.pumbas.commands.tokens;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -9,8 +10,9 @@ public class ArrayToken implements ParsingToken {
     private final boolean isOptional;
     private final Class<?> type;
     private final ParsingToken commandToken;
+    private final Object defaultValue;
 
-    public ArrayToken(boolean isOptional, Class<?> type) {
+    public ArrayToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
         if (!type.isArray())
             throw new IllegalArgumentException(
                     String.format("The type %s, must be an array to be used in an ArrayToken.", type.getSimpleName()));
@@ -18,8 +20,9 @@ public class ArrayToken implements ParsingToken {
         this.isOptional = isOptional;
         this.type = type;
         this.commandToken = TokenManager.BuiltInTypes.contains(this.type.getComponentType())
-                ? new BuiltInTypeToken(false, this.type.getComponentType())
-                : new ObjectTypeToken(false, this.type.getComponentType());
+                ? new BuiltInTypeToken(false, this.type.getComponentType(), null)
+                : new ObjectTypeToken(false, this.type.getComponentType(), null);
+        this.defaultValue = this.parseDefaultValue(defaultValue);
     }
 
     /**
@@ -70,5 +73,13 @@ public class ArrayToken implements ParsingToken {
         }
 
         return array;
+    }
+
+    /**
+     * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
+     */
+    @Override
+    public @Nullable Object getDefaultValue() {
+        return this.defaultValue;
     }
 }

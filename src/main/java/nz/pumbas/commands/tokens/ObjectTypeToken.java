@@ -1,15 +1,18 @@
 package nz.pumbas.commands.tokens;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ObjectTypeToken implements ParsingToken
 {
     private final boolean isOptional;
     private final Class<?> type;
+    private final Object defaultValue;
 
-    public ObjectTypeToken(boolean isOptional, Class<?> type) {
+    public ObjectTypeToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
         this.isOptional = isOptional;
         this.type = type;
+        this.defaultValue = this.parseDefaultValue(defaultValue);
     }
 
     @Override
@@ -42,5 +45,11 @@ public class ObjectTypeToken implements ParsingToken
     public Object parse(@NotNull String invocationToken)
     {
         return null;
+    }
+
+    @Override
+    public @Nullable Object getDefaultValue()
+    {
+        return this.defaultValue;
     }
 }

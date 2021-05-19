@@ -6,7 +6,7 @@ public enum TokenSyntax
     OPTIONAL("<[^<>]+>"),
     OBJECT("#[^#]+\\[.+\\]"),
     TYPE("#[^#]+"),
-    ARRAY("[.*]");
+    ARRAY("\\[.*\\]");
 
     private final String syntax;
 

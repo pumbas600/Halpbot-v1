@@ -19,10 +19,7 @@ import nz.pumbas.utilities.Utilities;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -123,8 +120,7 @@ public final class TokenManager {
             ParameterConstruction::constructor, "");
 
         if (constructorCommand.isEmpty())
-            constructorCommand = generateCommand(constructor.getParameterAnnotations(),
-                constructor.getParameterTypes());
+            constructorCommand = generateCommand(constructor.getParameterTypes(), constructor.getParameterAnnotations());
 
         return parseCommand(constructorCommand, constructor.getParameterTypes());
     }
@@ -140,7 +136,7 @@ public final class TokenManager {
      *
      * @return The generating {@link String command}
      */
-    public static String generateCommand(Annotation[][] parameterAnnotations, Class<?>[] parameterTypes)
+    public static String generateCommand(Class<?>[] parameterTypes, Annotation[][] parameterAnnotations)
     {
         List<String> commandString = new ArrayList<>();
         for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++) {
@@ -174,20 +170,24 @@ public final class TokenManager {
         if (0 < parameterTypes.length && parameterTypes[0].isAssignableFrom(MessageReceivedEvent.class))
             startParameterIndex = 1;
 
-        //TODO: Automatically generate command if not present
-        return parseCommand(command.command(), parameterTypes, startParameterIndex);
+        String tokenCommand = command.command().isEmpty()
+                ? generateCommand(parameterTypes, method.getParameterAnnotations())
+                : command.command();
+
+        return parseCommand(tokenCommand, parameterTypes, startParameterIndex, method.getParameterAnnotations());
     }
 
     public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes)
     {
-        return parseCommand(command, parameterTypes, 0);
+        return parseCommand(command, parameterTypes, 0, new Annotation[parameterTypes.length][0]);
     }
 
-    public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes, int startParameterIndex)
+    public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes,
+                                                  int startParameterIndex, Annotation[][] parameterAnnotations)
     {
         List<String> tokens = splitCommandTokens(command);
 
-        return parseCommandTokens(tokens, parameterTypes, startParameterIndex);
+        return parseCommandTokens(tokens, parameterTypes, startParameterIndex, parameterAnnotations);
     }
 
     public static List<String> splitInvocationTokens(@NotNull String command)
@@ -249,14 +249,16 @@ public final class TokenManager {
         return tokens;
     }
 
-    public static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes, int currentTypeIndex)
+    public static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes,
+                                                        int currentTypeIndex, Annotation[][] parameterAnnotations)
     {
-        return parseCommandTokens(new ArrayList<>(), tokens, 0, parameterTypes, currentTypeIndex);
+        return parseCommandTokens(new ArrayList<>(), tokens, 0, parameterTypes, currentTypeIndex, parameterAnnotations);
     }
 
     private static List<CommandToken> parseCommandTokens(List<CommandToken> commandTokens,
                                                          List<String> tokens, int currentTokenIndex,
-                                                         Class<?>[] parameterTypes, int currentTypeIndex)
+                                                         Class<?>[] parameterTypes, int currentTypeIndex,
+                                                         Annotation[][] parameterAnnotations)
     {
         if (currentTokenIndex >= tokens.size())
             return commandTokens;
@@ -269,13 +271,6 @@ public final class TokenManager {
             token = token.substring(1, token.length() - 1);
         }
 
-//        if (token.matches(TokenType.OBJECT.getSyntax())) {
-//            String objectType = token.substring(1, token.indexOf("["));
-//            String parameters = token.substring(token.indexOf("[") + 1, token.lastIndexOf("]"));
-//
-//            List<CommandToken> parameterTokens = parseCommandTokens(parameters);
-//        }
-
         if (token.matches(TokenSyntax.TYPE.getSyntax())) {
             if (currentTypeIndex >= parameterTypes.length)
                 throw new IllegalCommandException(
@@ -286,21 +281,29 @@ public final class TokenManager {
                 throw new IllegalCommandException(
                     String.format("The token %s doesn't match the corresponding parameter type of %s", token, type));
 
+            String defaultValue = null;
+            Optional<Unrequired> oUnrequired = Utilities.retrieveAnnotation(parameterAnnotations[currentTypeIndex], Unrequired.class);
+            if (oUnrequired.isPresent()) {
+                isOptional = true;
+                defaultValue = oUnrequired.get().value();
+            }
+
             boolean isBuiltInType = BuiltInTypes.contains(type);
             if (isBuiltInType || type.isEnum()) {
-                commandTokens.add(new BuiltInTypeToken(isOptional, type));
+                commandTokens.add(new BuiltInTypeToken(isOptional, type, defaultValue));
             }
             else {
-                commandTokens.add(new ObjectTypeToken(isOptional, type));
+                commandTokens.add(new ObjectTypeToken(isOptional, type, defaultValue));
             }
             currentTypeIndex++;
         }
+
         else {
             //Just text formatting.
             commandTokens.add(new PlaceholderToken(isOptional, token));
         }
 
-        return parseCommandTokens(commandTokens, tokens, currentTokenIndex + 1, parameterTypes, currentTypeIndex);
+        return parseCommandTokens(commandTokens, tokens, currentTokenIndex + 1, parameterTypes, currentTypeIndex, parameterAnnotations);
     }
 
     /**

@@ -3,15 +3,18 @@ package nz.pumbas.commands.tokens;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.utilities.Utilities;
+import org.jetbrains.annotations.Nullable;
 
 public class BuiltInTypeToken implements ParsingToken
 {
     private final boolean isOptional;
     private final Class<?> type;
+    private final Object defaultValue;
 
-    public BuiltInTypeToken(boolean isOptional, Class<?> type) {
+    public BuiltInTypeToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
         this.isOptional = isOptional;
         this.type = type;
+        this.defaultValue = this.parseDefaultValue(defaultValue);
     }
 
     /**
@@ -68,6 +71,14 @@ public class BuiltInTypeToken implements ParsingToken
         return TokenManager.TypeParsers.get(this.type)
             .getValue()
             .apply(invocationToken);
+    }
+
+    /**
+     * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
+     */
+    @Override
+    public @Nullable Object getDefaultValue() {
+        return this.defaultValue;
     }
 
     @Override

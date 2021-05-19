@@ -3,6 +3,8 @@ package nz.pumbas.commands.tokens;
 import nz.pumbas.commands.ErrorManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;

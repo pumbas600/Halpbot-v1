@@ -18,12 +18,13 @@ public class Main
     public static void main(String[] args) throws LoginException, ClassNotFoundException {
         System.out.println(TokenManager.splitInvocationTokens("This is a 3 element array [2 1 -6]").toString());
 
-        ParsingToken token = new ArrayToken(false, int[].class);
+        ParsingToken token = new ArrayToken(false, int[].class, "[2 1]"); //TODO: Check default matching error
         System.out.println(token.matches("[1 2 a alpha]"));
         System.out.println(Arrays.toString((Object[]) token.parse("[2 3 4 5]")));
+        System.out.println(Arrays.toString((Object[]) token.getDefaultValue()));
 
         Class<?>[] types = new Class[] { Double.class, String.class, int[].class };
-        String command = TokenManager.generateCommand(new Annotation[3][0], types);
+        String command = TokenManager.generateCommand(types, new Annotation[3][0]);
 
         System.out.println(command);
         System.out.println(TokenManager.parseCommand(command, types));
