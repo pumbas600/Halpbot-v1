@@ -88,8 +88,8 @@ nz/pumbas/commands/Annotations/Unrequired.java
  nz.pumbas.commands.Annotations.Unrequired
 nz/pumbas/halpbot/commands/steamtables/annotations/IgnoreColumn.java
  nz.pumbas.halpbot.commands.steamtables.annotations.IgnoreColumn
-nz/pumbas/commands/tokens/TokenManager.java
- nz.pumbas.commands.tokens.TokenManager
+nz/pumbas/commands/tokens/ParsingToken.java
+ nz.pumbas.commands.tokens.ParsingToken
 nz/pumbas/halpbot/commands/steamtables/SteamTable.java
  nz.pumbas.halpbot.commands.steamtables.SteamTable
 nz/pumbas/commands/CommandMethod.java
@@ -124,15 +124,15 @@ nz/pumbas/halpbot/commands/steamtables/models/ModelHelper.java
  nz.pumbas.halpbot.commands.steamtables.models.ModelHelper
 nz/pumbas/commands/tokens/GenericCommandToken.java
  nz.pumbas.commands.tokens.GenericCommandToken
-nz/pumbas/commands/tokens/ParsingToken.java
- nz.pumbas.commands.tokens.ParsingToken
-nz/pumbas/commands/tokens/ObjectTypeToken.java
- nz.pumbas.commands.tokens.ObjectTypeToken
 nz/pumbas/commands/tokens/TokenCommand.java
  nz.pumbas.commands.tokens.TokenCommand
+nz/pumbas/Main.java
+ nz.pumbas.Main
+nz/pumbas/commands/tokens/TokenManager.java
+ nz.pumbas.commands.tokens.TokenManager
 nz/pumbas/commands/tokens/BuiltInTypeToken.java
  nz.pumbas.commands.tokens.BuiltInTypeToken
 nz/pumbas/commands/tokens/ArrayToken.java
  nz.pumbas.commands.tokens.ArrayToken
-nz/pumbas/Main.java
- nz.pumbas.Main
+nz/pumbas/commands/tokens/ObjectTypeToken.java
+ nz.pumbas.commands.tokens.ObjectTypeToken

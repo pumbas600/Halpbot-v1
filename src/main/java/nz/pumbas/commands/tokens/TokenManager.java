@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A static {@link CommandToken} manager, that handles the parsing of commands into {@link CommandToken command tokens}.
@@ -50,23 +51,21 @@ public final class TokenManager {
     );
 
     /**
-     * An {@link Map} which maps custom classes to their parsed {@link Constructor}.
+     * An {@link Map} which maps custom classes to their parsed {@link Constructor} in an {@link TokenCommand}.
      */
-    private static final Map<Class<?>, List<Tuple<Constructor<?>, List<CommandToken>>>> CustomClassConstructors =
-        new HashMap<>();
+    private static final Map<Class<?>, List<TokenCommand>> CustomClassConstructors = new HashMap<>();
 
     /**
-     * Retrieves the {@link List} of parsed {@link Constructor constructors} and their {@link CommandToken command
-     * tokens} for the specified {@link Class}. If the specified {@link Class} hasn't had their {@link Constructor
-     * constructors} parsed, then it calls {@link TokenManager#parseCustomClassConstructors(Class)} and automatically
-     * returns the result.
+     * Retrieves the {@link List} of parsed {@link TokenCommand token commands} for the given {@link Class class's} constructors.
+     * If the specified {@link Class} hasn't had their {@link Constructor constructors} parsed, then it calls {@link TokenManager#parseCustomClassConstructors(Class)}
+     * and automatically returns the result.
      *
      * @param customClass
-     *      The {@link Class} to retrieve the parsed data from.
+     *      The {@link Class} to retrieve the parsed {@link TokenCommand token commands} from.
      *
-     * @return The {@link List} of parsed {@link Constructor constructors} and their {@link CommandToken command tokens}
+     * @return The {@link List} of {@link TokenCommand token commands} for the passed {@link Class}
      */
-    public static List<Tuple<Constructor<?>, List<CommandToken>>> getParsedConstructors(Class<?> customClass)
+    public static List<TokenCommand> getParsedConstructors(Class<?> customClass)
     {
         if (!CustomClassConstructors.containsKey(customClass))
             parseCustomClassConstructors(customClass);
@@ -94,15 +93,18 @@ public final class TokenManager {
             throw new IllegalCustomParameterException(
                 String.format("The custom class %s, must define a constructor", customClass.getSimpleName()));
 
-        List<Tuple<Constructor<?>, List<CommandToken>>> parsedConstructors = new ArrayList<>();
         List<Constructor<?>> customConstructors = Utilities.filterReflections(constructors,
             c -> c.isAnnotationPresent(ParameterConstruction.class));
 
         if (customConstructors.isEmpty()) {
             customConstructors.add(constructors[0]);
         }
-        customConstructors.forEach(c -> parsedConstructors.add(Tuple.of(c, parseConstructor(c))));
-        CustomClassConstructors.put(customClass, parsedConstructors);
+
+        CustomClassConstructors.put(customClass,
+                customConstructors
+                        .stream()
+                        .map(c -> new TokenCommand(null, c, parseConstructor(c))) //For constructors, an instance isn't required to invoke it.
+                        .collect(Collectors.toList()));
     }
 
     /**
@@ -291,6 +293,9 @@ public final class TokenManager {
             boolean isBuiltInType = BuiltInTypes.contains(type);
             if (isBuiltInType || type.isEnum()) {
                 commandTokens.add(new BuiltInTypeToken(isOptional, type, defaultValue));
+            }
+            else if (type.isArray()) {
+                commandTokens.add(new ArrayToken(isOptional, type, defaultValue));
             }
             else {
                 commandTokens.add(new ObjectTypeToken(isOptional, type, defaultValue));

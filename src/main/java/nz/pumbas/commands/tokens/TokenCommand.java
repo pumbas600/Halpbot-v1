@@ -1,7 +1,9 @@
 package nz.pumbas.commands.tokens;
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import nz.pumbas.commands.ErrorManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -15,11 +17,11 @@ import java.util.Optional;
  */
 public class TokenCommand {
 
-    private final @NotNull Object instance;
+    private final @Nullable Object instance;
     private final @NotNull Executable executable;
     private final @NotNull List<CommandToken> commandTokens;
 
-    public TokenCommand(@NotNull Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
+    public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
         this.instance = instance;
         this.executable = executable;
         this.commandTokens = commandTokens;
@@ -73,16 +75,33 @@ public class TokenCommand {
         return Optional.empty();
     }
 
+    public Object[] parseInvocationTokens(List<String> invocationTokens) {
+        return new Object[0]; //TODO: parse the invocation tokens using the command tokens.
+    }
+
     /**
      * Determines if the {@link List} of {@link String invocation tokens} match with this {@link TokenCommand}.
      *
      * @param invocationTokens
      *      The {@link List} of {@link String invocation tokens} to check that matches with this {@link TokenCommand}
      *
-     * @return
+     * @return If the {@link List} of {@link String invocation tokens} match this {@link TokenCommand}
      */
     public boolean matches(List<String> invocationTokens)
     {
-        return false; //TODO: This
+        int invocationTokenIndex = 0;
+        for (CommandToken currentCommandToken : this.commandTokens) {
+            String currentInvocationToken = invocationTokens.get(invocationTokenIndex);
+
+            // If they match, move to the next token
+            if (currentCommandToken.matches(currentInvocationToken))
+                invocationTokenIndex++;
+            // If it doesn't match but the current command token is optional, it checks if the next invocation token matches
+            // Otherwise, if it doesn't match and its not optional, then these invocations don't match this command
+            else if (!currentCommandToken.isOptional()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
