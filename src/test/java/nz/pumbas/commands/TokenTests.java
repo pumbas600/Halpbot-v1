@@ -112,4 +112,43 @@ public class TokenTests {
     private void simpleCommandParsingMethod(int matrixRows, int matrixHeight, @Unrequired("[]") int[] matrixValues) {
 
     }
+
+    @Test
+    public void multiChoiceTokenTest() {
+        MultiChoiceToken token = new MultiChoiceToken(false, String.class, "x-axis",
+                List.of("x", "x-axis", "y", "y-axis"));
+
+        Assertions.assertTrue(token.matches("x"));
+        Assertions.assertTrue(token.matches("X-axis"));
+        Assertions.assertTrue(token.matches("y"));
+        Assertions.assertTrue(token.matches("y-Axis"));
+        Assertions.assertFalse(token.matches("axis"));
+        Assertions.assertEquals("x-axis", token.getDefaultValue());
+    }
+
+    @Test
+    public void multiChoiceTokenSyntaxMatchesTest() {
+        Assertions.assertTrue("[x-axis|y-axis]".matches(TokenSyntax.MULTICHOICE.getSyntax()));
+        Assertions.assertFalse("axis".matches(TokenSyntax.MULTICHOICE.getSyntax()));
+        Assertions.assertFalse("#[x-axis|y-axis]".matches(TokenSyntax.MULTICHOICE.getSyntax()));
+    }
+
+    @Test
+    public void parsingMultiChoiceTokenTest() {
+        List<CommandToken> commandTokens = TokenManager.parseCommand(
+                "#double <from the> [x-axis|y-axis]", new Class<?>[] { Double.class, String.class });
+        CommandToken multiChoiceToken = commandTokens.get(3);
+
+        System.out.println(commandTokens);
+
+        Assertions.assertEquals(4, commandTokens.size());
+        Assertions.assertTrue(commandTokens.get(0) instanceof BuiltInTypeToken);
+        Assertions.assertTrue(commandTokens.get(1) instanceof PlaceholderToken);
+        Assertions.assertTrue(commandTokens.get(2) instanceof PlaceholderToken);
+        Assertions.assertTrue(commandTokens.get(3) instanceof MultiChoiceToken);
+
+        Assertions.assertTrue(multiChoiceToken.matches("x-axis"));
+        Assertions.assertTrue(multiChoiceToken.matches("Y-axis"));
+        Assertions.assertFalse(multiChoiceToken.matches("axis"));
+    }
 }

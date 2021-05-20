@@ -7,15 +7,21 @@ import org.jetbrains.annotations.Nullable;
 
 public class BuiltInTypeToken implements ParsingToken
 {
-    private final boolean isOptional;
-    private final Class<?> type;
-    private final Object defaultValue;
+    protected boolean isOptional;
+    protected Class<?> type;
+    protected Object defaultValue;
 
     public BuiltInTypeToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
         this.isOptional = isOptional;
+        if (!TokenManager.isBuiltInType(type))
+            throw new IllegalArgumentException(
+                    String.format("The type %s must be a built in type.", type));
+
         this.type = type;
         this.defaultValue = this.parseDefaultValue(defaultValue);
     }
+
+    protected BuiltInTypeToken() { }
 
     /**
      * @return If this {@link CommandToken} is optional or not
@@ -84,7 +90,7 @@ public class BuiltInTypeToken implements ParsingToken
     @Override
     public String toString()
     {
-        return String.format("BuiltInTypeToken{isOptional=%s, type=%s}",
-            this.isOptional, this.type.getSimpleName());
+        return String.format("BuiltInTypeToken{isOptional=%s, type=%s defaultValue=%s}",
+            this.isOptional, this.type.getSimpleName(), this.defaultValue);
     }
 }

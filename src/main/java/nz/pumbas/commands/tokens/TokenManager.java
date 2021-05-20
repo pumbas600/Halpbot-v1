@@ -37,23 +37,37 @@ public final class TokenManager {
             int.class, float.class, double.class, char.class, String.class, boolean.class
     );
 
+    private static final Map<Class<?>, Class<?>> WrapperToPrimitive = Map.of(
+            Integer.class,   int.class,
+            Float.class,     float.class,
+            Double.class,    double.class,
+            Character.class, char.class,
+            Boolean.class,   boolean.class
+    );
+
     /**
      * An {@link Map} of the built-in {@link Class classes} and a {@link Tuple} of a regex syntax along with their
      * corresponding parsers.
      */
     public static final Map<Class<?>, Tuple<String, Function<String, Object>>> TypeParsers = Map.of(
-        String.class, Tuple.of(".+", s -> s),
-        int.class,    Tuple.of("-?\\d+", Integer::parseInt),
-        float.class,  Tuple.of("-?\\d+\\.?\\d*", Float::parseFloat),
-        double.class, Tuple.of("-?\\d+\\.?\\d*", Double::parseDouble),
-        char.class,   Tuple.of("[a-zA-Z]", s -> s.charAt(0)),
-        boolean.class,Tuple.of("true|yes|false|no", s -> "true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s))
+        String.class,  Tuple.of(".+", s -> s),
+        int.class,     Tuple.of("-?\\d+", Integer::parseInt),
+        float.class,   Tuple.of("-?\\d+\\.?\\d*", Float::parseFloat),
+        double.class,  Tuple.of("-?\\d+\\.?\\d*", Double::parseDouble),
+        char.class,    Tuple.of("[a-zA-Z]", s -> s.charAt(0)),
+        boolean.class, Tuple.of("true|yes|false|no", s -> "true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s))
     );
 
     /**
      * An {@link Map} which maps custom classes to their parsed {@link Constructor} in an {@link TokenCommand}.
      */
     private static final Map<Class<?>, List<TokenCommand>> CustomClassConstructors = new HashMap<>();
+
+    public static boolean isBuiltInType(Class<?> type)
+    {
+        type = WrapperToPrimitive.getOrDefault(type, type);
+        return type.isEnum() || BuiltInTypes.contains(type);
+    }
 
     /**
      * Retrieves the {@link List} of parsed {@link TokenCommand token commands} for the given {@link Class class's} constructors.
@@ -273,15 +287,15 @@ public final class TokenManager {
             token = token.substring(1, token.length() - 1);
         }
 
-        if (token.matches(TokenSyntax.TYPE.getSyntax())) {
+        boolean isMultiChoice = token.matches(TokenSyntax.MULTICHOICE.getSyntax());
+
+        if (token.matches(TokenSyntax.TYPE.getSyntax()) || isMultiChoice) {
             if (currentTypeIndex >= parameterTypes.length)
                 throw new IllegalCommandException(
                         String.format("The token %s doesn't have a corresponding parameter in the method.", token));
 
             Class<?> type = parameterTypes[currentTypeIndex];
-            if (!isValidCommandTypeToken(token, type))
-                throw new IllegalCommandException(
-                    String.format("The token %s doesn't match the corresponding parameter type of %s", token, type));
+            type = WrapperToPrimitive.getOrDefault(type, type);
 
             String defaultValue = null;
             Optional<Unrequired> oUnrequired = Utilities.retrieveAnnotation(parameterAnnotations[currentTypeIndex], Unrequired.class);
@@ -290,8 +304,15 @@ public final class TokenManager {
                 defaultValue = oUnrequired.get().value();
             }
 
-            boolean isBuiltInType = BuiltInTypes.contains(type);
-            if (isBuiltInType || type.isEnum()) {
+            if (isMultiChoice) {
+                List<String> options = List.of(token.split("\\|"));
+                commandTokens.add(new MultiChoiceToken(isOptional, type, defaultValue, options));
+            }
+            else if (!isValidCommandTypeToken(token, type)) { //Only check this for non-multichoice tokens
+                throw new IllegalCommandException(
+                        String.format("The token %s doesn't match the corresponding parameter type of %s", token, type));
+            }
+            else if (isBuiltInType(type)) {
                 commandTokens.add(new BuiltInTypeToken(isOptional, type, defaultValue));
             }
             else if (type.isArray()) {

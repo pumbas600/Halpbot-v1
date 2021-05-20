@@ -52,4 +52,10 @@ public class ObjectTypeToken implements ParsingToken
     {
         return this.defaultValue;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ObjectTypeToken{isOptional=%s, type=%s, defaultValue=%s}",
+                this.isOptional, this.type.getSimpleName(), this.defaultValue);
+    }
 }

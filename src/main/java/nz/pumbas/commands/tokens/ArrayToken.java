@@ -3,6 +3,7 @@ package nz.pumbas.commands.tokens;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ArrayToken implements ParsingToken {
@@ -81,5 +82,11 @@ public class ArrayToken implements ParsingToken {
     @Override
     public @Nullable Object[] getDefaultValue() {
         return this.defaultValue;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ArrayToken{isOptional=%s, type=%s, defaultValue=%s}",
+                this.isOptional, this.type.getSimpleName(), Arrays.toString(this.defaultValue));
     }
 }
