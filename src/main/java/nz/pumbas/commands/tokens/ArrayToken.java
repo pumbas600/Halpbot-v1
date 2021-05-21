@@ -67,6 +67,7 @@ public class ArrayToken implements ParsingToken {
     @Override
     public Object[] parse(@NotNull String invocationToken) {
         List<String> invocationTokens = TokenManager.splitInvocationTokens(invocationToken.substring(1, invocationToken.length() - 1));
+        //TODO: Create array of correct type as Object[] type is causing Mismatch type exception when calling methods.
         Object[] array = new Object[invocationTokens.size()];
 
         for (int i = 0; i < invocationTokens.size(); i++) {

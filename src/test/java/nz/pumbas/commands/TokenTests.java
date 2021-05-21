@@ -4,13 +4,16 @@ package nz.pumbas.commands;
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.Unrequired;
 import nz.pumbas.commands.tokens.*;
+import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.Utilities;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
 public class TokenTests {
 
@@ -79,7 +82,7 @@ public class TokenTests {
 
     @Test
     public void optionalCommandGenerationTest() {
-        Method method = Utilities.getMethod(TokenTests.class, "optionalCommandGenerationMethod").get();
+        Method method = Reflect.getMethod(TokenTests.class, "optionalCommandGenerationMethod");
         String command = TokenManager.generateCommand(method.getParameterTypes(), method.getParameterAnnotations());
 
         Assertions.assertEquals("<#double> #String #int[]", command);
@@ -92,7 +95,7 @@ public class TokenTests {
     @Test
     public void simpleCommandParsingTest() {
         List<CommandToken> commandTokens = TokenManager.parseCommand(
-                Utilities.getMethod(TokenTests.class, "simpleCommandParsingMethod").get());
+                Reflect.getMethod(TokenTests.class, "simpleCommandParsingMethod"));
 
         Assertions.assertEquals(4, commandTokens.size());
         Assertions.assertFalse(commandTokens.get(0).isOptional());
@@ -150,5 +153,34 @@ public class TokenTests {
         Assertions.assertTrue(multiChoiceToken.matches("x-axis"));
         Assertions.assertTrue(multiChoiceToken.matches("Y-axis"));
         Assertions.assertFalse(multiChoiceToken.matches("axis"));
+    }
+
+    @Test
+    public void tokenCommandTest() {
+        TokenCommand command = TokenManager.generateTokenCommand(this,
+                Reflect.getMethod(this, "tokenCommandWithoutCommandDefinitionMethodTest"));
+
+        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("2 [1 3 3]")));
+        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("3")));
+        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("")));
+        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("alpha")));
+        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("2 [1 4 c]")));
+
+        try {
+            Optional<Object> result = command.invoke(TokenManager.splitInvocationTokens("2 [1 2 3]"), null);
+            Assertions.assertTrue(result.isPresent());
+            Assertions.assertTrue((boolean) result.get());
+        } catch (InvocationTargetException e) {
+            ErrorManager.handle(e);
+        }
+    }
+
+    @Command(alias="NoCommandDefinition", description = "Returns if the item is within the specified elements")
+    private boolean tokenCommandWithoutCommandDefinitionMethodTest(int item, @Unrequired("[]") int[] elements) {
+        for (int element : elements) {
+            if (element == item)
+                return true;
+        }
+        return false;
     }
 }

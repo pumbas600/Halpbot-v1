@@ -37,12 +37,15 @@ public final class TokenManager {
             int.class, float.class, double.class, char.class, String.class, boolean.class
     );
 
+    /**
+     * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
+     */
     private static final Map<Class<?>, Class<?>> WrapperToPrimitive = Map.of(
-            Integer.class,   int.class,
-            Float.class,     float.class,
-            Double.class,    double.class,
-            Character.class, char.class,
-            Boolean.class,   boolean.class
+        Integer.class,   int.class,
+        Float.class,     float.class,
+        Double.class,    double.class,
+        Character.class, char.class,
+        Boolean.class,   boolean.class
     );
 
     /**
@@ -171,6 +174,11 @@ public final class TokenManager {
         }
 
         return String.join(" ", commandString);
+    }
+
+    public static TokenCommand generateTokenCommand(Object instance, Method method)
+    {
+        return new TokenCommand(instance, method, parseCommand(method));
     }
 
     public static List<CommandToken> parseCommand(Method method)

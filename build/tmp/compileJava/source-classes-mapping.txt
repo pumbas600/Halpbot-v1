@@ -60,8 +60,8 @@ nz/pumbas/processes/PipeProcess.java
  nz.pumbas.processes.PipeProcess
 nz/pumbas/utilities/enums/StatusCode.java
  nz.pumbas.utilities.enums.StatusCode
-nz/pumbas/commands/tokens/TokenCommand.java
- nz.pumbas.commands.tokens.TokenCommand
+nz/pumbas/commands/tokens/GenericCommandToken.java
+ nz.pumbas.commands.tokens.GenericCommandToken
 nz/pumbas/commands/tokens/PlaceholderToken.java
  nz.pumbas.commands.tokens.PlaceholderToken
 nz/pumbas/utilities/enums/Flags.java
@@ -124,17 +124,19 @@ nz/pumbas/halpbot/commands/steamtables/models/ModelHelper.java
  nz.pumbas.halpbot.commands.steamtables.models.ModelHelper
 nz/pumbas/commands/tokens/TokenSyntax.java
  nz.pumbas.commands.tokens.TokenSyntax
-nz/pumbas/commands/tokens/GenericCommandToken.java
- nz.pumbas.commands.tokens.GenericCommandToken
 nz/pumbas/Main.java
  nz.pumbas.Main
-nz/pumbas/commands/tokens/TokenManager.java
- nz.pumbas.commands.tokens.TokenManager
+nz/pumbas/commands/tokens/ObjectTypeToken.java
+ nz.pumbas.commands.tokens.ObjectTypeToken
+nz/pumbas/utilities/Reflect.java
+ nz.pumbas.utilities.Reflect
+nz/pumbas/commands/tokens/ArrayToken.java
+ nz.pumbas.commands.tokens.ArrayToken
 nz/pumbas/commands/tokens/BuiltInTypeToken.java
  nz.pumbas.commands.tokens.BuiltInTypeToken
 nz/pumbas/commands/tokens/MultiChoiceToken.java
  nz.pumbas.commands.tokens.MultiChoiceToken
-nz/pumbas/commands/tokens/ArrayToken.java
- nz.pumbas.commands.tokens.ArrayToken
-nz/pumbas/commands/tokens/ObjectTypeToken.java
- nz.pumbas.commands.tokens.ObjectTypeToken
+nz/pumbas/commands/tokens/TokenManager.java
+ nz.pumbas.commands.tokens.TokenManager
+nz/pumbas/commands/tokens/TokenCommand.java
+ nz.pumbas.commands.tokens.TokenCommand

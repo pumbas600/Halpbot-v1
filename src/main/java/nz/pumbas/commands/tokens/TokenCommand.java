@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,19 +55,21 @@ public class TokenCommand {
     /**
      * Invokes the {@link Executable} for this {@link nz.pumbas.commands.Annotations.Command} with the specified arguments.
      *
-     * @param args
-     *      The {@link Object} arguments to invoke the {@link Executable} with
+     * @param invocationTokens
+     *      The {@link List} of {@link String invocation tokens} which will be used to invoke the {@link Executable} with
      *
      * @return An {@link Optional} containing the result of the {@link Executable} if there is one
      * @throws InvocationTargetException Any exception thrown within the {@link Executable}
      */
-    public Optional<Object> Invoke(Object... args) throws InvocationTargetException
+    public Optional<Object> invoke(List<String> invocationTokens, @Nullable MessageReceivedEvent event) throws InvocationTargetException
     {
+        Object[] parameters = parseInvocationTokens(invocationTokens, event);
+
         try {
             if (executable instanceof Method)
-                return Optional.ofNullable(((Method) this.executable).invoke(this.instance, args));
+                return Optional.ofNullable(((Method) this.executable).invoke(this.instance, parameters));
             else if (executable instanceof Constructor<?>)
-                return Optional.of(((Constructor<?>) this.executable).newInstance(args));
+                return Optional.of(((Constructor<?>) this.executable).newInstance(parameters));
         } catch (java.lang.IllegalAccessException | InstantiationException e) {
             ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
                     this.executable.getName()));
@@ -75,8 +78,49 @@ public class TokenCommand {
         return Optional.empty();
     }
 
-    public Object[] parseInvocationTokens(List<String> invocationTokens) {
-        return new Object[0]; //TODO: parse the invocation tokens using the command tokens.
+    public Object[] parseInvocationTokens(List<String> invocationTokens, @Nullable MessageReceivedEvent event) {
+        Object[] parsedTokens = new Object[this.executable.getParameterCount()];
+
+        int parameterIndex = 0;
+        int invocationTokenIndex = 0;
+
+        if (event != null) {
+            parsedTokens[0] = event;
+            parameterIndex = 1;
+        }
+
+        for (CommandToken currentCommandToken : this.commandTokens) {
+            if (invocationTokenIndex >= invocationTokens.size()) {
+                if (!currentCommandToken.isOptional())
+                    throw new IllegalArgumentException(
+                            String.format("There was an error parsing the invocation tokens %s, as they don't match this command. " +
+                                    "Make sure to check the invocation tokens match by first calling the matches method.", invocationTokens.toString()));
+                continue;
+            }
+
+            String currentInvocationToken = invocationTokens.get(invocationTokenIndex);
+
+            if (currentCommandToken.matches(currentInvocationToken)) {
+                if (currentCommandToken instanceof ParsingToken) {
+                    parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).parse(currentInvocationToken);
+                    parameterIndex++;
+                }
+                invocationTokenIndex++;
+            }
+            else if (currentCommandToken.isOptional()) {
+                if (currentCommandToken instanceof ParsingToken) {
+                    parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).getDefaultValue();
+                    parameterIndex++;
+                }
+            }
+            else {
+                throw new IllegalArgumentException(
+                        String.format("There was an error parsing the invocation tokens %s, as they don't match this command. " +
+                                "Make sure to check the invocation tokens match by first calling the matches method.", invocationTokens.toString()));
+            }
+        }
+
+        return parsedTokens;
     }
 
     /**
@@ -91,6 +135,11 @@ public class TokenCommand {
     {
         int invocationTokenIndex = 0;
         for (CommandToken currentCommandToken : this.commandTokens) {
+            if (invocationTokenIndex >= invocationTokens.size()) {
+                if (!currentCommandToken.isOptional())
+                    return false;
+                continue;
+            }
             String currentInvocationToken = invocationTokens.get(invocationTokenIndex);
 
             // If they match, move to the next token
@@ -98,7 +147,7 @@ public class TokenCommand {
                 invocationTokenIndex++;
             // If it doesn't match but the current command token is optional, it checks if the next invocation token matches
             // Otherwise, if it doesn't match and its not optional, then these invocations don't match this command
-            else if (!currentCommandToken.isOptional()) {
+            else if (!currentCommandToken.isOptional() || invocationTokenIndex == invocationTokens.size() -1) {
                 return false;
             }
         }
