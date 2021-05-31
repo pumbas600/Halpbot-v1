@@ -3,6 +3,7 @@ package nz.pumbas.commands.tokens;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,7 +12,7 @@ public class ArrayToken implements ParsingToken {
     private final boolean isOptional;
     private final Class<?> type;
     private final ParsingToken commandToken;
-    private final Object[] defaultValue;
+    private final Object defaultValue;
 
     public ArrayToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
         if (!type.isArray())
@@ -23,7 +24,7 @@ public class ArrayToken implements ParsingToken {
         this.commandToken = TokenManager.BuiltInTypes.contains(this.type.getComponentType())
                 ? new BuiltInTypeToken(false, this.type.getComponentType(), null)
                 : new ObjectTypeToken(false, this.type.getComponentType(), null);
-        this.defaultValue = (Object[]) this.parseDefaultValue(defaultValue);
+        this.defaultValue = this.parseDefaultValue(defaultValue);
     }
 
     /**
@@ -65,13 +66,12 @@ public class ArrayToken implements ParsingToken {
      * @return An {@link Object} of the {@link String invocation token} parsed to the correct type
      */
     @Override
-    public Object[] parse(@NotNull String invocationToken) {
+    public Object parse(@NotNull String invocationToken) {
         List<String> invocationTokens = TokenManager.splitInvocationTokens(invocationToken.substring(1, invocationToken.length() - 1));
-        //TODO: Create array of correct type as Object[] type is causing Mismatch type exception when calling methods.
-        Object[] array = new Object[invocationTokens.size()];
+        Object array = Array.newInstance(this.type.getComponentType(), invocationTokens.size());
 
         for (int i = 0; i < invocationTokens.size(); i++) {
-            array[i] = this.commandToken.parse(invocationTokens.get(i));
+            Array.set(array, i, this.commandToken.parse(invocationTokens.get(i)));
         }
 
         return array;
@@ -81,13 +81,13 @@ public class ArrayToken implements ParsingToken {
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Override
-    public @Nullable Object[] getDefaultValue() {
+    public @Nullable Object getDefaultValue() {
         return this.defaultValue;
     }
 
     @Override
     public String toString() {
         return String.format("ArrayToken{isOptional=%s, type=%s, defaultValue=%s}",
-                this.isOptional, this.type.getSimpleName(), Arrays.toString(this.defaultValue));
+                this.isOptional, this.type.getSimpleName(), this.defaultValue);
     }
 }

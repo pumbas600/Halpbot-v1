@@ -63,12 +63,12 @@ public class TokenCommand {
      */
     public Optional<Object> invoke(List<String> invocationTokens, @Nullable MessageReceivedEvent event) throws InvocationTargetException
     {
-        Object[] parameters = parseInvocationTokens(invocationTokens, event);
+        Object[] parameters = this.parseInvocationTokens(invocationTokens, event);
 
         try {
-            if (executable instanceof Method)
+            if (this.executable instanceof Method)
                 return Optional.ofNullable(((Method) this.executable).invoke(this.instance, parameters));
-            else if (executable instanceof Constructor<?>)
+            else if (this.executable instanceof Constructor<?>)
                 return Optional.of(((Constructor<?>) this.executable).newInstance(parameters));
         } catch (java.lang.IllegalAccessException | InstantiationException e) {
             ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
@@ -84,7 +84,7 @@ public class TokenCommand {
         int parameterIndex = 0;
         int invocationTokenIndex = 0;
 
-        if (event != null) {
+        if (null != event) {
             parsedTokens[0] = event;
             parameterIndex = 1;
         }
@@ -93,8 +93,9 @@ public class TokenCommand {
             if (invocationTokenIndex >= invocationTokens.size()) {
                 if (!currentCommandToken.isOptional())
                     throw new IllegalArgumentException(
-                            String.format("There was an error parsing the invocation tokens %s, as they don't match this command. " +
-                                    "Make sure to check the invocation tokens match by first calling the matches method.", invocationTokens.toString()));
+                            String.format("There was an error parsing the invocation tokens %s, as they don't match " +
+                                "this command. Make sure to check the invocation tokens match by first calling the " +
+                                "matches method.", invocationTokens));
                 continue;
             }
 
@@ -115,8 +116,9 @@ public class TokenCommand {
             }
             else {
                 throw new IllegalArgumentException(
-                        String.format("There was an error parsing the invocation tokens %s, as they don't match this command. " +
-                                "Make sure to check the invocation tokens match by first calling the matches method.", invocationTokens.toString()));
+                        String.format("There was an error parsing the invocation tokens %s, as they don't match this " +
+                            "command. Make sure to check the invocation tokens match by first calling the matches " +
+                            "method.", invocationTokens));
             }
         }
 

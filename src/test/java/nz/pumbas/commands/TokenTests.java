@@ -3,13 +3,21 @@ package nz.pumbas.commands;
 
 import nz.pumbas.commands.Annotations.Command;
 import nz.pumbas.commands.Annotations.Unrequired;
-import nz.pumbas.commands.tokens.*;
+import nz.pumbas.commands.tokens.ArrayToken;
+import nz.pumbas.commands.tokens.BuiltInTypeToken;
+import nz.pumbas.commands.tokens.CommandToken;
+import nz.pumbas.commands.tokens.MultiChoiceToken;
+import nz.pumbas.commands.tokens.ParsingToken;
+import nz.pumbas.commands.tokens.PlaceholderToken;
+import nz.pumbas.commands.tokens.TokenCommand;
+import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.commands.tokens.TokenSyntax;
 import nz.pumbas.utilities.Reflect;
-import nz.pumbas.utilities.Utilities;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -21,13 +29,24 @@ public class TokenTests {
     public void arrayTokenDefaultValueTest() {
         ArrayToken token = new ArrayToken(false, float[].class, "[1 4.5 3.1]");
 
-        Object[] defaultValues = token.getDefaultValue();
+        float[] defaultValues = (float[]) token.getDefaultValue();
 
-        assert defaultValues != null;
+        assert null != defaultValues;
 
         Assertions.assertEquals(1F, defaultValues[0]);
         Assertions.assertEquals(4.5F, defaultValues[1]);
         Assertions.assertEquals(3.1F, defaultValues[2]);
+    }
+
+    @Test
+    public void arrayTokenArrayTypeTest() {
+        ArrayToken token = new ArrayToken(false, float[].class, "[1 4.5 3.1]");
+
+        float[] defaultValues = (float[]) token.getDefaultValue();
+
+        assert null != defaultValues;
+
+        Assertions.assertTrue(float[].class.isAssignableFrom(defaultValues.getClass()));
     }
 
     @Test
@@ -56,7 +75,7 @@ public class TokenTests {
     @Test
     public void arrayTokenEmptyArrayTest() {
         ArrayToken token = new ArrayToken(false, float[].class, "[]");
-        Object[] defaultValue = token.getDefaultValue();
+        float[] defaultValue = (float[]) token.getDefaultValue();
 
         Assertions.assertTrue(token.matches("[]"));
         Assertions.assertEquals(0, defaultValue.length);
@@ -66,7 +85,7 @@ public class TokenTests {
     public void arrayTokenParsingTest() {
         ArrayToken token = new ArrayToken(false, float[].class, "[1 4.5 3.1]");
 
-        Object[] parsedValues = token.parse("[1.3 4.7 3]");
+        float[] parsedValues = (float[]) token.parse("[1.3 4.7 3]");
         Assertions.assertEquals(1.3F, parsedValues[0]);
         Assertions.assertEquals(4.7F, parsedValues[1]);
         Assertions.assertEquals(3F, parsedValues[2]);
@@ -96,6 +115,8 @@ public class TokenTests {
     public void simpleCommandParsingTest() {
         List<CommandToken> commandTokens = TokenManager.parseCommand(
                 Reflect.getMethod(TokenTests.class, "simpleCommandParsingMethod"));
+        int[] defaultValues = (int[]) ((ParsingToken) commandTokens.get(3)).getDefaultValue();
+
 
         Assertions.assertEquals(4, commandTokens.size());
         Assertions.assertFalse(commandTokens.get(0).isOptional());
@@ -108,7 +129,7 @@ public class TokenTests {
         Assertions.assertTrue(commandTokens.get(2) instanceof BuiltInTypeToken);
         Assertions.assertTrue(commandTokens.get(3) instanceof ArrayToken);
 
-        Assertions.assertEquals(0, ((ArrayToken) commandTokens.get(3)).getDefaultValue().length);
+        Assertions.assertEquals(0, defaultValues.length);
     }
 
     @Command(alias = "simpleParsingCommandTest", command = "#int <x> #int #int[]")
