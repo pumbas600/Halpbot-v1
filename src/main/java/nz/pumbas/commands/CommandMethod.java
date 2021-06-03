@@ -19,5 +19,5 @@ public interface CommandMethod
     @Nullable
     String getDescription();
 
-    Optional<Object> invokeMethod(Object... args) throws OutputException;
+    Optional<Object> invoke(Object... args) throws OutputException;
 }

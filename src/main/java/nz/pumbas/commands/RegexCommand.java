@@ -10,8 +10,9 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.exceptions.OutputException;
 
-public class RegexCommand
+public class RegexCommand implements CommandMethod
 {
 
     private final @NotNull Method method;
@@ -36,12 +37,19 @@ public class RegexCommand
         this.constructors = constructors;
     }
 
-    public Optional<Object> invokeMethod(Object... args) throws InvocationTargetException
+    @SuppressWarnings("ThrowInsideCatchBlockWhichIgnoresCaughtException")
+    public Optional<Object> invoke(Object... args) throws OutputException
     {
         try {
             return Optional.ofNullable(this.method.invoke(this.object, args));
         } catch (java.lang.IllegalAccessException e) {
             ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
+                this.method.getName()));
+        }
+        catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof OutputException)
+                throw (OutputException) e.getTargetException();
+            else ErrorManager.handle(e, String.format("There was an error thrown within the command method, %s",
                 this.method.getName()));
         }
         return Optional.empty();

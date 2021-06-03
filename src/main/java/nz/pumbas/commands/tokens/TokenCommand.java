@@ -1,6 +1,8 @@
 package nz.pumbas.commands.tokens;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.exceptions.OutputException;
 
@@ -17,7 +19,8 @@ import java.util.Optional;
 /**
  * A container for the data of an {@link CommandToken} command.
  */
-public class TokenCommand {
+public class TokenCommand
+{
 
     private final @Nullable Object instance;
     private final @NotNull Executable executable;

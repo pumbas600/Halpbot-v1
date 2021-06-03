@@ -91,12 +91,12 @@ public final class CommandManager extends ListenerAdapter
                 try {
                     if (1 == splitText.length) {
                         if (!command.hasParamaters()) {
-                            command.invokeMethod();
+                            command.invoke();
                             return;
                         }
 
                         if (!command.hasCommand()) {
-                            command.invokeMethod(event);
+                            command.invoke(event);
                             return;
                         }
                         //Only optionals (So there's the possibility of no text after the alias)
@@ -136,7 +136,7 @@ public final class CommandManager extends ListenerAdapter
                 parameterTypes, command.getConstructors(), 0,
                 parameters, 1,
                 matcher, 1);
-            command.invokeMethod(parameters);
+            command.invoke(parameters);
             return true;
         }
         return false;
