@@ -37,7 +37,7 @@ public class PlaceholderToken implements CommandToken
      * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken
-     *      An individual element in the invocation of an {@link nz.pumbas.commands.Annotations.Command}.
+     *      An individual element in the invocation of an {@link nz.pumbas.commands.annotations.Command}.
      *
      * @return If the {@link String invocation token} matches this {@link CommandToken}
      */

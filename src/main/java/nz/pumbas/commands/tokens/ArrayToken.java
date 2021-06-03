@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.List;
 
 public class ArrayToken implements ParsingToken {
@@ -39,19 +38,22 @@ public class ArrayToken implements ParsingToken {
      * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken
-     *      An individual element in the invocation of an {@link nz.pumbas.commands.Annotations.Command}.
+     *      An individual element in the invocation of an {@link nz.pumbas.commands.annotations.Command}.
      *
      * @return If the {@link String invocation token} matches this {@link CommandToken}
      */
     @Override
     public boolean matches(@NotNull String invocationToken) {
-        if (invocationToken.matches(TokenSyntax.ARRAY.getSyntax())) {
+        if (TokenSyntax.ARRAY.matches(invocationToken)) {
             return TokenManager.splitInvocationTokens(invocationToken.substring(1, invocationToken.length() - 1))
                     .stream().allMatch(this.commandToken::matches);
         }
         return false;
     }
 
+    /**
+     * @return The {@link Class type} of this {@link ParsingToken}
+     */
     @Override
     public Class<?> getType() {
         return this.type;
@@ -66,7 +68,8 @@ public class ArrayToken implements ParsingToken {
      * @return An {@link Object} of the {@link String invocation token} parsed to the correct type
      */
     @Override
-    public Object parse(@NotNull String invocationToken) {
+    public Object parse(@NotNull String invocationToken)
+    {
         List<String> invocationTokens = TokenManager.splitInvocationTokens(invocationToken.substring(1, invocationToken.length() - 1));
         Object array = Array.newInstance(this.type.getComponentType(), invocationTokens.size());
 
@@ -81,7 +84,8 @@ public class ArrayToken implements ParsingToken {
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Override
-    public @Nullable Object getDefaultValue() {
+    @Nullable
+    public Object getDefaultValue() {
         return this.defaultValue;
     }
 

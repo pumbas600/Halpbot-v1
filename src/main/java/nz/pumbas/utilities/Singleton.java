@@ -15,7 +15,7 @@ public final class Singleton
     public static <T> T getInstance(@NotNull Class<T> clazz)
     {
         if (!singletons.containsKey(clazz)) {
-            singletons.put(clazz, Utilities.createInstance(clazz));
+            singletons.put(clazz, Reflect.createInstance(clazz));
         }
         return (T) singletons.get(clazz);
     }

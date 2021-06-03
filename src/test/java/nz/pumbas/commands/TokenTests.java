@@ -1,8 +1,9 @@
 package nz.pumbas.commands;
 
 
-import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.commands.Annotations.Unrequired;
+import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.annotations.Unrequired;
+import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.tokens.ArrayToken;
 import nz.pumbas.commands.tokens.BuiltInTypeToken;
 import nz.pumbas.commands.tokens.CommandToken;
@@ -12,13 +13,12 @@ import nz.pumbas.commands.tokens.PlaceholderToken;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.TokenSyntax;
+import nz.pumbas.halpbot.customparameters.Vector3;
 import nz.pumbas.utilities.Reflect;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
@@ -152,9 +152,9 @@ public class TokenTests {
 
     @Test
     public void multiChoiceTokenSyntaxMatchesTest() {
-        Assertions.assertTrue("[x-axis|y-axis]".matches(TokenSyntax.MULTICHOICE.getSyntax()));
-        Assertions.assertFalse("axis".matches(TokenSyntax.MULTICHOICE.getSyntax()));
-        Assertions.assertFalse("#[x-axis|y-axis]".matches(TokenSyntax.MULTICHOICE.getSyntax()));
+        Assertions.assertTrue(TokenSyntax.MULTICHOICE.matches("[x-axis|y-axis]"));
+        Assertions.assertFalse(TokenSyntax.MULTICHOICE.matches("axis"));
+        Assertions.assertFalse(TokenSyntax.MULTICHOICE.matches("#[x-axis|y-axis]"));
     }
 
     @Test
@@ -191,7 +191,7 @@ public class TokenTests {
             Optional<Object> result = command.invoke(TokenManager.splitInvocationTokens("2 [1 2 3]"), null);
             Assertions.assertTrue(result.isPresent());
             Assertions.assertTrue((boolean) result.get());
-        } catch (InvocationTargetException e) {
+        } catch (OutputException e) {
             ErrorManager.handle(e);
         }
     }
@@ -203,5 +203,29 @@ public class TokenTests {
                 return true;
         }
         return false;
+    }
+
+    @Test
+    public void customObjectTokenCommandTest() {
+        TokenCommand command = TokenManager.generateTokenCommand(this,
+            Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
+
+        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("#Vector3[1 2 3]")));
+        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("#Vector3[3 1]")));
+        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("Vector3[3 1]")));
+        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("[3 1 2]")));
+
+        try {
+            Optional<Object> result = command.invoke(TokenManager.splitInvocationTokens("#Vector3[1 2 3]"), null);
+            Assertions.assertTrue(result.isPresent());
+            Assertions.assertEquals(2, (double) result.get());
+        } catch (OutputException e) {
+            ErrorManager.handle(e);
+        }
+    }
+
+    @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
+    private double customObjectTokenCommandMethodTest(Vector3 vector3) {
+        return vector3.getY();
     }
 }

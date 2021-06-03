@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import nz.pumbas.commands.Exceptions.ErrorMessageException;
+import nz.pumbas.commands.exceptions.ErrorMessageException;
 import nz.pumbas.utilities.Utilities;
 
 public class FrictionData

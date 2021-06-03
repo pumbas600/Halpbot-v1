@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.customparameters;
 
-import nz.pumbas.commands.Annotations.ParameterConstruction;
+import nz.pumbas.commands.annotations.ParameterConstruction;
 
 public class Shape
 {

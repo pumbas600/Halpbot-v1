@@ -5,8 +5,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.commands.Annotations.CommandGroup;
+import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.utilities.Utilities;
 import nz.pumbas.utilities.io.ImageType;
 

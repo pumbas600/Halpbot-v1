@@ -4,14 +4,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
 
-import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.commands.Annotations.CustomParameter;
-import nz.pumbas.commands.Annotations.ParameterConstruction;
-import nz.pumbas.commands.Annotations.Unrequired;
-import nz.pumbas.commands.Exceptions.IllegalCommandException;
-import nz.pumbas.commands.Exceptions.IllegalCustomParameterException;
+import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.annotations.CustomParameter;
+import nz.pumbas.commands.annotations.ParameterConstruction;
+import nz.pumbas.commands.annotations.Unrequired;
+import nz.pumbas.commands.exceptions.IllegalCommandException;
+import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.objects.Tuple;
-import nz.pumbas.utilities.Utilities;
+import nz.pumbas.utilities.Reflect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -111,7 +111,7 @@ public final class TokenManager {
             throw new IllegalCustomParameterException(
                 String.format("The custom class %s, must define a constructor", customClass.getSimpleName()));
 
-        List<Constructor<?>> customConstructors = Utilities.filterReflections(constructors,
+        List<Constructor<?>> customConstructors = Reflect.filterReflections(constructors,
             c -> c.isAnnotationPresent(ParameterConstruction.class));
 
         if (customConstructors.isEmpty()) {
@@ -136,7 +136,7 @@ public final class TokenManager {
     private static List<CommandToken> parseConstructor(Constructor<?> constructor)
     {
         constructor.setAccessible(true);
-        String constructorCommand = Utilities.getAnnotationFieldElse(constructor, ParameterConstruction.class,
+        String constructorCommand = Reflect.getAnnotationFieldElse(constructor, ParameterConstruction.class,
             ParameterConstruction::constructor, "");
 
         if (constructorCommand.isEmpty())
@@ -166,7 +166,7 @@ public final class TokenManager {
 
             String command = "#" + parameterType.getSimpleName();
 
-            if (Utilities.retrieveAnnotation(
+            if (Reflect.retrieveAnnotation(
                 parameterAnnotations[parameterIndex], Unrequired.class).isPresent()) {
                 command = "<" + command + ">";
             }
@@ -177,11 +177,29 @@ public final class TokenManager {
         return String.join(" ", commandString);
     }
 
+    /**
+     * Generates an {@link TokenCommand} from the passed in {@link Object instance} and {@link Method}.
+     *
+     * @param instance
+     *      The {@link Object} that the {@link Method} belongs to
+     * @param method
+     *      The {@link Method} to make the command from
+     *
+     * @return A {@link TokenCommand} representing the specified {@link Method}
+     */
     public static TokenCommand generateTokenCommand(Object instance, Method method)
     {
         return new TokenCommand(instance, method, parseCommand(method));
     }
 
+    /**
+     * Generates a {@link List} of {@link CommandToken command tokens} from the specified {@link Method}.
+     *
+     * @param method
+     *      The {@link Method} to generate the {@link CommandToken command tokens} from
+     *
+     * @return A {@link List} of {@link CommandToken command tokens} representing the {@link Method}
+     */
     public static List<CommandToken> parseCommand(Method method)
     {
         if (!method.isAnnotationPresent(Command.class))
@@ -202,17 +220,44 @@ public final class TokenManager {
         return parseCommand(tokenCommand, parameterTypes, startParameterIndex, method.getParameterAnnotations());
     }
 
+    /**
+     * Generates a {@link List} of {@link CommandToken command tokens} from the specified {@link String command} and
+     * the {@link Class parameter types}.
+     *
+     * @param command
+     *      The {@link String} which describes the syntax of the command
+     * @param parameterTypes
+     *      The {@link Class parameter types} corresponding to the {@link Method command method}
+     *
+     * @return A {@link List} of {@link CommandToken command tokens} representing the command
+     */
     public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes)
     {
         return parseCommand(command, parameterTypes, 0, new Annotation[parameterTypes.length][0]);
     }
 
+    /**
+     * Generates a {@link List} of {@link CommandToken command tokens} from the specified information, which can be
+     * automatically extracted from an {@link Method} by calling {@link TokenManager#parseCommand(Method)}.
+     *
+     * @param command
+     *      The {@link String} which describes the syntax of the command
+     * @param parameterTypes
+     *      The {@link Class parameter types} corresponding to the {@link Method command method}
+     * @param startParameterIndex
+     *      The index of the parameter types to start generating the command from
+     * @param parameterAnnotations
+     *      The {@link Annotation annotations} which correspond to each parameter
+     *
+     * @return A {@link List} of {@link CommandToken command tokens} representing the command
+     */
     public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes,
                                                   int startParameterIndex, Annotation[][] parameterAnnotations)
     {
         List<String> tokens = splitCommandTokens(command);
 
-        return parseCommandTokens(tokens, parameterTypes, startParameterIndex, parameterAnnotations);
+        return parseCommandTokens(tokens, parameterTypes,
+            startParameterIndex, parameterAnnotations);
     }
 
     public static List<String> splitInvocationTokens(@NotNull String command)
@@ -277,7 +322,8 @@ public final class TokenManager {
     public static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes,
                                                         int currentTypeIndex, Annotation[][] parameterAnnotations)
     {
-        return parseCommandTokens(new ArrayList<>(), tokens, 0, parameterTypes, currentTypeIndex, parameterAnnotations);
+        return parseCommandTokens(new ArrayList<>(), tokens, 0,
+            parameterTypes, currentTypeIndex, parameterAnnotations);
     }
 
     private static List<CommandToken> parseCommandTokens(List<CommandToken> commandTokens,
@@ -291,14 +337,14 @@ public final class TokenManager {
         String token = tokens.get(currentTokenIndex);
         boolean isOptional = false;
 
-        if (token.matches(TokenSyntax.OPTIONAL.getSyntax())) {
+        if (TokenSyntax.OPTIONAL.matches(token)) {
             isOptional = true;
             token = token.substring(1, token.length() - 1);
         }
 
-        boolean isMultiChoice = token.matches(TokenSyntax.MULTICHOICE.getSyntax());
+        boolean isMultiChoice = TokenSyntax.MULTICHOICE.matches(token);
 
-        if (token.matches(TokenSyntax.TYPE.getSyntax()) || isMultiChoice) {
+        if (TokenSyntax.TYPE.matches(token) || isMultiChoice) {
             if (currentTypeIndex >= parameterTypes.length)
                 throw new IllegalCommandException(
                         String.format("The token %s doesn't have a corresponding parameter in the method.", token));
@@ -307,14 +353,16 @@ public final class TokenManager {
             type = WrapperToPrimitive.getOrDefault(type, type);
 
             String defaultValue = null;
-            Optional<Unrequired> oUnrequired = Utilities.retrieveAnnotation(parameterAnnotations[currentTypeIndex], Unrequired.class);
+            Optional<Unrequired> oUnrequired = Reflect.retrieveAnnotation(
+                parameterAnnotations[currentTypeIndex], Unrequired.class);
             if (oUnrequired.isPresent()) {
                 isOptional = true;
                 defaultValue = oUnrequired.get().value();
             }
 
             if (isMultiChoice) {
-                List<String> options = List.of(token.split("\\|"));
+                //Substring removes surrounding [...]
+                List<String> options = List.of(token.substring(1, token.length() -1).split("\\|"));
                 commandTokens.add(new MultiChoiceToken(isOptional, type, defaultValue, options));
             }
             else if (!isValidCommandTypeToken(token, type)) { //Only check this for non-multichoice tokens

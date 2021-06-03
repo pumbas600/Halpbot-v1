@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.commands.Annotations.CommandGroup;
-import nz.pumbas.commands.Exceptions.ErrorMessageException;
+import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.annotations.CommandGroup;
+import nz.pumbas.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.steamtables.SteamTable;
 import nz.pumbas.halpbot.commands.steamtables.SteamTableManager;
 import nz.pumbas.halpbot.commands.steamtables.models.Model;

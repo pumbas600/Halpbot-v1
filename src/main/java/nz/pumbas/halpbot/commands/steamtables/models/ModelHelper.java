@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.halpbot.commands.steamtables.annotations.IgnoreColumn;
 import nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject;
+import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.Utilities;
 
 public final class ModelHelper
@@ -18,21 +19,21 @@ public final class ModelHelper
 
     public static List<String> getColumnNames(Class<? extends Model> clazz)
     {
-        return Utilities.getFieldsNotAnnotatedWith(clazz, IgnoreColumn.class)
+        return Reflect.getFieldsNotAnnotatedWith(clazz, IgnoreColumn.class)
             .stream().map(Field::getName)
             .collect(Collectors.toList());
     }
 
     public static String getTableName(Class<? extends Model> clazz)
     {
-        return Utilities.getAnnotationFieldElse(
+        return Reflect.getAnnotationFieldElse(
             clazz, ModelObject.class, ModelObject::tableName,
             clazz.getSimpleName().toLowerCase());
     }
 
     public static <T extends Model> T parseModel(Class<T> clazz, ResultSet result)
     {
-        T model = Utilities.createInstance(clazz);
+        T model = Reflect.createInstance(clazz);
 
         getColumnNames(clazz).forEach(n -> {
             try {

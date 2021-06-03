@@ -2,6 +2,8 @@ package nz.pumbas.commands.tokens;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import nz.pumbas.commands.ErrorManager;
+import nz.pumbas.commands.exceptions.OutputException;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,7 +11,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public class TokenCommand {
     }
 
     /**
-     * @return The {@link Executable} for this {@link nz.pumbas.commands.Annotations.Command}
+     * @return The {@link Executable} for this {@link nz.pumbas.commands.annotations.Command}
      */
     @NotNull
     public Executable getExecutable() {
@@ -37,7 +38,7 @@ public class TokenCommand {
     }
 
     /**
-     * @return An {@link List} of {@link CommandToken command tokens} representing this {@link nz.pumbas.commands.Annotations.Command}
+     * @return An {@link List} of {@link CommandToken command tokens} representing this {@link nz.pumbas.commands.annotations.Command}
      */
     @NotNull
     public List<CommandToken> getCommandTokens() {
@@ -45,7 +46,7 @@ public class TokenCommand {
     }
 
     /**
-     * @return The an array of the {@link Class parameter types} of the {@link Executable} for this {@link nz.pumbas.commands.Annotations.Command}
+     * @return The an array of the {@link Class parameter types} of the {@link Executable} for this {@link nz.pumbas.commands.annotations.Command}
      */
     @NotNull
     public Class<?>[] getParameterTypes() {
@@ -53,15 +54,17 @@ public class TokenCommand {
     }
 
     /**
-     * Invokes the {@link Executable} for this {@link nz.pumbas.commands.Annotations.Command} with the specified arguments.
+     * Invokes the {@link Executable} for this {@link nz.pumbas.commands.annotations.Command} with the specified arguments.
      *
      * @param invocationTokens
      *      The {@link List} of {@link String invocation tokens} which will be used to invoke the {@link Executable} with
      *
      * @return An {@link Optional} containing the result of the {@link Executable} if there is one
-     * @throws InvocationTargetException Any exception thrown within the {@link Executable}
+     * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
-    public Optional<Object> invoke(List<String> invocationTokens, @Nullable MessageReceivedEvent event) throws InvocationTargetException
+    @SuppressWarnings("ThrowInsideCatchBlockWhichIgnoresCaughtException")
+    public Optional<Object> invoke(List<String> invocationTokens, @Nullable MessageReceivedEvent event)
+        throws OutputException
     {
         Object[] parameters = this.parseInvocationTokens(invocationTokens, event);
 
@@ -70,14 +73,33 @@ public class TokenCommand {
                 return Optional.ofNullable(((Method) this.executable).invoke(this.instance, parameters));
             else if (this.executable instanceof Constructor<?>)
                 return Optional.of(((Constructor<?>) this.executable).newInstance(parameters));
-        } catch (java.lang.IllegalAccessException | InstantiationException e) {
+        }
+        catch (java.lang.IllegalAccessException | InstantiationException e) {
             ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
                     this.executable.getName()));
+        }
+        catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof OutputException)
+                throw (OutputException) e.getTargetException();
+            else ErrorManager.handle(e, String.format("There was an error thrown within the command method, %s",
+                this.executable.getName()));
         }
 
         return Optional.empty();
     }
 
+    /**
+     * Parses the {@link List<String> invocation tokens} and the {@link MessageReceivedEvent} event into an array
+     * that can can be passed to an {@link Method} when being invoked.
+     *
+     * @param invocationTokens
+     *      The {@link List<String> invocation tokens} that are to be parsed into objects
+     * @param event
+     *      An optional {@link MessageReceivedEvent}. If present, it will be inserted as the first parameter in the
+     *      array
+     *
+     * @return A {@link Object array} containing the parsed {@link List<String> invocation tokens}
+     */
     public Object[] parseInvocationTokens(List<String> invocationTokens, @Nullable MessageReceivedEvent event) {
         Object[] parsedTokens = new Object[this.executable.getParameterCount()];
 

@@ -4,8 +4,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Optional;
 
-import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.commands.Annotations.CommandGroup;
+import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.objects.keys.Key;
 import nz.pumbas.objects.keys.Keys;
 

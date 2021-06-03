@@ -5,8 +5,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.Color;
 
-import nz.pumbas.commands.Exceptions.ErrorMessageException;
-import nz.pumbas.commands.Exceptions.UnimplementedFeatureException;
+import nz.pumbas.commands.exceptions.ErrorMessageException;
+import nz.pumbas.commands.exceptions.UnimplementedFeatureException;
 
 public final class ErrorManager
 {

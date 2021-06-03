@@ -4,9 +4,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Base64;
 
-import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.commands.Annotations.CommandGroup;
-import nz.pumbas.commands.Exceptions.ErrorMessageException;
+import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.annotations.CommandGroup;
+import nz.pumbas.commands.exceptions.ErrorMessageException;
 import nz.pumbas.processes.PipeProcess;
 import nz.pumbas.utilities.enums.StatusCode;
 

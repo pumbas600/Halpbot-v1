@@ -1,4 +1,4 @@
-package nz.pumbas.commands.Exceptions;
+package nz.pumbas.commands.exceptions;
 
 public class IllegalCustomParameterException extends IllegalArgumentException
 {

@@ -1,4 +1,4 @@
-package nz.pumbas.commands.Annotations;
+package nz.pumbas.commands.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

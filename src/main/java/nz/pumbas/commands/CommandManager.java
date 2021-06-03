@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import nz.pumbas.commands.Annotations.Unrequired;
+import nz.pumbas.commands.annotations.Unrequired;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -24,11 +24,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import nz.pumbas.commands.Annotations.Command;
-import nz.pumbas.commands.Annotations.CommandGroup;
-import nz.pumbas.commands.Annotations.ParameterConstruction;
-import nz.pumbas.commands.Exceptions.IllegalCommandException;
-import nz.pumbas.commands.Exceptions.IllegalCustomParameterException;
+import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.commands.annotations.CommandGroup;
+import nz.pumbas.commands.annotations.ParameterConstruction;
+import nz.pumbas.commands.exceptions.IllegalCommandException;
+import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
+import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.Utilities;
 
 public final class CommandManager extends ListenerAdapter
@@ -36,7 +37,6 @@ public final class CommandManager extends ListenerAdapter
     //TODO: Unit Manager
     //TODO: varargs
     //TODO: Flags
-    //TODO: Manually submit type parsers (E.g: For types you don't have access to)?
 
     public static final Map<String, String> CommandRegex = Map.of(
         "ANY", "([^,'\"]*)",
@@ -52,7 +52,7 @@ public final class CommandManager extends ListenerAdapter
     );
 
     private final Map<Class<?>, CustomParameterType> customParameterTypes;
-    private final Map<String, List<CommandMethod>> registeredCommands;
+    private final Map<String, List<RegexCommand>> registeredCommands;
 
     public CommandManager()
     {
@@ -71,7 +71,7 @@ public final class CommandManager extends ListenerAdapter
     public CommandManager registerCommands(Object... objects)
     {
         for (Object object : objects) {
-            this.registerCommandMethods(Utilities.getAnnotatedMethods(
+            this.registerCommandMethods(Reflect.getAnnotatedMethods(
                 object.getClass(), Command.class, false),
                 object);
         }
@@ -87,16 +87,16 @@ public final class CommandManager extends ListenerAdapter
         String commandAlias = splitText[0];
 
         if (this.registeredCommands.containsKey(commandAlias)) {
-            for (CommandMethod command : this.registeredCommands.get(commandAlias)) {
+            for (RegexCommand command : this.registeredCommands.get(commandAlias)) {
                 try {
                     if (1 == splitText.length) {
                         if (!command.hasParamaters()) {
-                            command.InvokeMethod();
+                            command.invokeMethod();
                             return;
                         }
 
                         if (!command.hasCommand()) {
-                            command.InvokeMethod(event);
+                            command.invokeMethod(event);
                             return;
                         }
                         //Only optionals (So there's the possibility of no text after the alias)
@@ -123,7 +123,7 @@ public final class CommandManager extends ListenerAdapter
         }
     }
 
-    private boolean handleCommandMethodRegexCall(CommandMethod command, MessageReceivedEvent event, String commandContent)
+    private boolean handleCommandMethodRegexCall(RegexCommand command, MessageReceivedEvent event, String commandContent)
         throws InvocationTargetException
     {
         Matcher matcher = command.getCommand().matcher(commandContent);
@@ -136,7 +136,7 @@ public final class CommandManager extends ListenerAdapter
                 parameterTypes, command.getConstructors(), 0,
                 parameters, 1,
                 matcher, 1);
-            command.InvokeMethod(parameters);
+            command.invokeMethod(parameters);
             return true;
         }
         return false;
@@ -182,7 +182,7 @@ public final class CommandManager extends ListenerAdapter
 
             if (null == match) {
                 Optional<Unrequired> oUnrequired =
-                    Utilities.retrieveAnnotation(parameterAnnotations[parameterIndex], Unrequired.class);
+                    Reflect.retrieveAnnotation(parameterAnnotations[parameterIndex], Unrequired.class);
                 if (oUnrequired.isPresent()) {
                     Unrequired unrequired = oUnrequired.get();
                     if (!unrequired.value().isEmpty())
@@ -229,7 +229,7 @@ public final class CommandManager extends ListenerAdapter
 
     private void registerCommandMethods(List<Method> methods, Object object)
     {
-        String defaultPrefix = Utilities.getAnnotationFieldElse(
+        String defaultPrefix = Reflect.getAnnotationFieldElse(
             object.getClass(), CommandGroup.class, CommandGroup::defaultPrefix, "");
         boolean hasDefaultPrefix = !defaultPrefix.isEmpty();
 
@@ -244,19 +244,19 @@ public final class CommandManager extends ListenerAdapter
 
             String commandAlias = hasPrefix ? annotation.prefix() : defaultPrefix + annotation.alias();
 
-            this.createCommandMethods(method, object, annotation).forEach(commandMethod -> {
+            this.createCommandMethods(method, object, annotation).forEach(regexCommand -> {
                 if (this.registeredCommands.containsKey(commandAlias))
-                    this.registeredCommands.get(commandAlias).add(commandMethod);
+                    this.registeredCommands.get(commandAlias).add(regexCommand);
                 else {
-                    List<CommandMethod> commandMethods = new ArrayList<>();
-                    commandMethods.add(commandMethod);
-                    this.registeredCommands.put(commandAlias, commandMethods);
+                    List<RegexCommand> regexCommands = new ArrayList<>();
+                    regexCommands.add(regexCommand);
+                    this.registeredCommands.put(commandAlias, regexCommands);
                 }
             });
         }
     }
 
-    private List<CommandMethod> createCommandMethods(Method method, Object object, Command commandAnnotation)
+    private List<RegexCommand> createCommandMethods(Method method, Object object, Command commandAnnotation)
     {
         boolean hasCommand = 1 < method.getParameterCount() || !commandAnnotation.command().isEmpty();
 
@@ -268,12 +268,12 @@ public final class CommandManager extends ListenerAdapter
                 : commandAnnotation.command();
 
             return this.formatCommand(method.getParameterTypes(), command).map(commandInfo ->
-                new CommandMethod(method, object, commandAnnotation, hasCommand,
+                new RegexCommand(method, object, commandAnnotation, hasCommand,
                     commandInfo.displayCommand, Pattern.compile(commandInfo.regexCommand), commandInfo.constructors))
                 .collect(Collectors.toList());
         }
         return List.of(
-            new CommandMethod(method, object, commandAnnotation,
+            new RegexCommand(method, object, commandAnnotation,
                 hasCommand, null, null, null));
     }
 
@@ -361,7 +361,7 @@ public final class CommandManager extends ListenerAdapter
                     String.format("The custom parameter type %s, must define a constructor", clazz.getSimpleName()));
 
             List<ConstructorPair> constructorPairs = new ArrayList<>();
-            List<Constructor<?>> customConstructors = Utilities.filterReflections(clazz.getConstructors(),
+            List<Constructor<?>> customConstructors = Reflect.filterReflections(clazz.getConstructors(),
                 c -> c.isAnnotationPresent(ParameterConstruction.class));
             if (customConstructors.isEmpty())
                 customConstructors.add(clazz.getConstructors()[0]);
@@ -401,7 +401,7 @@ public final class CommandManager extends ListenerAdapter
             }
 
             if (null != command &&
-                Utilities.retrieveAnnotation(parameterAnnotations[parameterIndex], Unrequired.class)
+                Reflect.retrieveAnnotation(parameterAnnotations[parameterIndex], Unrequired.class)
                     .isPresent()) {
                 command = "<" + command + ">";
             }

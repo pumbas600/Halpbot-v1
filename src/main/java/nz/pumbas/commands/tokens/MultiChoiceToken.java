@@ -1,6 +1,6 @@
 package nz.pumbas.commands.tokens;
 
-import nz.pumbas.commands.Annotations.Command;
+import nz.pumbas.commands.annotations.Command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +46,6 @@ public class MultiChoiceToken extends BuiltInTypeToken {
     @Override
     public String toString() {
         return String.format("MultiChoiceToken{isOptional=%s, type=%s, defaultValue=%s, options=%s}",
-                this.isOptional, this.type.getSimpleName(), this.defaultValue, this.options.toString());
+                this.isOptional, this.type.getSimpleName(), this.defaultValue, this.options);
     }
 }
