@@ -19,17 +19,26 @@ import java.util.Optional;
 /**
  * A container for the data of an {@link CommandToken} command.
  */
-public class TokenCommand
+public class TokenCommand implements CommandMethod
 {
 
     private final @Nullable Object instance;
     private final @NotNull Executable executable;
     private final @NotNull List<CommandToken> commandTokens;
+    private @Nullable String description;
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
         this.instance = instance;
         this.executable = executable;
         this.commandTokens = commandTokens;
+    }
+
+    public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
+                        @NotNull List<CommandToken> commandTokens, String description) {
+        this.instance = instance;
+        this.executable = executable;
+        this.commandTokens = commandTokens;
+        this.description = description;
     }
 
     /**
@@ -61,16 +70,50 @@ public class TokenCommand
      *
      * @param invocationTokens
      *      The {@link List} of {@link String invocation tokens} which will be used to invoke the {@link Executable} with
+     * @param event
+     *      An optional {@link MessageReceivedEvent} if that is to be passed to the method
+     *
+     * @return An {@link Optional} containing the result of the {@link Executable} if there is one
+     * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
+     */
+    public Optional<Object> invoke(List<String> invocationTokens, @Nullable MessageReceivedEvent event)
+        throws OutputException
+    {
+        Object[] parameters = this.parseInvocationTokens(invocationTokens, event);
+        return this.invoke(parameters);
+    }
+
+    /**
+     * @return If the {@link CommandMethod} has a description
+     */
+    @Override
+    public boolean hasDescription()
+    {
+        return null != this.description && !this.description.isEmpty();
+    }
+
+    /**
+     * @return The {@link String description} if present, otherwise null
+     */
+    @Override
+    @Nullable
+    public String getDescription()
+    {
+        return this.description;
+    }
+
+    /**
+     * Invokes the {@link Executable} for this {@link nz.pumbas.commands.annotations.Command} with the specified arguments.
+     *
+     * @param parameters
+     *      The {@link Object parameters} which will be used to invoke the {@link Executable} with
      *
      * @return An {@link Optional} containing the result of the {@link Executable} if there is one
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
     @SuppressWarnings("ThrowInsideCatchBlockWhichIgnoresCaughtException")
-    public Optional<Object> invoke(List<String> invocationTokens, @Nullable MessageReceivedEvent event)
-        throws OutputException
+    public Optional<Object> invoke(Object... parameters) throws OutputException
     {
-        Object[] parameters = this.parseInvocationTokens(invocationTokens, event);
-
         try {
             if (this.executable instanceof Method)
                 return Optional.ofNullable(((Method) this.executable).invoke(this.instance, parameters));
@@ -79,7 +122,7 @@ public class TokenCommand
         }
         catch (java.lang.IllegalAccessException | InstantiationException e) {
             ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
-                    this.executable.getName()));
+                this.executable.getName()));
         }
         catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof OutputException)
