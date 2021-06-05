@@ -44,15 +44,6 @@ public class HalpBotCommands
         event.getChannel().sendMessage(force.toString()).queue();
     }
 
-    @Command(alias = "shape", description = "Creates a shape object from a name and a number of sides")
-    public void onShape(MessageReceivedEvent event, Shape shape, Shape shapeb)
-    {
-        event.getChannel()
-            .sendMessage("You defined shape A as: " + shape.getName() + " with " + shape.getSides() + " sides!").queue();
-        event.getChannel()
-            .sendMessage("You defined shape B as: " + shapeb.getName() + " with " + shapeb.getSides() + " sides!").queue();
-    }
-
     @Command(alias = "ping")
     public void onPing()
     {

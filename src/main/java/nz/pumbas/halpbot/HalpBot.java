@@ -13,10 +13,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.commands.CommandManager;
+import nz.pumbas.commands.commandadapters.TokenCommandAdapter;
 import nz.pumbas.halpbot.commands.CalculusCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.ImageCommands;
 import nz.pumbas.halpbot.commands.SteamLookupCommands;
+import nz.pumbas.halpbot.commands.TokenCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
 import nz.pumbas.halpbot.friction.FrictionCommands;
 import nz.pumbas.processes.PipeProcess;
@@ -42,6 +44,8 @@ public class HalpBot extends ListenerAdapter
             new CalculusCommands(this.process),
             new VectorCommands()
         );
+        new TokenCommandAdapter(builder)
+            .registerCommands(new TokenCommands());
 
         this.jda = builder.build();
     }

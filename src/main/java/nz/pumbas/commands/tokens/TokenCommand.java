@@ -152,7 +152,8 @@ public class TokenCommand implements CommandMethod
         int parameterIndex = 0;
         int invocationTokenIndex = 0;
 
-        if (null != event) {
+        Class<?>[] parameterTypes = this.executable.getParameterTypes();
+        if (null != event && 0 < parameterTypes.length && parameterTypes[0].isAssignableFrom(MessageReceivedEvent.class)) {
             parsedTokens[0] = event;
             parameterIndex = 1;
         }
@@ -221,6 +222,8 @@ public class TokenCommand implements CommandMethod
                 return false;
             }
         }
-        return true;
+
+        //Return true IF there is no other invocation tokens left to be checked
+        return invocationTokenIndex >= invocationTokens.size();
     }
 }

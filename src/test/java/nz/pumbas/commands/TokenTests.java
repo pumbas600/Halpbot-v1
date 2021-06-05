@@ -8,11 +8,14 @@ import nz.pumbas.commands.tokens.ArrayToken;
 import nz.pumbas.commands.tokens.BuiltInTypeToken;
 import nz.pumbas.commands.tokens.CommandToken;
 import nz.pumbas.commands.tokens.MultiChoiceToken;
+import nz.pumbas.commands.tokens.ObjectTypeToken;
 import nz.pumbas.commands.tokens.ParsingToken;
 import nz.pumbas.commands.tokens.PlaceholderToken;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.TokenSyntax;
+import nz.pumbas.halpbot.customparameters.Shape;
+import nz.pumbas.halpbot.customparameters.ShapeType;
 import nz.pumbas.halpbot.customparameters.Vector3;
 import nz.pumbas.utilities.Reflect;
 import org.junit.jupiter.api.Assertions;
@@ -227,5 +230,33 @@ public class TokenTests {
     @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
     private double customObjectTokenCommandMethodTest(Vector3 vector3) {
         return vector3.getY();
+    }
+
+    @Test
+    public void enumTokenTest() {
+        BuiltInTypeToken token = new BuiltInTypeToken(false, ShapeType.class, null);
+
+        Assertions.assertTrue(token.matches("Square"));
+        Assertions.assertTrue(token.matches("Circle"));
+        Assertions.assertFalse(token.matches("Line"));
+        Assertions.assertFalse(token.matches("1"));
+    }
+
+    @Test
+    public void objectTypeTokenTest() {
+        ObjectTypeToken token = new ObjectTypeToken(false, Shape.class, null);
+
+        Shape square = (Shape) token.parse("#Shape[Square 2 0 0]");
+        Shape rectangle = (Shape) token.parse("#Shape[Rectangle 2 1 0 0]");
+
+        Assertions.assertTrue(token.matches("#Shape[Square 2 0 0]"));
+        Assertions.assertTrue(token.matches("#Shape[Rectangle 2 1 0 0]"));
+        Assertions.assertFalse(token.matches("#Shope[Square 2 0 0]"));
+        Assertions.assertFalse(token.matches("#Shape[2 0 0]"));
+
+        Assertions.assertNotNull(square);
+        Assertions.assertNotNull(rectangle);
+        Assertions.assertEquals(4, square.getArea());
+        Assertions.assertEquals(2, rectangle.getArea());
     }
 }

@@ -90,7 +90,7 @@ public class BuiltInTypeToken implements ParsingToken
     @Override
     public String toString()
     {
-        return String.format("BuiltInTypeToken{isOptional=%s, type=%s defaultValue=%s}",
+        return String.format("BuiltInTypeToken{isOptional=%s, type=%s, defaultValue=%s}",
             this.isOptional, this.type.getSimpleName(), this.defaultValue);
     }
 }

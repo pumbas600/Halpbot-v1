@@ -271,7 +271,7 @@ public final class TokenManager {
         int openBracketCount = 0;
         int currentIndex;
 
-        for (currentIndex = 1; currentIndex < command.length(); currentIndex++) {
+        for (currentIndex = 0; currentIndex < command.length(); currentIndex++) {
             char character = command.charAt(currentIndex);
             if ('[' == character) openBracketCount++;
             else if (']' == character) openBracketCount--;

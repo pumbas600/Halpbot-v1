@@ -48,9 +48,11 @@ public class ObjectTypeToken implements ParsingToken
             return false;
 
         List<String> parameterInvocationTokens = this.getParamaterInvocationTokens(invocationToken);
-        return TokenManager.getParsedConstructors(this.getType())
-            .stream()
-            .anyMatch(tokenCommand -> tokenCommand.matches(parameterInvocationTokens));
+        for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
+            if (tokenCommand.matches(parameterInvocationTokens))
+                return true;
+        }
+        return false;
 
     }
 
