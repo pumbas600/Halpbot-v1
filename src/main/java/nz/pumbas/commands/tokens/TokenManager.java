@@ -4,19 +4,36 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
 
+import nz.pumbas.commands.ErrorManager;
+import nz.pumbas.commands.Order;
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.CustomParameter;
 import nz.pumbas.commands.annotations.ParameterConstruction;
+import nz.pumbas.commands.annotations.TokenSyntaxDefinition;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
+import nz.pumbas.commands.exceptions.IllegalTokenSyntaxDefinitionException;
+import nz.pumbas.commands.tokens.tokensyntax.TokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
+import nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions;
+import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
+import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
+import nz.pumbas.commands.tokens.tokentypes.CommandToken;
+import nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken;
+import nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken;
+import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
+import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.objects.Tuple;
 import nz.pumbas.utilities.Reflect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +49,9 @@ public final class TokenManager {
     private TokenManager() {}
 
     /**
-     * A {@link List} of the built-in {@link Class classes}.
-     */
-    public static final List<Class<?>> BuiltInTypes = List.of(
-            int.class, float.class, double.class, char.class, String.class, boolean.class
-    );
-
-    /**
      * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
      */
-    private static final Map<Class<?>, Class<?>> WrapperToPrimitive = Map.of(
+    public static final Map<Class<?>, Class<?>> WrapperToPrimitive = Map.of(
         Integer.class,   int.class,
         Float.class,     float.class,
         Double.class,    double.class,
@@ -63,14 +73,57 @@ public final class TokenManager {
     );
 
     /**
-     * An {@link Map} which maps custom classes to their parsed {@link Constructor} in an {@link TokenCommand}.
+     * A {@link Map} which maps custom classes to their parsed {@link Constructor} in an {@link TokenCommand}.
      */
     private static final Map<Class<?>, List<TokenCommand>> CustomClassConstructors = new HashMap<>();
+
+    /**
+     * A {@link List} containing the registered {@link TokenSyntaxDefinition}.
+     */
+    private static final List<Method> RegisteredTokenSyntaxDefinitions = new ArrayList<>();
+
+    static {
+        registerTokenSyntax(TokenSyntaxDefinitions.class);
+    }
+
 
     public static boolean isBuiltInType(Class<?> type)
     {
         type = WrapperToPrimitive.getOrDefault(type, type);
-        return type.isEnum() || BuiltInTypes.contains(type);
+        return type.isEnum() || TypeParsers.containsKey(type);
+    }
+
+    /**
+     * Registers all the static {@link Method} annotated with {@link TokenSyntaxDefinition}.
+     *
+     * @param tokenSyntaxDefinitions
+     *      The {@link Class classes} containing the static {@link Method methods} annotated with
+     *      {@link TokenSyntaxDefinition}
+     */
+    public static void registerTokenSyntax(Class<?>... tokenSyntaxDefinitions)
+    {
+        for (Class<?> tokenSyntaxDefinition : tokenSyntaxDefinitions) {
+            //Add all the static methods which are annotated with TokenSyntaxDefinition
+            List<Method> annotatedMethods = Reflect.getAnnotatedMethodsWithModifiers(
+                tokenSyntaxDefinition, TokenSyntaxDefinition.class, false,
+                Modifier::isStatic);
+
+            for (Method method : annotatedMethods) {
+                if (1 != method.getParameterCount() || !method.getParameterTypes()[0].isAssignableFrom(TokenInfo.class))
+                    throw new IllegalTokenSyntaxDefinitionException(
+                        String.format("The syntax token definitions %s, must only take in TokenInfo as a parameter",
+                            method.getName()));
+            }
+
+            RegisteredTokenSyntaxDefinitions.addAll(annotatedMethods);
+        }
+
+        //Re-sort the registered token syntax definitions based on the order defined within the TokenSyntaxDefinition
+        //attribute.
+        RegisteredTokenSyntaxDefinitions.sort(
+            Comparator.comparing(m ->
+                Reflect.getAnnotationFieldElse(m, TokenSyntaxDefinition.class,
+                    TokenSyntaxDefinition::value, Order.NORMAL)));
     }
 
     /**
@@ -99,7 +152,7 @@ public final class TokenManager {
      */
     public static void parseCustomClassConstructors(Class<?> customClass)
     {
-        if (BuiltInTypes.contains(customClass))
+        if (isBuiltInType(customClass))
             throw new IllegalArgumentException(
                 String.format("The class %s is a built in type.", customClass.getSimpleName()));
 
@@ -257,7 +310,7 @@ public final class TokenManager {
         List<String> tokens = splitCommandTokens(command);
 
         return parseCommandTokens(tokens, parameterTypes,
-            startParameterIndex, parameterAnnotations);
+            parameterAnnotations, startParameterIndex);
     }
 
     public static List<String> splitInvocationTokens(@NotNull String command)
@@ -319,11 +372,48 @@ public final class TokenManager {
         return tokens;
     }
 
-    public static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes,
-                                                        int currentTypeIndex, Annotation[][] parameterAnnotations)
+    /**
+     * Parses the {@link List} of {@link String command tokens} into a {@link List<CommandToken>} by calling on the
+     * registered {@link TokenSyntaxDefinition token syntax definitions}.
+     *
+     * @param tokens
+     *      The {@link List<String> command tokens} which define the {@link Command}
+     * @param parameterTypes
+     *      The {@link Class parameter types} of the {@link Method}
+     * @param parameterAnnotations
+     *      The {@link Annotation annotations} for the parameters in the {@link Method}
+     * @param startingParameterTypeIndex
+     *      The starting parameter index. E.g: The first index is usually a MessageReceivedEvent which doesn't get
+     *      parsed into a command token
+     *
+     * @return The parsed {@link List<CommandToken>}
+     */
+    private static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes,
+                                                         Annotation[][] parameterAnnotations, int startingParameterTypeIndex)
     {
-        return parseCommandTokens(new ArrayList<>(), tokens, 0,
-            parameterTypes, currentTypeIndex, parameterAnnotations);
+        TokenInfo tokenInfo = new TokenInfo(tokens, parameterTypes, parameterAnnotations, startingParameterTypeIndex);
+        List<CommandToken> commandTokens = new ArrayList<>();
+
+        while (tokenInfo.hasToken()) {
+            for (Method tokenSyntaxDefinition : RegisteredTokenSyntaxDefinitions) {
+                try {
+                    Object result = tokenSyntaxDefinition.invoke(null, tokenInfo);
+                    if (result instanceof CommandToken) {
+                        if (result instanceof ParsingToken) {
+                            tokenInfo.incrementParameterIndex();
+                        }
+                        commandTokens.add((CommandToken) result);
+                        break;
+                    }
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    ErrorManager.handle(e);
+                }
+            }
+
+            tokenInfo.nextToken();
+        }
+
+        return commandTokens;
     }
 
     private static List<CommandToken> parseCommandTokens(List<CommandToken> commandTokens,

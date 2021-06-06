@@ -1,10 +1,13 @@
-package nz.pumbas.commands.tokens;
+package nz.pumbas.commands.tokens.tokentypes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.List;
+
+import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 
 public class ArrayToken implements ParsingToken {
 
@@ -20,7 +23,7 @@ public class ArrayToken implements ParsingToken {
 
         this.isOptional = isOptional;
         this.type = type;
-        this.commandToken = TokenManager.BuiltInTypes.contains(this.type.getComponentType())
+        this.commandToken = TokenManager.isBuiltInType(this.type.getComponentType())
                 ? new BuiltInTypeToken(false, this.type.getComponentType(), null)
                 : new ObjectTypeToken(false, this.type.getComponentType(), null);
         this.defaultValue = this.parseDefaultValue(defaultValue);

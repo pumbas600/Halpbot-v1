@@ -1,4 +1,4 @@
-package nz.pumbas.commands.tokens;
+package nz.pumbas.commands.tokens.tokentypes;
 
 import org.jetbrains.annotations.NotNull;
 

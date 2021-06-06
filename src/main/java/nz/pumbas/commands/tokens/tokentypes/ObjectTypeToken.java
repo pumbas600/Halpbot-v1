@@ -1,4 +1,4 @@
-package nz.pumbas.commands.tokens;
+package nz.pumbas.commands.tokens.tokentypes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,6 +7,9 @@ import java.lang.reflect.Executable;
 import java.util.List;
 
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.commands.tokens.TokenCommand;
+import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 
 public class ObjectTypeToken implements ParsingToken
 {

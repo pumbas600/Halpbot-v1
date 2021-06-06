@@ -1,7 +1,5 @@
 package nz.pumbas.halpbot.commands;
 
-import java.util.Arrays;
-
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.halpbot.customparameters.Shape;
@@ -12,7 +10,17 @@ public class TokenCommands
     @Command(alias = "centroid", description = "finds the centroid defined by the specified shapes")
     public String findCentroid(Shape[] shapes)
     {
-        return Arrays.toString(shapes);
+        double sumAx = 0;
+        double sumAy = 0;
+        double totalA = 0;
+
+        for (Shape shape : shapes) {
+            sumAx += shape.getArea() * shape.getxPos();
+            sumAy += shape.getArea() * shape.getyPos();
+            totalA += shape.getArea();
+        }
+
+        return String.format("x: %.2f, y: %.2f", sumAx / totalA, sumAy / totalA);
     }
 
 }

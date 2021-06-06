@@ -1,7 +1,8 @@
-package nz.pumbas.commands.tokens;
+package nz.pumbas.commands.tokens.tokentypes;
 
 import org.jetbrains.annotations.NotNull;
 
+import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.utilities.Utilities;
 import org.jetbrains.annotations.Nullable;
 

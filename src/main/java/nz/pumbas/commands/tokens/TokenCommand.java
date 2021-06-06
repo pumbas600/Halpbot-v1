@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.commands.tokens.tokentypes.CommandToken;
+import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
