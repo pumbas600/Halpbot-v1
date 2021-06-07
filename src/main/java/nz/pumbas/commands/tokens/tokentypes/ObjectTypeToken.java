@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Executable;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import nz.pumbas.commands.exceptions.OutputException;
@@ -15,8 +16,6 @@ import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 
 public class ObjectTypeToken implements ParsingToken
 {
-    public static final Pattern Syntax = Pattern.compile("#[^#]+\\[.+]");
-
     private final boolean isOptional;
     private final Class<?> type;
     private final Object defaultValue;
@@ -74,6 +73,20 @@ public class ObjectTypeToken implements ParsingToken
     @Override
     public boolean matches(@NotNull InvocationTokenInfo invocationToken)
     {
+        Optional<String> oTypeAlias = invocationToken.getNextSurrounded("#", "[", false);
+        if (oTypeAlias.isEmpty() || !oTypeAlias.get().equalsIgnoreCase(TokenManager.getTypeAlias(this.type)))
+            return false;
+
+        Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
+        if (oParameters.isPresent()) {
+            InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oParameters.get());
+
+            for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
+                if (tokenCommand.matches(subInvocationToken))
+                    return true;
+            }
+            return false;
+        }
         return false;
     }
 
@@ -119,8 +132,20 @@ public class ObjectTypeToken implements ParsingToken
      * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
      */
     @Override
+    @Nullable
     public Object parse(@NotNull InvocationTokenInfo invocationToken)
     {
+        invocationToken.getNext("[", false);
+        Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
+
+        if (oParameters.isPresent()) {
+            InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oParameters.get());
+            for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
+                if (tokenCommand.matches(subInvocationToken)) {
+                    return tokenCommand.invoke(subInvocationToken, null).orElse(null);
+                }
+            }
+        }
         return null;
     }
 

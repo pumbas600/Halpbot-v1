@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokentypes.CommandToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 
@@ -227,5 +228,11 @@ public class TokenCommand implements CommandMethod
 
         //Return true IF there is no other invocation tokens left to be checked
         return invocationTokenIndex >= invocationTokens.size();
+    }
+
+    public boolean matches(InvocationTokenInfo invocationToken)
+    {
+        //TODO: Matches in TokenCommand
+        return false;
     }
 }

@@ -17,8 +17,6 @@ import nz.pumbas.utilities.Utilities;
 
 public class ArrayToken implements ParsingToken {
 
-    public final static Pattern Syntax = Pattern.compile("\\[.*]");
-
     private final boolean isOptional;
     private final Class<?> type;
     private final ParsingToken commandToken;
@@ -62,17 +60,17 @@ public class ArrayToken implements ParsingToken {
         return false;
     }
 
-    public boolean matches(@NotNull InvocationTokenInfo invocationTokenInfo)
+    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
     {
-        Optional<String> oToken = invocationTokenInfo.getNextSurrounded("[", "]");
-        if (oToken.isPresent()) {
-            InvocationTokenInfo subTokenInfo = InvocationTokenInfo.of(oToken.get());
+        Optional<String> oArrayParameters = invocationToken.getNextSurrounded("[", "]");
+        if (oArrayParameters.isPresent()) {
+            InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oArrayParameters.get());
 
-            while (subTokenInfo.hasNext()) {
-                if (!this.commandToken.matches(subTokenInfo))
+            while (subInvocationToken.hasNext()) {
+                if (!this.commandToken.matches(subInvocationToken))
                     return false;
             }
-            return !subTokenInfo.hasNext();
+            return !subInvocationToken.hasNext();
         }
         return false;
     }
@@ -118,16 +116,15 @@ public class ArrayToken implements ParsingToken {
     @Nullable
     public Object parse(@NotNull InvocationTokenInfo invocationToken)
     {
-        Optional<String> arrayToken = invocationToken.getNext(Syntax);
-        if (arrayToken.isEmpty())
+        Optional<String> oArrayParameters = invocationToken.getNextSurrounded("[", "]");
+        if (oArrayParameters.isEmpty())
             return null;
 
-        InvocationTokenInfo subTokenInfo =
-            InvocationTokenInfo.of(arrayToken.get().substring(1, arrayToken.get().length() - 1));
+        InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oArrayParameters.get());
 
         List<Object> parsedArray = new ArrayList<>();
-        while (subTokenInfo.hasNext()) {
-            parsedArray.add(this.commandToken.parse(subTokenInfo));
+        while (subInvocationToken.hasNext()) {
+            parsedArray.add(this.commandToken.parse(subInvocationToken));
         }
 
         return Utilities.toArray(Reflect.getArrayType(this.type), parsedArray);

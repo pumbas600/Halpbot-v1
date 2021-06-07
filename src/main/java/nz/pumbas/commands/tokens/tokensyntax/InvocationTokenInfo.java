@@ -3,8 +3,6 @@ package nz.pumbas.commands.tokens.tokensyntax;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,7 +61,8 @@ public class InvocationTokenInfo
 
     /**
      * Gets the next string up until (exclusive) the specified string. If the ending string is not contained in the
-     * remainder of the invocationToken, an empty optional is returned.
+     * remainder of the invocationToken, an empty optional is returned. This will automatically step past the until
+     * characters.
      *
      * @param until
      *      The {@link String} to stop at
@@ -71,6 +70,22 @@ public class InvocationTokenInfo
      * @return an {@link Optional} containing the next string up until the specified string
      */
     public Optional<String> getNext(String until)
+    {
+        return this.getNext(until, true);
+    }
+
+    /**
+     * Gets the next string up until (exclusive) the specified string. If the ending string is not contained in the
+     * remainder of the invocationToken, an empty optional is returned.
+     *
+     * @param until
+     *      The {@link String} to stop at
+     * @param stepPast
+     *      Should it move the current index past the until characters, or remain on it
+     *
+     * @return an {@link Optional} containing the next string up until the specified string
+     */
+    public Optional<String> getNext(String until, boolean stepPast)
     {
         if (!this.hasNext())
             return Optional.empty();
@@ -82,10 +97,31 @@ public class InvocationTokenInfo
         String match = this.original.substring(this.currentIndex, endIndex);
         this.currentIndex = endIndex;
 
-        if (this.currentlyOnSpace())
-            this.currentIndex++;
-
+        if (stepPast) {
+            this.currentIndex += until.length();
+            if (this.currentlyOnSpace())
+                this.currentIndex++;
+        }
         return Optional.of(match);
+    }
+
+    /**
+     * Returns the next string which is contained between the start and stop specified. This will automatically step
+     * past the stop characters. It will respect nested start and stops too.
+     * <p>
+     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code #getNextSurrounded("[", "]")} will return
+     * {@code #Block[1 2 3] #Block[2 3 4]}.
+     *
+     * @param start
+     *      The {@link String} defining the starting characters
+     * @param stop
+     *      The {@link String} defining the stopping characters
+     *
+     * @return The {@link String} between the start and stop
+     */
+    public Optional<String> getNextSurrounded(String start, String stop)
+    {
+        return this.getNextSurrounded(start, stop, true);
     }
 
     /**
@@ -100,10 +136,12 @@ public class InvocationTokenInfo
      *      The {@link String} defining the starting characters
      * @param stop
      *      The {@link String} defining the stopping characters
+     * @param stepPast
+     *      Should it move the current index past the stop characters, or remain on it
      *
      * @return The {@link String} between the start and stop
      */
-    public Optional<String> getNextSurrounded(String start, String stop)
+    public Optional<String> getNextSurrounded(String start, String stop, boolean stepPast)
     {
         if (!this.hasNext() || this.original.indexOf(start, this.currentIndex) != this.currentIndex)
             return Optional.empty();
@@ -126,10 +164,13 @@ public class InvocationTokenInfo
         } while (0 != startCount);
 
         String match = this.original.substring(this.currentIndex + 1, endIndex);
-        this.currentIndex = endIndex + 1;
+        this.currentIndex = endIndex;
 
-        if (this.currentlyOnSpace())
-            this.currentIndex++;
+        if (stepPast) {
+            this.currentIndex += stop.length();
+            if (this.currentlyOnSpace())
+                this.currentIndex++;
+        }
 
         return Optional.of(match);
     }

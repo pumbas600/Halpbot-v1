@@ -50,6 +50,20 @@ public class InvocationTokenInfoTests
         Assertions.assertFalse(oArray3.isPresent());
 
         Assertions.assertEquals("1 2 3", oArray1.get());
+    }
 
+    @Test
+    public void getNextSurroundedStepPastTest() {
+        InvocationTokenInfo tokenInfo = InvocationTokenInfo.of("#Block[1 2 3]");
+
+        Optional<String> oType = tokenInfo.getNextSurrounded("#", "[", false);
+        Optional<String> oParameters = tokenInfo.getNextSurrounded("[", "]");
+
+        Assertions.assertTrue(oType.isPresent());
+        Assertions.assertTrue(oParameters.isPresent());
+        Assertions.assertFalse(tokenInfo.hasNext());
+
+        Assertions.assertEquals("Block", oType.get());
+        Assertions.assertEquals("1 2 3", oParameters.get());
     }
 }
