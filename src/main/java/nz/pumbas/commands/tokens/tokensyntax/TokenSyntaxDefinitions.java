@@ -22,34 +22,34 @@ public final class TokenSyntaxDefinitions
     private TokenSyntaxDefinitions() {}
 
     @TokenSyntaxDefinition(Order.FIRST)
-    public static void optionalTokenSyntax(TokenInfo tokenInfo)
+    public static void optionalTokenSyntax(CommandTokenInfo commandTokenInfo)
     {
-        String token = tokenInfo.getCurrentToken();
+        String token = commandTokenInfo.getCurrentToken();
         boolean isOptional = false;
 
         if (token.startsWith("<") && token.endsWith(">")) {
-            tokenInfo.setCurrentToken(token.substring(1, token.length() -1));
+            commandTokenInfo.setCurrentToken(token.substring(1, token.length() -1));
             isOptional = true;
         }
 
-        tokenInfo.setCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL, isOptional);
+        commandTokenInfo.setCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL, isOptional);
     }
 
     @Nullable
     @TokenSyntaxDefinition
-    public static CommandToken tokenSyntax(TokenInfo tokenInfo)
+    public static CommandToken tokenSyntax(CommandTokenInfo commandTokenInfo)
     {
-        if (!TokenSyntax.TYPE.matches(tokenInfo.getCurrentToken()))
+        if (!TokenSyntax.TYPE.matches(commandTokenInfo.getCurrentToken()))
             return null;
 
-        String defaultValue = getDefaultValue(tokenInfo);
-        Class<?> parameterType = tokenInfo.getCurrentParameterType();
-        boolean isOptional = tokenInfo.getCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL);
+        String defaultValue = getDefaultValue(commandTokenInfo);
+        Class<?> parameterType = commandTokenInfo.getCurrentParameterType();
+        boolean isOptional = commandTokenInfo.getCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL);
 
-        if (!TokenManager.isValidCommandTypeToken(tokenInfo.getCurrentToken(), parameterType)) {
+        if (!TokenManager.isValidCommandTypeToken(commandTokenInfo.getCurrentToken(), parameterType)) {
             throw new IllegalCommandException(
                 String.format("The token %s doesn't match the corresponding parameter type of %s",
-                    tokenInfo.getCurrentToken(), parameterType));
+                    commandTokenInfo.getCurrentToken(), parameterType));
         }
 
         else if (TokenManager.isBuiltInType(parameterType)) {
@@ -65,15 +65,15 @@ public final class TokenSyntaxDefinitions
 
     @Nullable
     @TokenSyntaxDefinition
-    public static CommandToken multiChoiceTokenSyntax(TokenInfo tokenInfo)
+    public static CommandToken multiChoiceTokenSyntax(CommandTokenInfo commandTokenInfo)
     {
-        String token = tokenInfo.getCurrentToken();
+        String token = commandTokenInfo.getCurrentToken();
         if (!TokenSyntax.MULTICHOICE.matches(token))
             return null;
 
-        String defaultValue = getDefaultValue(tokenInfo);
-        Class<?> parameterType = tokenInfo.getCurrentParameterType();
-        boolean isOptional = tokenInfo.getCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL);
+        String defaultValue = getDefaultValue(commandTokenInfo);
+        Class<?> parameterType = commandTokenInfo.getCurrentParameterType();
+        boolean isOptional = commandTokenInfo.getCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL);
 
         if (!TokenManager.isBuiltInType(parameterType))
             throw new IllegalArgumentException("The type of a multichoice token must be a built in type");
@@ -84,19 +84,19 @@ public final class TokenSyntaxDefinitions
     }
 
     @TokenSyntaxDefinition(Order.LAST)
-    public static CommandToken placeholderTokenSyntax(TokenInfo tokenInfo)
+    public static CommandToken placeholderTokenSyntax(CommandTokenInfo commandTokenInfo)
     {
         return new PlaceholderToken(
-            tokenInfo.getCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL),
-            tokenInfo.getCurrentToken());
+            commandTokenInfo.getCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL),
+            commandTokenInfo.getCurrentToken());
     }
 
     @Nullable
-    private static String getDefaultValue(TokenInfo tokenInfo)
+    private static String getDefaultValue(CommandTokenInfo commandTokenInfo)
     {
-        Optional<Unrequired> oUnrequired = tokenInfo.getAttribute(Unrequired.class);
+        Optional<Unrequired> oUnrequired = commandTokenInfo.getAttribute(Unrequired.class);
         if (oUnrequired.isPresent()) {
-            tokenInfo.setCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL, true);
+            commandTokenInfo.setCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL, true);
             return oUnrequired.get().value();
         }
         return null;

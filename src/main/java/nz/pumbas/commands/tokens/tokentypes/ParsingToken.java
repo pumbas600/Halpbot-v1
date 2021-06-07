@@ -3,6 +3,8 @@ package nz.pumbas.commands.tokens.tokentypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
  */
@@ -22,6 +24,16 @@ public interface ParsingToken extends CommandToken {
      * @return An {@link Object} of the {@link String invocation token} parsed to the correct type
      */
     Object parse(@NotNull String invocationToken);
+
+    /**
+     * Parses an {@link InvocationTokenInfo invocation token} to the type of the {@link ParsingToken}.
+     *
+     * @param invocationToken
+     *      The {@link InvocationTokenInfo invocation token} to be parsed into the type of the {@link ParsingToken}
+     *
+     * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
+     */
+    Object parse(@NotNull InvocationTokenInfo invocationToken);
 
     /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.

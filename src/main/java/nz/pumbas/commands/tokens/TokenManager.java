@@ -14,31 +14,22 @@ import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.exceptions.IllegalTokenSyntaxDefinitionException;
-import nz.pumbas.commands.tokens.tokensyntax.TokenInfo;
-import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
+import nz.pumbas.commands.tokens.tokensyntax.CommandTokenInfo;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions;
-import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
-import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
 import nz.pumbas.commands.tokens.tokentypes.CommandToken;
-import nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken;
-import nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
-import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
-import nz.pumbas.objects.Tuple;
 import nz.pumbas.utilities.Reflect;
+import nz.pumbas.utilities.enums.Modifiers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -46,31 +37,9 @@ import java.util.stream.Collectors;
  */
 public final class TokenManager {
 
+    //TODO: NTS - InvocationTokenInfo should be checked hasNext before being passed to method.
+
     private TokenManager() {}
-
-    /**
-     * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
-     */
-    public static final Map<Class<?>, Class<?>> WrapperToPrimitive = Map.of(
-        Integer.class,   int.class,
-        Float.class,     float.class,
-        Double.class,    double.class,
-        Character.class, char.class,
-        Boolean.class,   boolean.class
-    );
-
-    /**
-     * An {@link Map} of the built-in {@link Class classes} and a {@link Tuple} of a regex syntax along with their
-     * corresponding parsers.
-     */
-    public static final Map<Class<?>, Tuple<String, Function<String, Object>>> TypeParsers = Map.of(
-        String.class,  Tuple.of(".+", s -> s),
-        int.class,     Tuple.of("-?\\d+", Integer::parseInt),
-        float.class,   Tuple.of("-?\\d+\\.?\\d*", Float::parseFloat),
-        double.class,  Tuple.of("-?\\d+\\.?\\d*", Double::parseDouble),
-        char.class,    Tuple.of("[a-zA-Z]", s -> s.charAt(0)),
-        boolean.class, Tuple.of("true|yes|false|no", s -> "true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s))
-    );
 
     /**
      * A {@link Map} which maps custom classes to their parsed {@link Constructor} in an {@link TokenCommand}.
@@ -86,11 +55,19 @@ public final class TokenManager {
         registerTokenSyntax(TokenSyntaxDefinitions.class);
     }
 
-
+    /**
+     * Returns if the type is considered a build in type. This is determined by if the type is an enum or has a
+     * defined type parser.
+     *
+     * @param type
+     *      The {@link Class type} being checked
+     *
+     * @return If the type is a built in type
+     */
     public static boolean isBuiltInType(Class<?> type)
     {
-        type = WrapperToPrimitive.getOrDefault(type, type);
-        return type.isEnum() || TypeParsers.containsKey(type);
+        type = Reflect.getPrimativeType(type);
+        return type.isEnum() || Reflect.hasTypeParser(type);
     }
 
     /**
@@ -104,12 +81,15 @@ public final class TokenManager {
     {
         for (Class<?> tokenSyntaxDefinition : tokenSyntaxDefinitions) {
             //Add all the static methods which are annotated with TokenSyntaxDefinition
-            List<Method> annotatedMethods = Reflect.getAnnotatedMethodsWithModifiers(
-                tokenSyntaxDefinition, TokenSyntaxDefinition.class, false,
-                Modifier::isStatic);
+            List<Method> annotatedMethods = Reflect.getAnnotatedMethods(
+                tokenSyntaxDefinition,TokenSyntaxDefinition.class, false);
 
             for (Method method : annotatedMethods) {
-                if (1 != method.getParameterCount() || !method.getParameterTypes()[0].isAssignableFrom(TokenInfo.class))
+                if (!Reflect.hasModifiers(method, Modifiers.STATIC))
+                    throw new IllegalTokenSyntaxDefinitionException(
+                        String.format("The syntax token definition %s must be static", method.getName()));
+
+                if (1 != method.getParameterCount() || !method.getParameterTypes()[0].isAssignableFrom(CommandTokenInfo.class))
                     throw new IllegalTokenSyntaxDefinitionException(
                         String.format("The syntax token definitions %s, must only take in TokenInfo as a parameter",
                             method.getName()));
@@ -391,16 +371,16 @@ public final class TokenManager {
     private static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes,
                                                          Annotation[][] parameterAnnotations, int startingParameterTypeIndex)
     {
-        TokenInfo tokenInfo = new TokenInfo(tokens, parameterTypes, parameterAnnotations, startingParameterTypeIndex);
+        CommandTokenInfo commandTokenInfo = new CommandTokenInfo(tokens, parameterTypes, parameterAnnotations, startingParameterTypeIndex);
         List<CommandToken> commandTokens = new ArrayList<>();
 
-        while (tokenInfo.hasToken()) {
+        while (commandTokenInfo.hasToken()) {
             for (Method tokenSyntaxDefinition : RegisteredTokenSyntaxDefinitions) {
                 try {
-                    Object result = tokenSyntaxDefinition.invoke(null, tokenInfo);
+                    Object result = tokenSyntaxDefinition.invoke(null, commandTokenInfo);
                     if (result instanceof CommandToken) {
                         if (result instanceof ParsingToken) {
-                            tokenInfo.incrementParameterIndex();
+                            commandTokenInfo.incrementParameterIndex();
                         }
                         commandTokens.add((CommandToken) result);
                         break;
@@ -410,73 +390,10 @@ public final class TokenManager {
                 }
             }
 
-            tokenInfo.nextToken();
+            commandTokenInfo.nextToken();
         }
 
         return commandTokens;
-    }
-
-    private static List<CommandToken> parseCommandTokens(List<CommandToken> commandTokens,
-                                                         List<String> tokens, int currentTokenIndex,
-                                                         Class<?>[] parameterTypes, int currentTypeIndex,
-                                                         Annotation[][] parameterAnnotations)
-    {
-        if (currentTokenIndex >= tokens.size())
-            return commandTokens;
-
-        String token = tokens.get(currentTokenIndex);
-        boolean isOptional = false;
-
-        if (TokenSyntax.OPTIONAL.matches(token)) {
-            isOptional = true;
-            token = token.substring(1, token.length() - 1);
-        }
-
-        boolean isMultiChoice = TokenSyntax.MULTICHOICE.matches(token);
-
-        if (TokenSyntax.TYPE.matches(token) || isMultiChoice) {
-            if (currentTypeIndex >= parameterTypes.length)
-                throw new IllegalCommandException(
-                        String.format("The token %s doesn't have a corresponding parameter in the method.", token));
-
-            Class<?> type = parameterTypes[currentTypeIndex];
-            type = WrapperToPrimitive.getOrDefault(type, type);
-
-            String defaultValue = null;
-            Optional<Unrequired> oUnrequired = Reflect.retrieveAnnotation(
-                parameterAnnotations[currentTypeIndex], Unrequired.class);
-            if (oUnrequired.isPresent()) {
-                isOptional = true;
-                defaultValue = oUnrequired.get().value();
-            }
-
-            if (isMultiChoice) {
-                //Substring removes surrounding [...]
-                List<String> options = List.of(token.substring(1, token.length() -1).split("\\|"));
-                commandTokens.add(new MultiChoiceToken(isOptional, type, defaultValue, options));
-            }
-            else if (!isValidCommandTypeToken(token, type)) { //Only check this for non-multichoice tokens
-                throw new IllegalCommandException(
-                        String.format("The token %s doesn't match the corresponding parameter type of %s", token, type));
-            }
-            else if (isBuiltInType(type)) {
-                commandTokens.add(new BuiltInTypeToken(isOptional, type, defaultValue));
-            }
-            else if (type.isArray()) {
-                commandTokens.add(new ArrayToken(isOptional, type, defaultValue));
-            }
-            else {
-                commandTokens.add(new ObjectTypeToken(isOptional, type, defaultValue));
-            }
-            currentTypeIndex++;
-        }
-
-        else {
-            //Just text formatting.
-            commandTokens.add(new PlaceholderToken(isOptional, token));
-        }
-
-        return parseCommandTokens(commandTokens, tokens, currentTokenIndex + 1, parameterTypes, currentTypeIndex, parameterAnnotations);
     }
 
     /**

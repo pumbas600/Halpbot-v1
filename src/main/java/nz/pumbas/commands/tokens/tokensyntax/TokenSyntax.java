@@ -20,4 +20,10 @@ public enum TokenSyntax
     public boolean matches(String token) {
         return this.syntaxPattern.matcher(token).matches();
     }
+
+    public Pattern getSyntaxPattern()
+    {
+        return this.syntaxPattern;
+    }
+
 }

@@ -9,7 +9,7 @@ import java.util.Optional;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.utilities.Reflect;
 
-public class TokenInfo
+public class CommandTokenInfo
 {
     private final List<String> tokens;
     private int currentTokenIndex;
@@ -21,8 +21,8 @@ public class TokenInfo
     private final Map<TokenBindingIdentifier, Object> currentTokenBindings = new HashMap<>();
     private String currentToken;
 
-    public TokenInfo(List<String> tokens, Class<?>[] parameterTypes, Annotation[][] parameterAnnotations,
-                     int currentParameterTypeIndex)
+    public CommandTokenInfo(List<String> tokens, Class<?>[] parameterTypes, Annotation[][] parameterAnnotations,
+                            int currentParameterTypeIndex)
     {
         this.tokens = tokens;
         this.currentTokenIndex = 0;
@@ -104,7 +104,7 @@ public class TokenInfo
     public Class<?> getCurrentParameterType()
     {
         Class<?> parameterType = this.parameterTypes[this.currentParameterTypeIndex];
-        return TokenManager.WrapperToPrimitive.getOrDefault(parameterType, parameterType);
+        return Reflect.getPrimativeType(parameterType);
     }
 
     /**

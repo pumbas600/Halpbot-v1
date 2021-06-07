@@ -3,6 +3,8 @@ package nz.pumbas.commands.tokens.tokentypes;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.Utilities;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +50,25 @@ public class BuiltInTypeToken implements ParsingToken
             return Utilities.isValidValue(this.type, invocationToken.toUpperCase());
         }
 
-        return invocationToken.matches(TokenManager.TypeParsers.get(this.type).getKey());
+        return Reflect.matches(invocationToken, this.type);
+    }
+
+    /**
+     * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
+     *
+     * @param invocationToken
+     *     The {@link InvocationTokenInfo invocation token} containing the invoking information
+     *
+     * @return If the {@link InvocationTokenInfo invocation token} matches this {@link CommandToken}
+     */
+    @Override
+    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
+    {
+        if (this.type.isEnum()) {
+            return Utilities.isValidValue(this.type, invocationToken.getNext().toUpperCase());
+        }
+
+        return Reflect.matches(invocationToken.getNext(), this.type);
     }
 
     /**
@@ -75,9 +95,25 @@ public class BuiltInTypeToken implements ParsingToken
         if (this.type.isEnum()) {
             return Enum.valueOf((Class<? extends Enum>)this.type, invocationToken.toUpperCase());
         }
-        return TokenManager.TypeParsers.get(this.type)
-            .getValue()
-            .apply(invocationToken);
+        return Reflect.parse(invocationToken, this.type);
+    }
+
+    /**
+     * Parses an {@link InvocationTokenInfo invocation token} to the type of the {@link ParsingToken}.
+     *
+     * @param invocationToken
+     *     The {@link InvocationTokenInfo invocation token} to be parsed into the type of the {@link ParsingToken}
+     *
+     * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
+     */
+    @Override
+    public Object parse(@NotNull InvocationTokenInfo invocationToken)
+    {
+        String token = invocationToken.getNext();
+        if (this.type.isEnum()) {
+            return Enum.valueOf((Class<? extends Enum>)this.type, token.toUpperCase());
+        }
+        return Reflect.parse(token, this.type);
     }
 
     /**

@@ -5,14 +5,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Executable;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 
 public class ObjectTypeToken implements ParsingToken
 {
+    public static final Pattern Syntax = Pattern.compile("#[^#]+\\[.+]");
+
     private final boolean isOptional;
     private final Class<?> type;
     private final Object defaultValue;
@@ -60,6 +64,20 @@ public class ObjectTypeToken implements ParsingToken
     }
 
     /**
+     * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
+     *
+     * @param invocationToken
+     *     The {@link InvocationTokenInfo invocation token} containing the invoking information
+     *
+     * @return If the {@link InvocationTokenInfo invocation token} matches this {@link CommandToken}
+     */
+    @Override
+    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
+    {
+        return false;
+    }
+
+    /**
      * @return The {@link Class type} of this {@link ParsingToken}
      */
     @Override
@@ -89,6 +107,20 @@ public class ObjectTypeToken implements ParsingToken
                 return tokenCommand.invoke(parameterInvocationTokens, null).orElse(null);
             }
         }
+        return null;
+    }
+
+    /**
+     * Parses an {@link InvocationTokenInfo invocation token} to the type of the {@link ParsingToken}.
+     *
+     * @param invocationToken
+     *     The {@link InvocationTokenInfo invocation token} to be parsed into the type of the {@link ParsingToken}
+     *
+     * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
+     */
+    @Override
+    public Object parse(@NotNull InvocationTokenInfo invocationToken)
+    {
         return null;
     }
 

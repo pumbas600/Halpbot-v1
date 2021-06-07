@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +21,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -377,5 +380,28 @@ public final class Utilities
         } catch (IllegalArgumentException exception) {
             return false;
         }
+    }
+
+    /**
+     * Converts a {@link Collection} to an array.
+     *
+     * @param classToCastTo
+     *      The {@link Class} of the elements in the array
+     * @param collection
+     *      The {@link Collection} to convert to an array
+     * @param <T>
+     *      The type of the elements in the array
+     *
+     * @return An array of the elements in the {@link Collection}
+     */
+    @SuppressWarnings({ "unchecked", "SuspiciousToArrayCall" })
+    public static <T> T[] toArray(Class<T> classToCastTo, Collection<?> collection) {
+        T[] array = collection.toArray((T[]) Array.newInstance(classToCastTo, collection.size()));
+        Iterator<?> iterator = collection.iterator();
+        int index = 0;
+        while (iterator.hasNext()) {
+            Array.set(array, index++, iterator.next());
+        }
+        return array;
     }
 }

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -12,18 +13,134 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import nz.pumbas.commands.ErrorManager;
+import nz.pumbas.objects.Tuple;
+import nz.pumbas.utilities.enums.Modifiers;
 
 public final class Reflect {
 
     private Reflect() {}
+
+    /**
+     * An {@link Map} of the built-in {@link Class classes} and a {@link Tuple} of a regex syntax along with their
+     * corresponding parsers.
+     */
+    private static final Map<Class<?>, Tuple<Pattern, Function<String, Object>>> TypeParsers = Map.of(
+        String.class,  Tuple.of(Pattern.compile(".+"),             s -> s),
+        int.class,     Tuple.of(Pattern.compile("-?\\d+"),         Integer::parseInt),
+        float.class,   Tuple.of(Pattern.compile("-?\\d+\\.?\\d*"), Float::parseFloat),
+        double.class,  Tuple.of(Pattern.compile("-?\\d+\\.?\\d*"), Double::parseDouble),
+        char.class,    Tuple.of(Pattern.compile("[a-zA-Z]"),       s -> s.charAt(0)),
+        boolean.class, Tuple.of(Pattern.compile("true|yes|false|no|t|f|y|n"),
+            s -> {
+                String lowered = s.toLowerCase();
+                return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered) || "y".equals(lowered);
+            })
+    );
+
+    /**
+     * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
+     */
+    private static final Map<Class<?>, Class<?>> WrapperToPrimitive = Map.of(
+        Integer.class,   int.class,
+        Float.class,     float.class,
+        Double.class,    double.class,
+        Character.class, char.class,
+        Boolean.class,   boolean.class
+    );
+
+    /**
+     * Parses a string to the type specified using the type parsers. It will not check if the string matches the
+     * format. To do this, call {@link Reflect#matches(String, Class)}
+     *
+     * @param s
+     *      The {@link String} to parse
+     * @param type
+     *      The {@link Class type} to parse the string to
+     *
+     * @return The parsed string
+     */
+    public static Object parse(String s, Class<?> type)
+    {
+        if (!TypeParsers.containsKey(type))
+            throw new IllegalArgumentException("You can only parse simple build in types");
+
+        return TypeParsers.get(type).getValue().apply(s);
+    }
+
+    /**
+     * Checks if the string matches the required syntax of the specified type.
+     *
+     * @param s
+     *      The {@link String} to check
+     * @param type
+     *      The {@link Class type} to check the syntax against
+     *
+     * @return If the string matches the syntax of the type
+     */
+    public static boolean matches(String s, Class<?> type)
+    {
+        if (!TypeParsers.containsKey(type))
+            throw new IllegalArgumentException("You can only match simple build in types");
+
+        return TypeParsers.get(type)
+            .getKey()
+            .matcher(s)
+            .matches();
+    }
+
+    /**
+     * Returns the {@link Pattern syntax} of the specified type.
+     *
+     * @param type
+     *      The {@link Class type} to get the syntax of
+     *
+     * @return The {@link Pattern syntax} of the specified type
+     */
+    public static Pattern getSyntax(Class<?> type)
+    {
+        if (!TypeParsers.containsKey(type))
+            throw new IllegalArgumentException("You can only match simple build in types");
+
+        return TypeParsers.get(type).getKey();
+    }
+
+    /**
+     * If there is a defined type parser for the specified type.
+     *
+     * @param type
+     *      The {@link Class type} to check if there's a type parser for
+     *
+     * @return If there's a type parser or not
+     */
+    public static boolean hasTypeParser(Class<?> type)
+    {
+        return TypeParsers.containsKey(type);
+    }
+
+    /**
+     * Returns the primative type of a wrapper type, or the passed in type if it has no primative type.
+     *
+     * @param type
+     *      The {@link Class} to get the primative of
+     *
+     * @return the primative type of a wrapper type, or the passed in type if it has no primative type
+     */
+    public static Class<?> getPrimativeType(Class<?> type)
+    {
+        return WrapperToPrimitive.getOrDefault(type, type);
+    }
 
     /**
      * Returns the first {@link Method} in a class with the specified name. If the method cannot be
@@ -94,69 +211,22 @@ public final class Reflect {
     }
 
     /**
-     * Retrieves all the methods of a class with the specified annotation which pass all the specified filters.
+     * Determines if the {@link Member} has all the specified {@link Modifiers}.
      *
-     * @param target
-     *     The class to search for methods with the specified annotation
-     * @param annotation
-     *     The annotation to check if methods have
-     * @param getSuperMethods
-     *     Whether it should check for annotated methods in super classes
-     * @param filters
-     *     A varargs of {@link Predicate filters} to check the methods against
+     * @param member
+     *      The {@link Member} to check for the modifiers
+     * @param modifiers
+     *      The {@link Modifiers} to check that the {@link Member} has
      *
-     * @return A {@link List} containing all the matching methods
+     * @return If the {@link Member} has all the {@link Modifiers}.
      */
-    @SafeVarargs
-    public static List<Method> getAnnotatedMethods(Class<?> target, Class<? extends Annotation> annotation,
-                                                   boolean getSuperMethods, Predicate<Method>... filters)
+    public static boolean hasModifiers(Member member, Modifiers... modifiers)
     {
-        return getAnnotatedMethods(target, annotation, getSuperMethods)
-            .stream()
-            .filter(m ->
-                Arrays.stream(filters).allMatch(filter -> filter.test(m)))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Retrieves all the methods of a class with the specified annotation which have the specified modifiers.
-     * You can specify modifiers as follows: {@code Modifier::isPublic, Modifier::isStatic}, etc.
-     *
-     * @param target
-     *     The class to search for methods with the specified annotation
-     * @param annotation
-     *     The annotation to check if methods have
-     * @param getSuperMethods
-     *     Whether it should check for annotated methods in super classes
-     * @param modifierFilters
-     *     A varargs of {@link Predicate modifiers} to check if the methods have
-     *
-     * @return A {@link List} containing all the matching methods
-     */
-    @SafeVarargs
-    public static List<Method> getAnnotatedMethodsWithModifiers(Class<?> target, Class<? extends Annotation> annotation,
-                                                                boolean getSuperMethods, Predicate<Integer>... modifierFilters)
-    {
-        return getAnnotatedMethods(target, annotation, getSuperMethods)
-            .stream()
-            .filter(m ->
-                Arrays.stream(modifierFilters).allMatch(modifier -> modifier.test(m.getModifiers())))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Builds an {@link Predicate} to test a {@link Member} for the passed modifiers. Modifiers can be specified
-     * using {@code Modifier::isPublic, Modifier::isStatic}, etc.
-     *
-     * @param modifierFilters
-     *      The modifiers to test the {@link Member} for
-     *
-     * @return An {@link Predicate} which can test a {@link Member} for the passed modifiers.
-     */
-    @SafeVarargs
-    public static Predicate<? extends Member> buildModifiersPredicate(Predicate<Integer>... modifierFilters)
-    {
-        return m -> Arrays.stream(modifierFilters).allMatch(modifier -> modifier.test(m.getModifiers()));
+        for (Modifiers modifier : modifiers) {
+            if (!modifier.hasModifier(member))
+                return false;
+        }
+        return true;
     }
 
     /**
