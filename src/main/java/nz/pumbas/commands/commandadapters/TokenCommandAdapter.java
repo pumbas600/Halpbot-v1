@@ -15,6 +15,7 @@ import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 
 public class TokenCommandAdapter extends AbstractCommandAdapter
 {
@@ -66,10 +67,14 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
             return false;
 
         TokenCommand tokenCommand = (TokenCommand) commandMethod;
-        List<String> invocationTokens = TokenManager.splitInvocationTokens(content);
-        if (tokenCommand.matches(invocationTokens)) {
-            Optional<Object> oResult = tokenCommand.invoke(invocationTokens, event);
-            oResult.ifPresent(result -> event.getChannel().sendMessage(result.toString()).queue());
+        InvocationTokenInfo invocationToken = InvocationTokenInfo.of(content).saveState(this);
+        if (tokenCommand.matches(invocationToken)) {
+            Optional<Object> oResult = tokenCommand.invoke(invocationToken.restoreState(this), event);
+            oResult.ifPresent(result ->
+                event.getChannel()
+                    .sendMessage(result.toString())
+                    .queue());
+
             return true;
         }
 

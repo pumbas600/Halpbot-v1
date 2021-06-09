@@ -37,7 +37,7 @@ public class TokenCommand implements CommandMethod
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
-                        @NotNull List<CommandToken> commandTokens, String description) {
+                        @NotNull List<CommandToken> commandTokens, @Nullable String description) {
         this.instance = instance;
         this.executable = executable;
         this.commandTokens = commandTokens;
@@ -79,10 +79,10 @@ public class TokenCommand implements CommandMethod
      * @return An {@link Optional} containing the result of the {@link Executable} if there is one
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
-    public Optional<Object> invoke(List<String> invocationTokens, @Nullable MessageReceivedEvent event)
+    public Optional<Object> invoke(InvocationTokenInfo invocationToken, @Nullable MessageReceivedEvent event)
         throws OutputException
     {
-        Object[] parameters = this.parseInvocationTokens(invocationTokens, event);
+        Object[] parameters = this.parseInvocationTokens(invocationToken, event);
         return this.invoke(parameters);
     }
 
@@ -115,7 +115,7 @@ public class TokenCommand implements CommandMethod
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
     @SuppressWarnings("ThrowInsideCatchBlockWhichIgnoresCaughtException")
-    public Optional<Object> invoke(Object... parameters) throws OutputException
+    public Optional<Object> invoke(@NotNull Object... parameters) throws OutputException
     {
         try {
             if (this.executable instanceof Method)
@@ -138,22 +138,21 @@ public class TokenCommand implements CommandMethod
     }
 
     /**
-     * Parses the {@link List<String> invocation tokens} and the {@link MessageReceivedEvent} event into an array
+     * Parses the {@link InvocationTokenInfo invocation tokens} and the {@link MessageReceivedEvent} event into an array
      * that can can be passed to an {@link Method} when being invoked.
      *
-     * @param invocationTokens
-     *      The {@link List<String> invocation tokens} that are to be parsed into objects
+     * @param invocationToken
+     *      The {@link InvocationTokenInfo invocation tokens} that are to be parsed into objects
      * @param event
      *      An optional {@link MessageReceivedEvent}. If present, it will be inserted as the first parameter in the
      *      array
      *
      * @return A {@link Object array} containing the parsed {@link List<String> invocation tokens}
      */
-    public Object[] parseInvocationTokens(List<String> invocationTokens, @Nullable MessageReceivedEvent event) {
+    public Object[] parseInvocationTokens(InvocationTokenInfo invocationToken, @Nullable MessageReceivedEvent event) {
         Object[] parsedTokens = new Object[this.executable.getParameterCount()];
 
         int parameterIndex = 0;
-        int invocationTokenIndex = 0;
 
         Class<?>[] parameterTypes = this.executable.getParameterTypes();
         if (null != event && 0 < parameterTypes.length && parameterTypes[0].isAssignableFrom(MessageReceivedEvent.class)) {
@@ -162,25 +161,25 @@ public class TokenCommand implements CommandMethod
         }
 
         for (CommandToken currentCommandToken : this.commandTokens) {
-            if (invocationTokenIndex >= invocationTokens.size()) {
+            if (!invocationToken.hasNext()) {
                 if (!currentCommandToken.isOptional())
                     throw new IllegalArgumentException(
-                            String.format("There was an error parsing the invocation tokens %s, as they don't match " +
-                                "this command. Make sure to check the invocation tokens match by first calling the " +
-                                "matches method.", invocationTokens));
+                        String.format("There was an error parsing the invocation tokens %s, as they don't match " +
+                            "this command. Make sure to check the invocation tokens match by first calling the " +
+                            "matches method.", invocationToken.getOriginal()));
                 continue;
             }
 
-            String currentInvocationToken = invocationTokens.get(invocationTokenIndex);
-
-            if (currentCommandToken.matches(currentInvocationToken)) {
+            invocationToken.saveState(this);
+            if (currentCommandToken.matches(invocationToken)) {
+                invocationToken.restoreState(this);
                 if (currentCommandToken instanceof ParsingToken) {
-                    parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).parse(currentInvocationToken);
+                    parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).parse(invocationToken);
                     parameterIndex++;
                 }
-                invocationTokenIndex++;
             }
             else if (currentCommandToken.isOptional()) {
+                invocationToken.restoreState(this);
                 if (currentCommandToken instanceof ParsingToken) {
                     parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).getDefaultValue();
                     parameterIndex++;
@@ -188,9 +187,9 @@ public class TokenCommand implements CommandMethod
             }
             else {
                 throw new IllegalArgumentException(
-                        String.format("There was an error parsing the invocation tokens %s, as they don't match this " +
-                            "command. Make sure to check the invocation tokens match by first calling the matches " +
-                            "method.", invocationTokens));
+                    String.format("There was an error parsing the invocation tokens %s, as they don't match this " +
+                        "command. Make sure to check the invocation tokens match by first calling the matches " +
+                        "method.", invocationToken.getOriginal()));
             }
         }
 
@@ -198,41 +197,34 @@ public class TokenCommand implements CommandMethod
     }
 
     /**
-     * Determines if the {@link List} of {@link String invocation tokens} match with this {@link TokenCommand}.
+     * Determines if the {@link InvocationTokenInfo invocation token} matches with this {@link TokenCommand}.
      *
-     * @param invocationTokens
-     *      The {@link List} of {@link String invocation tokens} to check that matches with this {@link TokenCommand}
+     * @param invocationToken
+     *      The {@link InvocationTokenInfo invocation token} to check
      *
-     * @return If the {@link List} of {@link String invocation tokens} match this {@link TokenCommand}
+     * @return If the {@link InvocationTokenInfo invocation tokens} match this {@link TokenCommand}
      */
-    public boolean matches(List<String> invocationTokens)
+    public boolean matches(InvocationTokenInfo invocationToken)
     {
-        int invocationTokenIndex = 0;
         for (CommandToken currentCommandToken : this.commandTokens) {
-            if (invocationTokenIndex >= invocationTokens.size()) {
+            if (!invocationToken.hasNext()) {
                 if (!currentCommandToken.isOptional())
                     return false;
                 continue;
             }
-            String currentInvocationToken = invocationTokens.get(invocationTokenIndex);
+            invocationToken.saveState(this);
 
-            // If they match, move to the next token
-            if (currentCommandToken.matches(currentInvocationToken))
-                invocationTokenIndex++;
-            // If it doesn't match but the current command token is optional, it checks if the next invocation token matches
-            // Otherwise, if it doesn't match and its not optional, then these invocations don't match this command
-            else if (!currentCommandToken.isOptional() || invocationTokenIndex == invocationTokens.size() -1) {
-                return false;
+            if (!currentCommandToken.matches(invocationToken)) {
+                // If it doesn't match but the current command token is optional, it checks if the next invocation token matches
+                // Otherwise, if it doesn't match and its not optional, then these invocations don't match this command
+                if (currentCommandToken.isOptional() && invocationToken.hasNext())
+                    invocationToken.restoreState(this);
+                else
+                    return false;
             }
         }
 
-        //Return true IF there is no other invocation tokens left to be checked
-        return invocationTokenIndex >= invocationTokens.size();
-    }
-
-    public boolean matches(InvocationTokenInfo invocationToken)
-    {
-        //TODO: Matches in TokenCommand
-        return false;
+        //Return true IF there are no other invocation tokens left to be checked
+        return !invocationToken.hasNext();
     }
 }

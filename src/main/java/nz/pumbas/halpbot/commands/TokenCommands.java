@@ -23,4 +23,10 @@ public class TokenCommands
         return String.format("x: %.2f, y: %.2f", sumAx / totalA, sumAy / totalA);
     }
 
+    @Command(alias = "next", description = "returns the next number")
+    public int next(int number)
+    {
+        return number + 1;
+    }
+
 }

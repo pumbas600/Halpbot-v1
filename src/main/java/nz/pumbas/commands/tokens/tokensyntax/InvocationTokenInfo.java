@@ -3,6 +3,8 @@ package nz.pumbas.commands.tokens.tokensyntax;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,11 +13,11 @@ public class InvocationTokenInfo
 {
     private final String original;
     private int currentIndex;
-    private int savedIndex;
+    private final Map<Object, Integer> savedIndices = new HashMap<>();
 
-    protected InvocationTokenInfo(String invocationToken)
+    protected InvocationTokenInfo(@NotNull String invocationToken)
     {
-        this.original = invocationToken;
+        this.original = null == invocationToken ? "" : invocationToken;
     }
 
     /**
@@ -36,7 +38,7 @@ public class InvocationTokenInfo
      */
     public boolean hasNext()
     {
-        return this.currentIndex < this.original.length() - 1;
+        return this.currentIndex < this.original.length();
     }
 
     /**
@@ -223,18 +225,30 @@ public class InvocationTokenInfo
 
     /**
      * Saves the current index so that it can be restored later if necessary.
+     *
+     * @param reference
+     *      The {@link Object} to store the index against
+     *
+     * @return Itself
      */
-    public void saveState()
+    public InvocationTokenInfo saveState(Object reference)
     {
-        this.savedIndex = this.currentIndex;
+        this.savedIndices.put(reference, this.currentIndex);
+        return this;
     }
 
     /**
      * Restores the current index to the last saved index.
+     *
+     * @param reference
+     *      The {@link Object} to store the index against
+     *
+     * @return Itself
      */
-    public void restoreState()
+    public InvocationTokenInfo restoreState(Object reference)
     {
-        this.currentIndex = this.savedIndex;
+        this.currentIndex = this.savedIndices.getOrDefault(reference, this.currentIndex);
+        return this;
     }
 
     /**
@@ -242,6 +256,17 @@ public class InvocationTokenInfo
      */
     private boolean currentlyOnSpace()
     {
-        return this.currentIndex < this.original.length() && ' ' == this.original.charAt(this.currentIndex);
+        return this.hasNext() && ' ' == this.original.charAt(this.currentIndex);
+    }
+
+    /**
+     * Sets the current index.
+     *
+     * @param index
+     *      Set the current index to the specified index
+     */
+    public void setCurrentIndex(int index)
+    {
+        this.currentIndex = index;
     }
 }

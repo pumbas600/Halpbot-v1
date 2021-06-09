@@ -15,16 +15,6 @@ public interface CommandToken {
     boolean isOptional();
 
     /**
-     * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *      An individual element in the invocation of an {@link nz.pumbas.commands.annotations.Command}.
-     *
-     * @return If the {@link String invocation token} matches this {@link CommandToken}
-     */
-    boolean matches(@NotNull String invocationToken);
-
-    /**
      * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken

@@ -385,7 +385,7 @@ public final class Utilities
     /**
      * Converts a {@link Collection} to an array.
      *
-     * @param classToCastTo
+     * @param arrayElementClass
      *      The {@link Class} of the elements in the array
      * @param collection
      *      The {@link Collection} to convert to an array
@@ -395,8 +395,8 @@ public final class Utilities
      * @return An array of the elements in the {@link Collection}
      */
     @SuppressWarnings({ "unchecked", "SuspiciousToArrayCall" })
-    public static <T> T[] toArray(Class<T> classToCastTo, Collection<?> collection) {
-        T[] array = collection.toArray((T[]) Array.newInstance(classToCastTo, collection.size()));
+    public static <T> T[] toArray(Class<T> arrayElementClass, Collection<?> collection) {
+        T[] array = collection.toArray((T[]) Array.newInstance(arrayElementClass, collection.size()));
         Iterator<?> iterator = collection.iterator();
         int index = 0;
         while (iterator.hasNext()) {

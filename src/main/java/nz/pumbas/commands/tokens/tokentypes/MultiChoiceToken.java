@@ -1,6 +1,5 @@
 package nz.pumbas.commands.tokens.tokentypes;
 
-import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 
@@ -22,28 +21,6 @@ public class MultiChoiceToken extends BuiltInTypeToken {
 
         this.options = options; // This needs to be set before calling parseDefaultValue as it calls the matches method
         this.defaultValue = this.parseDefaultValue(defaultValue);
-    }
-
-    /**
-     * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *      An individual element in the invocation of an {@link Command}
-     *
-     * @return If the {@link String invocation token} matches this {@link CommandToken}
-     */
-    @Override
-    public boolean matches(@NotNull String invocationToken)
-    {
-        if (this.options.contains(invocationToken))
-            return true;
-        else {
-            for (String option : this.options) {
-                if (option.equalsIgnoreCase(invocationToken))
-                    return true;
-            }
-        }
-        return false;
     }
 
     /**

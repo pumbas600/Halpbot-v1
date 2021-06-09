@@ -37,8 +37,6 @@ import java.util.stream.Collectors;
  */
 public final class TokenManager {
 
-    //TODO: NTS - InvocationTokenInfo should be checked hasNext before being passed to method.
-
     private TokenManager() {}
 
     /**

@@ -36,20 +36,6 @@ public class PlaceholderToken implements CommandToken
     }
 
     /**
-     * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *      An individual element in the invocation of an {@link nz.pumbas.commands.annotations.Command}.
-     *
-     * @return If the {@link String invocation token} matches this {@link CommandToken}
-     */
-    @Override
-    public boolean matches(@NotNull String invocationToken)
-    {
-        return this.placeHolder.equalsIgnoreCase(invocationToken);
-    }
-
-    /**
      * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken

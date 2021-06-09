@@ -4,11 +4,10 @@ import java.util.regex.Pattern;
 
 public enum TokenSyntax
 {
+    //TODO: Either remove these or move them to TokenSyntaxDefinitions class
 
     OPTIONAL("<[^<>]+>"),
-    OBJECT("#[^#]+\\[.+\\]"),
     TYPE("#[^#]+"),
-    ARRAY("\\[.*\\]"),
     MULTICHOICE("\\[[^#]+\\]");
 
     private final Pattern syntaxPattern;

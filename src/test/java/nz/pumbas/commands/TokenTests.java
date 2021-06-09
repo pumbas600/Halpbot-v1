@@ -4,6 +4,7 @@ package nz.pumbas.commands;
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
 import nz.pumbas.commands.tokens.tokentypes.CommandToken;
@@ -71,8 +72,8 @@ public class TokenTests {
     public void arrayTokenMatchesTest() {
         ArrayToken token = new ArrayToken(false, float[].class, "[1 4.5 3.1]");
 
-        Assertions.assertFalse(token.matches("[1 alpha 2.5]"));
-        Assertions.assertTrue(token.matches("[1.3 4.7 3]"));
+        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("[1 alpha 2.5]")));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("[1.3 4.7 3]")));
     }
 
     @Test
@@ -80,7 +81,7 @@ public class TokenTests {
         ArrayToken token = new ArrayToken(false, float[].class, "[]");
         float[] defaultValue = (float[]) token.getDefaultValue();
 
-        Assertions.assertTrue(token.matches("[]"));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("[]")));
         Assertions.assertEquals(0, defaultValue.length);
     }
 
@@ -88,7 +89,7 @@ public class TokenTests {
     public void arrayTokenParsingTest() {
         ArrayToken token = new ArrayToken(false, float[].class, "[1 4.5 3.1]");
 
-        float[] parsedValues = (float[]) token.parse("[1.3 4.7 3]");
+        float[] parsedValues = (float[]) token.parse(InvocationTokenInfo.of("[1.3 4.7 3]"));
         Assertions.assertEquals(1.3F, parsedValues[0]);
         Assertions.assertEquals(4.7F, parsedValues[1]);
         Assertions.assertEquals(3F, parsedValues[2]);
@@ -145,11 +146,11 @@ public class TokenTests {
         MultiChoiceToken token = new MultiChoiceToken(false, String.class, "x-axis",
                 List.of("x", "x-axis", "y", "y-axis"));
 
-        Assertions.assertTrue(token.matches("x"));
-        Assertions.assertTrue(token.matches("X-axis"));
-        Assertions.assertTrue(token.matches("y"));
-        Assertions.assertTrue(token.matches("y-Axis"));
-        Assertions.assertFalse(token.matches("axis"));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("x")));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("X-axis")));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("y")));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("y-Axis")));
+        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("axis")));
         Assertions.assertEquals("x-axis", token.getDefaultValue());
     }
 
@@ -166,17 +167,15 @@ public class TokenTests {
                 "#double <from the> [x-axis|y-axis]", new Class<?>[] { Double.class, String.class });
         CommandToken multiChoiceToken = commandTokens.get(3);
 
-        System.out.println(commandTokens);
-
         Assertions.assertEquals(4, commandTokens.size());
         Assertions.assertTrue(commandTokens.get(0) instanceof BuiltInTypeToken);
         Assertions.assertTrue(commandTokens.get(1) instanceof PlaceholderToken);
         Assertions.assertTrue(commandTokens.get(2) instanceof PlaceholderToken);
         Assertions.assertTrue(commandTokens.get(3) instanceof MultiChoiceToken);
 
-        Assertions.assertTrue(multiChoiceToken.matches("x-axis"));
-        Assertions.assertTrue(multiChoiceToken.matches("Y-axis"));
-        Assertions.assertFalse(multiChoiceToken.matches("axis"));
+        Assertions.assertTrue(multiChoiceToken.matches(InvocationTokenInfo.of("x-axis")));
+        Assertions.assertTrue(multiChoiceToken.matches(InvocationTokenInfo.of("Y-axis")));
+        Assertions.assertFalse(multiChoiceToken.matches(InvocationTokenInfo.of("axis")));
     }
 
     @Test
@@ -184,14 +183,14 @@ public class TokenTests {
         TokenCommand command = TokenManager.generateTokenCommand(this,
                 Reflect.getMethod(this, "tokenCommandWithoutCommandDefinitionMethodTest"));
 
-        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("2 [1 3 3]")));
-        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("3")));
-        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("")));
-        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("alpha")));
-        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("2 [1 4 c]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 [1 3 3]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("3")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("alpha")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 [1 4 c]")));
 
         try {
-            Optional<Object> result = command.invoke(TokenManager.splitInvocationTokens("2 [1 2 3]"), null);
+            Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 [1 2 3]"), null);
             Assertions.assertTrue(result.isPresent());
             Assertions.assertTrue((boolean) result.get());
         } catch (OutputException e) {
@@ -213,13 +212,13 @@ public class TokenTests {
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
-        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("#Vector3[1 2 3]")));
-        Assertions.assertTrue(command.matches(TokenManager.splitInvocationTokens("#Vector3[3 1]")));
-        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("Vector3[3 1]")));
-        Assertions.assertFalse(command.matches(TokenManager.splitInvocationTokens("[3 1 2]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Vector3[1 2 3]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Vector3[3 1]")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("Vector3[3 1]")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("[3 1 2]")));
 
         try {
-            Optional<Object> result = command.invoke(TokenManager.splitInvocationTokens("#Vector3[1 2 3]"), null);
+            Optional<Object> result = command.invoke(InvocationTokenInfo.of("#Vector3[1 2 3]"), null);
             Assertions.assertTrue(result.isPresent());
             Assertions.assertEquals(2, (double) result.get());
         } catch (OutputException e) {
@@ -236,23 +235,23 @@ public class TokenTests {
     public void enumTokenTest() {
         BuiltInTypeToken token = new BuiltInTypeToken(false, ShapeType.class, null);
 
-        Assertions.assertTrue(token.matches("Square"));
-        Assertions.assertTrue(token.matches("Circle"));
-        Assertions.assertFalse(token.matches("Line"));
-        Assertions.assertFalse(token.matches("1"));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("Square")));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("Circle")));
+        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("Line")));
+        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("1")));
     }
 
     @Test
     public void objectTypeTokenTest() {
         ObjectTypeToken token = new ObjectTypeToken(false, Shape.class, null);
 
-        Shape square = (Shape) token.parse("#Shape[Square 2 0 0]");
-        Shape rectangle = (Shape) token.parse("#Shape[Rectangle 2 1 0 0]");
+        Shape square = (Shape) token.parse(InvocationTokenInfo.of("#Shape[Square 2 0 0]"));
+        Shape rectangle = (Shape) token.parse(InvocationTokenInfo.of("#Shape[Rectangle 2 1 0 0]"));
 
-        Assertions.assertTrue(token.matches("#Shape[Square 2 0 0]"));
-        Assertions.assertTrue(token.matches("#Shape[Rectangle 2 1 0 0]"));
-        Assertions.assertFalse(token.matches("#Shope[Square 2 0 0]"));
-        Assertions.assertFalse(token.matches("#Shape[2 0 0]"));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("#Shape[Square 2 0 0]")));
+        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("#Shape[Rectangle 2 1 0 0]")));
+        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("#Shope[Square 2 0 0]")));
+        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("#Shape[2 0 0]")));
 
         Assertions.assertNotNull(square);
         Assertions.assertNotNull(rectangle);

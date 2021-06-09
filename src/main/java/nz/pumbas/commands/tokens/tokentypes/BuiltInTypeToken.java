@@ -36,24 +36,6 @@ public class BuiltInTypeToken implements ParsingToken
     }
 
     /**
-     * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *      An individual element in the invocation of an {@link nz.pumbas.commands.annotations.Command}.
-     *
-     * @return If the {@link String invocation token} matches this {@link CommandToken}
-     */
-    @Override
-    public boolean matches(@NotNull String invocationToken)
-    {
-        if (this.type.isEnum()) {
-            return Utilities.isValidValue(this.type, invocationToken.toUpperCase());
-        }
-
-        return Reflect.matches(invocationToken, this.type);
-    }
-
-    /**
      * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken
@@ -78,24 +60,6 @@ public class BuiltInTypeToken implements ParsingToken
     public Class<?> getType()
     {
         return this.type;
-    }
-
-    /**
-     * Parses an {@link String invocation token} to the type of the {@link ParsingToken}.
-     *
-     * @param invocationToken
-     *      The {@link String} to be parsed into the type of the {@link ParsingToken}
-     *
-     * @return An {@link Object} of the {@link String invocation token} parsed to the correct type
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object parse(@NotNull String invocationToken)
-    {
-        if (this.type.isEnum()) {
-            return Enum.valueOf((Class<? extends Enum>)this.type, invocationToken.toUpperCase());
-        }
-        return Reflect.parse(invocationToken, this.type);
     }
 
     /**

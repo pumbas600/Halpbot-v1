@@ -3,17 +3,13 @@ package nz.pumbas.commands.tokens.tokentypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
-import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 import nz.pumbas.utilities.Reflect;
-import nz.pumbas.utilities.Utilities;
 
 public class ArrayToken implements ParsingToken {
 
@@ -43,23 +39,6 @@ public class ArrayToken implements ParsingToken {
         return this.isOptional;
     }
 
-    /**
-     * Returns if the passed in {@link String invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *      An individual element in the invocation of an {@link nz.pumbas.commands.annotations.Command}.
-     *
-     * @return If the {@link String invocation token} matches this {@link CommandToken}
-     */
-    @Override
-    public boolean matches(@NotNull String invocationToken) {
-        if (TokenSyntax.ARRAY.matches(invocationToken)) {
-            return TokenManager.splitInvocationTokens(invocationToken.substring(1, invocationToken.length() - 1))
-                    .stream().allMatch(this.commandToken::matches);
-        }
-        return false;
-    }
-
     public boolean matches(@NotNull InvocationTokenInfo invocationToken)
     {
         Optional<String> oArrayParameters = invocationToken.getNextSurrounded("[", "]");
@@ -81,27 +60,6 @@ public class ArrayToken implements ParsingToken {
     @Override
     public Class<?> getType() {
         return this.type;
-    }
-
-    /**
-     * Parses an {@link String invocation token} to an array of the type specified.
-     *
-     * @param invocationToken
-     *      The {@link String} to be parsed into the array of the type specified
-     *
-     * @return An {@link Object} of the {@link String invocation token} parsed to the correct type
-     */
-    @Override
-    public Object parse(@NotNull String invocationToken)
-    {
-        List<String> invocationTokens = TokenManager.splitInvocationTokens(invocationToken.substring(1, invocationToken.length() - 1));
-        Object array = Array.newInstance(Reflect.getArrayType(this.type), invocationTokens.size());
-
-        for (int i = 0; i < invocationTokens.size(); i++) {
-            Array.set(array, i, this.commandToken.parse(invocationTokens.get(i)));
-        }
-
-        return array;
     }
 
     /**
@@ -127,7 +85,7 @@ public class ArrayToken implements ParsingToken {
             parsedArray.add(this.commandToken.parse(subInvocationToken));
         }
 
-        return Utilities.toArray(Reflect.getArrayType(this.type), parsedArray);
+        return Reflect.toArray(Reflect.getArrayType(this.type), parsedArray);
     }
 
     /**

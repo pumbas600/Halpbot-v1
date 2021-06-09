@@ -454,4 +454,28 @@ public final class Reflect {
         }
         return null;
     }
+
+    /**
+     * Converts a {@link Collection} to an array. Unlike {@link Utilities#toArray(Class, Collection)}, this doesn't
+     * cast the result to the type the array, which can be useful in situations where the collection elements might
+     * be {@link Object} objects rather than the actual type of the array.
+     *
+     * @param arrayElementClass
+     *      The {@link Class type} of the elements in the array
+     * @param collection
+     *      The {@link Collection} to convert to an array
+     *
+     * @return An array as an {@link Object} containing the elemts in the {@link Collection}
+     */
+    public static Object toArray(Class<?> arrayElementClass, Collection<?> collection)
+    {
+        Object array = Array.newInstance(arrayElementClass, collection.size());
+        Iterator<?> iterator = collection.iterator();
+        int index = 0;
+        while (iterator.hasNext()) {
+            Array.set(array, index++, iterator.next());
+        }
+
+        return array;
+    }
 }
