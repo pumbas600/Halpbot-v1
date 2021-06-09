@@ -43,8 +43,7 @@ public class CommandTokenInfo
      */
     public <T extends Annotation> Optional<T> getAttribute(Class<T> annotationType)
     {
-        return Reflect.retrieveAnnotation(
-            this.parameterAnnotations[this.currentParameterTypeIndex], annotationType);
+        return Reflect.retrieveAnnotation(this.getAnnotations(), annotationType);
     }
 
     /**
@@ -52,6 +51,7 @@ public class CommandTokenInfo
      */
     public Annotation[] getAnnotations()
     {
+        this.checkForCustomParameterTypes();
         return this.parameterAnnotations[this.currentParameterTypeIndex];
     }
 
@@ -111,11 +111,19 @@ public class CommandTokenInfo
      */
     public Class<?> getCurrentParameterType()
     {
+        this.checkForCustomParameterTypes();
+        return this.parameterTypes[this.currentParameterTypeIndex];
+    }
+
+    /**
+     * Skips past custom parameter types.
+     */
+    private void checkForCustomParameterTypes()
+    {
         while (this.currentParameterTypeIndex < this.parameterTypes.length && Reflect.isAssignableFrom(
             this.parameterTypes[this.currentParameterTypeIndex],TokenManager.getCustomParameterTypes())) {
             this.currentParameterTypeIndex++;
         }
-        return this.parameterTypes[this.currentParameterTypeIndex];
     }
 
     /**

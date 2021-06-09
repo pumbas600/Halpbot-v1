@@ -27,6 +27,8 @@ import nz.pumbas.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter
 {
+    private final long CREATOR_ID = 260930648330469387L;
+
     /**
      * A map of the registered {@link String command aliases} and their respective {@link CommandMethod}.
      */
@@ -125,7 +127,8 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             .setColor(Color.cyan)
             .setTitle("HALP")
             .addField(commandAlias, message, false)
-            .addField("Usage", commandMethod.getDisplayCommand(), true)
+            .addField("Usage",
+                commandMethod.getDisplayCommand().isEmpty() ? "N/A" : commandMethod.getDisplayCommand(), true)
             .addField("Description", commandMethod.getDescription(), true)
             .build();
     }

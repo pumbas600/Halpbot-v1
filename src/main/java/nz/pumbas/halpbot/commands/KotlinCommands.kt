@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.commands
 
+import net.dv8tion.jda.api.entities.User
 import nz.pumbas.commands.annotations.Command
 import nz.pumbas.commands.annotations.CommandGroup
 import nz.pumbas.commands.annotations.Unrequired
@@ -8,7 +9,7 @@ import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
 @CommandGroup(defaultPrefix = "$")
 class KotlinCommands {
 
-    @Command(alias = "halp", description = "Displays the help information for the specified command")
+    @Command(alias = "Halp", description = "Displays the help information for the specified command")
     fun halp(commandAdapter: AbstractCommandAdapter, @Unrequired commandAlias: String): Any {
         if (commandAlias.isEmpty())
             return "I will try my very best!"
@@ -19,6 +20,11 @@ class KotlinCommands {
 
         return AbstractCommandAdapter.buildHelpMessage(commandAlias, commandMethod.get(), "Here's the overview")
 
+    }
+
+    @Command(alias = "Id", description = "Returns the users discord id")
+    fun id(author: User): String {
+        return author.id
     }
 
     @Command(alias = "Calc", description = "Simple calculation operations in Kotlin")

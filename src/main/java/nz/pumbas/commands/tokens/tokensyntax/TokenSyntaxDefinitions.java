@@ -71,8 +71,8 @@ public final class TokenSyntaxDefinitions
         if (!TokenSyntax.MULTICHOICE.matches(token))
             return null;
 
-        String defaultValue = getDefaultValue(commandTokenInfo);
         Class<?> parameterType = commandTokenInfo.getCurrentParameterType();
+        String defaultValue = getDefaultValue(commandTokenInfo);
         boolean isOptional = commandTokenInfo.getCurrentTokenBinding(TokenSyntaxIdentifiers.OPTIONAL);
 
         if (!TokenManager.isBuiltInType(parameterType))

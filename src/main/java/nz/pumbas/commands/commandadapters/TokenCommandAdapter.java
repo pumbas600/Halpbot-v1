@@ -40,7 +40,7 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
                                                 @NotNull Method method,
                                                 @NotNull Command command)
     {
-        return TokenManager.generateTokenCommand(instance, method);
+        return TokenManager.generateTokenCommand(instance, method, command);
     }
 
     /**

@@ -175,36 +175,34 @@ public class TokenCommand implements CommandMethod
                                           @Nullable AbstractCommandAdapter commandAdapter)
     {
         Object[] parsedTokens = new Object[this.executable.getParameterCount()];
-        int parameterIndex = 0;
         Class<?>[] parameterTypes = this.executable.getParameterTypes();
 
-        for (CommandToken currentCommandToken : this.commandTokens) {
-            while (true) {
-                Optional<Class<?>> assignableFromClass = Reflect.getAssignableFrom(
-                    parameterTypes[parameterIndex], TokenManager.getCustomParameterTypes());
+        int tokenIndex = 0;
+        for (int parameterIndex = 0; parameterIndex < parsedTokens.length; parameterIndex++) {
+            Optional<Class<?>> assignableFromClass = Reflect.getAssignableFrom(
+                parameterTypes[parameterIndex], TokenManager.getCustomParameterTypes());
 
-                if (assignableFromClass.isPresent()) {
-                    parsedTokens[parameterIndex] =
-                        TokenManager.getCustomParameterMapper(assignableFromClass.get()).apply(event, commandAdapter);
-                    parameterIndex++;
-                }
-                else break;
+            if (assignableFromClass.isPresent()) {
+                parsedTokens[parameterIndex] =
+                    TokenManager.getCustomParameterMapper(assignableFromClass.get()).apply(event, commandAdapter);
+                continue;
             }
 
+            CommandToken currentCommandToken = this.commandTokens.get(tokenIndex);
             invocationToken.saveState(this);
             if (invocationToken.hasNext() && currentCommandToken.matches(invocationToken)) {
                 invocationToken.restoreState(this);
                 if (currentCommandToken instanceof ParsingToken) {
                     parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).parse(invocationToken);
-                    parameterIndex++;
                 }
+                tokenIndex++;
             }
             else if (currentCommandToken.isOptional()) {
                 invocationToken.restoreState(this);
                 if (currentCommandToken instanceof ParsingToken) {
                     parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).getDefaultValue();
-                    parameterIndex++;
                 }
+                tokenIndex++;
             }
             else {
                 throw new IllegalArgumentException(
