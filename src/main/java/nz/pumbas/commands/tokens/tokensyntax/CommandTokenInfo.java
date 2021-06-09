@@ -111,8 +111,11 @@ public class CommandTokenInfo
      */
     public Class<?> getCurrentParameterType()
     {
-        Class<?> parameterType = this.parameterTypes[this.currentParameterTypeIndex];
-        return Reflect.getPrimativeType(parameterType);
+        while (this.currentParameterTypeIndex < this.parameterTypes.length && Reflect.isAssignableFrom(
+            this.parameterTypes[this.currentParameterTypeIndex],TokenManager.getCustomParameterTypes())) {
+            this.currentParameterTypeIndex++;
+        }
+        return this.parameterTypes[this.currentParameterTypeIndex];
     }
 
     /**

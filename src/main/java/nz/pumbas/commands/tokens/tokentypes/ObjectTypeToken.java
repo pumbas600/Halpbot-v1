@@ -104,7 +104,7 @@ public class ObjectTypeToken implements ParsingToken
             subInvocationToken.saveState(this);
             for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
                 if (tokenCommand.matches(subInvocationToken.restoreState(this))) {
-                    return tokenCommand.invoke(subInvocationToken.restoreState(this), null)
+                    return tokenCommand.invoke(subInvocationToken.restoreState(this), null, null)
                         .orElse(null);
                 }
             }

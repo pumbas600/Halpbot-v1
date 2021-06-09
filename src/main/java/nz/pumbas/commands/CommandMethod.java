@@ -19,5 +19,10 @@ public interface CommandMethod
     @Nullable
     String getDescription();
 
+    /**
+     * @return The {@link String} representation of the command
+     */
+    String getDisplayCommand();
+
     Optional<Object> invoke(Object... args) throws OutputException;
 }

@@ -37,11 +37,11 @@ public final class Reflect {
      * corresponding parsers.
      */
     private static final Map<Class<?>, Tuple<Pattern, Function<String, Object>>> TypeParsers = Map.of(
-        String.class,  Tuple.of(Pattern.compile(".+"),             s -> s),
+        String.class,  Tuple.of(Pattern.compile(".*"),             s -> s),
         int.class,     Tuple.of(Pattern.compile("-?\\d+"),         Integer::parseInt),
         float.class,   Tuple.of(Pattern.compile("-?\\d+\\.?\\d*"), Float::parseFloat),
         double.class,  Tuple.of(Pattern.compile("-?\\d+\\.?\\d*"), Double::parseDouble),
-        char.class,    Tuple.of(Pattern.compile("[a-zA-Z]"),       s -> s.charAt(0)),
+        char.class,    Tuple.of(Pattern.compile("."),              s -> s.charAt(0)),
         boolean.class, Tuple.of(Pattern.compile("true|yes|false|no|t|f|y|n"),
             s -> {
                 String lowered = s.toLowerCase();
@@ -73,10 +73,12 @@ public final class Reflect {
      */
     public static Object parse(String s, Class<?> type)
     {
-        if (!TypeParsers.containsKey(type))
+        Class<?> unwrappedType = getPrimativeType(type);
+
+        if (!TypeParsers.containsKey(unwrappedType))
             throw new IllegalArgumentException("You can only parse simple build in types");
 
-        return TypeParsers.get(type).getValue().apply(s);
+        return TypeParsers.get(unwrappedType).getValue().apply(s);
     }
 
     /**
@@ -91,10 +93,12 @@ public final class Reflect {
      */
     public static boolean matches(String s, Class<?> type)
     {
-        if (!TypeParsers.containsKey(type))
-            throw new IllegalArgumentException("You can only match simple build in types");
+        Class<?> unwrappedType = getPrimativeType(type);
 
-        return TypeParsers.get(type)
+        if (!TypeParsers.containsKey(unwrappedType))
+            throw new IllegalArgumentException("You can only match strings of simple types");
+
+        return TypeParsers.get(unwrappedType)
             .getKey()
             .matcher(s)
             .matches();
@@ -499,5 +503,49 @@ public final class Reflect {
         }
 
         return array;
+    }
+
+    /**
+     * Returns if the specified {@link Class} is assignable from any of the classes in the {@link Collection}
+     *
+     * @param clazz
+     *      The {@link Class} that you want to check if its assignable from
+     * @param from
+     *      The {@link Collection} of classes that the class could be assignable from
+     *
+     * @return If the specified {@link Class} is assignable from any of the classes in the {@link Collection}
+     */
+    public static boolean isAssignableFrom(Class<?> clazz, Collection<Class<?>> from)
+    {
+        if (from.contains(clazz))
+            return true;
+
+        for (Class<?> fromElement : from) {
+            if (clazz.isAssignableFrom(fromElement))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns an {@link Optional} containing the {@link Class} which the specified class is assignable from
+     *
+     * @param clazz
+     *      The {@link Class} that you want to check if its assignable from
+     * @param from
+     *      The {@link Collection} of classes that the class could be assignable from
+     *
+     * @return An {@link Optional} containing the {@link Class} which the specified class is assignable from
+     */
+    public static Optional<Class<?>> getAssignableFrom(Class<?> clazz, Collection<Class<?>> from)
+    {
+        if (from.contains(clazz))
+            return Optional.of(clazz);
+
+        for (Class<?> fromElement : from) {
+            if (clazz.isAssignableFrom(fromElement))
+                return Optional.of(fromElement);
+        }
+        return Optional.empty();
     }
 }

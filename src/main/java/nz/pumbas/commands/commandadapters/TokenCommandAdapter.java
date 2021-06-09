@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Optional;
 
 import nz.pumbas.commands.CommandMethod;
@@ -61,7 +60,7 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
     @Override
     protected boolean handleCommandMethodCall(@NotNull MessageReceivedEvent event,
                                               @NotNull CommandMethod commandMethod,
-                                              @Nullable String content) throws OutputException
+                                              @NotNull String content) throws OutputException
     {
         if (!(commandMethod instanceof TokenCommand))
             return false;
@@ -69,11 +68,8 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
         TokenCommand tokenCommand = (TokenCommand) commandMethod;
         InvocationTokenInfo invocationToken = InvocationTokenInfo.of(content).saveState(this);
         if (tokenCommand.matches(invocationToken)) {
-            Optional<Object> oResult = tokenCommand.invoke(invocationToken.restoreState(this), event);
-            oResult.ifPresent(result ->
-                event.getChannel()
-                    .sendMessage(result.toString())
-                    .queue());
+            Optional<Object> oResult = tokenCommand.invoke(invocationToken.restoreState(this), event, this);
+            super.displayCommandMethodResult(event, oResult);
 
             return true;
         }

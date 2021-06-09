@@ -2,6 +2,7 @@ package nz.pumbas.commands.commandadapters;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -13,7 +14,9 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import nz.pumbas.commands.CommandManager;
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.annotations.Command;
@@ -42,13 +45,28 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      *
      * @return {@link AbstractCommandAdapter Itself}
      */
-    public AbstractCommandAdapter registerCommands(Object... instances)
+    public AbstractCommandAdapter registerCommands(@NotNull Object... instances)
     {
         for (Object instance : instances) {
             this.registerCommandMethods(instance, Reflect.getAnnotatedMethods(
                 instance.getClass(), Command.class, false));
         }
         return this;
+    }
+
+    /**
+     * Retrieves the {@link CommandMethod} that matches the specified command alias.
+     *
+     * @param commandAlias
+     *      The {@link String} command alias of the {@link CommandMethod}
+     *
+     * @return An {@link Optional} containing the {@link CommandMethod} if present
+     */
+    public Optional<CommandMethod> getCommandMethod(@NotNull String commandAlias)
+    {
+        if (!this.registeredCommands.containsKey(commandAlias))
+            return Optional.empty();
+        return Optional.of(this.registeredCommands.get(commandAlias));
     }
 
     /**
@@ -65,7 +83,10 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 
         String[] splitText = event.getMessage().getContentRaw().split(" ", 2);
         String commandAlias = splitText[0].toLowerCase();
-        String content = 2 == splitText.length ? splitText[1] : null;
+        String content = 2 == splitText.length ? splitText[1] : "";
+
+//        if ("$halp".equals(commandAlias) && this.registeredCommands.containsKey(content.toLowerCase()))
+//            this.handleHelpCommand(event,content.toLowerCase());
 
         if (this.registeredCommands.containsKey(commandAlias)) {
             CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
@@ -73,19 +94,61 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             try {
                 if (!this.handleCommandMethodCall(event, commandMethod, content)) {
                     //Content didn't match the required format of the command
-                    event.getChannel().sendMessage(
-                        new EmbedBuilder()
-                            .setColor(Color.cyan)
-                            .setTitle("HALP")
-                            .addField(commandAlias, "There seemed to be an error in the formatting of " +
-                                "your command usage", false)
-                            .build()
-                    ).queue();
+                    event.getChannel()
+                        .sendMessage(
+                        this.buildHelpMessage(commandAlias, commandMethod,
+                            "There seemed to be an error in the formatting of your command usage"))
+                        .queue();
                 }
             } catch (OutputException e) {
                 ErrorManager.handle(event, e);
             }
         }
+    }
+
+    /**
+     * Builds the help {@link MessageEmbed} describing the {@link CommandMethod}.
+     *
+     * @param commandAlias
+     *      The {@link String} alias for this command
+     * @param commandMethod
+     *      The {@link CommandMethod} which correlates to this command
+     * @param message
+     *      Any message that you want to be included in the help embed
+     *
+     * @return The {@link MessageEmbed} for the help message
+     */
+    public static MessageEmbed buildHelpMessage(@NotNull String commandAlias, @NotNull CommandMethod commandMethod,
+                                                @NotNull String message)
+    {
+        return new EmbedBuilder()
+            .setColor(Color.cyan)
+            .setTitle("HALP")
+            .addField(commandAlias, message, false)
+            .addField("Usage", commandMethod.getDisplayCommand(), true)
+            .addField("Description", commandMethod.getDescription(), true)
+            .build();
+    }
+
+    /**
+     * Handles the calling and creation of the help command if invoked.
+     *
+     * @param event
+     *      The {@link MessageReceivedEvent} that this was received from
+     * @param commandAlias
+     *      The {@link String} alias for the command that you want the help message displayed for
+     */
+    protected void handleHelpCommand(@NotNull MessageReceivedEvent event, @NotNull String commandAlias)
+    {
+        if (commandAlias.isEmpty()) {
+            event.getChannel().sendMessage("I will try my very best!").queue();
+            return;
+        }
+
+        CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
+        event.getChannel()
+            .sendMessage(buildHelpMessage(commandAlias, commandMethod, "Here's the overview"))
+            .queue();
     }
 
     /**
@@ -126,6 +189,28 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     }
 
     /**
+     * Displays the result of a {@link CommandMethod}. If this is a {@link MessageEmbed}, it will be automatically
+     * cast and sent as such.
+     *
+     * @param event
+     *      The {@link MessageReceivedEvent} event that was sent
+     * @param oResult
+     *      The {@link Optional<Object>} that was returned by the {@link CommandMethod}
+     */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    protected void displayCommandMethodResult(@NotNull MessageReceivedEvent event, @NotNull Optional<Object> oResult)
+    {
+        if (oResult.isEmpty())
+            return;
+
+        Object result = oResult.get();
+        if (result instanceof MessageEmbed)
+            event.getChannel().sendMessage((MessageEmbed) result).queue();
+        else
+            event.getChannel().sendMessage(result.toString()).queue();
+    }
+
+    /**
      * Creates a {@link CommandMethod} from the specified information.
      *
      * @param instance
@@ -156,5 +241,5 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      */
     protected abstract boolean handleCommandMethodCall(@NotNull MessageReceivedEvent event,
                                                        @NotNull CommandMethod commandMethod,
-                                                       @Nullable String content) throws OutputException;
+                                                       @NotNull String content) throws OutputException;
 }

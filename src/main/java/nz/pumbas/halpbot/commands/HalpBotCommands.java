@@ -13,12 +13,6 @@ import nz.pumbas.halpbot.customparameters.Vector2;
 public class HalpBotCommands
 {
 
-    @Command(alias = "halp")
-    public void onHalp(MessageReceivedEvent event)
-    {
-        event.getChannel().sendMessage("I will try my very best!").queue();
-    }
-
     @Command(alias = "source")
     public void onSource(MessageReceivedEvent event)
     {

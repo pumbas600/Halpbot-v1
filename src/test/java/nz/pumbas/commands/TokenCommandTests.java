@@ -35,13 +35,27 @@ public class TokenCommandTests
         TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Optional<Object> result1 = tokenCommand.invoke(InvocationTokenInfo.of("1 [2 1 4 3]"), null);
-        Optional<Object> result2 = tokenCommand.invoke(InvocationTokenInfo.of("2 [9 5 4 3]"), null);
+        Optional<Object> result1 = tokenCommand.invoke(InvocationTokenInfo.of("1 [2 1 4 3]"),
+            null, null);
+        Optional<Object> result2 = tokenCommand.invoke(InvocationTokenInfo.of("2 [9 5 4 3]"),
+            null, null);
 
         Assertions.assertTrue(result1.isPresent());
         Assertions.assertTrue(result2.isPresent());
         Assertions.assertTrue((boolean) result1.get());
         Assertions.assertFalse((boolean) result2.get());
+    }
+
+    @Test
+    public void testDefaultValueForLastElementTest() {
+        TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
+            Reflect.getMethod(this, "containedWithinArrayTestMethod"));
+
+        Optional<Object> result1 = tokenCommand.invoke(InvocationTokenInfo.of("1"),
+            null, null);
+
+        Assertions.assertTrue(result1.isPresent());
+        Assertions.assertFalse((boolean) result1.get());
     }
 
     @Command(alias = "contained", description = "Returns if the item is within the specified elements")
@@ -64,7 +78,8 @@ public class TokenCommandTests
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("alpha")));
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 [1 4 c]")));
 
-        Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 [1 2 3]"), null);
+        Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 [1 2 3]"),
+            null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertTrue((boolean) result.get());
 
@@ -80,7 +95,8 @@ public class TokenCommandTests
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("Vector3[3 1]")));
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("[3 1 2]")));
 
-        Optional<Object> result = command.invoke(InvocationTokenInfo.of("#Vector3[1 2 3]"), null);
+        Optional<Object> result = command.invoke(InvocationTokenInfo.of("#Vector3[1 2 3]"),
+            null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(2, (double) result.get());
 
@@ -102,7 +118,8 @@ public class TokenCommandTests
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 Hi")));
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("a 1 2 Hi")));
 
-        Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 3 2 1 4 Heyo"), null);
+        Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 3 2 1 4 Heyo"),
+            null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals("2: [3, 2, 1, 4]: Heyo", result.get());
     }
@@ -125,7 +142,7 @@ public class TokenCommandTests
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("")));
 
         Optional<Object> result = command.invoke(InvocationTokenInfo.of("#Shape[Rectangle 200 50 100 25] " +
-            "#Shape[Rectangle 50 200 25 150]"), null);
+            "#Shape[Rectangle 50 200 25 150]"), null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(20000D, (double) result.get());
     }
@@ -138,5 +155,25 @@ public class TokenCommandTests
         }
 
         return totalArea;
+    }
+
+    @Test
+    public void stringDefaultValueTest() {
+        TokenCommand command = TokenManager.generateTokenCommand(this,
+            Reflect.getMethod(this,"stringDefaultValueMethodTest"));
+
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("Hi")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("-1")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("a -1")));
+
+        Optional<Object> oResult = command.invoke(InvocationTokenInfo.of(""), null, null);
+        Assertions.assertTrue(oResult.isPresent());
+        Assertions.assertEquals("", oResult.get());
+    }
+
+    @Command(alias = "test")
+    private String stringDefaultValueMethodTest(@Unrequired String string) {
+        return string;
     }
 }

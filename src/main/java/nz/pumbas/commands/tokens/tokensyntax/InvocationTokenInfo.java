@@ -17,7 +17,7 @@ public class InvocationTokenInfo
 
     protected InvocationTokenInfo(@NotNull String invocationToken)
     {
-        this.original = null == invocationToken ? "" : invocationToken;
+        this.original = invocationToken;
     }
 
     /**
@@ -42,14 +42,14 @@ public class InvocationTokenInfo
     }
 
     /**
-     * @return The next {@link String token} (Split on spaces) from the current index or null if there are no more
-     * tokens;
+     * @return The next {@link String token} (Split on spaces) from the current index or an empty
+     * {@link String} if there are no more tokens;
      */
-    @Nullable
+    @NotNull
     public String getNext()
     {
         if (!this.hasNext())
-            return null;
+            return "";
 
         int endIndex = this.original.indexOf(" ", this.currentIndex);
 

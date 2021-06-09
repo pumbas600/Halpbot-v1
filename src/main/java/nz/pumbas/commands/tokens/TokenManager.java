@@ -1,5 +1,11 @@
 package nz.pumbas.commands.tokens;
 
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +17,7 @@ import nz.pumbas.commands.annotations.CustomParameter;
 import nz.pumbas.commands.annotations.ParameterConstruction;
 import nz.pumbas.commands.annotations.TokenSyntaxDefinition;
 import nz.pumbas.commands.annotations.Unrequired;
+import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.exceptions.IllegalTokenSyntaxDefinitionException;
@@ -26,10 +33,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -45,12 +54,48 @@ public final class TokenManager {
     private static final Map<Class<?>, List<TokenCommand>> CustomClassConstructors = new HashMap<>();
 
     /**
+     * A {@link Map} which maps custom parameter types in methods to a {@link BiFunction} that retrieves the value.
+     */
+    private static final Map<Class<?>, BiFunction<MessageReceivedEvent, AbstractCommandAdapter, Object>>
+        CustomParameterMappings = Map.of(
+            GenericEvent.class,           (e, a) -> e,
+            AbstractCommandAdapter.class, (e, a) -> a,
+            MessageChannel.class,         (e, a) -> e.getChannel(),
+            User.class,                   (e, a) -> e.getAuthor(),
+            ChannelType.class,            (e, a) -> e.getChannelType(),
+            Guild.class,                  (e, a) -> e.getGuild()
+    );
+
+    /**
      * A {@link List} containing the registered {@link TokenSyntaxDefinition}.
      */
     private static final List<Method> RegisteredTokenSyntaxDefinitions = new ArrayList<>();
 
     static {
         registerTokenSyntax(TokenSyntaxDefinitions.class);
+    }
+
+    /**
+     * @return A {@link Collection} of the supported custom parameter types.
+     */
+    public static Collection<Class<?>> getCustomParameterTypes()
+    {
+        return CustomParameterMappings.keySet();
+    }
+
+    /**
+     * Retrieves the {@link BiFunction custom parameter mapper} for the specified {@link Class}. If the class isn't a
+     * custom parameter, a function that always returns null is returned instead.
+     *
+     * @param customParameter
+     *      The {@link Class} of the custom parameter
+     *
+     * @return The {@link BiFunction custom parameter mapper} for the specified {@link Class}
+     */
+    public static BiFunction<MessageReceivedEvent, AbstractCommandAdapter, Object> getCustomParameterMapper(
+        @NotNull Class<?> customParameter)
+    {
+        return CustomParameterMappings.getOrDefault(customParameter, (e, a) -> null);
     }
 
     /**
@@ -193,9 +238,9 @@ public final class TokenManager {
         for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++) {
             Class<?> parameterType = parameterTypes[parameterIndex];
 
-            if (parameterType.isAssignableFrom(MessageReceivedEvent.class)) continue;
+            if (Reflect.isAssignableFrom(parameterType, CustomParameterMappings.keySet())) continue;
 
-            String command = "#" + parameterType.getSimpleName();
+            String command = "#" + getTypeAlias(parameterType);
 
             if (Reflect.retrieveAnnotation(
                 parameterAnnotations[parameterIndex], Unrequired.class).isPresent()) {
@@ -224,6 +269,27 @@ public final class TokenManager {
     }
 
     /**
+     * Generates an {@link TokenCommand} from the passed in {@link Object instance} and {@link Method} and
+     * {@link Command}.
+     *
+     * @param instance
+     *      The {@link Object} that the {@link Method} belongs to
+     * @param method
+     *      The {@link Method} to make the command from
+     * @param command
+     *      The {@link Command} for this command
+     *
+     * @return A {@link TokenCommand} representing the specified {@link Method}
+     */
+    public static TokenCommand generateTokenCommand(Object instance, Method method, Command command)
+    {
+        String displayCommand = retrieveDisplayCommand(method);
+
+        return new TokenCommand(instance, method, parseCommand(method, displayCommand),
+            displayCommand, command.description());
+    }
+
+    /**
      * Generates a {@link List} of {@link CommandToken command tokens} from the specified {@link Method}.
      *
      * @param method
@@ -233,22 +299,50 @@ public final class TokenManager {
      */
     public static List<CommandToken> parseCommand(Method method)
     {
-        if (!method.isAnnotationPresent(Command.class))
-            throw new IllegalCommandException(
-                    String.format("Cannot parse the method %s as it isn't annotated with Command", method.getName()));
+        String displayCommand = retrieveDisplayCommand(method);
+        return parseCommand(method, displayCommand);
+    }
 
-        Command command = method.getAnnotation(Command.class);
+    /**
+     * Generates a {@link List} of {@link CommandToken command tokens} from the specified {@link Method}.
+     *
+     * @param method
+     *      The {@link Method} to generate the {@link CommandToken command tokens} from
+     * @param displayCommand
+     *      The {@link String display command} for this method
+     *
+     * @return A {@link List} of {@link CommandToken command tokens} representing the {@link Method}
+     */
+    public static List<CommandToken> parseCommand(Method method, String displayCommand)
+    {
         Class<?>[] parameterTypes = method.getParameterTypes();
         int startParameterIndex = 0;
 
         if (0 < parameterTypes.length && parameterTypes[0].isAssignableFrom(MessageReceivedEvent.class))
             startParameterIndex = 1;
 
-        String tokenCommand = command.command().isEmpty()
-                ? generateCommand(parameterTypes, method.getParameterAnnotations())
-                : command.command();
 
-        return parseCommand(tokenCommand, parameterTypes, startParameterIndex, method.getParameterAnnotations());
+        return parseCommand(displayCommand, parameterTypes, startParameterIndex, method.getParameterAnnotations());
+    }
+
+    /**
+     * Retrieves the {@link String display command} for the specified {@link Method}.
+     *
+     * @param method
+     *      The {@link Method} to retrieve the display command for
+     *
+     * @return The {@link String} display command
+     */
+    public static String retrieveDisplayCommand(Method method)
+    {
+        if (!method.isAnnotationPresent(Command.class))
+            throw new IllegalCommandException(
+                String.format("Cannot parse the method %s as it isn't annotated with Command", method.getName()));
+
+        Command command = method.getAnnotation(Command.class);
+        return command.command().isEmpty()
+            ? generateCommand(method.getParameterTypes(), method.getParameterAnnotations())
+            : command.command();
     }
 
     /**
@@ -408,7 +502,7 @@ public final class TokenManager {
      */
     public static boolean isValidCommandTypeToken(String token, Class<?> type) {
         String tokenIdentifier = token.substring(1);
-        return getTypeAlias(type).equalsIgnoreCase(tokenIdentifier);
+        return token.startsWith("#") && getTypeAlias(type).equalsIgnoreCase(tokenIdentifier);
     }
 
     /**
@@ -422,8 +516,12 @@ public final class TokenManager {
      */
     public static String getTypeAlias(Class<?> type)
     {
+        String defaultAlias = type.isArray()
+            ? Reflect.getPrimativeType(Reflect.getArrayType(type)).getSimpleName() + "[]"
+            : Reflect.getPrimativeType(type).getSimpleName();
+
         return type.isAnnotationPresent(CustomParameter.class)
                 ? type.getAnnotation(CustomParameter.class).identifier()
-                : type.getSimpleName();
+                : defaultAlias;
     }
 }
