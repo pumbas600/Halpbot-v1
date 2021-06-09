@@ -6,13 +6,20 @@ import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 public class MultiChoiceToken extends BuiltInTypeToken {
 
     private final List<String> options;
 
-    public MultiChoiceToken(boolean isOptional, Class<?> type, @Nullable String defaultValue, List<String> options) {
+    public MultiChoiceToken(boolean isOptional, @NotNull Class<?> type, @Nullable String defaultValue,
+                            @NotNull List<String> options) {
+        this(isOptional, type, defaultValue, options, new Annotation[0]);
+    }
+
+    public MultiChoiceToken(boolean isOptional, @NotNull Class<?> type, @Nullable String defaultValue,
+                            @NotNull List<String> options, @NotNull Annotation[] annotations) {
         this.isOptional = isOptional;
         this.type = type;
         if (!TokenManager.isBuiltInType(type))
@@ -21,6 +28,7 @@ public class MultiChoiceToken extends BuiltInTypeToken {
 
         this.options = options; // This needs to be set before calling parseDefaultValue as it calls the matches method
         this.defaultValue = this.parseDefaultValue(defaultValue);
+        this.annotations = annotations;
     }
 
     /**

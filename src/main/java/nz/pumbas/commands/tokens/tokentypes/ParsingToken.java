@@ -3,12 +3,19 @@ package nz.pumbas.commands.tokens.tokentypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
  */
 public interface ParsingToken extends CommandToken {
+
+    /**
+     * @return The {@link Annotation} annotations on this {@link ParsingToken}
+     */
+    Annotation[] getAnnotations();
 
     /**
      * @return The required {@link Class type} of this {@link ParsingToken}

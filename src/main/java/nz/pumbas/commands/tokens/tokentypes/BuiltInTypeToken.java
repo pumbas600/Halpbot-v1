@@ -8,13 +8,20 @@ import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.Utilities;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+
 public class BuiltInTypeToken implements ParsingToken
 {
     protected boolean isOptional;
     protected Class<?> type;
     protected Object defaultValue;
+    protected Annotation[] annotations;
 
     public BuiltInTypeToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
+        this(isOptional, type, defaultValue, new Annotation[0]);
+    }
+
+    public BuiltInTypeToken(boolean isOptional, Class<?> type, @Nullable String defaultValue, Annotation[] annotations) {
         this.isOptional = isOptional;
         if (!TokenManager.isBuiltInType(type))
             throw new IllegalArgumentException(
@@ -22,6 +29,7 @@ public class BuiltInTypeToken implements ParsingToken
 
         this.type = type;
         this.defaultValue = this.parseDefaultValue(defaultValue);
+        this.annotations = annotations;
     }
 
     protected BuiltInTypeToken() { }
@@ -51,6 +59,15 @@ public class BuiltInTypeToken implements ParsingToken
         }
 
         return Reflect.matches(invocationToken.getNext(), this.type);
+    }
+
+    /**
+     * @return The {@link Annotation} annotations on this {@link ParsingToken}
+     */
+    @Override
+    public Annotation[] getAnnotations()
+    {
+        return this.annotations;
     }
 
     /**

@@ -53,13 +53,13 @@ public final class TokenSyntaxDefinitions
         }
 
         else if (TokenManager.isBuiltInType(parameterType)) {
-            return new BuiltInTypeToken(isOptional, parameterType, defaultValue);
+            return new BuiltInTypeToken(isOptional, parameterType, defaultValue, commandTokenInfo.getAnnotations());
         }
         else if (parameterType.isArray()) {
-            return new ArrayToken(isOptional, parameterType, defaultValue);
+            return new ArrayToken(isOptional, parameterType, defaultValue, commandTokenInfo.getAnnotations());
         }
         else {
-            return new ObjectTypeToken(isOptional, parameterType, defaultValue);
+            return new ObjectTypeToken(isOptional, parameterType, defaultValue, commandTokenInfo.getAnnotations());
         }
     }
 
@@ -80,7 +80,7 @@ public final class TokenSyntaxDefinitions
 
         //Substring removes surrounding [...]
         List<String> options = List.of(token.substring(1, token.length() -1).split("\\|"));
-        return new MultiChoiceToken(isOptional, parameterType, defaultValue, options);
+        return new MultiChoiceToken(isOptional, parameterType, defaultValue, options, commandTokenInfo.getAnnotations());
     }
 
     @TokenSyntaxDefinition(Order.LAST)

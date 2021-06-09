@@ -395,6 +395,28 @@ public final class Reflect {
     }
 
     /**
+     * Checks an array of annotations for if it contains an annotation of the specified type.
+     *
+     * @param annotations
+     *     The array of annotations to search through
+     * @param annotationType
+     *     The type of the annotation to search for
+     * @param <T>
+     *     The type of the annotation
+     *
+     * @return An {@link Optional} containing the annotation if its present
+     */
+    public static <T extends Annotation> boolean hasAnnotation(Annotation[] annotations, Class<T> annotationType)
+    {
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().isAssignableFrom(annotationType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns an {@link Optional} containing the annotation if present.
      *
      * @param clazz

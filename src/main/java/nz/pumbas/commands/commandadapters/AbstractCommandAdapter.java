@@ -64,7 +64,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
         if (event.getAuthor().isBot()) return;
 
         String[] splitText = event.getMessage().getContentRaw().split(" ", 2);
-        String commandAlias = splitText[0];
+        String commandAlias = splitText[0].toLowerCase();
         String content = 2 == splitText.length ? splitText[1] : null;
 
         if (this.registeredCommands.containsKey(commandAlias)) {
@@ -119,7 +119,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
                     String.format("The alias %s has already been defined and so it can't be used by the method %s",
                         commandAlias, method.getName()));
             else {
-                this.registeredCommands.put(commandAlias,
+                this.registeredCommands.put(commandAlias.toLowerCase(),
                     this.createCommandMethod(instance, method, command));
             }
         }

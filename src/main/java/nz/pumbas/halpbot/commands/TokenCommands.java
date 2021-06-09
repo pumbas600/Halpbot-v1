@@ -2,13 +2,14 @@ package nz.pumbas.halpbot.commands;
 
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.CommandGroup;
+import nz.pumbas.commands.validation.Implicit;
 import nz.pumbas.halpbot.customparameters.Shape;
 
 @CommandGroup(defaultPrefix = "$")
 public class TokenCommands
 {
     @Command(alias = "centroid", description = "finds the centroid defined by the specified shapes")
-    public String findCentroid(Shape[] shapes)
+    public String findCentroid(@Implicit Shape[] shapes)
     {
         double sumAx = 0;
         double sumAy = 0;

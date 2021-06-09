@@ -5,13 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.annotations.Unrequired;
-import nz.pumbas.commands.tokens.TokenCommand;
-import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
-import nz.pumbas.utilities.Reflect;
 
 public class InvocationTokenInfoTests
 {

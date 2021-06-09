@@ -3,6 +3,7 @@ package nz.pumbas.commands.tokens.tokentypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Optional;
 import nz.pumbas.commands.tokens.TokenCommand;
@@ -14,11 +15,17 @@ public class ObjectTypeToken implements ParsingToken
     private final boolean isOptional;
     private final Class<?> type;
     private final Object defaultValue;
+    private final Annotation[] annotations;
 
     public ObjectTypeToken(boolean isOptional, Class<?> type, @Nullable String defaultValue) {
+        this (isOptional, type, defaultValue, new Annotation[0]);
+    }
+
+    public ObjectTypeToken(boolean isOptional, Class<?> type, @Nullable String defaultValue, Annotation[] annotations) {
         this.isOptional = isOptional;
         this.type = type;
         this.defaultValue = this.parseDefaultValue(defaultValue);
+        this.annotations = annotations;
     }
 
     /**
@@ -57,6 +64,15 @@ public class ObjectTypeToken implements ParsingToken
             return false;
         }
         return false;
+    }
+
+    /**
+     * @return The {@link Annotation} annotations on this {@link ParsingToken}
+     */
+    @Override
+    public Annotation[] getAnnotations()
+    {
+        return this.annotations;
     }
 
     /**

@@ -3,7 +3,6 @@ package nz.pumbas.commands;
 
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.Unrequired;
-import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
@@ -12,12 +11,10 @@ import nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken;
 import nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
-import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.ShapeType;
-import nz.pumbas.halpbot.customparameters.Vector3;
 import nz.pumbas.utilities.Reflect;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 
 public class TokenTests {
 
@@ -176,59 +172,6 @@ public class TokenTests {
         Assertions.assertTrue(multiChoiceToken.matches(InvocationTokenInfo.of("x-axis")));
         Assertions.assertTrue(multiChoiceToken.matches(InvocationTokenInfo.of("Y-axis")));
         Assertions.assertFalse(multiChoiceToken.matches(InvocationTokenInfo.of("axis")));
-    }
-
-    @Test
-    public void tokenCommandTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
-                Reflect.getMethod(this, "tokenCommandWithoutCommandDefinitionMethodTest"));
-
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 [1 3 3]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("3")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("alpha")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 [1 4 c]")));
-
-        try {
-            Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 [1 2 3]"), null);
-            Assertions.assertTrue(result.isPresent());
-            Assertions.assertTrue((boolean) result.get());
-        } catch (OutputException e) {
-            ErrorManager.handle(e);
-        }
-    }
-
-    @Command(alias="NoCommandDefinition", description = "Returns if the item is within the specified elements")
-    private boolean tokenCommandWithoutCommandDefinitionMethodTest(int item, @Unrequired("[]") int[] elements) {
-        for (int element : elements) {
-            if (element == item)
-                return true;
-        }
-        return false;
-    }
-
-    @Test
-    public void customObjectTokenCommandTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
-            Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
-
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Vector3[1 2 3]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Vector3[3 1]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("Vector3[3 1]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("[3 1 2]")));
-
-        try {
-            Optional<Object> result = command.invoke(InvocationTokenInfo.of("#Vector3[1 2 3]"), null);
-            Assertions.assertTrue(result.isPresent());
-            Assertions.assertEquals(2, (double) result.get());
-        } catch (OutputException e) {
-            ErrorManager.handle(e);
-        }
-    }
-
-    @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
-    private double customObjectTokenCommandMethodTest(Vector3 vector3) {
-        return vector3.getY();
     }
 
     @Test

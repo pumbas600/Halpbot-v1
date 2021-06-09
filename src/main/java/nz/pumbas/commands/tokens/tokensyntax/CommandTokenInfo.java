@@ -48,6 +48,14 @@ public class CommandTokenInfo
     }
 
     /**
+     * @return The {@link Annotation annotations} for the curent parameter
+     */
+    public Annotation[] getAnnotations()
+    {
+        return this.parameterAnnotations[this.currentParameterTypeIndex];
+    }
+
+    /**
      * Retrieves the specified {@link TokenBindingIdentifier} from the current token.
      *
      * @param identifier
