@@ -1,4 +1,4 @@
-package nz.pumbas.commands;
+package nz.pumbas.commands.regex;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;

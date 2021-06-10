@@ -2,13 +2,28 @@ package nz.pumbas.halpbot.commands
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.events.ReadyEvent
+import nz.pumbas.commands.OnReady
 import nz.pumbas.commands.annotations.Command
 import nz.pumbas.commands.annotations.Unrequired
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
 import nz.pumbas.halpbot.HalpBot
+import nz.pumbas.utilities.Utilities
 import java.awt.Color
 
-class KotlinCommands {
+class KotlinCommands : OnReady {
+
+    private lateinit var comfortingMessages: List<String>
+
+    /**
+     * A method that is called once after the bot has been initialised.
+     *
+     * @param event
+     *      The JDA [ReadyEvent].
+     */
+    override fun onReady(event: ReadyEvent) {
+        this.comfortingMessages = Utilities.getAllLinesFromFile("ComfortingMessages.txt")
+    }
 
     @Command(alias = "Halp", description = "Displays the help information for the specified command")
     fun halp(commandAdapter: AbstractCommandAdapter, @Unrequired commandAlias: String): Any {
@@ -21,9 +36,9 @@ class KotlinCommands {
             val stringBuilder = StringBuilder()
             for (command in registeredCommands) {
                 stringBuilder.append("\n**Usage**\n")
-                    .append(if (command.value.displayCommand?.isEmpty() == true) "N/A" else command.value.displayCommand)
+                    .append(if (command.value.displayCommand.isEmpty()) "N/A" else command.value.displayCommand)
                     .append("\n**Description**\n")
-                    .append(if (command.value.description?.isEmpty() == true) "N/A" else command.value.description)
+                    .append(if (command.value.description.isEmpty()) "N/A" else command.value.description)
 
                 embedBuilder.addField(command.key, stringBuilder.toString(), true)
                 stringBuilder.clear()
@@ -69,5 +84,10 @@ class KotlinCommands {
     @Command(alias = "Creator", description = "Creator only command :eyes:", restrictedTo = [HalpBot.CREATOR_ID])
     fun creator(): String {
         return "Hello there creator :wave:"
+    }
+
+    @Command(alias = "Comfort", description = "Sends a comforting message")
+    fun comfort() : String {
+        return Utilities.randomChoice(this.comfortingMessages)
     }
 }

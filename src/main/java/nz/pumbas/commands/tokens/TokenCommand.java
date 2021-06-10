@@ -80,16 +80,7 @@ public class TokenCommand implements CommandMethod
     }
 
     /**
-     * @return If the {@link CommandMethod} has a description
-     */
-    @Override
-    public boolean hasDescription()
-    {
-        return !this.description.isEmpty();
-    }
-
-    /**
-     * @return The {@link String description} if present, otherwise null
+     * @return The {@link String description}. Note if there is no description this will be empty
      */
     @Override
     public @NotNull String getDescription()
@@ -109,6 +100,7 @@ public class TokenCommand implements CommandMethod
     /**
      * @return The {@link String permission} for this command. If there is no permission, this will an empty string
      */
+    @Override
     public @NotNull String getPermission()
     {
         return this.permission;
@@ -117,9 +109,19 @@ public class TokenCommand implements CommandMethod
     /**
      * @return The {@link List<Long>} of user ids for who this command is restricted to
      */
+    @Override
     public @NotNull List<Long> getRestrictedTo()
     {
         return this.restrictedTo;
+    }
+
+    /**
+     * @return The {@link Object} instance for this {@link CommandMethod}
+     */
+    @Override
+    public @Nullable Object getInstance()
+    {
+        return this.instance;
     }
 
     /**
@@ -196,37 +198,38 @@ public class TokenCommand implements CommandMethod
         Class<?>[] parameterTypes = this.executable.getParameterTypes();
 
         int tokenIndex = 0;
-        for (int parameterIndex = 0; parameterIndex < parsedTokens.length; parameterIndex++) {
+        int parameterIndex = 0;
+        while (parameterIndex < parsedTokens.length) {
             Optional<Class<?>> assignableFromClass = Reflect.getAssignableFrom(
                 parameterTypes[parameterIndex], TokenManager.getCustomParameterTypes());
 
             if (assignableFromClass.isPresent()) {
-                parsedTokens[parameterIndex] =
+                parsedTokens[parameterIndex++] =
                     TokenManager.getCustomParameterMapper(assignableFromClass.get()).apply(event, commandAdapter);
-                continue;
-            }
-
-            CommandToken currentCommandToken = this.commandTokens.get(tokenIndex);
-            invocationToken.saveState(this);
-            if (invocationToken.hasNext() && currentCommandToken.matches(invocationToken)) {
-                invocationToken.restoreState(this);
-                if (currentCommandToken instanceof ParsingToken) {
-                    parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).parse(invocationToken);
-                }
-                tokenIndex++;
-            }
-            else if (currentCommandToken.isOptional()) {
-                invocationToken.restoreState(this);
-                if (currentCommandToken instanceof ParsingToken) {
-                    parsedTokens[parameterIndex] = ((ParsingToken) currentCommandToken).getDefaultValue();
-                }
-                tokenIndex++;
             }
             else {
-                throw new IllegalArgumentException(
-                    String.format("There was an error parsing the invocation tokens %s, as they don't match this " +
-                        "command. Make sure to check the invocation tokens match by first calling the matches " +
-                        "method.", invocationToken.getOriginal()));
+                CommandToken currentCommandToken = this.commandTokens.get(tokenIndex++);
+                invocationToken.saveState(this);
+                if (invocationToken.hasNext() && currentCommandToken.matches(invocationToken))
+                {
+                    if (currentCommandToken instanceof ParsingToken) {
+                        parsedTokens[parameterIndex++] =
+                            ((ParsingToken) currentCommandToken).parse(invocationToken.restoreState(this));
+                    }
+                }
+                else if (currentCommandToken.isOptional())
+                {
+                    invocationToken.restoreState(this);
+                    if (currentCommandToken instanceof ParsingToken) {
+                        parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).parse(invocationToken);
+                    }
+                }
+                else {
+                    throw new IllegalArgumentException(
+                        String.format("There was an error parsing the invocation tokens %s, as they don't match this " +
+                            "command. Make sure to check the invocation tokens match by first calling the matches " +
+                            "method.", invocationToken.getOriginal()));
+                }
             }
         }
 

@@ -3,6 +3,8 @@ package nz.pumbas.commands.commandadapters;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -15,10 +17,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
+import nz.pumbas.commands.OnReady;
+import nz.pumbas.commands.OnShutdown;
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.OutputException;
@@ -177,6 +184,49 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             event.getChannel().sendMessage((MessageEmbed) result).queue();
         else
             event.getChannel().sendMessage(result.toString()).queue();
+    }
+
+    /**
+     * Passes the {@link ReadyEvent} to all the registered instances of {@link OnReady}.
+     *
+     * @param event
+     *      The JDA {@link ReadyEvent}
+     */
+    @Override
+    public void onReady(@NotNull ReadyEvent event)
+    {
+        this.getUniqueCommandMethodInstances()
+            .stream()
+            .filter(o -> o instanceof OnReady)
+            .forEach(o -> ((OnReady)o).onReady(event));
+    }
+
+    /**
+     * Passes the {@link ShutdownEvent} to all the registered instances of {@link OnShutdown}.
+     *
+     * @param event
+     *      The JDA {@link ShutdownEvent}
+     */
+    @Override
+    public void onShutdown(@NotNull ShutdownEvent event)
+    {
+        this.getUniqueCommandMethodInstances()
+            .stream()
+            .filter(o -> o instanceof OnShutdown)
+            .forEach(o -> ((OnShutdown)o).onShutDown(event));
+    }
+
+    /**
+     * @return A {@link Set} containing the unique {@link Object instances} for the registered {@link CommandMethod
+     *      command methods}
+     */
+    private Set<Object> getUniqueCommandMethodInstances()
+    {
+        return this.registeredCommands.values()
+            .stream()
+            .map(CommandMethod::getInstance)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
     }
 
     /**

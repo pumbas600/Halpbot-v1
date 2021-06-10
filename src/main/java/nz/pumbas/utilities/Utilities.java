@@ -18,7 +18,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -97,6 +102,27 @@ public final class Utilities
             if (i >= objects.length || i >= list.size()) break;
 
             objects[i] = list.get(i);
+        }
+    }
+
+    /**
+     * Retrieves all the lines from a resource file as a {@link List<String>}.
+     *
+     * @param filename
+     *      The {@link String name} of the resource file
+     *
+     * @return A {@link List<String>} with all the lines from the file in it
+     */
+    public static List<String> getAllLinesFromFile(String filename)
+    {
+        try {
+            return Files.readAllLines(
+                Paths.get(ClassLoader.getSystemClassLoader()
+                    .getResource(filename)
+                    .toURI()));
+        } catch (IOException | URISyntaxException e) {
+            ErrorManager.handle(e);
+            return new ArrayList<>();
         }
     }
 
@@ -289,33 +315,6 @@ public final class Utilities
     }
 
     /**
-     * Generates a ARGB {@link BufferedImage} of the specified size, using an {@link BiFunction} which takes in a pixels x
-     * and y position respectively and returns a integer specifying the colour for that pixel.
-     *
-     * @param width
-     *      The width of the image in pixels
-     * @param height
-     *      The height of the image in pixels
-     * @param positionFunction
-     *      The {@link BiFunction} which specifies a pixels colour based on its x and y position respectively
-     *
-     * @return The generated {@link BufferedImage}
-     */
-    public static BufferedImage generateImageByPosition(int width, int height,
-                                                        @NotNull BiFunction<Integer, Integer, Integer> positionFunction)
-    {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                int colour = positionFunction.apply(x, y);
-                image.setRGB(x, y, colour);
-            }
-        }
-
-        return image;
-    }
-
-    /**
      * Converts an {@link BufferedImage} to an array of bytes.
      *
      * @param image
@@ -403,5 +402,14 @@ public final class Utilities
             Array.set(array, index++, iterator.next());
         }
         return array;
+    }
+
+    public static <T> T randomChoice(List<T> list)
+    {
+        if (list.isEmpty())
+            throw new IllegalArgumentException("Can't randomly choose an element from an empty array");
+
+        Random random = new Random();
+        return list.get(random.nextInt(list.size()));
     }
 }

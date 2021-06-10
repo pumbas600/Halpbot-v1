@@ -1,10 +1,11 @@
-package nz.pumbas.commands;
+package nz.pumbas.commands.regex;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.annotations.Unrequired;
 
 import org.jetbrains.annotations.NotNull;

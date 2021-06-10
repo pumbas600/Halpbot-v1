@@ -1,4 +1,4 @@
-package nz.pumbas.commands;
+package nz.pumbas.commands.regex;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import nz.pumbas.commands.CommandMethod;
+import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.exceptions.OutputException;
 
-public class RegexCommand implements CommandMethod
+public class RegexCommand
 {
 
     private final @NotNull Method method;
@@ -70,9 +72,17 @@ public class RegexCommand implements CommandMethod
         return this.command;
     }
 
-    public String getDisplayCommand()
+    public @NotNull String getDisplayCommand()
     {
         return this.displayCommand;
+    }
+
+    /**
+     * @return The {@link Object} instance for this {@link CommandMethod}
+     */
+    public @NotNull Object getInstance()
+    {
+        return this.object;
     }
 
     public boolean hasCommand()
