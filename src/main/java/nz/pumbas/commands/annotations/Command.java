@@ -16,4 +16,8 @@ public @interface Command
     String command() default "";
 
     String description() default "";
+
+    String permission() default "";
+
+    long[] restrictedTo() default -1;
 }

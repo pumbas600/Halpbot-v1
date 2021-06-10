@@ -26,6 +26,8 @@ import nz.pumbas.processes.PipeProcess;
 
 public class HalpBot extends ListenerAdapter
 {
+    public static final long CREATOR_ID = 260930648330469387L;
+
     private final JDA jda;
     private final PipeProcess process;
 
@@ -45,7 +47,7 @@ public class HalpBot extends ListenerAdapter
             new CalculusCommands(this.process),
             new VectorCommands()
         );
-        new TokenCommandAdapter(builder)
+        new TokenCommandAdapter(builder, "$")
             .registerCommands(
                 new TokenCommands(),
                 new KotlinCommands());

@@ -18,9 +18,9 @@ import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 
 public class TokenCommandAdapter extends AbstractCommandAdapter
 {
-    public TokenCommandAdapter(@Nullable JDABuilder builder)
+    public TokenCommandAdapter(@Nullable JDABuilder builder, String commandPrefix)
     {
-        super(builder);
+        super(builder, commandPrefix);
     }
 
     /**
@@ -66,6 +66,10 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
             return false;
 
         TokenCommand tokenCommand = (TokenCommand) commandMethod;
+        //If the command has been restricted and you're not whitelisted
+        if (!tokenCommand.getRestrictedTo().isEmpty() && !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()))
+            return false;
+
         InvocationTokenInfo invocationToken = InvocationTokenInfo.of(content).saveState(this);
         if (tokenCommand.matches(invocationToken)) {
             Optional<Object> oResult = tokenCommand.invoke(invocationToken.restoreState(this), event, this);

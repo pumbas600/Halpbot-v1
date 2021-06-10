@@ -18,6 +18,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,8 @@ public class TokenCommand implements CommandMethod
     private final @NotNull List<CommandToken> commandTokens;
     private final @NotNull String displayCommand;
     private final @NotNull String description;
+    private final @NotNull String permission;
+    private final @NotNull List<Long> restrictedTo;
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
         this.instance = instance;
@@ -39,39 +42,40 @@ public class TokenCommand implements CommandMethod
         this.commandTokens = commandTokens;
         this.description = "";
         this.displayCommand = "";
+        this.permission = "";
+        this.restrictedTo = new ArrayList<>();
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
                         @NotNull List<CommandToken> commandTokens, @NotNull String displayCommand,
-                        @NotNull String description) {
+                        @NotNull String description, @NotNull String permission, @NotNull List<Long> restrictedTo) {
         this.instance = instance;
         this.executable = executable;
         this.commandTokens = commandTokens;
         this.displayCommand = displayCommand;
         this.description = description;
+        this.permission = permission;
+        this.restrictedTo = restrictedTo;
     }
 
     /**
      * @return The {@link Executable} for this {@link nz.pumbas.commands.annotations.Command}
      */
-    @NotNull
-    public Executable getExecutable() {
+    public @NotNull Executable getExecutable() {
         return this.executable;
     }
 
     /**
      * @return An {@link List} of {@link CommandToken command tokens} representing this {@link nz.pumbas.commands.annotations.Command}
      */
-    @NotNull
-    public List<CommandToken> getCommandTokens() {
+    public @NotNull List<CommandToken> getCommandTokens() {
         return this.commandTokens;
     }
 
     /**
      * @return The an array of the {@link Class parameter types} of the {@link Executable} for this {@link nz.pumbas.commands.annotations.Command}
      */
-    @NotNull
-    public Class<?>[] getParameterTypes() {
+    public @NotNull Class<?>[] getParameterTypes() {
         return this.executable.getParameterTypes();
     }
 
@@ -88,8 +92,7 @@ public class TokenCommand implements CommandMethod
      * @return The {@link String description} if present, otherwise null
      */
     @Override
-    @NotNull
-    public String getDescription()
+    public @NotNull String getDescription()
     {
         return this.description;
     }
@@ -98,10 +101,25 @@ public class TokenCommand implements CommandMethod
      * @return The {@link String} representation of the command
      */
     @Override
-    @NotNull
-    public String getDisplayCommand()
+    public @NotNull String getDisplayCommand()
     {
         return this.displayCommand;
+    }
+
+    /**
+     * @return The {@link String permission} for this command. If there is no permission, this will an empty string
+     */
+    public @NotNull String getPermission()
+    {
+        return this.permission;
+    }
+
+    /**
+     * @return The {@link List<Long>} of user ids for who this command is restricted to
+     */
+    public @NotNull List<Long> getRestrictedTo()
+    {
+        return this.restrictedTo;
     }
 
     /**

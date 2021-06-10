@@ -33,6 +33,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -286,7 +287,27 @@ public final class TokenManager {
         String displayCommand = retrieveDisplayCommand(method);
 
         return new TokenCommand(instance, method, parseCommand(method, displayCommand),
-            displayCommand, command.description());
+            displayCommand, command.description(), command.permission(), getRestrictedToList(command.restrictedTo()));
+    }
+
+    /**
+     * Retrieves a {@link List} of the ids of who can use this command.
+     *
+     * @param restrictedTo
+     *      The array of user ids of who can use this command
+     *
+     * @return A {@link List} of the ids of who can use this command.
+     */
+    private static List<Long> getRestrictedToList(long[] restrictedTo)
+    {
+        if (1 == restrictedTo.length && -1 == restrictedTo[0])
+            return new ArrayList<>();
+
+        List<Long> restrictedToList = new ArrayList<>();
+        for (long user : restrictedTo)
+            restrictedToList.add(user);
+
+        return restrictedToList;
     }
 
     /**

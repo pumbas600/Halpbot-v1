@@ -11,32 +11,33 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import nz.pumbas.commands.CommandManager;
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter
 {
-    private final long CREATOR_ID = 260930648330469387L;
 
     /**
      * A map of the registered {@link String command aliases} and their respective {@link CommandMethod}.
      */
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
 
-    protected AbstractCommandAdapter(@Nullable JDABuilder builder)
+    protected final String commandPrefix;
+
+    protected AbstractCommandAdapter(@Nullable JDABuilder builder, String commandPrefix)
     {
         builder.addEventListeners(this);
+        this.commandPrefix = commandPrefix;
     }
 
     /**
@@ -87,9 +88,6 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
         String commandAlias = splitText[0].toLowerCase();
         String content = 2 == splitText.length ? splitText[1] : "";
 
-//        if ("$halp".equals(commandAlias) && this.registeredCommands.containsKey(content.toLowerCase()))
-//            this.handleHelpCommand(event,content.toLowerCase());
-
         if (this.registeredCommands.containsKey(commandAlias)) {
             CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
 
@@ -98,7 +96,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
                     //Content didn't match the required format of the command
                     event.getChannel()
                         .sendMessage(
-                        this.buildHelpMessage(commandAlias, commandMethod,
+                        buildHelpMessage(commandAlias, commandMethod,
                             "There seemed to be an error in the formatting of your command usage"))
                         .queue();
                 }
@@ -134,27 +132,6 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     }
 
     /**
-     * Handles the calling and creation of the help command if invoked.
-     *
-     * @param event
-     *      The {@link MessageReceivedEvent} that this was received from
-     * @param commandAlias
-     *      The {@link String} alias for the command that you want the help message displayed for
-     */
-    protected void handleHelpCommand(@NotNull MessageReceivedEvent event, @NotNull String commandAlias)
-    {
-        if (commandAlias.isEmpty()) {
-            event.getChannel().sendMessage("I will try my very best!").queue();
-            return;
-        }
-
-        CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
-        event.getChannel()
-            .sendMessage(buildHelpMessage(commandAlias, commandMethod, "Here's the overview"))
-            .queue();
-    }
-
-    /**
      * Registers the {@link Method methods} and generates {@link CommandMethod command methods} for each one.
      *
      * @param instance
@@ -164,22 +141,11 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      */
     protected void registerCommandMethods(@NotNull Object instance, @NotNull List<Method> annotatedMethods)
     {
-        String defaultPrefix = Reflect.getAnnotationFieldElse(
-            instance.getClass(),
-            CommandGroup.class,
-            CommandGroup::defaultPrefix, "");
-        boolean hasDefaultPrefix = !defaultPrefix.isEmpty();
-
         for (Method method : annotatedMethods) {
             method.setAccessible(true);
             Command command = method.getAnnotation(Command.class);
-            boolean hasPrefix = !command.prefix().isEmpty();
 
-            if (!hasDefaultPrefix && !hasPrefix)
-                throw new IllegalCommandException(
-                    String.format("There's no default prefix for the method %s, so the command must define one.", method.getName()));
-
-            String commandAlias = (hasPrefix ? command.prefix() : defaultPrefix) + command.alias();
+            String commandAlias = this.getCommandPrefix() + command.alias();
             if (this.registeredCommands.containsKey(commandAlias))
                 throw new IllegalCommandException(
                     String.format("The alias %s has already been defined and so it can't be used by the method %s",
@@ -211,6 +177,22 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             event.getChannel().sendMessage((MessageEmbed) result).queue();
         else
             event.getChannel().sendMessage(result.toString()).queue();
+    }
+
+    /**
+     * @return The {@link String command prefix} for this command adapter
+     */
+    public String getCommandPrefix()
+    {
+        return this.commandPrefix;
+    }
+
+    /**
+     * @return The registered {@link CommandMethod command methods} in an unmodifiable {@link Map}
+     */
+    public Map<String, CommandMethod> getRegisteredCommands()
+    {
+        return Collections.unmodifiableMap(this.registeredCommands);
     }
 
     /**

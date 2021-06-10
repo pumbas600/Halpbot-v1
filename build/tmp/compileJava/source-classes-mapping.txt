@@ -14,10 +14,10 @@ nz/pumbas/commands/Order.java
  nz.pumbas.commands.Order
 nz/pumbas/utilities/enums/Flag.java
  nz.pumbas.utilities.enums.Flag
-nz/pumbas/commands/annotations/Command.java
- nz.pumbas.commands.annotations.Command
-nz/pumbas/halpbot/commands/ImageCommands.java
- nz.pumbas.halpbot.commands.ImageCommands
+nz/pumbas/halpbot/commands/steamtables/models/Model.java
+ nz.pumbas.halpbot.commands.steamtables.models.Model
+nz/pumbas/commands/tokens/tokensyntax/InvocationTokenInfo.java
+ nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo
 nz/pumbas/commands/tokens/tokensyntax/TokenSyntax.java
  nz.pumbas.commands.tokens.tokensyntax.TokenSyntax
 nz/pumbas/objects/keys/Key.java
@@ -34,8 +34,8 @@ nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/commands/ConstructorPair.java
  nz.pumbas.commands.ConstructorPair
-nz/pumbas/halpbot/friction/FrictionCommands.java
- nz.pumbas.halpbot.friction.FrictionCommands
+nz/pumbas/commands/RegexCommand.java
+ nz.pumbas.commands.RegexCommand
 nz/pumbas/commands/annotations/CustomParameter.java
  nz.pumbas.commands.annotations.CustomParameter
 nz/pumbas/objects/keys/KeyHolder.java
@@ -48,8 +48,8 @@ nz/pumbas/commands/annotations/CommandGroup.java
  nz.pumbas.commands.annotations.CommandGroup
 nz/pumbas/halpbot/commands/steamtables/models/SaturatedSteamModel.java
  nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel
-nz/pumbas/halpbot/commands/SteamLookupCommands.java
- nz.pumbas.halpbot.commands.SteamLookupCommands
+nz/pumbas/commands/tokens/tokentypes/BuiltInTypeToken.java
+ nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken
 nz/pumbas/utilities/maps/FieldMap.java
  nz.pumbas.utilities.maps.FieldMap
 nz/pumbas/halpbot/commands/steamtables/models/SuperheatedSteamModel.java
@@ -84,18 +84,18 @@ nz/pumbas/commands/annotations/TokenSyntaxDefinition.java
  nz.pumbas.commands.annotations.TokenSyntaxDefinition
 nz/pumbas/halpbot/friction/BlockData.java
  nz.pumbas.halpbot.friction.BlockData
-nz/pumbas/halpbot/commands/TokenCommands.java
- nz.pumbas.halpbot.commands.TokenCommands
-nz/pumbas/halpbot/commands/VectorCommands.java
- nz.pumbas.halpbot.commands.VectorCommands
+nz/pumbas/commands/tokens/tokentypes/CommandToken.java
+ nz.pumbas.commands.tokens.tokentypes.CommandToken
+nz/pumbas/utilities/Reflect.java
+ nz.pumbas.utilities.Reflect
 nz/pumbas/utilities/enums/Modifiers.java
  nz.pumbas.utilities.enums.Modifiers
 nz/pumbas/utilities/io/ImageType.java
  nz.pumbas.utilities.io.ImageType
 nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod
-nz/pumbas/Main.java
- nz.pumbas.Main
+nz/pumbas/commands/tokens/tokentypes/ParsingToken.java
+ nz.pumbas.commands.tokens.tokentypes.ParsingToken
 nz/pumbas/halpbot/customparameters/Plane.java
  nz.pumbas.halpbot.customparameters.Plane
 nz/pumbas/commands/annotations/Unrequired.java
@@ -120,18 +120,18 @@ nz/pumbas/halpbot/commands/steamtables/annotations/ModelObject.java
  nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject
 nz/pumbas/halpbot/customparameters/Shape.java
  nz.pumbas.halpbot.customparameters.Shape
-nz/pumbas/halpbot/commands/CalculusCommands.java
- nz.pumbas.halpbot.commands.CalculusCommands
+nz/pumbas/Main.java
+ nz.pumbas.Main
 nz/pumbas/objects/keys/StorageKey.java
  nz.pumbas.objects.keys.StorageKey
 nz/pumbas/commands/validation/Min.java
  nz.pumbas.commands.validation.Min
-nz/pumbas/commands/RegexCommand.java
- nz.pumbas.commands.RegexCommand
+nz/pumbas/halpbot/commands/ImageCommands.java
+ nz.pumbas.halpbot.commands.ImageCommands
 nz/pumbas/commands/exceptions/UnimplementedFeatureException.java
  nz.pumbas.commands.exceptions.UnimplementedFeatureException
-nz/pumbas/commands/tokens/tokentypes/MultiChoiceToken.java
- nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken
+nz/pumbas/commands/annotations/Command.java
+ nz.pumbas.commands.annotations.Command
 nz/pumbas/commands/validation/Max.java
  nz.pumbas.commands.validation.Max
 nz/pumbas/utilities/maps/MapHelper.java
@@ -142,37 +142,37 @@ nz/pumbas/commands/CustomParameterType.java
  nz.pumbas.commands.CustomParameterType
 nz/pumbas/commands/exceptions/OutputException.java
  nz.pumbas.commands.exceptions.OutputException
+nz/pumbas/halpbot/commands/CalculusCommands.java
+ nz.pumbas.halpbot.commands.CalculusCommands
 nz/pumbas/halpbot/commands/HalpBotCommands.java
  nz.pumbas.halpbot.commands.HalpBotCommands
-nz/pumbas/commands/tokens/tokentypes/ParsingToken.java
- nz.pumbas.commands.tokens.tokentypes.ParsingToken
-nz/pumbas/commands/tokens/tokentypes/BuiltInTypeToken.java
- nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken
-nz/pumbas/commands/tokens/tokentypes/CommandToken.java
- nz.pumbas.commands.tokens.tokentypes.CommandToken
-nz/pumbas/commands/tokens/tokensyntax/InvocationTokenInfo.java
- nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo
 nz/pumbas/commands/commandadapters/AbstractCommandAdapter.java
  nz.pumbas.commands.commandadapters.AbstractCommandAdapter
-nz/pumbas/commands/tokens/tokensyntax/CommandTokenInfo.java
- nz.pumbas.commands.tokens.tokensyntax.CommandTokenInfo
-nz/pumbas/halpbot/commands/steamtables/models/Model.java
- nz.pumbas.halpbot.commands.steamtables.models.Model
-nz/pumbas/utilities/Reflect.java
- nz.pumbas.utilities.Reflect
+nz/pumbas/halpbot/friction/FrictionCommands.java
+ nz.pumbas.halpbot.friction.FrictionCommands
 nz/pumbas/commands/CommandManager.java
  nz.pumbas.commands.CommandManager
+nz/pumbas/halpbot/commands/VectorCommands.java
+ nz.pumbas.halpbot.commands.VectorCommands
+nz/pumbas/halpbot/commands/SteamLookupCommands.java
+ nz.pumbas.halpbot.commands.SteamLookupCommands
+nz/pumbas/commands/tokens/tokentypes/ObjectTypeToken.java
+ nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken
 nz/pumbas/commands/tokens/tokensyntax/TokenSyntaxDefinitions.java
  nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions
+nz/pumbas/commands/tokens/tokentypes/MultiChoiceToken.java
+ nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken
 nz/pumbas/commands/tokens/tokentypes/ArrayToken.java
  nz.pumbas.commands.tokens.tokentypes.ArrayToken
+nz/pumbas/commands/tokens/tokensyntax/CommandTokenInfo.java
+ nz.pumbas.commands.tokens.tokensyntax.CommandTokenInfo
 nz/pumbas/commands/tokens/TokenManager.java
  nz.pumbas.commands.tokens.TokenManager
 nz/pumbas/commands/tokens/TokenCommand.java
  nz.pumbas.commands.tokens.TokenCommand
 nz/pumbas/commands/commandadapters/TokenCommandAdapter.java
  nz.pumbas.commands.commandadapters.TokenCommandAdapter
+nz/pumbas/halpbot/commands/TokenCommands.java
+ nz.pumbas.halpbot.commands.TokenCommands
 nz/pumbas/halpbot/HalpBot.java
  nz.pumbas.halpbot.HalpBot
-nz/pumbas/commands/tokens/tokentypes/ObjectTypeToken.java
- nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken
