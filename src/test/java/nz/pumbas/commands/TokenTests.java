@@ -15,7 +15,7 @@ import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.ShapeType;
-import nz.pumbas.utilities.Reflect;
+import nz.pumbas.utilities.request.Reflect;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

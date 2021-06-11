@@ -22,8 +22,8 @@ nz/pumbas/commands/commandadapters/TokenCommandAdapter.java
  nz.pumbas.commands.commandadapters.TokenCommandAdapter
 nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
  nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
-nz/pumbas/halpbot/customparameters/Line.java
- nz.pumbas.halpbot.customparameters.Line
+nz/pumbas/commands/tokens/tokentypes/ObjectTypeToken.java
+ nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/halpbot/friction/FrictionCommands.java
@@ -70,6 +70,8 @@ nz/pumbas/utilities/enums/StatusCode.java
  nz.pumbas.utilities.enums.StatusCode
 nz/pumbas/commands/tokens/tokensyntax/TokenBindingIdentifier.java
  nz.pumbas.commands.tokens.tokensyntax.TokenBindingIdentifier
+nz/pumbas/halpbot/customparameters/Line.java
+ nz.pumbas.halpbot.customparameters.Line
 nz/pumbas/commands/validation/Implicit.java
  nz.pumbas.commands.validation.Implicit
 nz/pumbas/utilities/enums/Flags.java
@@ -174,7 +176,7 @@ nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
  nz.pumbas.halpbot.commands.steamtables.SteamTableManager
 nz/pumbas/commands/tokens/tokensyntax/TokenSyntax.java
  nz.pumbas.commands.tokens.tokensyntax.TokenSyntax
-nz/pumbas/commands/tokens/tokentypes/ObjectTypeToken.java
- nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken
+nz/pumbas/utilities/request/RequestMethod.java
+ nz.pumbas.utilities.request.RequestMethod
 nz/pumbas/halpbot/HalpBot.java
  nz.pumbas.halpbot.HalpBot
