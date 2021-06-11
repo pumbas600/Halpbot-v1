@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.commands
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.ReadyEvent
@@ -8,12 +10,19 @@ import nz.pumbas.commands.annotations.Command
 import nz.pumbas.commands.annotations.Unrequired
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
 import nz.pumbas.halpbot.HalpBot
+import nz.pumbas.halpbot.customparameters.Joke
 import nz.pumbas.utilities.Utilities
+import nz.pumbas.utilities.enums.StatusCode
 import java.awt.Color
+import java.io.InputStreamReader
+import java.net.URL
+import java.net.HttpURLConnection
 
 class KotlinCommands : OnReady {
 
     private lateinit var comfortingMessages: List<String>
+    private val jokeCategories = arrayOf("knock-knock", "general", "programming")
+    private val quoteRegex = Regex("[’]")
 
     /**
      * A method that is called once after the bot has been initialised.
@@ -94,5 +103,36 @@ class KotlinCommands : OnReady {
     @Command(alias = "Comfort", description = "Sends a comforting message")
     fun comfort() : String {
         return Utilities.randomChoice(this.comfortingMessages)
+    }
+
+    @Command(alias = "Joke", description = "Sends a random joke")
+    fun joke(@Unrequired category: String) : String {
+        var loweredCategory = category.lowercase()
+        if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
+            return "You can only specify the one of the following categories: $jokeCategories"
+        else if (loweredCategory.isEmpty())
+            loweredCategory = Utilities.randomChoice(jokeCategories)
+
+        val url = "https://official-joke-api.appspot.com/jokes/$loweredCategory/random"
+
+        val connection = URL(url).openConnection() as HttpURLConnection
+        connection.setRequestProperty("Content-Type", "application/json")
+        connection.requestMethod = "GET"
+
+        val status = StatusCode.of(connection.responseCode)
+        if (!status.isSuccessful)
+            return "Jokes on you - there was an error trying to contact the API!"
+
+        val reader = InputStreamReader(connection.inputStream)
+        val json = replaceQuotes(reader.readText())
+        println(json)
+        return Json.decodeFromString<List<Joke>>(json)[0].toString()
+    }
+
+    /**
+     * Replaces non-standed single quotes with ' as this is preserved when being decoded.
+     */
+    private fun replaceQuotes(str: String): String {
+        return str.replace(quoteRegex, "'")
     }
 }

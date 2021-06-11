@@ -7,8 +7,8 @@ import nz.pumbas.commands.ErrorManager;
 
 public enum StatusCode
 {
-    UNKNOWN(0),
-    OK(200, true),
+    UNKNOWN(0, false),
+    OK(200),
     BAD_REQUEST(400),
     UNAUTHORISED(401),
     FORBIDDEN(403),
@@ -43,7 +43,7 @@ public enum StatusCode
 
     StatusCode(int code) {
         this.code = code;
-        this.successful = false;
+        this.successful = 299 > code;
     }
 
     StatusCode(int code, boolean successful) {

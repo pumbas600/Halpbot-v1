@@ -439,12 +439,41 @@ public final class Utilities
         return array;
     }
 
+    /**
+     * Randomly chooses an element in the {@link List}.
+     *
+     * @param list
+     *      The {@link List} to choose the element from
+     * @param <T>
+     *      The type of the elements in the list
+     *
+     * @return The randomly choosen element
+     */
     public static <T> T randomChoice(List<T> list)
     {
         if (list.isEmpty())
-            throw new IllegalArgumentException("Can't randomly choose an element from an empty array");
+            throw new IllegalArgumentException("Can't randomly choose an element from an empty list");
 
         Random random = new Random();
         return list.get(random.nextInt(list.size()));
+    }
+
+    /**
+     * Randomly chooses an element in the array.
+     *
+     * @param array
+     *      The array to choose the element from
+     * @param <T>
+     *      The type of the elements in the array
+     *
+     * @return The randomly choosen element
+     */
+    public static <T> T randomChoice(T[] array)
+    {
+        if (0 == array.length)
+            throw new IllegalArgumentException("Can't randomly choose an element from an empty array");
+
+        Random random = new Random();
+        return array[random.nextInt(array.length)];
     }
 }

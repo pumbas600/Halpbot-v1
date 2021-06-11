@@ -25,34 +25,23 @@ data class Resource(val key: String)
     }
 
     /**
-     * Adds a translation for this [Resource].
-     *
-     * @param language
-     *      The [Language] of the translation
-     * @param translation
-     *      The translation
+     * Adds a translation for this [Resource] and returns itself.
      */
-    fun addTranslation(language: Language, translation: String) {
+    fun addTranslation(language: Language, translation: String) : Resource {
         resourceMappings[language] = translation
+        return this
     }
 
     /**
-     * Adds a [Map] of translations for this [Resource].
-     *
-     * @param translations
-     *      The map of translations
+     * Adds a [Map] of translations for this [Resource] and returns itself.
      */
-    fun addTranslations(translations: Map<Language, String>) {
+    fun addTranslations(translations: Map<Language, String>) : Resource {
         resourceMappings.putAll(translations)
+        return this
     }
 
     /**
      * Retrieves a translation for a specified [Language] for this [Resource].
-     *
-     * @param language
-     *      The language you want the translation in
-     *
-     * @return The translation for this resource in the specified language
      */
     fun getTranslation(language: Language): String {
         if (language in resourceMappings && null != resourceMappings[language])
@@ -62,6 +51,9 @@ data class Resource(val key: String)
         throw IllegalArgumentException("The resource $key, doesn't have a translation for $language")
     }
 
+    /**
+     * Returns if this [Resource] has a translation for the specified [Language].
+     */
     fun hasTranslation(language: Language): Boolean {
         return language in resourceMappings
     }

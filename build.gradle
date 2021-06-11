@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.5.20-M1'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.0'
 }
 
 group 'nz.pumbas'
@@ -16,7 +17,8 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     compile "net.dv8tion:JDA:4.2.0_168"
     implementation 'org.xerial:sqlite-jdbc:3.34.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
 }
 
 test {
