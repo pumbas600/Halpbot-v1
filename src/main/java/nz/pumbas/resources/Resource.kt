@@ -20,7 +20,7 @@ data class Resource(val key: String)
 
         @JvmStatic
         fun getOrCreate(key: String, translation: String, language: Language, ) : Resource {
-            return ResourceManager.get(key, true, translation, language)
+            return ResourceManager.getOrCreate(key, translation, language)
         }
     }
 
@@ -60,6 +60,10 @@ data class Resource(val key: String)
             return resourceMappings.getValue(language)
 
         throw IllegalArgumentException("The resource $key, doesn't have a translation for $language")
+    }
+
+    fun hasTranslation(language: Language): Boolean {
+        return language in resourceMappings
     }
 }
 

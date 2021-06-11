@@ -23,7 +23,7 @@ object ResourceManager {
 
                         val translations = Utilities.parsePropertyFile("translations/${file.name}")
                         for (translation in translations) {
-                            get(translation.key, true, translation.value, language)
+                            createOrAdd(translation.key, translation.value, language)
                         }
                     }
                 }
@@ -31,36 +31,43 @@ object ResourceManager {
     }
 
     /**
-     * Retrieves the [Resource] for the specified key. If the resource doesn't exist, then you can specify to create
-     * a new resource for it.
+     * Creates the [Resource] for the specified key. If the resource already exists, then it automatically adds it as a
+     * translation.
      *
      * @param key
      *      The key for the resource
-     * @param createIfAbsent
-     *      Should the resource be created if it doesn't exist
      * @param language
-     *      The language to be used if a resource needs to be created
+     *      The language
      * @param translation
      *      The translation for the resource
-     *
-     * @return The resource for the specified key
      */
-    fun get(key: String, createIfAbsent: Boolean = false,
-            translation: String = "", language: Language = Language.EN_UK): Resource
+    private fun createOrAdd(key: String, translation: String = "", language: Language = Language.EN_UK)
     {
-        if (key in translations && null != translations[key])
-            return translations.getValue(key)
-        else if (createIfAbsent) {
-            val resource = Resource(key) //Automatically calls add(key, resource)
-            resource.addTranslation(language, translation)
-            return resource
+        val resource: Resource = if (key in translations) {
+            translations.getValue(key)
+        } else  {
+            Resource(key) //Automatically calls add(key, resource)
         }
-        throw IllegalArgumentException("There is no resource for the key $key")
+
+        resource.addTranslation(language, translation)
     }
 
     fun add(key: String, resource: Resource) {
         if (key in translations)
             throw IllegalArgumentException("The key $key is already being used. Consider using addTranslation instead")
         translations[key] = resource
+    }
+
+    fun get(key: String) : Resource {
+        if (key in translations)
+            return translations.getValue(key)
+        throw IllegalArgumentException("There is no resource defined for the key $key")
+    }
+
+    fun getOrCreate(key: String, translation: String, language: Language) : Resource {
+        if (key !in translations || translations.getValue(key).hasTranslation(language))
+            createOrAdd(key, translation, language)
+
+        return get(key)
     }
 }
