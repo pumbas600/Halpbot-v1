@@ -26,10 +26,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
 import java.util.UUID;
@@ -192,6 +195,38 @@ public final class Utilities
             return Optional.empty();
         }
         return Optional.of(in);
+    }
+
+    /**
+     * A simple property file parser.
+     *
+     * @param filename
+     *      The name of the property file
+     *
+     * @return A {@link Map} of the parsed properties
+     */
+    public static Map<String,String> parsePropertyFile(String filename) {
+        if (!filename.endsWith(".properties"))
+            throw new IllegalArgumentException(
+                String.format("The filename, %s does not end with .properties", filename));
+
+        Map<String,String> propertyMap = new HashMap<>();
+        return retrieveReader(filename)
+            .map(inputStream -> {
+                Properties properties = new Properties();
+
+                try {
+                    properties.load(inputStream);
+                    for (Entry<Object, Object> entry : properties.entrySet()) {
+                        propertyMap.put((String)entry.getKey(), (String)entry.getValue());
+                    }
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return propertyMap;
+
+            }).orElse(propertyMap);
     }
 
     /**

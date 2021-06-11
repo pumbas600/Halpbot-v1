@@ -58,6 +58,11 @@ class KotlinCommands : OnReady {
         return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview")
     }
 
+    @Command(alias= "GoodBot", description = "Allows you to praise the bot.")
+    fun goodBot() : String {
+        return Utilities.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
+    }
+
     @Command(alias = "Id", description = "Returns the users discord id")
     fun id(author: User): String {
         return author.id
