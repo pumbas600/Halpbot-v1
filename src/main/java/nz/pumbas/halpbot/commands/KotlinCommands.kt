@@ -3,6 +3,7 @@ package nz.pumbas.halpbot.commands
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.ReadyEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import nz.pumbas.commands.OnReady
 import nz.pumbas.commands.annotations.Command
 import nz.pumbas.commands.annotations.Unrequired
@@ -16,6 +17,8 @@ import java.awt.Color
 class KotlinCommands : OnReady {
 
     private lateinit var comfortingMessages: List<String>
+    private lateinit var insultJokes: List<String>
+
     private val jokeCategories = arrayOf("knock-knock", "general", "programming")
 
     /**
@@ -25,7 +28,8 @@ class KotlinCommands : OnReady {
      *      The JDA [ReadyEvent].
      */
     override fun onReady(event: ReadyEvent) {
-        this.comfortingMessages = Utilities.getAllLinesFromFile("ComfortingMessages.txt")
+        comfortingMessages = Utilities.getAllLinesFromFile("ComfortingMessages.txt")
+        insultJokes = Utilities.getAllLinesFromFile("InsultJokes.txt")
     }
 
     @Command(alias = "Halp", description = "Displays the help information for the specified command")
@@ -113,6 +117,11 @@ class KotlinCommands : OnReady {
         if (!request.responseCode().isSuccessful)
             return "Jokes on you - there was an error trying to contact the API!"
 
-        return request.parseResponse<List<Joke>>()[0].toString()
+        return request.parseResponse<List<Joke>>(true)[0].toString()
+    }
+
+    @Command(alias = "Insult", description = "Sends a joking insult")
+    fun insult() : String {
+        return Utilities.randomChoice(insultJokes)
     }
 }

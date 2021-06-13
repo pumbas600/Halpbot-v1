@@ -14,7 +14,7 @@ import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.validation.Implicit;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.Vector3;
-import nz.pumbas.utilities.request.Reflect;
+import nz.pumbas.utilities.Reflect;
 
 public class TokenCommandTests
 {

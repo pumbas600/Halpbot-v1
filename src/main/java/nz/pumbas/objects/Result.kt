@@ -1,5 +1,6 @@
-package nz.pumbas.resources
+package nz.pumbas.objects
 
+import nz.pumbas.resources.Resource
 import java.util.function.Consumer
 
 data class Result<T>(val value: T?, val reason: Resource?)

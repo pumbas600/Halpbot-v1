@@ -25,7 +25,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import nz.pumbas.commands.ErrorManager;
+import nz.pumbas.objects.Result;
 import nz.pumbas.objects.Tuple;
+import nz.pumbas.resources.Resource;
 import nz.pumbas.utilities.enums.Modifiers;
 
 public final class Reflect {
@@ -102,6 +104,32 @@ public final class Reflect {
             .getKey()
             .matcher(s)
             .matches();
+    }
+
+
+    /**
+     * Checks if the string matches the required syntax of the specified type.
+     *
+     * @param s
+     *      The {@link String} to check
+     * @param type
+     *      The {@link Class type} to check the syntax against
+     *
+     * @return If the string matches the syntax of the type
+     */
+    public static Result<Boolean> matchesTest(String s, Class<?> type)
+    {
+        Class<?> unwrappedType = getPrimativeType(type);
+
+        if (!TypeParsers.containsKey(unwrappedType))
+            throw new IllegalArgumentException("You can only match strings of simple types");
+
+        boolean matches = TypeParsers.get(unwrappedType)
+            .getKey()
+            .matcher(s)
+            .matches();
+        return Result.of(matches,
+            Resource.get("halpbot.commands.type.mismatch", s, type.getSimpleName()));
     }
 
     /**

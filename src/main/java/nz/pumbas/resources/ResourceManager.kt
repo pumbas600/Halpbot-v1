@@ -47,7 +47,7 @@ object ResourceManager {
      */
     private fun createOrAdd(key: String, translation: String = "", language: Language = Language.EN_UK)
     {
-        val resource: Resource = if (key in translations) {
+        val resource: Resource = if (isRegistered(key)) {
             translations.getValue(key)
         } else  {
             Resource(key) //Automatically calls add(key, resource)
@@ -61,7 +61,7 @@ object ResourceManager {
      * [IllegalArgumentException].
      */
     fun add(key: String, resource: Resource) {
-        if (key in translations)
+        if (isRegistered(key))
             throw IllegalArgumentException("The key $key is already being used. Consider using addTranslation instead")
         translations[key] = resource
     }
@@ -70,10 +70,19 @@ object ResourceManager {
      * Retrieves the [Resource] for the specified key. If there is no resource for that key, an
      * [IllegalArgumentException] will be thrown.
      */
-    fun get(key: String) : Resource {
-        if (key in translations)
+    fun get(key: String): Resource {
+        if (isRegistered(key))
             return translations.getValue(key)
         throw IllegalArgumentException("There is no resource defined for the key $key")
+    }
+
+    /**
+     * Retrieves the [Resource] for the specified key. If there is no resource for that key, an
+     * [IllegalArgumentException] will be thrown. If formating objects have been specified, a
+     * shallow copy of the [Resource] is returned with the specified formatting.
+     */
+    fun get(key: String, vararg formatting: Any): Resource {
+        return if (formatting.isEmpty()) get(key) else Resource(key, formatting)
     }
 
     /**
@@ -81,10 +90,17 @@ object ResourceManager {
      * created and the translation added. Alternatively, if the resource exists but there is no translation for the
      * specified language, then it will automatically add the translation for that language to that resource.
      */
-    fun getOrCreate(key: String, translation: String, language: Language) : Resource {
-        if (key !in translations || translations.getValue(key).hasTranslation(language))
+    fun getOrCreate(key: String, translation: String, language: Language): Resource {
+        if (!isRegistered(key) || translations.getValue(key).hasTranslation(language))
             createOrAdd(key, translation, language)
 
         return get(key)
+    }
+
+    /**
+     * Returns if the key has been registered by the resource manager
+     */
+    fun isRegistered(key: String): Boolean {
+        return key in translations
     }
 }

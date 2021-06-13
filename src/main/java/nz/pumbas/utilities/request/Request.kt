@@ -26,8 +26,9 @@ class Request(url: String, requestMethod: RequestMethod = RequestMethod.GET) {
     /**
      * Parses the response into the specified type.
      */
-    inline fun <reified T> parseResponse(): T {
+    inline fun <reified T> parseResponse(debug: Boolean = false): T {
         val json = InputStreamReader(connection.inputStream).readText()
+        if (debug) println(json)
         return Json.decodeFromString(json.replace('’', '\''))
     }
 }
