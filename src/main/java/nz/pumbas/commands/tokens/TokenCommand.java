@@ -200,7 +200,7 @@ public class TokenCommand implements CommandMethod
         int tokenIndex = 0;
         int parameterIndex = 0;
         while (parameterIndex < parsedTokens.length) {
-            Optional<Class<?>> assignableFromClass = Reflect.getAssignableFrom(
+            Optional<Class<?>> assignableFromClass = Reflect.getAssignableTo(
                 parameterTypes[parameterIndex], TokenManager.getCustomParameterTypes());
 
             if (assignableFromClass.isPresent()) {

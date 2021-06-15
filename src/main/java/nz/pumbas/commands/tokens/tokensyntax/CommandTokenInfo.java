@@ -120,7 +120,7 @@ public class CommandTokenInfo
      */
     private void checkForCustomParameterTypes()
     {
-        while (this.currentParameterTypeIndex < this.parameterTypes.length && Reflect.isAssignableFrom(
+        while (this.currentParameterTypeIndex < this.parameterTypes.length && Reflect.isAssignableTo(
             this.parameterTypes[this.currentParameterTypeIndex],TokenManager.getCustomParameterTypes())) {
             this.currentParameterTypeIndex++;
         }
@@ -150,6 +150,7 @@ public class CommandTokenInfo
      */
     public boolean hasToken()
     {
+        this.checkForCustomParameterTypes();
         return this.currentTokenIndex < this.tokens.size();
     }
 }

@@ -534,45 +534,45 @@ public final class Reflect {
     }
 
     /**
-     * Returns if the specified {@link Class} is assignable from any of the classes in the {@link Collection}
+     * Returns if the specified {@link Class} is assignable to any of the classes in the {@link Collection}
      *
      * @param clazz
-     *      The {@link Class} that you want to check if its assignable from
-     * @param from
-     *      The {@link Collection} of classes that the class could be assignable from
+     *      The {@link Class} that you want to check if its assignable to
+     * @param to
+     *      The {@link Collection} of classes that the class could be assignable to
      *
-     * @return If the specified {@link Class} is assignable from any of the classes in the {@link Collection}
+     * @return If the specified {@link Class} is assignable to any of the classes in the {@link Collection}
      */
-    public static boolean isAssignableFrom(Class<?> clazz, Collection<Class<?>> from)
+    public static boolean isAssignableTo(Class<?> clazz, Collection<Class<?>> to)
     {
-        if (from.contains(clazz))
+        if (to.contains(clazz))
             return true;
 
-        for (Class<?> fromElement : from) {
-            if (clazz.isAssignableFrom(fromElement))
+        for (Class<?> toElement : to) {
+            if (toElement.isAssignableFrom(clazz))
                 return true;
         }
         return false;
     }
 
     /**
-     * Returns an {@link Optional} containing the {@link Class} which the specified class is assignable from
+     * Returns an {@link Optional} containing the {@link Class} which the specified class is assignable to
      *
      * @param clazz
-     *      The {@link Class} that you want to check if its assignable from
-     * @param from
-     *      The {@link Collection} of classes that the class could be assignable from
+     *      The {@link Class} that you want to check if its assignable to
+     * @param to
+     *      The {@link Collection} of classes that the class could be assignable to
      *
-     * @return An {@link Optional} containing the {@link Class} which the specified class is assignable from
+     * @return An {@link Optional} containing the {@link Class} which the specified class is assignable to
      */
-    public static Optional<Class<?>> getAssignableFrom(Class<?> clazz, Collection<Class<?>> from)
+    public static Optional<Class<?>> getAssignableTo(Class<?> clazz, Collection<Class<?>> to)
     {
-        if (from.contains(clazz))
+        if (to.contains(clazz))
             return Optional.of(clazz);
 
-        for (Class<?> fromElement : from) {
-            if (clazz.isAssignableFrom(fromElement))
-                return Optional.of(fromElement);
+        for (Class<?> toElement : to) {
+            if (toElement.isAssignableFrom(clazz))
+                return Optional.of(toElement);
         }
         return Optional.empty();
     }

@@ -1,5 +1,7 @@
 package nz.pumbas.commands;
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -176,4 +178,19 @@ public class TokenCommandTests
     private String stringDefaultValueMethodTest(@Unrequired String string) {
         return string;
     }
+
+    @Test
+    public void commandWithMessageReceivedEventParameterTest() {
+        TokenCommand command = TokenManager.generateTokenCommand(this,
+            Reflect.getMethod(this, "commandWithMessageReceivedEventParameterMethodTest"));
+
+        Assertions.assertTrue(command.getCommandTokens().isEmpty());
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("")));
+    }
+
+    @Command(alias = "test")
+    private void commandWithMessageReceivedEventParameterMethodTest(MessageReceivedEvent event) {
+
+    }
+
 }

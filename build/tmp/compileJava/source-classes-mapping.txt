@@ -18,12 +18,12 @@ nz/pumbas/commands/annotations/Command.java
  nz.pumbas.commands.annotations.Command
 nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
  nz.pumbas.halpbot.commands.steamtables.SteamTableManager
-nz/pumbas/commands/commandadapters/TokenCommandAdapter.java
- nz.pumbas.commands.commandadapters.TokenCommandAdapter
+nz/pumbas/halpbot/HalpBot.java
+ nz.pumbas.halpbot.HalpBot
 nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
  nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
-nz/pumbas/commands/tokens/tokentypes/ObjectTypeToken.java
- nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken
+nz/pumbas/commands/tokens/tokensyntax/TokenSyntaxIdentifiers.java
+ nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxIdentifiers
 nz/pumbas/utilities/functionalinterfaces/IOFunction.java
  nz.pumbas.utilities.functionalinterfaces.IOFunction
 nz/pumbas/halpbot/friction/FrictionCommands.java
@@ -114,8 +114,8 @@ nz/pumbas/commands/OnReady.java
  nz.pumbas.commands.OnReady
 nz/pumbas/halpbot/commands/steamtables/SteamTable.java
  nz.pumbas.halpbot.commands.steamtables.SteamTable
-nz/pumbas/commands/tokens/tokentypes/MultiChoiceToken.java
- nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken
+nz/pumbas/utilities/enums/Tristate.java
+ nz.pumbas.utilities.enums.Tristate
 nz/pumbas/commands/CommandMethod.java
  nz.pumbas.commands.CommandMethod
 nz/pumbas/halpbot/commands/steamtables/annotations/ModelObject.java
@@ -132,8 +132,8 @@ nz/pumbas/commands/tokens/tokentypes/PlaceholderToken.java
  nz.pumbas.commands.tokens.tokentypes.PlaceholderToken
 nz/pumbas/commands/exceptions/UnimplementedFeatureException.java
  nz.pumbas.commands.exceptions.UnimplementedFeatureException
-nz/pumbas/commands/tokens/tokensyntax/TokenSyntaxDefinitions.java
- nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions
+nz/pumbas/commands/tokens/attributes/TokenAttribute.java
+ nz.pumbas.commands.tokens.attributes.TokenAttribute
 nz/pumbas/commands/validation/Max.java
  nz.pumbas.commands.validation.Max
 nz/pumbas/utilities/maps/MapHelper.java
@@ -154,29 +154,33 @@ nz/pumbas/commands/regex/ConstructorPair.java
  nz.pumbas.commands.regex.ConstructorPair
 nz/pumbas/utilities/Utilities.java
  nz.pumbas.utilities.Utilities
-nz/pumbas/commands/tokens/tokensyntax/TokenSyntaxIdentifiers.java
- nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxIdentifiers
 nz/pumbas/commands/tokens/TokenManager.java
  nz.pumbas.commands.tokens.TokenManager
-nz/pumbas/commands/regex/CommandManager.java
- nz.pumbas.commands.regex.CommandManager
-nz/pumbas/halpbot/commands/steamtables/models/Model.java
- nz.pumbas.halpbot.commands.steamtables.models.Model
-nz/pumbas/commands/commandadapters/AbstractCommandAdapter.java
- nz.pumbas.commands.commandadapters.AbstractCommandAdapter
+nz/pumbas/commands/tokens/tokensyntax/TokenSyntaxDefinitions.java
+ nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions
 nz/pumbas/commands/tokens/TokenCommand.java
  nz.pumbas.commands.tokens.TokenCommand
-nz/pumbas/commands/tokens/tokentypes/ArrayToken.java
- nz.pumbas.commands.tokens.tokentypes.ArrayToken
-nz/pumbas/commands/tokens/tokensyntax/CommandTokenInfo.java
- nz.pumbas.commands.tokens.tokensyntax.CommandTokenInfo
 nz/pumbas/commands/tokens/tokentypes/BuiltInTypeToken.java
  nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken
 nz/pumbas/halpbot/commands/steamtables/models/ModelHelper.java
  nz.pumbas.halpbot.commands.steamtables.models.ModelHelper
 nz/pumbas/utilities/Singleton.java
  nz.pumbas.utilities.Singleton
+nz/pumbas/commands/regex/CommandManager.java
+ nz.pumbas.commands.regex.CommandManager
+nz/pumbas/halpbot/commands/steamtables/models/Model.java
+ nz.pumbas.halpbot.commands.steamtables.models.Model
 nz/pumbas/utilities/Reflect.java
  nz.pumbas.utilities.Reflect
-nz/pumbas/halpbot/HalpBot.java
- nz.pumbas.halpbot.HalpBot
+nz/pumbas/commands/tokens/tokentypes/ArrayToken.java
+ nz.pumbas.commands.tokens.tokentypes.ArrayToken
+nz/pumbas/commands/tokens/tokensyntax/CommandTokenInfo.java
+ nz.pumbas.commands.tokens.tokensyntax.CommandTokenInfo
+nz/pumbas/commands/commandadapters/TokenCommandAdapter.java
+ nz.pumbas.commands.commandadapters.TokenCommandAdapter
+nz/pumbas/commands/tokens/tokentypes/MultiChoiceToken.java
+ nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken
+nz/pumbas/commands/commandadapters/AbstractCommandAdapter.java
+ nz.pumbas.commands.commandadapters.AbstractCommandAdapter
+nz/pumbas/commands/tokens/tokentypes/ObjectTypeToken.java
+ nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken

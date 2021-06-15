@@ -237,7 +237,7 @@ public final class TokenManager {
         for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++) {
             Class<?> parameterType = parameterTypes[parameterIndex];
 
-            if (Reflect.isAssignableFrom(parameterType, CustomParameterMappings.keySet())) continue;
+            if (Reflect.isAssignableTo(parameterType, CustomParameterMappings.keySet())) continue;
 
             String command = "#" + getTypeAlias(parameterType);
 
@@ -402,35 +402,6 @@ public final class TokenManager {
 
         return parseCommandTokens(tokens, parameterTypes,
             parameterAnnotations, startParameterIndex);
-    }
-
-    public static List<String> splitInvocationTokens(@NotNull String command)
-    {
-        List<String> tokens = new ArrayList<>();
-
-        if (command.isEmpty())
-            return tokens;
-
-        int startIndex = 0;
-        int openBracketCount = 0;
-        int currentIndex;
-
-        for (currentIndex = 0; currentIndex < command.length(); currentIndex++) {
-            char character = command.charAt(currentIndex);
-            if ('[' == character) openBracketCount++;
-            else if (']' == character) openBracketCount--;
-
-            else if (0 == openBracketCount && ' ' == character) {
-                tokens.add(command.substring(startIndex, currentIndex));
-                startIndex = currentIndex + 1;
-            }
-        }
-
-        //Add the final word, if there is one.
-        if (startIndex != currentIndex)
-            tokens.add(command.substring(startIndex, currentIndex));
-
-        return tokens;
     }
 
     public static List<String> splitCommandTokens(@NotNull String command)
