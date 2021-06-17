@@ -144,6 +144,14 @@ public class ArrayToken implements ParsingToken {
     }
 
     /**
+     * @return The {@link ParsingToken} of the type of this {@link ArrayToken}
+     */
+    public ParsingToken getCommandToken()
+    {
+        return this.commandToken;
+    }
+
+    /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Override
