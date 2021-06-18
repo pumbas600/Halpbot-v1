@@ -21,14 +21,13 @@ public class CommandTokenInfo
     private final Map<TokenBindingIdentifier, Object> currentTokenBindings = new HashMap<>();
     private String currentToken;
 
-    public CommandTokenInfo(List<String> tokens, Class<?>[] parameterTypes, Annotation[][] parameterAnnotations,
-                            int currentParameterTypeIndex)
+    public CommandTokenInfo(List<String> tokens, Class<?>[] parameterTypes, Annotation[][] parameterAnnotations)
     {
         this.tokens = tokens;
         this.currentTokenIndex = 0;
         this.parameterTypes = parameterTypes;
         this.parameterAnnotations = parameterAnnotations;
-        this.currentParameterTypeIndex = currentParameterTypeIndex;
+        this.currentParameterTypeIndex = 0;
     }
 
     /**

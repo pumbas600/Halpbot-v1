@@ -82,9 +82,8 @@ public class Vector3
     }
 
     public Vector3 getParallelComponent(Vector3 other) {
-        Vector3 otherUnitVector = other.getUnitVector();
-
-        return otherUnitVector.multiply(this.dot(otherUnitVector));
+        // (u.v/v.v)v
+        return other.multiply(this.dot(other)/other.dot(other));
     }
 
     public Vector3 getPerpendicularComponent(Vector3 other) {

@@ -160,7 +160,8 @@ public class TokenTests {
     @Test
     public void parsingMultiChoiceTokenTest() {
         List<CommandToken> commandTokens = TokenManager.parseCommand(
-                "#double <from the> [x-axis|y-axis]", new Class<?>[] { Double.class, String.class });
+                "#double <from the> [x-axis|y-axis]", new Class<?>[] { Double.class, String.class },
+            new Annotation[2][0]);
         CommandToken multiChoiceToken = commandTokens.get(3);
 
         Assertions.assertEquals(4, commandTokens.size());

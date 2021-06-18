@@ -221,7 +221,7 @@ public class TokenCommand implements CommandMethod
                 {
                     invocationToken.restoreState(this);
                     if (currentCommandToken instanceof ParsingToken) {
-                        parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).parse(invocationToken);
+                        parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).getDefaultValue();
                     }
                 }
                 else {

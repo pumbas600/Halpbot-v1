@@ -49,7 +49,7 @@ public class ValidationManager {
             return (double)Array.getLength(object);
         }
         else if (object instanceof String) {
-            return (double)((String) object).length();
+            return (double)((CharSequence) object).length();
         }
         else return null;
     }

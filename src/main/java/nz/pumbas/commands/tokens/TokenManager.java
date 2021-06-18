@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.commands.ErrorManager;
@@ -29,6 +30,7 @@ import nz.pumbas.utilities.enums.Modifiers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -94,7 +96,7 @@ public final class TokenManager {
     public static BiFunction<MessageReceivedEvent, AbstractCommandAdapter, Object> getCustomParameterMapper(
         @NotNull Class<?> customParameter)
     {
-        return CustomParameterMappings.getOrDefault(customParameter, (e, a) -> null);
+        return CustomParameterMappings.getOrDefault(customParameter, (e, a) -> new Object());
     }
 
     /**
@@ -174,12 +176,12 @@ public final class TokenManager {
      */
     public static void parseCustomClassConstructors(Class<?> customClass)
     {
+        if (CustomClassConstructors.containsKey(customClass))
+            return;
+
         if (isBuiltInType(customClass))
             throw new IllegalArgumentException(
                 String.format("The class %s is a built in type.", customClass.getSimpleName()));
-
-        if (CustomClassConstructors.containsKey(customClass))
-            return;
 
         Constructor<?>[] constructors = customClass.getDeclaredConstructors();
         if (0 == constructors.length)
@@ -217,7 +219,9 @@ public final class TokenManager {
         if (constructorCommand.isEmpty())
             constructorCommand = generateCommand(constructor.getParameterTypes(), constructor.getParameterAnnotations());
 
-        return parseCommand(constructorCommand, constructor.getParameterTypes());
+        return parseCommand(constructorCommand,
+            constructor.getParameterTypes(),
+            constructor.getParameterAnnotations());
     }
 
     /**
@@ -323,25 +327,20 @@ public final class TokenManager {
     }
 
     /**
-     * Generates a {@link List} of {@link CommandToken command tokens} from the specified {@link Method}.
+     * Generates a {@link List} of {@link CommandToken command tokens} from the specified {@link Executable}.
      *
-     * @param method
-     *      The {@link Method} to generate the {@link CommandToken command tokens} from
+     * @param executable
+     *      The {@link Executable} to generate the {@link CommandToken command tokens} from
      * @param displayCommand
      *      The {@link String display command} for this method
      *
-     * @return A {@link List} of {@link CommandToken command tokens} representing the {@link Method}
+     * @return A {@link List} of {@link CommandToken command tokens} representing the {@link Executable}
      */
-    public static List<CommandToken> parseCommand(Method method, String displayCommand)
+    public static List<CommandToken> parseCommand(Executable executable, String displayCommand)
     {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        int startParameterIndex = 0;
-
-        if (0 < parameterTypes.length && parameterTypes[0].isAssignableFrom(MessageReceivedEvent.class))
-            startParameterIndex = 1;
-
-
-        return parseCommand(displayCommand, parameterTypes, startParameterIndex, method.getParameterAnnotations());
+        return parseCommand(displayCommand,
+            executable.getParameterTypes(),
+            executable.getParameterAnnotations());
     }
 
     /**
@@ -365,22 +364,6 @@ public final class TokenManager {
     }
 
     /**
-     * Generates a {@link List} of {@link CommandToken command tokens} from the specified {@link String command} and
-     * the {@link Class parameter types}.
-     *
-     * @param command
-     *      The {@link String} which describes the syntax of the command
-     * @param parameterTypes
-     *      The {@link Class parameter types} corresponding to the {@link Method command method}
-     *
-     * @return A {@link List} of {@link CommandToken command tokens} representing the command
-     */
-    public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes)
-    {
-        return parseCommand(command, parameterTypes, 0, new Annotation[parameterTypes.length][0]);
-    }
-
-    /**
      * Generates a {@link List} of {@link CommandToken command tokens} from the specified information, which can be
      * automatically extracted from an {@link Method} by calling {@link TokenManager#parseCommand(Method)}.
      *
@@ -388,20 +371,18 @@ public final class TokenManager {
      *      The {@link String} which describes the syntax of the command
      * @param parameterTypes
      *      The {@link Class parameter types} corresponding to the {@link Method command method}
-     * @param startParameterIndex
-     *      The index of the parameter types to start generating the command from
      * @param parameterAnnotations
      *      The {@link Annotation annotations} which correspond to each parameter
      *
      * @return A {@link List} of {@link CommandToken command tokens} representing the command
      */
     public static List<CommandToken> parseCommand(String command, Class<?>[] parameterTypes,
-                                                  int startParameterIndex, Annotation[][] parameterAnnotations)
+                                                  Annotation[][] parameterAnnotations)
     {
         List<String> tokens = splitCommandTokens(command);
 
         return parseCommandTokens(tokens, parameterTypes,
-            parameterAnnotations, startParameterIndex);
+            parameterAnnotations);
     }
 
     public static List<String> splitCommandTokens(@NotNull String command)
@@ -444,16 +425,13 @@ public final class TokenManager {
      *      The {@link Class parameter types} of the {@link Method}
      * @param parameterAnnotations
      *      The {@link Annotation annotations} for the parameters in the {@link Method}
-     * @param startingParameterTypeIndex
-     *      The starting parameter index. E.g: The first index is usually a MessageReceivedEvent which doesn't get
-     *      parsed into a command token
      *
      * @return The parsed {@link List<CommandToken>}
      */
     private static List<CommandToken> parseCommandTokens(List<String> tokens, Class<?>[] parameterTypes,
-                                                         Annotation[][] parameterAnnotations, int startingParameterTypeIndex)
+                                                         Annotation[][] parameterAnnotations)
     {
-        CommandTokenInfo commandTokenInfo = new CommandTokenInfo(tokens, parameterTypes, parameterAnnotations, startingParameterTypeIndex);
+        CommandTokenInfo commandTokenInfo = new CommandTokenInfo(tokens, parameterTypes, parameterAnnotations);
         List<CommandToken> commandTokens = new ArrayList<>();
 
         while (commandTokenInfo.hasToken()) {
@@ -491,7 +469,7 @@ public final class TokenManager {
      * @return if the {@link String parsing token} is valid
      */
     public static boolean isValidCommandTypeToken(String token, Class<?> type) {
-        String tokenIdentifier = token.substring(1);
+        @NonNls String tokenIdentifier = token.substring(1);
         return token.startsWith("#") && getTypeAlias(type).equalsIgnoreCase(tokenIdentifier);
     }
 

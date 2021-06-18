@@ -10,6 +10,7 @@ import nz.pumbas.commands.annotations.Unrequired
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
 import nz.pumbas.halpbot.HalpBot
 import nz.pumbas.halpbot.customparameters.Joke
+import nz.pumbas.halpbot.customparameters.Matrix
 import nz.pumbas.utilities.Utilities
 import nz.pumbas.utilities.request.Request
 import java.awt.Color
@@ -123,5 +124,10 @@ class KotlinCommands : OnReady {
     @Command(alias = "Insult", description = "Sends a joking insult")
     fun insult() : String {
         return Utilities.randomChoice(insultJokes)
+    }
+
+    @Command(alias = "Matrix", description = "Displays a matrix")
+    fun matrix(matrix: Matrix) : Matrix {
+        return matrix
     }
 }
