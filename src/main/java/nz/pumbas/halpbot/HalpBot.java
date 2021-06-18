@@ -17,6 +17,7 @@ import nz.pumbas.commands.commandadapters.TokenCommandAdapter;
 import nz.pumbas.halpbot.commands.CalculusCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.KotlinCommands;
+import nz.pumbas.halpbot.commands.MatrixCommands;
 import nz.pumbas.halpbot.commands.SteamLookupCommands;
 import nz.pumbas.halpbot.commands.TokenCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
@@ -48,7 +49,8 @@ public class HalpBot extends ListenerAdapter
         new TokenCommandAdapter(builder, "$")
             .registerCommands(
                 new TokenCommands(),
-                new KotlinCommands());
+                new KotlinCommands(),
+                new MatrixCommands());
 
         this.jda = builder.build();
     }

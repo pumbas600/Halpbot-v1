@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.validation.Implicit;
@@ -33,10 +34,40 @@ public class ArrayToken implements ParsingToken {
         this.isOptional = isOptional;
         this.type = type;
         this.annotations = annotations;
-        this.commandToken = TokenManager.isBuiltInType(Reflect.getArrayType(this.type))
-                ? new BuiltInTypeToken(false, this.type.getComponentType(), null)
-                : new ObjectTypeToken(false, this.type.getComponentType(), null);
+//        this.commandToken = TokenManager.isBuiltInType(Reflect.getArrayType(this.type))
+//                ? new BuiltInTypeToken(false, this.type.getComponentType(), null)
+//                : new ObjectTypeToken(false, this.type.getComponentType(), null);
+        this.commandToken = this.generateCommandToken(Reflect.getArrayType(this.type));
+
         this.defaultValue = this.parseDefaultValue(defaultValue);
+    }
+
+    /**
+     * Generates the {@link CommandToken} for this {@link ArrayToken}.
+     *
+     * @param arrayType
+     *      The {@link Class} of the elements in the array
+     *
+     * @return The generated {@link CommandToken}
+     */
+    private ParsingToken generateCommandToken(Class<?> arrayType)
+    {
+        List<CommandToken> commandTokens = TokenManager.parseCommand(
+            TokenManager.getTypeAlias(arrayType),
+            new Class[]{ arrayType },
+            new Annotation[1][0]);
+
+        if (1 != commandTokens.size())
+            throw new IllegalCommandException(
+                String.format("The array token of type %s generated %s command tokens. Expected 1.",
+                    arrayType, commandTokens.size()));
+
+        if (!(commandTokens.get(0) instanceof ParsingToken))
+            throw new IllegalCommandException(
+                String.format("Expected the command token for the array token of type %s to be a parsing token, got " +
+                    "%s instead", arrayType, commandTokens.get(0)));
+
+        return (ParsingToken) commandTokens.get(0);
     }
 
     /**
@@ -128,7 +159,7 @@ public class ArrayToken implements ParsingToken {
             while (invocationToken.hasNext());
         }
         else {
-            Optional<String> oArrayParameters = invocationToken.getNextSurrounded("[", "]");
+            Optional<String> oArrayParameters = invocationToken.restoreState(this).getNextSurrounded("[", "]");
             if (oArrayParameters.isEmpty())
                 return null;
 

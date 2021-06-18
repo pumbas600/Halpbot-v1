@@ -257,7 +257,7 @@ public class TokenCommandTests
     }
 
     @Test
-    public void commandWithComplexCustomParameterTest() {
+    public void commandWithComplexCustomParameterMatchesTest() {
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
@@ -267,16 +267,45 @@ public class TokenCommandTests
         Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 0 0 1]]")));
         Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 x 2 1 0 0 1]")));
         Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 1 0 0 1]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 1.2]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 2 0.0 3]]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 x 3 [1 2 3 4 5 6]]")));
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[2 2 x 1 0 0 1]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[2 2 1.2]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 2 0.0 3]]")));
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matr[2 2 [1 2 0.0 3]]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 2 0.0 3]")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 2 alpha 3]")));
+    }
+
+    @Test
+    public void commandWithComplexCustomParameterInvocationTest() {
+        TokenCommand command = TokenManager.generateTokenCommand(this,
+            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
+
+        Optional<Object> oResult = command.invoke(InvocationTokenInfo.of("#Matrix[2 x 3 [1 2 3 4 5 6]]"),
+            null, null);
+
+        Assertions.assertTrue(oResult.isPresent());
+        Assertions.assertEquals(3, oResult.get());
+    }
+
+    @Test
+    public void commandWith2DArrayTest() {
+        TokenCommand command = TokenManager.generateTokenCommand(this,
+            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
+
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[[1 0 0 1]]")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[[1 0] [0 1]]")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[[0 1] 0 1 2]")));
+
     }
 
     @Command(alias = "test")
-    private void commandWithComplexCustomParameterMethodTest(Matrix matrix) {
-
+    private int commandWithComplexCustomParameterMethodTest(Matrix matrix) {
+        return matrix.getColumns();
     }
+
+
+
+
 
 }

@@ -67,7 +67,7 @@ class KotlinCommands : OnReady {
     }
 
     @Command(alias= "GoodBot", description = "Allows you to praise the bot.")
-    fun goodBot() : String {
+    fun goodBot(): String {
         return Utilities.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
     }
 
@@ -100,12 +100,12 @@ class KotlinCommands : OnReady {
     }
 
     @Command(alias = "Comfort", description = "Sends a comforting message")
-    fun comfort() : String {
+    fun comfort(): String {
         return Utilities.randomChoice(this.comfortingMessages)
     }
 
     @Command(alias = "Joke", description = "Sends a random joke")
-    fun joke(@Unrequired category: String) : String {
+    fun joke(@Unrequired category: String): String {
         var loweredCategory = category.lowercase()
         if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
             return "You can only specify the one of the following categories: $jokeCategories"
@@ -122,12 +122,7 @@ class KotlinCommands : OnReady {
     }
 
     @Command(alias = "Insult", description = "Sends a joking insult")
-    fun insult() : String {
+    fun insult(): String {
         return Utilities.randomChoice(insultJokes)
-    }
-
-    @Command(alias = "Matrix", description = "Displays a matrix")
-    fun matrix(matrix: Matrix) : Matrix {
-        return matrix
     }
 }
