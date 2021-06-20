@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.commands
 
 import nz.pumbas.commands.annotations.Command
+import nz.pumbas.commands.validation.Implicit
 import nz.pumbas.halpbot.customparameters.Matrix
 
 class MatrixCommands {
@@ -15,9 +16,15 @@ class MatrixCommands {
         return matrix.transpose()
     }
 
-    @Command(alias = "Multiply", description = "Multiplies two matrices", reflections = [Matrix::class])
-    fun multiply(matrix1: Matrix, matrix2: Matrix): Matrix {
-        return matrix1.multiply(matrix2)
+    @Command(alias = "Multiply", description = "Multiplies two or more matrices", reflections = [Matrix::class])
+    fun multiply(matrix: Matrix, @Implicit otherMatrices: Array<Matrix>): Matrix {
+        var result = matrix
+
+        for (otherMatrix in otherMatrices) {
+            result = result.multiply(otherMatrix)
+        }
+
+        return result
     }
 
 }

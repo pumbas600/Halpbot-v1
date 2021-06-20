@@ -478,20 +478,20 @@ public final class TokenManager {
     }
 
     /**
-     * Retrieves an {@link Optional} containing the result of invoking the matching method.
+     * Retrieves an {@link Optional} containing the result of any reflection syntax.
      *
      * @param invocationToken
      *      The {@link InvocationTokenInfo}
      * @param reflections
-     *      The {@link List<Class>} of classes that methods are allowed to be invoked from
+     *      The {@link List<Class>} of classes that the reflections can access
      * @param requiredReturnType
-     *      The required return type of the method
+     *      The required return type of the reflection
      *
-     * @return An {@link Optional} containing the invoked matching method.
+     * @return An {@link Optional} containing the result of any reflection syntax.
      */
-    public static Optional<Object> getTokenCommandFromMethodInvocation(@NotNull InvocationTokenInfo invocationToken,
-                                                                       @NotNull List<Class<?>> reflections,
-                                                                       @NotNull Class<?> requiredReturnType)
+    public static Optional<Object> handleReflectionSyntax(@NotNull InvocationTokenInfo invocationToken,
+                                                          @NotNull List<Class<?>> reflections,
+                                                          @NotNull Class<?> requiredReturnType)
     {
         if (reflections.isEmpty()) return Optional.empty();
 
@@ -499,33 +499,113 @@ public final class TokenManager {
         if (oType.isEmpty()) return Optional.empty();
 
 
-        Optional<Class<?>> oMethodClass = reflections
+        Optional<Class<?>> oClass = reflections
             .stream()
             .filter(c -> TokenManager.getTypeAlias(c).equalsIgnoreCase(oType.get()))
             .findFirst();
 
-        if (oMethodClass.isPresent()) {
-            Class<?> methodClass = oMethodClass.get();
+        if (oClass.isPresent()) {
+            Class<?> reflectionClass = oClass.get();
 
             Optional<String> oMethodName = invocationToken.getNext("(", false);
-            Optional<String> oParameters = invocationToken.getNextSurrounded("(", ")");
 
-            if (oMethodName.isPresent() && oParameters.isPresent()) {
-                String methodName = oMethodName.get();
-                InvocationTokenInfo parameters = InvocationTokenInfo.of(oParameters.get()).saveState(invocationToken);
+            return oMethodName.isPresent()
+                ? handleMethodReflectionSyntax(invocationToken, oMethodName.get(),
+                    reflections, reflectionClass, requiredReturnType)
+                : handleFieldReflectionSyntax(invocationToken, reflectionClass,
+                requiredReturnType);
 
-                return Reflect.getMethods(methodClass, methodName, true)
-                    .stream()
-                    .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
-                    .filter(m -> requiredReturnType.isAssignableFrom(m.getReturnType()))
-                    .map(m -> TokenManager.generateTokenCommand(null, m, reflections))
-                    .filter(m -> m.matches(parameters.restoreState(invocationToken)))
-                    .findFirst()
-                    .flatMap(tokenCommand -> tokenCommand.invoke(parameters.restoreState(invocationToken), null, null));
-            }
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Handles {@link Method} reflection syntax invocation and parsing. Note: Only public, static methods may be invoked.
+     *
+     * @param invocationToken
+     *      The {@link InvocationTokenInfo}
+     * @param methodName
+     *      The {@link String name} of the method
+     * @param reflections
+     *      The {@link List} of classes that reflections can access
+     * @param reflectionClass
+     *      The {@link Class} that is being referenced in the reflection syntax
+     * @param requiredReturnType
+     *      The {@link Class} required to be returned
+     *
+     * @return An {@link Optional} containing the result of the invoked method
+     */
+    private static Optional<Object> handleMethodReflectionSyntax(@NotNull InvocationTokenInfo invocationToken,
+                                                                 @NotNull String methodName,
+                                                                 @NotNull List<Class<?>> reflections,
+                                                                 @NotNull Class<?> reflectionClass,
+                                                                 @NotNull Class<?> requiredReturnType)
+    {
+        Optional<String> oParameters = invocationToken.getNextSurrounded("(", ")");
+        if (oParameters.isEmpty()) return Optional.empty();
+
+        InvocationTokenInfo parameters = InvocationTokenInfo.of(oParameters.get()).saveState(invocationToken);
+
+        return Reflect.getMethods(reflectionClass, methodName, true)
+            .stream()
+            .filter(m -> requiredReturnType.isAssignableFrom(m.getReturnType()))
+            .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
+            .map(m -> TokenManager.generateTokenCommand(null, m, reflections))
+            .filter(m -> m.matches(parameters.restoreState(invocationToken)))
+            .findFirst()
+            .flatMap(tokenCommand -> tokenCommand.invoke(parameters.restoreState(invocationToken), null, null));
+    }
+
+    /**
+     * Handles {@link java.lang.reflect.Field} reflection syntax invocation and parsing. Note: Only public, static, final fields can be
+     * referenced.
+     *
+     * @param invocationToken
+     *      The {@link InvocationTokenInfo}
+     * @param reflectionClass
+     *      The {@link Class} that is being referenced in the reflection syntax
+     * @param requiredReturnType
+     *      The {@link Class} required to be returned
+     *
+     * @return An {@link Optional} containing the specified field.
+     */
+    private static Optional<Object> handleFieldReflectionSyntax(@NotNull InvocationTokenInfo invocationToken,
+                                                                @NotNull Class<?> reflectionClass,
+                                                                @NotNull Class<?> requiredReturnType)
+    {
+        if (!invocationToken.hasNext()) return Optional.empty();
+        String fieldName = invocationToken.getNext();
+
+        return Reflect.getFields(reflectionClass, fieldName)
+            .stream()
+            .filter(f -> requiredReturnType.isAssignableFrom(f.getType()))
+            .filter(f -> Reflect.hasModifiers(f, Modifiers.PUBLIC, Modifiers.STATIC, Modifiers.FINAL))
+            .map(f -> {
+                try {
+                    return f.get(null);
+                } catch (IllegalAccessException e) {
+                    ErrorManager.handle(e);
+                    return new Object();
+                }
+            })
+            .findFirst();
+    }
+
+    /**
+     * Generates an individual {@link CommandToken} for the specified {@link Class}.
+     *
+     * @param type
+     *      The {@link Class type} of the command token
+     * @param annotations
+     *      The {@link Annotation annotations} on the command token
+     *
+     * @return The generated {@link CommandToken}
+     */
+    public static CommandToken generateCommandToken(Class<?> type, Annotation[] annotations)
+    {
+        //TODO: This
+        return (CommandToken) new Object();
     }
 
     /**

@@ -309,6 +309,16 @@ public class TokenCommandTests
         Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix.yShear(4")));
     }
 
+    @Test
+    public void commandFieldMatchesTest() {
+        TokenCommand command = TokenManager.generateTokenCommand(this,
+            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
+
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix.UnitSquare")));
+        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix.uNiTsquAre")));
+        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix.unitSquare()")));
+    }
+
     @Command(alias = "test", reflections = Matrix.class)
     private int commandWithComplexCustomParameterMethodTest(Matrix matrix) {
         return matrix.getColumns();

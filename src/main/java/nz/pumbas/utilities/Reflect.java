@@ -276,6 +276,29 @@ public final class Reflect {
     }
 
     /**
+     * Retrieves all the fields in the target {@link Class} with the specified name. This is not case sensitive.
+     *
+     * @param target
+     *      The {@link Class} to check for the fields
+     * @param fieldName
+     *      The {@link String} name of field
+     *
+     * @return The {@link List} of fields with the specified name
+     */
+    public static List<Field> getFields(Class<?> target, String fieldName)
+    {
+        List<Field> fields = new ArrayList<>();
+
+        for (Field field : target.getDeclaredFields()) {
+            if (field.getName().equalsIgnoreCase(fieldName)) {
+                fields.add(field);
+            }
+        }
+
+        return fields;
+    }
+
+    /**
      * Determines if the {@link Member} has all the specified {@link Modifiers}.
      *
      * @param member

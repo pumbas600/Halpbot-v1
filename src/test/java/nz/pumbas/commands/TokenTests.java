@@ -3,7 +3,6 @@ package nz.pumbas.commands;
 
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.Unrequired;
-import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
@@ -209,7 +208,7 @@ public class TokenTests {
     @Test
     public void methodInvocationTest()
     {
-        Optional<Object> oObject = TokenManager.getTokenCommandFromMethodInvocation(
+        Optional<Object> oObject = TokenManager.handleReflectionSyntax(
             InvocationTokenInfo.of("#Matrix.scale(2)"), List.of(Matrix.class), Matrix.class);
 
         Assertions.assertTrue(oObject.isPresent());

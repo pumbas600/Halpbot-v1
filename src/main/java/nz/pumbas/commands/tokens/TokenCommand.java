@@ -228,7 +228,7 @@ public class TokenCommand implements CommandMethod
 
                 if (invocationToken.hasNext()
                     && currentCommandToken instanceof ParsingToken
-                    && (invokedMethodResult = TokenManager.getTokenCommandFromMethodInvocation(invocationToken,
+                    && (invokedMethodResult = TokenManager.handleReflectionSyntax(invocationToken,
                     this.getReflections(), ((ParsingToken)currentCommandToken).getType()))
                     .isPresent())
                 {
@@ -280,7 +280,7 @@ public class TokenCommand implements CommandMethod
             invocationToken.saveState(this);
 
             if (!(currentCommandToken instanceof ParsingToken
-                && TokenManager.getTokenCommandFromMethodInvocation(invocationToken,
+                && TokenManager.handleReflectionSyntax(invocationToken,
                 this.getReflections(),((ParsingToken)currentCommandToken).getType()).isPresent())
                 && !currentCommandToken.matches(invocationToken.restoreState(this))) {
 
