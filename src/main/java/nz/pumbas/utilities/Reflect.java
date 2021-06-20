@@ -1,5 +1,6 @@
 package nz.pumbas.utilities;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -238,6 +239,38 @@ public final class Reflect {
             Class<?> superclass = target.getSuperclass();
             if (Object.class != superclass)
                 methods.addAll(getAnnotatedMethods(superclass, annotation, getSuperMethods));
+        }
+        return methods;
+    }
+
+    /**
+     * Retrieves all the {@link Method} in the target {@link Class} which have the specified name. This is not case
+     * sensitive.
+     *
+     * @param target
+     *      The {@link Class} to check for the methods
+     * @param methodName
+     *      The {@link String name} of the method
+     * @param getSuperMethods
+     *      If methods in super classes should be checked too
+     *
+     * @return The {@link List} of methods with the specified name
+     */
+    public static List<Method> getMethods(Class<?> target, String methodName, boolean getSuperMethods)
+    {
+        List<Method> methods = new ArrayList<>();
+
+        for (Method method : target.getDeclaredMethods()) {
+            if (method.getName().equalsIgnoreCase(methodName)) {
+                methods.add(method);
+            }
+        }
+
+        if (getSuperMethods) {
+            Class<?> superclass = target.getSuperclass();
+            if (Object.class != superclass) {
+                methods.addAll(getMethods(superclass, methodName, getSuperMethods));
+            }
         }
         return methods;
     }

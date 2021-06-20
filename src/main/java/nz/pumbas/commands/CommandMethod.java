@@ -43,6 +43,12 @@ public interface CommandMethod
     List<Long> getRestrictedTo();
 
     /**
+     * @return The {@link Class classes} that can have static methods invoked from
+     */
+    @NotNull
+    List<Class<?>> getReflections();
+
+    /**
      * Invokes the {@link Method} for this {@link CommandMethod}.
      *
      * @param args

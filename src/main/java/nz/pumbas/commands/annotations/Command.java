@@ -19,5 +19,7 @@ public @interface Command
 
     String permission() default "";
 
-    long[] restrictedTo() default -1;
+    long[] restrictedTo() default {};
+
+    Class<?>[] reflections() default {};
 }

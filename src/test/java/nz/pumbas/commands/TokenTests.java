@@ -3,6 +3,7 @@ package nz.pumbas.commands;
 
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.Unrequired;
+import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
@@ -13,6 +14,7 @@ import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
+import nz.pumbas.halpbot.customparameters.Matrix;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.ShapeType;
 import nz.pumbas.utilities.Reflect;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
 public class TokenTests {
 
@@ -96,7 +99,7 @@ public class TokenTests {
         Class<?>[] types = new Class[] { Double.class, String.class, int[].class };
         String command = TokenManager.generateCommand(types, new Annotation[3][0]);
 
-        Assertions.assertEquals("#Double #String #int[]", command);
+        Assertions.assertEquals("#double #String #int[]", command);
     }
 
     @Test
@@ -201,5 +204,16 @@ public class TokenTests {
         Assertions.assertNotNull(rectangle);
         Assertions.assertEquals(4, square.getArea());
         Assertions.assertEquals(2, rectangle.getArea());
+    }
+
+    @Test
+    public void methodInvocationTest()
+    {
+        Optional<Object> oObject = TokenManager.getTokenCommandFromMethodInvocation(
+            InvocationTokenInfo.of("#Matrix.scale(2)"), List.of(Matrix.class), Matrix.class);
+
+        Assertions.assertTrue(oObject.isPresent());
+        Assertions.assertTrue(oObject.get() instanceof Matrix);
+        Assertions.assertEquals(4, ((Matrix)oObject.get()).getDeterminant());
     }
 }

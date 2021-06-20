@@ -18,7 +18,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,20 +35,24 @@ public class TokenCommand implements CommandMethod
     private final @NotNull String description;
     private final @NotNull String permission;
     private final @NotNull List<Long> restrictedTo;
+    private final @NotNull List<Class<?>> reflections;
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
-        this.instance = instance;
-        this.executable = executable;
-        this.commandTokens = commandTokens;
-        this.description = "";
-        this.displayCommand = "";
-        this.permission = "";
-        this.restrictedTo = new ArrayList<>();
+        this(instance, executable, commandTokens, Collections.emptyList());
+    }
+
+    public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
+                        @NotNull List<CommandToken> commandTokens,
+                        @NotNull List<Class<?>> reflections) {
+        this(instance, executable, commandTokens, "", "", "",
+            Collections.emptyList(), reflections);
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
                         @NotNull List<CommandToken> commandTokens, @NotNull String displayCommand,
-                        @NotNull String description, @NotNull String permission, @NotNull List<Long> restrictedTo) {
+                        @NotNull String description, @NotNull String permission, @NotNull List<Long> restrictedTo,
+                        @NotNull List<Class<?>> reflections)
+    {
         this.instance = instance;
         this.executable = executable;
         this.commandTokens = commandTokens;
@@ -56,6 +60,7 @@ public class TokenCommand implements CommandMethod
         this.description = description;
         this.permission = permission;
         this.restrictedTo = restrictedTo;
+        this.reflections = reflections;
     }
 
     /**
@@ -113,6 +118,15 @@ public class TokenCommand implements CommandMethod
     public @NotNull List<Long> getRestrictedTo()
     {
         return this.restrictedTo;
+    }
+
+    /**
+     * @return The {@link Class classes} that can have static methods invoked from
+     */
+    @Override
+    public @NotNull List<Class<?>> getReflections()
+    {
+        return this.reflections;
     }
 
     /**
@@ -210,13 +224,24 @@ public class TokenCommand implements CommandMethod
             else {
                 CommandToken currentCommandToken = this.commandTokens.get(tokenIndex++);
                 invocationToken.saveState(this);
-                if (invocationToken.hasNext() && currentCommandToken.matches(invocationToken))
+                Optional<Object> invokedMethodResult;
+
+                if (invocationToken.hasNext()
+                    && currentCommandToken instanceof ParsingToken
+                    && (invokedMethodResult = TokenManager.getTokenCommandFromMethodInvocation(invocationToken,
+                    this.getReflections(), ((ParsingToken)currentCommandToken).getType()))
+                    .isPresent())
+                {
+                    parsedTokens[parameterIndex++] = invokedMethodResult.get();
+                }
+                else if (currentCommandToken.matches(invocationToken.restoreState(this)))
                 {
                     if (currentCommandToken instanceof ParsingToken) {
                         parsedTokens[parameterIndex++] =
                             ((ParsingToken) currentCommandToken).parse(invocationToken.restoreState(this));
                     }
                 }
+
                 else if (currentCommandToken.isOptional())
                 {
                     invocationToken.restoreState(this);
@@ -244,7 +269,7 @@ public class TokenCommand implements CommandMethod
      *
      * @return If the {@link InvocationTokenInfo invocation tokens} match this {@link TokenCommand}
      */
-    public boolean matches(InvocationTokenInfo invocationToken)
+    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
     {
         for (CommandToken currentCommandToken : this.commandTokens) {
             if (!invocationToken.hasNext()) {
@@ -254,7 +279,11 @@ public class TokenCommand implements CommandMethod
             }
             invocationToken.saveState(this);
 
-            if (!currentCommandToken.matches(invocationToken)) {
+            if (!(currentCommandToken instanceof ParsingToken
+                && TokenManager.getTokenCommandFromMethodInvocation(invocationToken,
+                this.getReflections(),((ParsingToken)currentCommandToken).getType()).isPresent())
+                && !currentCommandToken.matches(invocationToken.restoreState(this))) {
+
                 // If it doesn't match but the current command token is optional, it checks if the next invocation token matches
                 // Otherwise, if it doesn't match and its not optional, then these invocations don't match this command
                 if (currentCommandToken.isOptional() && invocationToken.hasNext())

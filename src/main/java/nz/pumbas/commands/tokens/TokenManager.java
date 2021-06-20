@@ -18,10 +18,10 @@ import nz.pumbas.commands.annotations.ParameterConstruction;
 import nz.pumbas.commands.annotations.TokenSyntaxDefinition;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
-import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.exceptions.IllegalTokenSyntaxDefinitionException;
 import nz.pumbas.commands.tokens.tokensyntax.CommandTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions;
 import nz.pumbas.commands.tokens.tokentypes.CommandToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
@@ -35,10 +35,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,9 @@ import java.util.stream.Collectors;
  * A static {@link CommandToken} manager, that handles the parsing of commands into {@link CommandToken command tokens}.
  */
 public final class TokenManager {
+
+    //TODO: Generate TokenCommand from array of parameter types for custom parameters if no constructor string is
+    //      specified.
 
     private TokenManager() {}
 
@@ -268,7 +273,29 @@ public final class TokenManager {
      */
     public static TokenCommand generateTokenCommand(Object instance, Method method)
     {
-        return new TokenCommand(instance, method, parseCommand(method));
+
+        List<Class<?>> reflections = method.isAnnotationPresent(Command.class)
+            ? List.of(method.getAnnotation(Command.class).reflections())
+            : Collections.emptyList();
+
+        return generateTokenCommand(instance, method, reflections);
+    }
+
+    /**
+     * Generates an {@link TokenCommand} from the passed in parameters.
+     *
+     * @param instance
+     *      The {@link Object} that the {@link Method} belongs to
+     * @param method
+     *      The {@link Method} to make the command from
+     * @param methodClasses
+     *      The {@link Class classes} that the command can invoke methods from
+     *
+     * @return A {@link TokenCommand} representing the specified {@link Method}
+     */
+    public static TokenCommand generateTokenCommand(Object instance, Method method, List<Class<?>> methodClasses)
+    {
+        return new TokenCommand(instance, method, parseCommand(method), methodClasses);
     }
 
     /**
@@ -289,7 +316,8 @@ public final class TokenManager {
         String displayCommand = retrieveDisplayCommand(method);
 
         return new TokenCommand(instance, method, parseCommand(method, displayCommand),
-            displayCommand, command.description(), command.permission(), getRestrictedToList(command.restrictedTo()));
+            displayCommand, command.description(), command.permission(), getRestrictedToList(command.restrictedTo()),
+            List.of(command.reflections()));
     }
 
     /**
@@ -302,9 +330,6 @@ public final class TokenManager {
      */
     private static List<Long> getRestrictedToList(long[] restrictedTo)
     {
-        if (1 == restrictedTo.length && -1 == restrictedTo[0])
-            return new ArrayList<>();
-
         List<Long> restrictedToList = new ArrayList<>();
         for (long user : restrictedTo)
             restrictedToList.add(user);
@@ -353,12 +378,8 @@ public final class TokenManager {
      */
     public static String retrieveDisplayCommand(Method method)
     {
-        if (!method.isAnnotationPresent(Command.class))
-            throw new IllegalCommandException(
-                String.format("Cannot parse the method %s as it isn't annotated with Command", method.getName()));
-
         Command command = method.getAnnotation(Command.class);
-        return command.command().isEmpty()
+        return null == command || command.command().isEmpty()
             ? generateCommand(method.getParameterTypes(), method.getParameterAnnotations())
             : command.command();
     }
@@ -454,6 +475,57 @@ public final class TokenManager {
         }
 
         return commandTokens;
+    }
+
+    /**
+     * Retrieves an {@link Optional} containing the result of invoking the matching method.
+     *
+     * @param invocationToken
+     *      The {@link InvocationTokenInfo}
+     * @param reflections
+     *      The {@link List<Class>} of classes that methods are allowed to be invoked from
+     * @param requiredReturnType
+     *      The required return type of the method
+     *
+     * @return An {@link Optional} containing the invoked matching method.
+     */
+    public static Optional<Object> getTokenCommandFromMethodInvocation(@NotNull InvocationTokenInfo invocationToken,
+                                                                       @NotNull List<Class<?>> reflections,
+                                                                       @NotNull Class<?> requiredReturnType)
+    {
+        if (reflections.isEmpty()) return Optional.empty();
+
+        Optional<String> oType = invocationToken.getNextSurrounded("#", ".");
+        if (oType.isEmpty()) return Optional.empty();
+
+
+        Optional<Class<?>> oMethodClass = reflections
+            .stream()
+            .filter(c -> TokenManager.getTypeAlias(c).equalsIgnoreCase(oType.get()))
+            .findFirst();
+
+        if (oMethodClass.isPresent()) {
+            Class<?> methodClass = oMethodClass.get();
+
+            Optional<String> oMethodName = invocationToken.getNext("(", false);
+            Optional<String> oParameters = invocationToken.getNextSurrounded("(", ")");
+
+            if (oMethodName.isPresent() && oParameters.isPresent()) {
+                String methodName = oMethodName.get();
+                InvocationTokenInfo parameters = InvocationTokenInfo.of(oParameters.get()).saveState(invocationToken);
+
+                return Reflect.getMethods(methodClass, methodName, true)
+                    .stream()
+                    .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
+                    .filter(m -> requiredReturnType.isAssignableFrom(m.getReturnType()))
+                    .map(m -> TokenManager.generateTokenCommand(null, m, reflections))
+                    .filter(m -> m.matches(parameters.restoreState(invocationToken)))
+                    .findFirst()
+                    .flatMap(tokenCommand -> tokenCommand.invoke(parameters.restoreState(invocationToken), null, null));
+            }
+        }
+
+        return Optional.empty();
     }
 
     /**

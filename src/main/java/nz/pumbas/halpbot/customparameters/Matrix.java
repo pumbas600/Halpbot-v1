@@ -10,6 +10,8 @@ import nz.pumbas.commands.validation.Implicit;
 
 public class Matrix
 {
+    public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);
+
     private final int rows;
     private final int columns;
 
@@ -96,6 +98,11 @@ public class Matrix
         return size == this.getColumns() && size == this.getRows();
     }
 
+    public boolean isSquare()
+    {
+        return this.getColumns() == this.getRows();
+    }
+
     public double getDeterminant() {
         if (this.isSquare(2))
             //ad - bc
@@ -137,5 +144,49 @@ public class Matrix
         stringBuilder.append("```");
 
         return stringBuilder.toString();
+    }
+
+    public static Matrix scale(double scaleFactor)
+    {
+        return new Matrix(2, 2, scaleFactor, 0, 0, scaleFactor);
+    }
+
+    public static Matrix xStretch(double stretchFactor)
+    {
+        return new Matrix(2, 2, stretchFactor, 0, 0, 1);
+    }
+
+    public static Matrix yStretch(double stretchFactor)
+    {
+        return new Matrix(2, 2, 1, 0, 0, stretchFactor);
+    }
+
+    public static Matrix xShear(double shearFactor)
+    {
+        return new Matrix(2, 2, 1, shearFactor, 0, 1);
+    }
+
+    public static Matrix yShear(double shearFactor)
+    {
+        return new Matrix(2, 2, 1, 0, shearFactor, 1);
+    }
+
+    public static Matrix xReflection()
+    {
+        return new Matrix(2, 2, 1, 0, 0, -1);
+    }
+
+    public static Matrix yReflection()
+    {
+        return new Matrix(2, 2, -1, 0, 0, 1);
+    }
+
+    public static Matrix rotate(double degrees)
+    {
+        double radians = Math.toRadians(degrees);
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        return new Matrix(2, 2, cos, -sin, sin, cos);
     }
 }
