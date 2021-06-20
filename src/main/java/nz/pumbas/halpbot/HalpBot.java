@@ -43,8 +43,7 @@ public class HalpBot extends ListenerAdapter
             new HalpBotCommands(),
             new SteamLookupCommands(),
             new FrictionCommands(),
-            new CalculusCommands(this.process),
-            new VectorCommands()
+            new CalculusCommands(this.process)
         );
         new TokenCommandAdapter(builder, "$")
             .registerCommands(

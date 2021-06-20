@@ -14,4 +14,10 @@ class MatrixCommands {
     fun transpose(matrix: Matrix): Matrix {
         return matrix.transpose()
     }
+
+    @Command(alias = "Multiply", description = "Multiplies two matrices")
+    fun multiply(matrix1: Matrix, matrix2: Matrix): Matrix {
+        return matrix1.multiply(matrix2)
+    }
+
 }

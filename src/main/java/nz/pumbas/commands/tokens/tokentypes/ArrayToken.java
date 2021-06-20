@@ -53,7 +53,7 @@ public class ArrayToken implements ParsingToken {
     private ParsingToken generateCommandToken(Class<?> arrayType)
     {
         List<CommandToken> commandTokens = TokenManager.parseCommand(
-            TokenManager.getTypeAlias(arrayType),
+            "#" + TokenManager.getTypeAlias(arrayType),
             new Class[]{ arrayType },
             new Annotation[1][0]);
 
