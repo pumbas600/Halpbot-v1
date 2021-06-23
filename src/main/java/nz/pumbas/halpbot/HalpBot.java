@@ -49,7 +49,8 @@ public class HalpBot extends ListenerAdapter
             .registerCommands(
                 new TokenCommands(),
                 new KotlinCommands(),
-                new MatrixCommands());
+                new MatrixCommands(),
+                new VectorCommands());
 
         this.jda = builder.build();
     }

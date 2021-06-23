@@ -17,14 +17,8 @@ class MatrixCommands {
     }
 
     @Command(alias = "Multiply", description = "Multiplies two or more matrices", reflections = [Matrix::class])
-    fun multiply(matrix: Matrix, @Implicit otherMatrices: Array<Matrix>): Matrix {
-        var result = matrix
-
-        for (otherMatrix in otherMatrices) {
-            result = result.multiply(otherMatrix)
-        }
-
-        return result
+    fun multiply(matrix: Matrix, other: Matrix): Matrix {
+        return matrix.multiply(other)
     }
 
 }

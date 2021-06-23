@@ -1,62 +1,58 @@
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
 import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.halpbot.customparameters.Vector3;
 
-@CommandGroup(defaultPrefix = "$")
 public class VectorCommands
 {
 
-    @Command(alias = "add")
-    public void onAdd(MessageReceivedEvent event, Vector3 a, Vector3 b) {
-        event.getChannel().sendMessage(a.add(b).toString()).queue();
+    @Command(alias = "VAdd", description = "Adds 2 vectors")
+    public Vector3 onAdd(Vector3 a, Vector3 b) {
+        return a.add(b);
     }
 
-    @Command(alias = "subtract")
-    public void onSub(MessageReceivedEvent event, Vector3 a, Vector3 b) {
-        event.getChannel().sendMessage(a.subtract(b).toString()).queue();
+    @Command(alias = "VSubtract", description = "Subtracts a vector from another")
+    public Vector3 onSubtract(Vector3 a, Vector3 b) {
+        return a.subtract(b);
     }
 
-    @Command(alias = "multiply")
-    public void onMultiply(MessageReceivedEvent event, Vector3 a, double b) {
-        event.getChannel().sendMessage(a.multiply(b).toString()).queue();
+    @Command(alias = "VMultiply", description = "Multiplies a vector by a constant")
+    public Vector3 onMultiply(Vector3 a, double b) {
+        return a.multiply(b);
     }
 
-    @Command(alias = "divide")
-    public void onDivide(MessageReceivedEvent event, Vector3 a, double b) {
-        event.getChannel().sendMessage(a.divide(b).toString()).queue();
+    @Command(alias = "VDivide", description = "Divides a vector by a constant")
+    public Vector3 onDivide(Vector3 a, double b) {
+       return a.divide(b);
     }
 
-    @Command(alias = "unit")
-    public void onUnitVector(MessageReceivedEvent event, Vector3 a) {
-        event.getChannel().sendMessage(a.getUnitVector().toString()).queue();
+    @Command(alias = "VUnit", description = "Determines the unit vector")
+    public Vector3 onUnitVector(Vector3 a) {
+        return a.getUnitVector();
     }
 
-    @Command(alias = "magnitude")
-    public void onMagnitude(MessageReceivedEvent event, Vector3 a) {
-        event.getChannel().sendMessage(String.valueOf(a.getMagnitude())).queue();
+    @Command(alias = "VMagnitude", description = "Determines the magnitude of the vector")
+    public double onMagnitude(Vector3 a) {
+        return a.getMagnitude();
     }
 
-    @Command(alias = "dot")
-    public void onDot(MessageReceivedEvent event, Vector3 a, Vector3 b) {
-        event.getChannel().sendMessage(String.valueOf(a.dot(b))).queue();
+    @Command(alias = "VDot", description = "Determines the dot product of the two vectors")
+    public double onDot(Vector3 a, Vector3 b) {
+        return a.dot(b);
     }
 
-    @Command(alias = "angle")
-    public void onAngle(MessageReceivedEvent event, Vector3 a, Vector3 b) {
-        event.getChannel().sendMessage(String.valueOf(a.getAngleBetween(b))).queue();
+    @Command(alias = "VAngle", description = "Finds the angle between two vectors in degrees")
+    public double onAngle(Vector3 a, Vector3 b) {
+        return a.getAngleBetween(b);
     }
 
-    @Command(alias = "cross")
-    public void onCross(MessageReceivedEvent event, Vector3 a, Vector3 b) {
-        event.getChannel().sendMessage(a.cross(b).toString()).queue();
+    @Command(alias = "VCross", description = "Determines the cross product of the two vectors")
+    public Vector3 onCross(Vector3 a, Vector3 b) {
+        return a.cross(b);
     }
 
-    @Command(alias = "project")
-    public void onProject(MessageReceivedEvent event, Vector3 a, Vector3 b) {
-        event.getChannel().sendMessage(a.getParallelComponent(b).toString()).queue();
+    @Command(alias = "VProject", description = "Finds the projection of the first vector on to the second vector")
+    public Vector3 onProject(Vector3 a, Vector3 b) {
+        return a.getParallelComponent(b);
     }
 }
