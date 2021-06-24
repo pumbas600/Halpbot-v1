@@ -3,7 +3,7 @@ package nz.pumbas.commands;
 
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.Unrequired;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
 import nz.pumbas.commands.tokens.tokentypes.CommandToken;
@@ -16,6 +16,8 @@ import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
 import nz.pumbas.halpbot.customparameters.Matrix;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.ShapeType;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Language;
 import nz.pumbas.utilities.Reflect;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -70,8 +72,16 @@ public class TokenTests {
     public void arrayTokenMatchesTest() {
         ArrayToken token = new ArrayToken(false, float[].class, "[1 4.5 3.1]");
 
-        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("[1 alpha 2.5]")));
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("[1.3 4.7 3]")));
+        Result<Object> result1 = token.parse(InvocationContext.of("[1 alpha 2.5]"));
+        Result<Object> result2 = token.parse(InvocationContext.of("[1.3 4.7 3]"));
+
+        Assertions.assertFalse(result1.hasValue());
+        Assertions.assertTrue(result1.hasReason());
+        Assertions.assertEquals("The token 'alpha' doesn't match the required syntax for a float",
+            result1.getReason().getTranslation(Language.EN_UK));
+
+        Assertions.assertTrue(result2.hasValue());
+        Assertions.assertFalse(result2.hasReason());
     }
 
     @Test
@@ -79,18 +89,22 @@ public class TokenTests {
         ArrayToken token = new ArrayToken(false, float[].class, "[]");
         float[] defaultValue = (float[]) token.getDefaultValue();
 
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("[]")));
+        Result<float[]> result = token.parse(InvocationContext.of("[]")).map(float[].class::cast);
+        Assertions.assertTrue(result.hasValue());
+        Assertions.assertEquals(0, ((float[])result.getValue()).length);
         Assertions.assertEquals(0, defaultValue.length);
     }
 
     @Test
     public void arrayTokenParsingTest() {
-        ArrayToken token = new ArrayToken(false, float[].class, "[1 4.5 3.1]");
+        ArrayToken token = new ArrayToken(false, float[].class, null);
 
-        float[] parsedValues = (float[]) token.parse(InvocationTokenInfo.of("[1.3 4.7 3]"));
-        Assertions.assertEquals(1.3F, parsedValues[0]);
-        Assertions.assertEquals(4.7F, parsedValues[1]);
-        Assertions.assertEquals(3F, parsedValues[2]);
+        Result<float[]> result = token.parse(InvocationContext.of("[1.3 4.7 3]")).map(float[].class::cast);
+
+        Assertions.assertTrue(result.hasValue());
+        Assertions.assertEquals(1.3F, result.getValue()[0]);
+        Assertions.assertEquals(4.7F, result.getValue()[1]);
+        Assertions.assertEquals(3F, result.getValue()[2]);
     }
 
     @Test
@@ -144,11 +158,17 @@ public class TokenTests {
         MultiChoiceToken token = new MultiChoiceToken(false, String.class, "x-axis",
                 List.of("x", "x-axis", "y", "y-axis"));
 
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("x")));
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("X-axis")));
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("y")));
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("y-Axis")));
-        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("axis")));
+        Result<String> result = token.parse(InvocationContext.of("axis")).map(String.class::cast);
+
+        Assertions.assertTrue(token.parse(InvocationContext.of("x")).hasValue());
+        Assertions.assertTrue(token.parse(InvocationContext.of("X-axis")).hasValue());
+        Assertions.assertTrue(token.parse(InvocationContext.of("y")).hasValue());
+        Assertions.assertTrue(token.parse(InvocationContext.of("y-Axis")).hasValue());
+        Assertions.assertFalse(result.hasValue());
+        Assertions.assertTrue(result.hasReason());
+        Assertions.assertEquals("The token 'axis' didn't match one of the expected values [x, x-axis, y, y-axis]",
+            result.getReason().getTranslation(Language.EN_UK));
+
         Assertions.assertEquals("x-axis", token.getDefaultValue());
     }
 
@@ -164,7 +184,7 @@ public class TokenTests {
         List<CommandToken> commandTokens = TokenManager.parseCommand(
                 "#double <from the> [x-axis|y-axis]", new Class<?>[] { Double.class, String.class },
             new Annotation[2][0]);
-        CommandToken multiChoiceToken = commandTokens.get(3);
+        ParsingToken multiChoiceToken = (ParsingToken) commandTokens.get(3);
 
         Assertions.assertEquals(4, commandTokens.size());
         Assertions.assertTrue(commandTokens.get(0) instanceof BuiltInTypeToken);
@@ -172,44 +192,57 @@ public class TokenTests {
         Assertions.assertTrue(commandTokens.get(2) instanceof PlaceholderToken);
         Assertions.assertTrue(commandTokens.get(3) instanceof MultiChoiceToken);
 
-        Assertions.assertTrue(multiChoiceToken.matches(InvocationTokenInfo.of("x-axis")));
-        Assertions.assertTrue(multiChoiceToken.matches(InvocationTokenInfo.of("Y-axis")));
-        Assertions.assertFalse(multiChoiceToken.matches(InvocationTokenInfo.of("axis")));
+        Assertions.assertTrue(multiChoiceToken.parse(InvocationContext.of("x-axis")).hasValue());
+        Assertions.assertTrue(multiChoiceToken.parse(InvocationContext.of("Y-axis")).hasValue());
+        Assertions.assertFalse(multiChoiceToken.parse(InvocationContext.of("axis")).hasValue());
     }
 
     @Test
     public void enumTokenTest() {
         BuiltInTypeToken token = new BuiltInTypeToken(false, ShapeType.class, null);
 
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("Square")));
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("Circle")));
-        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("Line")));
-        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("1")));
+        Result<ShapeType> result = token.parse(InvocationContext.of("Line")).map(ShapeType.class::cast);
+
+        Assertions.assertTrue(token.parse(InvocationContext.of("Square")).hasValue());
+        Assertions.assertTrue(token.parse(InvocationContext.of("Circle")).hasValue());
+        Assertions.assertFalse(token.parse(InvocationContext.of("1")).hasValue());
+        Assertions.assertFalse(result.hasValue());
+        Assertions.assertTrue(result.hasReason());
+        Assertions.assertEquals("The token 'Line' doesn't match any of the values for the enum ShapeType",
+            result.getReason().getTranslation(Language.EN_UK));
     }
 
     @Test
     public void objectTypeTokenTest() {
         ObjectTypeToken token = new ObjectTypeToken(false, Shape.class, null);
 
-        Shape square = (Shape) token.parse(InvocationTokenInfo.of("#Shape[Square 2 0 0]"));
-        Shape rectangle = (Shape) token.parse(InvocationTokenInfo.of("#Shape[Rectangle 2 1 0 0]"));
+        Result<Shape> squareResult = token.parse(InvocationContext.of("Shape[Square 2 0 0]")).map(Shape.class::cast);
+        Result<Shape> rectangleResult = token.parse(InvocationContext.of("Shape[Rectangle 2 1 0 0]")).map(Shape.class::cast);
+        Result<Object> falseResult1 = token.parse(InvocationContext.of("Shope[Square 2 0 0]"));
+        Result<Object> falseResult2 = token.parse(InvocationContext.of("Shape[2 0 0]"));
 
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("#Shape[Square 2 0 0]")));
-        Assertions.assertTrue(token.matches(InvocationTokenInfo.of("#Shape[Rectangle 2 1 0 0]")));
-        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("#Shope[Square 2 0 0]")));
-        Assertions.assertFalse(token.matches(InvocationTokenInfo.of("#Shape[2 0 0]")));
+        Assertions.assertTrue(squareResult.hasValue());
+        Assertions.assertTrue(rectangleResult.hasValue());
 
-        Assertions.assertNotNull(square);
-        Assertions.assertNotNull(rectangle);
-        Assertions.assertEquals(4, square.getArea());
-        Assertions.assertEquals(2, rectangle.getArea());
+        Assertions.assertFalse(falseResult1.hasValue());
+        Assertions.assertTrue(falseResult1.hasReason());
+        Assertions.assertEquals("The alias 'Shope', didn't match the expected Shape",
+            falseResult1.getReason().getTranslation(Language.EN_UK));
+
+        Assertions.assertFalse(falseResult2.hasValue());
+        Assertions.assertTrue(falseResult2.hasReason());
+        Assertions.assertEquals("There doesn't appear to be a constructor that matches '2 0 0'",
+            falseResult2.getReason().getTranslation(Language.EN_UK));
+
+        Assertions.assertEquals(4, squareResult.getValue().getArea());
+        Assertions.assertEquals(2, rectangleResult.getValue().getArea());
     }
 
     @Test
     public void methodInvocationTest()
     {
         Optional<Object> oObject = TokenManager.handleReflectionSyntax(
-            InvocationTokenInfo.of("#Matrix.scale(2)"), List.of(Matrix.class), Matrix.class);
+            InvocationContext.of("Matrix.scale[2]"), List.of(Matrix.class), Matrix.class);
 
         Assertions.assertTrue(oObject.isPresent());
         Assertions.assertTrue(oObject.get() instanceof Matrix);

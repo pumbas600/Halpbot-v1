@@ -26,9 +26,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import nz.pumbas.commands.ErrorManager;
-import nz.pumbas.objects.Result;
 import nz.pumbas.objects.Tuple;
-import nz.pumbas.resources.Resource;
 import nz.pumbas.utilities.enums.Modifiers;
 
 public final class Reflect {
@@ -105,32 +103,6 @@ public final class Reflect {
             .getKey()
             .matcher(s)
             .matches();
-    }
-
-
-    /**
-     * Checks if the string matches the required syntax of the specified type.
-     *
-     * @param s
-     *      The {@link String} to check
-     * @param type
-     *      The {@link Class type} to check the syntax against
-     *
-     * @return If the string matches the syntax of the type
-     */
-    public static Result<Boolean> matchesTest(String s, Class<?> type)
-    {
-        Class<?> unwrappedType = getPrimativeType(type);
-
-        if (!TypeParsers.containsKey(unwrappedType))
-            throw new IllegalArgumentException("You can only match strings of simple types");
-
-        boolean matches = TypeParsers.get(unwrappedType)
-            .getKey()
-            .matcher(s)
-            .matches();
-        return Result.of(matches,
-            Resource.get("halpbot.commands.type.mismatch", s, type.getSimpleName()));
     }
 
     /**
@@ -631,5 +603,43 @@ public final class Reflect {
                 return Optional.of(toElement);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Returns if the passed in {@link String value} is a valid value of the {@link Enum}.
+     * Note: This method is case sensitive.
+     *
+     * @param enumClass
+     *      The {@link Class} of the {@link Enum}
+     * @param value
+     *      The {@link String value} to test
+     *
+     * @return if the {@link String value} is a valid value of the {@link Enum}
+     */
+    public static boolean isEnumValue(Class<?> enumClass, String value) {
+        return parseEnumValue(enumClass, value).isPresent();
+    }
+
+    /**
+     * Returns if the passed in {@link String value} is a valid value of the {@link Enum}.
+     * Note: This method is case sensitive.
+     *
+     * @param enumClass
+     *      The {@link Class} of the {@link Enum}
+     * @param value
+     *      The {@link String value} to test
+     *
+     * @return if the {@link String value} is a valid value of the {@link Enum}
+     */
+    @SuppressWarnings("rawtypes")
+    public static Optional<Enum> parseEnumValue(Class<?> enumClass, @NonNls String value) {
+        if (!enumClass.isEnum())
+            throw new IllegalArgumentException(
+                String.format("The type %s must be an enum.", enumClass.getSimpleName()));
+
+        return Arrays.stream(enumClass.getEnumConstants())
+            .map(Enum.class::cast)
+            .filter(e -> e.name().equalsIgnoreCase(value))
+            .findFirst();
     }
 }

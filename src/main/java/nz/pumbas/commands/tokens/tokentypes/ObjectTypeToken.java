@@ -1,14 +1,16 @@
 package nz.pumbas.commands.tokens.tokentypes;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 import java.util.Optional;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Resource;
 
 public class ObjectTypeToken implements ParsingToken
 {
@@ -41,12 +43,12 @@ public class ObjectTypeToken implements ParsingToken
      * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken
-     *     The {@link InvocationTokenInfo invocation token} containing the invoking information
+     *     The {@link InvocationContext invocation token} containing the invoking information
      *
-     * @return If the {@link InvocationTokenInfo invocation token} matches this {@link CommandToken}
+     * @return If the {@link InvocationContext invocation token} matches this {@link CommandToken}
      */
     @Override
-    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
+    public boolean matchesOld(@NotNull InvocationContext invocationToken)
     {
         Optional<String> oTypeAlias = invocationToken.getNextSurrounded("#", "[", false);
         if (oTypeAlias.isEmpty() || !oTypeAlias.get().equalsIgnoreCase(TokenManager.getTypeAlias(this.type)))
@@ -54,7 +56,7 @@ public class ObjectTypeToken implements ParsingToken
 
         Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
         if (oParameters.isPresent()) {
-            InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oParameters.get());
+            InvocationContext subInvocationToken = InvocationContext.of(oParameters.get());
             subInvocationToken.saveState(this);
 
             for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
@@ -85,22 +87,22 @@ public class ObjectTypeToken implements ParsingToken
     }
 
     /**
-     * Parses an {@link InvocationTokenInfo invocation token} to the type of the {@link ParsingToken}.
+     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
      *
-     * @param invocationToken
-     *     The {@link InvocationTokenInfo invocation token} to be parsed into the type of the {@link ParsingToken}
+     * @param context
+     *     The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
      *
-     * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
+     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
      */
     @Override
     @Nullable
-    public Object parse(@NotNull InvocationTokenInfo invocationToken)
+    public Object parseOld(@NotNull InvocationContext context)
     {
-        invocationToken.getNext("[", false);
-        Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
+        context.getNext("[", false);
+        Optional<String> oParameters = context.getNextSurrounded("[", "]");
 
         if (oParameters.isPresent()) {
-            InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oParameters.get());
+            InvocationContext subInvocationToken = InvocationContext.of(oParameters.get());
             subInvocationToken.saveState(this);
             for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
                 if (tokenCommand.matches(subInvocationToken.restoreState(this))) {
@@ -120,6 +122,52 @@ public class ObjectTypeToken implements ParsingToken
     public Object getDefaultValue()
     {
         return this.defaultValue;
+    }
+
+    /**
+     * Parses the context into the type of this {@link ParsingToken}. If the context doesn't match, the
+     * {@link Result} will contain a {@link Resource} explaing why.
+     *
+     * @param context
+     *     The {@link InvocationContext}
+     *
+     * @return An {@link Result} containing the parsed context
+     */
+    @Override
+    public Result<Object> parse(@NotNull InvocationContext context)
+    {
+        @NonNls String expectedTypeAlias = TokenManager.getTypeAlias(this.type);
+        Optional<String> oTypeAlias = context.getNext("[", false);
+
+        if (oTypeAlias.isEmpty())
+            return Result.of(Resource.get("halpbot.commands.match.object.missingbrackets",expectedTypeAlias));
+
+        if (!oTypeAlias.get().equalsIgnoreCase(expectedTypeAlias))
+            return Result.of(Resource.get("halpbot.commands.match.object.alias",
+                oTypeAlias.get(), expectedTypeAlias));
+
+        Optional<String> oParameters = context.getNextSurrounded("[", "]");
+        if (oParameters.isEmpty())
+            return Result.of(Resource.get("halpbot.commands.match.object.missingclosingbracket",expectedTypeAlias));
+
+        InvocationContext parameterContext = InvocationContext.of(oParameters.get());
+        parameterContext.saveState(this);
+
+        Result<Object> result = Result.empty();
+        for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
+            result = tokenCommand.parse(parameterContext.restoreState(this))
+                .orIfEmpty(Result.of(Resource.get("halpbot.commands.match.object.creationerror",
+                    expectedTypeAlias, oParameters.get())));
+            if (result.hasValue())
+                break;
+
+//            if (tokenCommand.matches(subInvocationToken.restoreState(this)))
+//                return Result.of(tokenCommand.invoke(subInvocationToken.restoreState(this)),
+//                    Resource.get("halpbot.commands.match.object.creationerror",
+//                        expectedTypeAlias, oParameters.get()));
+        }
+        return result;
+        //return Result.of(Resource.get("halpbot.commands.match.object.constructor", oParameters.get()));
     }
 
     @Override

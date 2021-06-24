@@ -1,7 +1,6 @@
 package nz.pumbas.commands.tokens.tokensyntax;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,28 +8,28 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InvocationTokenInfo
+public class InvocationContext
 {
     private final String original;
     private int currentIndex;
     private final Map<Object, Integer> savedIndices = new HashMap<>();
 
-    protected InvocationTokenInfo(@NotNull String invocationToken)
+    protected InvocationContext(@NotNull String context)
     {
-        this.original = invocationToken;
+        this.original = context;
     }
 
     /**
-     * Creates an {@link InvocationTokenInfo} from the passed {@link String invocation token}.
+     * Creates an {@link InvocationContext} from the passed {@link String invocation token}.
      *
-     * @param invocationToken
-     *      The {@link String invocation token} to create this {@link InvocationTokenInfo} from
+     * @param context
+     *      The {@link String invocation token} to create this {@link InvocationContext} from
      *
-     * @return A new {@link InvocationTokenInfo}
+     * @return A new {@link InvocationContext}
      */
-    public static InvocationTokenInfo of(String invocationToken)
+    public static InvocationContext of(String context)
     {
-        return new InvocationTokenInfo(invocationToken);
+        return new InvocationContext(context);
     }
 
     /**
@@ -231,7 +230,7 @@ public class InvocationTokenInfo
      *
      * @return Itself
      */
-    public InvocationTokenInfo saveState(Object reference)
+    public InvocationContext saveState(Object reference)
     {
         this.savedIndices.put(reference, this.currentIndex);
         return this;
@@ -245,7 +244,7 @@ public class InvocationTokenInfo
      *
      * @return Itself
      */
-    public InvocationTokenInfo restoreState(Object reference)
+    public InvocationContext restoreState(Object reference)
     {
         this.currentIndex = this.savedIndices.getOrDefault(reference, this.currentIndex);
         return this;

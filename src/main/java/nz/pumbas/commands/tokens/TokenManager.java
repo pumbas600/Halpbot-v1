@@ -21,7 +21,7 @@ import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.exceptions.IllegalTokenSyntaxDefinitionException;
 import nz.pumbas.commands.tokens.tokensyntax.CommandTokenInfo;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions;
 import nz.pumbas.commands.tokens.tokentypes.CommandToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
@@ -481,7 +481,7 @@ public final class TokenManager {
      * Retrieves an {@link Optional} containing the result of any reflection syntax.
      *
      * @param invocationToken
-     *      The {@link InvocationTokenInfo}
+     *      The {@link InvocationContext}
      * @param reflections
      *      The {@link List<Class>} of classes that the reflections can access
      * @param requiredReturnType
@@ -489,13 +489,13 @@ public final class TokenManager {
      *
      * @return An {@link Optional} containing the result of any reflection syntax.
      */
-    public static Optional<Object> handleReflectionSyntax(@NotNull InvocationTokenInfo invocationToken,
+    public static Optional<Object> handleReflectionSyntax(@NotNull InvocationContext invocationToken,
                                                           @NotNull List<Class<?>> reflections,
                                                           @NotNull Class<?> requiredReturnType)
     {
         if (reflections.isEmpty()) return Optional.empty();
 
-        Optional<String> oType = invocationToken.getNextSurrounded("#", ".");
+        Optional<String> oType = invocationToken.getNext(".");
         if (oType.isEmpty()) return Optional.empty();
 
 
@@ -507,7 +507,7 @@ public final class TokenManager {
         if (oClass.isPresent()) {
             Class<?> reflectionClass = oClass.get();
 
-            Optional<String> oMethodName = invocationToken.getNext("(", false);
+            Optional<String> oMethodName = invocationToken.getNext("[", false);
 
             return oMethodName.isPresent()
                 ? handleMethodReflectionSyntax(invocationToken, oMethodName.get(),
@@ -524,7 +524,7 @@ public final class TokenManager {
      * Handles {@link Method} reflection syntax invocation and parsing. Note: Only public, static methods may be invoked.
      *
      * @param invocationToken
-     *      The {@link InvocationTokenInfo}
+     *      The {@link InvocationContext}
      * @param methodName
      *      The {@link String name} of the method
      * @param reflections
@@ -536,16 +536,16 @@ public final class TokenManager {
      *
      * @return An {@link Optional} containing the result of the invoked method
      */
-    private static Optional<Object> handleMethodReflectionSyntax(@NotNull InvocationTokenInfo invocationToken,
+    private static Optional<Object> handleMethodReflectionSyntax(@NotNull InvocationContext invocationToken,
                                                                  @NotNull String methodName,
                                                                  @NotNull List<Class<?>> reflections,
                                                                  @NotNull Class<?> reflectionClass,
                                                                  @NotNull Class<?> requiredReturnType)
     {
-        Optional<String> oParameters = invocationToken.getNextSurrounded("(", ")");
+        Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
         if (oParameters.isEmpty()) return Optional.empty();
 
-        InvocationTokenInfo parameters = InvocationTokenInfo.of(oParameters.get()).saveState(invocationToken);
+        InvocationContext parameters = InvocationContext.of(oParameters.get()).saveState(invocationToken);
 
         return Reflect.getMethods(reflectionClass, methodName, true)
             .stream()
@@ -562,7 +562,7 @@ public final class TokenManager {
      * referenced.
      *
      * @param invocationToken
-     *      The {@link InvocationTokenInfo}
+     *      The {@link InvocationContext}
      * @param reflectionClass
      *      The {@link Class} that is being referenced in the reflection syntax
      * @param requiredReturnType
@@ -570,7 +570,7 @@ public final class TokenManager {
      *
      * @return An {@link Optional} containing the specified field.
      */
-    private static Optional<Object> handleFieldReflectionSyntax(@NotNull InvocationTokenInfo invocationToken,
+    private static Optional<Object> handleFieldReflectionSyntax(@NotNull InvocationContext invocationToken,
                                                                 @NotNull Class<?> reflectionClass,
                                                                 @NotNull Class<?> requiredReturnType)
     {

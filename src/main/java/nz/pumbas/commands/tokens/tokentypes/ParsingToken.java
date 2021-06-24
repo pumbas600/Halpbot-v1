@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.objects.Result;
 
 /**
@@ -24,14 +24,14 @@ public interface ParsingToken extends CommandToken {
     Class<?> getType();
 
     /**
-     * Parses an {@link InvocationTokenInfo invocation token} to the type of the {@link ParsingToken}.
+     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
      *
-     * @param invocationToken
-     *      The {@link InvocationTokenInfo invocation token} to be parsed into the type of the {@link ParsingToken}
+     * @param context
+     *      The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
      *
-     * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
+     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
      */
-    Object parse(@NotNull InvocationTokenInfo invocationToken);
+    Object parseOld(@NotNull InvocationContext context);
 
     /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
@@ -44,7 +44,7 @@ public interface ParsingToken extends CommandToken {
      * then it returns null.
      * 
      * @param defaultValue
-     *      {@link String default value} to be parsed into an {@link Object} using {@link ParsingToken#parse(InvocationTokenInfo)}
+     *      {@link String default value} to be parsed into an {@link Object} using {@link ParsingToken#parseOld(InvocationContext)}
      *      
      * @return The parsed {@link Object default value}
      */
@@ -53,12 +53,23 @@ public interface ParsingToken extends CommandToken {
         if (null == defaultValue || "null".equalsIgnoreCase(defaultValue))
             return null;
         else {
-            InvocationTokenInfo invocationToken = InvocationTokenInfo.of(defaultValue).saveState(this);
-            if (!this.matches(invocationToken))
+            InvocationContext context = InvocationContext.of(defaultValue).saveState(this);
+            if (!this.matchesOld(context))
                 throw new IllegalArgumentException(
                         String.format("The default value %s doesn't match the required format of the type %s", defaultValue, this.getType().getSimpleName()));
 
-            return this.parse(invocationToken.restoreState(this));
+            return this.parseOld(context.restoreState(this));
         }
     }
+
+    /**
+     * Parses the context into the type of this {@link ParsingToken}. If the context doesn't match, the
+     * {@link Result} will contain a {@link nz.pumbas.resources.Resource} explaing why.
+     *
+     * @param context
+     *      The {@link InvocationContext}
+     *
+     * @return An {@link Result} containing the parsed context
+     */
+    Result<Object> parse(@NotNull InvocationContext context);
 }

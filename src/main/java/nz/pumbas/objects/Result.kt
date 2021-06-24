@@ -1,25 +1,36 @@
 package nz.pumbas.objects
 
 import nz.pumbas.resources.Resource
+import java.util.*
 
-data class Result<T>(val value: T?, val reason: Resource?)
+data class Result<T>(val value: T?, var reason: Resource?)
 {
     companion object {
         private val Empty = of(null)
 
         @JvmStatic
-        fun <T> of(value: T?, reason: Resource?) : Result<T> {
+        fun <T> of(value: T?, reason: Resource?): Result<T> {
             return Result(value, reason)
         }
 
         @JvmStatic
-        fun <T> of(value: T?) : Result<T> {
+        fun <T> of(value: T?): Result<T> {
             return Result(value, null)
         }
 
         @JvmStatic
-        fun <T> of(reason: Resource) : Result<T> {
+        fun <T> of(reason: Resource): Result<T> {
             return Result(null, reason)
+        }
+
+        @JvmStatic
+        fun <T> of(optional: Optional<T>): Result<T> {
+            return if (optional.isPresent) of(optional.get()) else empty()
+        }
+
+        @JvmStatic
+        fun <T> of(optional: Optional<T>, ifEmptyReason: Resource): Result<T> {
+            return if(optional.isPresent) of(optional.get()) else of(ifEmptyReason)
         }
 
         @JvmStatic
@@ -37,12 +48,30 @@ data class Result<T>(val value: T?, val reason: Resource?)
         return null != this.value
     }
 
-    fun isResourceAbsent(): Boolean {
+    fun isReasonAbsent(): Boolean {
         return null == this.reason
     }
 
     fun isValueAbsent(): Boolean {
         return null == this.value
+    }
+
+    fun ifValueAbsent(reason: Resource): Result<T> {
+        if (this.isValueAbsent())
+            this.reason = reason
+        return this
+    }
+
+    fun ifReasonAbsent(reason: Resource): Result<T> {
+        if (this.isReasonAbsent())
+            this.reason = reason
+        return this
+    }
+
+    fun ifValuePresent(reason: Resource): Result<T> {
+        if (this.hasValue())
+            this.reason = reason
+        return this
     }
 
     fun ifReasonPresent(consumer: (Resource) -> Unit): Result<T> {
@@ -62,14 +91,14 @@ data class Result<T>(val value: T?, val reason: Resource?)
     /**
      * If this [Result] is empty, it returns the [Result] in the supplier, otherwise it returns itself.
      */
-    fun ifEmpty(supplier: () -> Result<T>): Result<T> {
+    fun orIfEmpty(supplier: () -> Result<T>): Result<T> {
         return if (this.isEmpty()) supplier() else this
     }
 
     /**
      * If this [Result] is empty, it returns the alternative [Result], otherwise it returns itself.
      */
-    fun ifEmpty(alternative: Result<T>): Result<T> {
+    fun orIfEmpty(alternative: Result<T>): Result<T> {
         return if (this.isEmpty()) alternative else this
     }
 

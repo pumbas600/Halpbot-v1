@@ -3,7 +3,7 @@ package nz.pumbas.commands.tokens.attributes;
 import java.lang.annotation.Annotation;
 import java.util.Optional;
 
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.utilities.enums.Tristate;
 
@@ -15,13 +15,13 @@ public interface TokenAttribute
     Class<? extends Annotation> getAttributeType();
 
     /**
-     * @return If the {@link TokenAttribute#matches(ParsingToken, InvocationTokenInfo)} should be called before or
+     * @return If the {@link TokenAttribute#matches(ParsingToken, InvocationContext)} should be called before or
      * after the default token matches functionality.
      */
     boolean checkBeforeTokenMatches();
 
     /**
-     * Returns if the {@link InvocationTokenInfo} for the specified {@link ParsingToken} token matches the
+     * Returns if the {@link InvocationContext} for the specified {@link ParsingToken} token matches the
      * requirements of this {@link TokenAttribute}.
      * <pre>
      * Note that different return types have different meanings:
@@ -33,11 +33,11 @@ public interface TokenAttribute
      * @param token
      *      The {@link ParsingToken} currently being checked
      * @param invocationToken
-     *      The {@link InvocationTokenInfo}
+     *      The {@link InvocationContext}
      *
      * @return The {@link Tristate} containing is it matches
      */
-    Tristate matches(ParsingToken token, InvocationTokenInfo invocationToken);
+    Tristate matches(ParsingToken token, InvocationContext invocationToken);
 
     /**
      * If {@link Optional#empty()} is returned, then the default invocation is used, otherwise the object contained
@@ -46,9 +46,9 @@ public interface TokenAttribute
      * @param token
      *      The {@link ParsingToken} currently being invoked
      * @param invocationToken
-     *      The {@link InvocationTokenInfo}
+     *      The {@link InvocationContext}
      *
      * @return An {@link Optional} containing the parsed result
      */
-    Optional<Object> invoke(ParsingToken token, InvocationTokenInfo invocationToken);
+    Optional<Object> invoke(ParsingToken token, InvocationContext invocationToken);
 }

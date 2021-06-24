@@ -10,8 +10,10 @@ import java.util.Optional;
 
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.validation.Implicit;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Resource;
 import nz.pumbas.utilities.Reflect;
 
 public class ArrayToken implements ParsingToken {
@@ -78,16 +80,16 @@ public class ArrayToken implements ParsingToken {
         return this.isOptional;
     }
 
-    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
+    public boolean matchesOld(@NotNull InvocationContext invocationToken)
     {
         invocationToken.saveState(this);
         if (Reflect.hasAnnotation(this.getAnnotations(), Implicit.class)
-            && this.commandToken.matches(invocationToken)) {
+            && this.commandToken.matchesOld(invocationToken)) {
 
             invocationToken.saveState(this);
             //Loop through as many possible tokens that match.
             while (invocationToken.hasNext()) {
-                if (this.commandToken.matches(invocationToken))
+                if (this.commandToken.matchesOld(invocationToken))
                     invocationToken.saveState(this);
                 else {
                     invocationToken.restoreState(this);
@@ -99,10 +101,10 @@ public class ArrayToken implements ParsingToken {
         else {
             Optional<String> oArrayParameters = invocationToken.restoreState(this).getNextSurrounded("[", "]");
             if (oArrayParameters.isPresent()) {
-                InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oArrayParameters.get());
+                InvocationContext subInvocationToken = InvocationContext.of(oArrayParameters.get());
 
                 while (subInvocationToken.hasNext()) {
-                    if (!this.commandToken.matches(subInvocationToken))
+                    if (!this.commandToken.matchesOld(subInvocationToken))
                         return false;
                 }
                 return !subInvocationToken.hasNext();
@@ -129,45 +131,45 @@ public class ArrayToken implements ParsingToken {
     }
 
     /**
-     * Parses an {@link InvocationTokenInfo invocation token} to the type of the {@link ParsingToken}.
+     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
      *
-     * @param invocationToken
-     *     The {@link InvocationTokenInfo invocation token} to be parsed into the type of the {@link ParsingToken}
+     * @param context
+     *     The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
      *
-     * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
+     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
      */
     @Override
     @Nullable
-    public Object parse(@NotNull InvocationTokenInfo invocationToken)
+    public Object parseOld(@NotNull InvocationContext context)
     {
         List<Object> parsedArray = new ArrayList<>();
-        invocationToken.saveState(this);
+        context.saveState(this);
         if (Reflect.hasAnnotation(this.getAnnotations(), Implicit.class)
-            && this.commandToken.matches(invocationToken)) {
+            && this.commandToken.matchesOld(context)) {
 
-            invocationToken.restoreState(this);
+            context.restoreState(this);
             do {
-                parsedArray.add(this.commandToken.parse(invocationToken));
-                invocationToken.saveState(this);
+                parsedArray.add(this.commandToken.parseOld(context));
+                context.saveState(this);
 
-                if (!this.commandToken.matches(invocationToken)) {
-                    invocationToken.restoreState(this);
+                if (!this.commandToken.matchesOld(context)) {
+                    context.restoreState(this);
                     break;
                 }
-                invocationToken.restoreState(this);
+                context.restoreState(this);
             }
-            while (invocationToken.hasNext());
+            while (context.hasNext());
         }
         else {
-            Optional<String> oArrayParameters = invocationToken.restoreState(this).getNextSurrounded("[", "]");
+            Optional<String> oArrayParameters = context.restoreState(this).getNextSurrounded("[", "]");
             if (oArrayParameters.isEmpty())
                 return null;
 
-            InvocationTokenInfo subInvocationToken = InvocationTokenInfo.of(oArrayParameters.get());
+            InvocationContext subInvocationToken = InvocationContext.of(oArrayParameters.get());
 
 
             while (subInvocationToken.hasNext()) {
-                parsedArray.add(this.commandToken.parse(subInvocationToken));
+                parsedArray.add(this.commandToken.parseOld(subInvocationToken));
             }
         }
 
@@ -189,6 +191,57 @@ public class ArrayToken implements ParsingToken {
     @Nullable
     public Object getDefaultValue() {
         return this.defaultValue;
+    }
+
+    /**
+     * Parses the context into the type of this {@link ParsingToken}. If the context doesn't match, the
+     * {@link Result} will contain a {@link Resource} explaing why.
+     *
+     * @param context
+     *     The {@link InvocationContext}
+     *
+     * @return An {@link Result} containing the parsed context
+     */
+    @Override
+    public Result<Object> parse(@NotNull InvocationContext context)
+    {
+        List<Object> parsedArray = new ArrayList<>();
+        context.saveState(this);
+        Result<Object> parsingResult;
+
+        if (Reflect.hasAnnotation(this.getAnnotations(), Implicit.class)
+            && (parsingResult = this.commandToken.parse(context)).hasValue()) {
+
+            do {
+                parsedArray.add(parsingResult.getValue());
+                context.saveState(this);
+
+                parsingResult = this.commandToken.parse(context);
+                if (parsingResult.isValueAbsent()) {
+                    context.restoreState(this);
+                    break;
+                }
+            }
+            while (context.hasNext());
+        }
+        else {
+            Optional<String> oArrayParameters = context.restoreState(this).getNextSurrounded("[", "]");
+            if (oArrayParameters.isEmpty())
+                return Result.of(Resource.get("halpbot.commands.match.array.missingbrackets",
+                    TokenManager.getTypeAlias(Reflect.getArrayType(this.getType()))));
+
+            InvocationContext elementContext = InvocationContext.of(oArrayParameters.get());
+
+            while (elementContext.hasNext()) {
+                parsingResult = this.commandToken.parse(elementContext);
+                if (parsingResult.hasValue())
+                    parsedArray.add(parsingResult.getValue());
+                else return parsingResult;
+            }
+        }
+
+        return Result.of(Reflect.toArray(Reflect.getArrayType(this.type), parsedArray));
+
     }
 
     @Override

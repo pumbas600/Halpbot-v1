@@ -1,8 +1,11 @@
 package nz.pumbas.commands.tokens.tokentypes;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Resource;
 
 /**
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command:
@@ -36,22 +39,38 @@ public class PlaceholderToken implements CommandToken
     }
 
     /**
-     * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
+     * Returns if the passed in {@link InvocationContext context} matches this {@link CommandToken}.
      *
-     * @param invocationToken
-     *     The {@link InvocationTokenInfo invocation token} containing the invoking information
+     * @param context
+     *     The {@link InvocationContext context}
      *
-     * @return If the {@link InvocationTokenInfo invocation token} matches this {@link CommandToken}
+     * @return If the {@link InvocationContext context} matches this {@link CommandToken}
      */
     @Override
-    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
+    public boolean matchesOld(@NotNull InvocationContext context)
     {
-        return this.placeHolder.equalsIgnoreCase(invocationToken.getNext());
+        return this.placeHolder.equalsIgnoreCase(context.getNext());
+    }
+
+    /**
+     * Returns if the passed in {@link InvocationContext context} matches this {@link CommandToken}.
+     *
+     * @param context
+     *     The {@link InvocationContext context}
+     *
+     * @return If the {@link InvocationContext context} matches this {@link CommandToken}
+     */
+    public Result<Boolean> matches(@NotNull InvocationContext context)
+    {
+        @NonNls String token = context.getNext();
+        boolean matches = this.placeHolder.equalsIgnoreCase(token);
+        return matches ? Result.of(matches)
+            : Result.of(matches, Resource.get("halpbot.commands.match.placeholder", token, this.placeHolder));
     }
 
     /**
      * @return A {@link String} representation of this token in the format {@code PlaceholderToken{isOptional=%s,
-     * placeHolder=%s}}
+     *     placeHolder=%s}}
      */
     @Override
     public String toString()

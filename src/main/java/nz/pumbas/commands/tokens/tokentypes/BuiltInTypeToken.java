@@ -3,9 +3,11 @@ package nz.pumbas.commands.tokens.tokentypes;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Resource;
 import nz.pumbas.utilities.Reflect;
-import nz.pumbas.utilities.Utilities;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -47,15 +49,15 @@ public class BuiltInTypeToken implements ParsingToken
      * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken
-     *     The {@link InvocationTokenInfo invocation token} containing the invoking information
+     *     The {@link InvocationContext invocation token} containing the invoking information
      *
-     * @return If the {@link InvocationTokenInfo invocation token} matches this {@link CommandToken}
+     * @return If the {@link InvocationContext invocation token} matches this {@link CommandToken}
      */
     @Override
-    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
+    public boolean matchesOld(@NotNull InvocationContext invocationToken)
     {
         if (this.type.isEnum()) {
-            return Utilities.isValidValue(this.type, invocationToken.getNext().toUpperCase());
+            return Reflect.isEnumValue(this.type, invocationToken.getNext().toUpperCase());
         }
 
         return Reflect.matches(invocationToken.getNext(), this.type);
@@ -80,17 +82,18 @@ public class BuiltInTypeToken implements ParsingToken
     }
 
     /**
-     * Parses an {@link InvocationTokenInfo invocation token} to the type of the {@link ParsingToken}.
+     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
      *
-     * @param invocationToken
-     *     The {@link InvocationTokenInfo invocation token} to be parsed into the type of the {@link ParsingToken}
+     * @param context
+     *     The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
      *
-     * @return An {@link Object} parsing the {@link InvocationTokenInfo invocation token} to the correct type
+     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public Object parse(@NotNull InvocationTokenInfo invocationToken)
+    public Object parseOld(@NotNull InvocationContext context)
     {
-        String token = invocationToken.getNext();
+        String token = context.getNext();
         if (this.type.isEnum()) {
             return Enum.valueOf((Class<? extends Enum>)this.type, token.toUpperCase());
         }
@@ -105,10 +108,35 @@ public class BuiltInTypeToken implements ParsingToken
         return this.defaultValue;
     }
 
+    /**
+     * Parses the context into the type of this {@link ParsingToken}. If the context doesn't match, the
+     * {@link Result} will contain a {@link Resource} explaing why.
+     *
+     * @param context
+     *     The {@link InvocationContext}
+     *
+     * @return An {@link Result} containing the parsed context
+     */
+    @Override
+    public Result<Object> parse(@NotNull InvocationContext context)
+    {
+        String token = context.getNext();
+        if (this.getType().isEnum()) {
+            return Result.of(Reflect.parseEnumValue(this.type, token.toUpperCase()),
+                Resource.get("halpbot.commands.match.enum", token, this.getType().getSimpleName()))
+                .map(Object.class::cast);
+        }
+
+        return Reflect.matches(token, this.getType())
+            ? Result.of(Reflect.parse(token, this.getType()))
+            : Result.of(Resource.get("halpbot.commands.match.builtintype",
+            token, this.getType().getSimpleName()));
+    }
+
     @Override
     public String toString()
     {
         return String.format("BuiltInTypeToken{isOptional=%s, type=%s, defaultValue=%s}",
-            this.isOptional, this.type.getSimpleName(), this.defaultValue);
+            this.isOptional, this.getType().getSimpleName(), this.defaultValue);
     }
 }

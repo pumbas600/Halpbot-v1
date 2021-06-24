@@ -12,13 +12,15 @@ import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.validation.Implicit;
 import nz.pumbas.halpbot.customparameters.Matrix;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.Vector3;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Language;
 import nz.pumbas.utilities.Reflect;
 
 public class TokenCommandTests
@@ -28,11 +30,11 @@ public class TokenCommandTests
         TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Assertions.assertTrue(tokenCommand.matches(InvocationTokenInfo.of("1 [2 3 4 1]")));
-        Assertions.assertTrue(tokenCommand.matches(InvocationTokenInfo.of("2")));
-        Assertions.assertFalse(tokenCommand.matches(InvocationTokenInfo.of("2 [1 a 2]")));
-        Assertions.assertFalse(tokenCommand.matches(InvocationTokenInfo.of("abc [1 3 2]")));
-        Assertions.assertFalse(tokenCommand.matches(InvocationTokenInfo.of("2 agf")));
+        Assertions.assertTrue(tokenCommand.matches(InvocationContext.of("1 [2 3 4 1]")));
+        Assertions.assertTrue(tokenCommand.matches(InvocationContext.of("2")));
+        Assertions.assertFalse(tokenCommand.matches(InvocationContext.of("2 [1 a 2]")));
+        Assertions.assertFalse(tokenCommand.matches(InvocationContext.of("abc [1 3 2]")));
+        Assertions.assertFalse(tokenCommand.matches(InvocationContext.of("2 agf")));
     }
 
     @Test
@@ -40,9 +42,9 @@ public class TokenCommandTests
         TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Optional<Object> result1 = tokenCommand.invoke(InvocationTokenInfo.of("1 [2 1 4 3]"),
+        Optional<Object> result1 = tokenCommand.invoke(InvocationContext.of("1 [2 1 4 3]"),
             null, null);
-        Optional<Object> result2 = tokenCommand.invoke(InvocationTokenInfo.of("2 [9 5 4 3]"),
+        Optional<Object> result2 = tokenCommand.invoke(InvocationContext.of("2 [9 5 4 3]"),
             null, null);
 
         Assertions.assertTrue(result1.isPresent());
@@ -56,7 +58,7 @@ public class TokenCommandTests
         TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Optional<Object> result1 = tokenCommand.invoke(InvocationTokenInfo.of("1"),
+        Optional<Object> result1 = tokenCommand.invoke(InvocationContext.of("1"),
             null, null);
 
         Assertions.assertTrue(result1.isPresent());
@@ -77,13 +79,13 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 [1 3 3]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("3")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("alpha")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 [1 4 c]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 [1 3 3]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("3")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("alpha")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("2 [1 4 c]")));
 
-        Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 [1 2 3]"),
+        Optional<Object> result = command.invoke(InvocationContext.of("2 [1 2 3]"),
             null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertTrue((boolean) result.get());
@@ -95,12 +97,12 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Vector3[1 2 3]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Vector3[3 1]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("Vector3[3 1]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("[3 1 2]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Vector3[1 2 3]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Vector3[3 1]")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("Vector3[3 1]")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("[3 1 2]")));
 
-        Optional<Object> result = command.invoke(InvocationTokenInfo.of("#Vector3[1 2 3]"),
+        Optional<Object> result = command.invoke(InvocationContext.of("#Vector3[1 2 3]"),
             null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(2, (double) result.get());
@@ -117,13 +119,13 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this,"implicitArrayTokenMethodTest"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 3 2 1 4 Heyo")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 3 Hi")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 [2 3 8] Hi")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 Hi")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("a 1 2 Hi")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 3 2 1 4 Heyo")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 3 Hi")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 [2 3 8] Hi")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("2 Hi")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("a 1 2 Hi")));
 
-        Optional<Object> result = command.invoke(InvocationTokenInfo.of("2 3 2 1 4 Heyo"),
+        Optional<Object> result = command.invoke(InvocationContext.of("2 3 2 1 4 Heyo"),
             null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals("2: [3, 2, 1, 4]: Heyo", result.get());
@@ -140,13 +142,13 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this,"implicitArrayTokenAtEndMethodTest"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of(
+        Assertions.assertTrue(command.matches(InvocationContext.of(
             "#Shape[Rectangle 200 50 100 25] #Shape[Rectangle 50 200 25 150] #Shape[Rectangle 200 50 100 275]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of(
+        Assertions.assertTrue(command.matches(InvocationContext.of(
             "#Shape[Rectangle 200 50 100 25]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("")));
 
-        Optional<Object> result = command.invoke(InvocationTokenInfo.of("#Shape[Rectangle 200 50 100 25] " +
+        Optional<Object> result = command.invoke(InvocationContext.of("#Shape[Rectangle 200 50 100 25] " +
             "#Shape[Rectangle 50 200 25 150]"), null, null);
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(20000D, (double) result.get());
@@ -167,12 +169,12 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this,"stringDefaultValueMethodTest"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("Hi")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("-1")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("a -1")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("Hi")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("-1")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("a -1")));
 
-        Optional<Object> oResult = command.invoke(InvocationTokenInfo.of(""), null, null);
+        Optional<Object> oResult = command.invoke(InvocationContext.of(""), null, null);
         Assertions.assertTrue(oResult.isPresent());
         Assertions.assertEquals("", oResult.get());
     }
@@ -188,7 +190,7 @@ public class TokenCommandTests
             Reflect.getMethod(this, "commandWithMessageReceivedEventParameterMethodTest"));
 
         Assertions.assertTrue(command.getCommandTokens().isEmpty());
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("")));
     }
 
     @Command(alias = "test")
@@ -204,11 +206,11 @@ public class TokenCommandTests
         Assertions.assertEquals(1, command.getCommandTokens().size());
         Assertions.assertTrue(command.getCommandTokens().get(0) instanceof ArrayToken);
         Assertions.assertEquals(2, ((ParsingToken) command.getCommandTokens().get(0)).getAnnotations().length);
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("1 2 3")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("[1 2 3]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("1.0 2 3")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("[1 2 3")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("1 2 3")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("[1 2 3]")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("1.0 2 3")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("[1 2 3")));
     }
 
     @Command(alias = "test")
@@ -223,11 +225,11 @@ public class TokenCommandTests
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
         Assertions.assertTrue(command.getCommandTokens().get(0) instanceof ArrayToken);
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("1 2 3")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("[1 2 3]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("1.0 2 3")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("[1 2 3")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("1 2 3")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("[1 2 3]")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("1.0 2 3")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("[1 2 3")));
     }
 
     @Command(alias = "test")
@@ -241,14 +243,14 @@ public class TokenCommandTests
             Reflect.getMethod(this, "commandStringWithMultipleAnnotationsMethodTest"));
 
         Assertions.assertEquals(4, command.getCommandTokens().size());
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 x 3")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 x 2 [1 0 0 1]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 2 [1 0 0 1]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 x 2 1 0 0 1")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("2 2 1 0 0 1")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 2 x 1 0 0 1")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 2 1.2")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("2 2 [1 2 0.0 3]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 x 3")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 x 2 [1 0 0 1]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 2 [1 0 0 1]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 x 2 1 0 0 1")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("2 2 1 0 0 1")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("2 2 x 1 0 0 1")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("2 2 1.2")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("2 2 [1 2 0.0 3]")));
     }
 
     @Command(alias = "test", command = "#int <x> #int #int[]")
@@ -261,18 +263,31 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
+        Result<Object[]> result1 = command.parseParameters(InvocationContext.of("Matrix[2 2 x 1 0 0 1]"));
+        Result<Object[]> result2 = command.parseParameters(InvocationContext.of("Matr[2 2 [1 2 0.0 3]]"));
+        Result<Object[]> result3 = command.parseParameters(InvocationContext.of("Matrix[2 2 [1 2 1 3]"));
+
         Assertions.assertEquals(1, command.getCommandTokens().size());
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 x 3]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 x 2 [1 0 0 1]]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 0 0 1]]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 x 2 1 0 0 1]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 1 0 0 1]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 1.2]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 2 0.0 3]]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[2 x 3 [1 2 3 4 5 6]]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[2 2 x 1 0 0 1]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matr[2 2 [1 2 0.0 3]]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[2 2 [1 2 alpha 3]")));
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 x 3]")).hasValue());
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 x 2 [1 0 0 1]]")).hasValue());
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 2 [1 0 0 1]]")).hasValue());
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 x 2 1 0 0 1]")).hasValue());
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 2 1 0 0 1]")).hasValue());
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 2 1.2]")).hasValue());
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 2 [1 2 0.0 3]]")).hasValue());
+        Assertions.assertTrue(command.parseParameters(InvocationContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]")).hasValue());
+
+        Assertions.assertFalse(result1.hasValue());
+        Assertions.assertEquals("There doesn't appear to be a constructor that matches '2 2 x 1 0 0 1'",
+            result1.getReason().getTranslation(Language.EN_UK));
+
+        Assertions.assertFalse(result2.hasValue());
+        Assertions.assertEquals("The alias 'Matr', didn't match the expected Matrix",
+            result2.getReason().getTranslation(Language.EN_UK));
+
+        Assertions.assertFalse(result3.hasValue());
+        Assertions.assertEquals("The token 'alpha' doesn't match the required syntax for a double",
+            result3.getReason().getTranslation(Language.EN_UK));
     }
 
     @Test
@@ -280,7 +295,7 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Optional<Object> oResult = command.invoke(InvocationTokenInfo.of("#Matrix[2 x 3 [1 2 3 4 5 6]]"),
+        Optional<Object> oResult = command.invoke(InvocationContext.of("#Matrix[2 x 3 [1 2 3 4 5 6]]"),
             null, null);
 
         Assertions.assertTrue(oResult.isPresent());
@@ -292,10 +307,10 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[[1 0 0 1]]")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix[[1 0] [0 1]]")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix[[0 1] 0 1 2]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix[]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix[[1 0 0 1]]")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix[[1 0] [0 1]]")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("#Matrix[[0 1] 0 1 2]")));
     }
 
     @Test
@@ -303,10 +318,10 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix.scale(2)")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix.roTaTe(45)")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix.xShear(2)")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix.yShear(4")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix.scale(2)")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix.roTaTe(45)")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix.xShear(2)")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("#Matrix.yShear(4")));
     }
 
     @Test
@@ -314,9 +329,9 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix.UnitSquare")));
-        Assertions.assertTrue(command.matches(InvocationTokenInfo.of("#Matrix.uNiTsquAre")));
-        Assertions.assertFalse(command.matches(InvocationTokenInfo.of("#Matrix.unitSquare()")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix.UnitSquare")));
+        Assertions.assertTrue(command.matches(InvocationContext.of("#Matrix.uNiTsquAre")));
+        Assertions.assertFalse(command.matches(InvocationContext.of("#Matrix.unitSquare()")));
     }
 
     @Command(alias = "test", reflections = Matrix.class)

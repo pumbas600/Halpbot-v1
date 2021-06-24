@@ -14,7 +14,7 @@ import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 
 public class TokenCommandAdapter extends AbstractCommandAdapter
 {
@@ -70,7 +70,7 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
         if (!tokenCommand.getRestrictedTo().isEmpty() && !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()))
             return false;
 
-        InvocationTokenInfo invocationToken = InvocationTokenInfo.of(content).saveState(this);
+        InvocationContext invocationToken = InvocationContext.of(content).saveState(this);
         if (tokenCommand.matches(invocationToken)) {
             Optional<Object> oResult = tokenCommand.invoke(invocationToken.restoreState(this), event, this);
             super.displayCommandMethodResult(event, oResult);

@@ -2,7 +2,7 @@ package nz.pumbas.commands.tokens.tokentypes;
 
 import org.jetbrains.annotations.NotNull;
 
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 
 /**
  * A representation of an individual element in an {@link nz.pumbas.commands.annotations.Command}.
@@ -18,9 +18,9 @@ public interface CommandToken {
      * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken
-     *      The {@link InvocationTokenInfo invocation token} containing the invoking information
+     *      The {@link InvocationContext invocation token} containing the invoking information
      *
-     * @return If the {@link InvocationTokenInfo invocation token} matches this {@link CommandToken}
+     * @return If the {@link InvocationContext invocation token} matches this {@link CommandToken}
      */
-    boolean matches(@NotNull InvocationTokenInfo invocationToken);
+    boolean matchesOld(@NotNull InvocationContext invocationToken);
 }

@@ -1,8 +1,11 @@
 package nz.pumbas.commands.tokens.tokentypes;
 
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Resource;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,12 +38,12 @@ public class MultiChoiceToken extends BuiltInTypeToken {
      * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
      *
      * @param invocationToken
-     *     The {@link InvocationTokenInfo invocation token} containing the invoking information
+     *     The {@link InvocationContext invocation token} containing the invoking information
      *
-     * @return If the {@link InvocationTokenInfo invocation token} matches this {@link CommandToken}
+     * @return If the {@link InvocationContext invocation token} matches this {@link CommandToken}
      */
     @Override
-    public boolean matches(@NotNull InvocationTokenInfo invocationToken)
+    public boolean matchesOld(@NotNull InvocationContext invocationToken)
     {
         String token = invocationToken.getNext();
 
@@ -53,6 +56,33 @@ public class MultiChoiceToken extends BuiltInTypeToken {
             }
         }
         return false;
+    }
+
+    /**
+     * Parses the context into the type of this {@link ParsingToken}. If the context doesn't match, the
+     * {@link Result} will contain a {@link Resource} explaing why.
+     *
+     * @param context
+     *     The {@link InvocationContext}
+     *
+     * @return An {@link Result} containing the parsed context
+     */
+    @Override
+    public Result<Object> parse(@NotNull InvocationContext context)
+    {
+        context.saveState(this);
+        String token = context.getNext();
+
+        if (this.options.contains(token))
+            return super.parse(context.restoreState(this));
+        else {
+            for (@NonNls String option : this.options) {
+                if (option.equalsIgnoreCase(token))
+                    return super.parse(context.restoreState(this));
+            }
+        }
+        return Result.of(Resource.get("halpbot.commands.match.multichoice", token, this.options));
+
     }
 
     @Override

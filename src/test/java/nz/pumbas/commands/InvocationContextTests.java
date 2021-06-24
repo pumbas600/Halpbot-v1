@@ -5,24 +5,24 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import nz.pumbas.commands.tokens.tokensyntax.InvocationTokenInfo;
+import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 
-public class InvocationTokenInfoTests
+public class InvocationContextTests
 {
     @Test
     public void simpleArrayTest() {
-        InvocationTokenInfo tokenInfo1 = InvocationTokenInfo.of("[1 2 3 4]");
-        InvocationTokenInfo tokenInfo2 = InvocationTokenInfo.of("[1 b a 4]");
+        InvocationContext tokenInfo1 = InvocationContext.of("[1 2 3 4]");
+        InvocationContext tokenInfo2 = InvocationContext.of("[1 b a 4]");
         ArrayToken token = new ArrayToken(false, int[].class, "[]");
 
-        Assertions.assertTrue(token.matches(tokenInfo1));
-        Assertions.assertFalse(token.matches(tokenInfo2));
+        Assertions.assertTrue(token.matchesOld(tokenInfo1));
+        Assertions.assertFalse(token.matchesOld(tokenInfo2));
     }
 
     @Test
     public void getNextSurroundedTest() {
-        InvocationTokenInfo tokenInfo = InvocationTokenInfo.of("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
+        InvocationContext tokenInfo = InvocationContext.of("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
 
         Optional<String> oArray1 = tokenInfo.getNextSurrounded("[", "]");
         Optional<String> oArray2 = tokenInfo.getNextSurrounded("[", "]");
@@ -38,8 +38,8 @@ public class InvocationTokenInfoTests
 
     @Test
     public void getNextSurroundedIncompleteTest() {
-        InvocationTokenInfo tokenInfo1 = InvocationTokenInfo.of("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
-        InvocationTokenInfo tokenInfo2 = InvocationTokenInfo.of("#Block[1 2 3]]");
+        InvocationContext tokenInfo1 = InvocationContext.of("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
+        InvocationContext tokenInfo2 = InvocationContext.of("#Block[1 2 3]]");
 
         Optional<String> oArray1 = tokenInfo1.getNextSurrounded("[", "]");
         Optional<String> oArray2 = tokenInfo1.getNextSurrounded("[", "]");
@@ -54,7 +54,7 @@ public class InvocationTokenInfoTests
 
     @Test
     public void getNextSurroundedStepPastTest() {
-        InvocationTokenInfo tokenInfo = InvocationTokenInfo.of("#Block[1 2 3]");
+        InvocationContext tokenInfo = InvocationContext.of("#Block[1 2 3]");
 
         Optional<String> oType = tokenInfo.getNextSurrounded("#", "[", false);
         Optional<String> oParameters = tokenInfo.getNextSurrounded("[", "]");

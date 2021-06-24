@@ -392,31 +392,6 @@ public final class Utilities
     }
 
     /**
-     * Returns if the passed in {@link String value} is a valid value of the {@link Enum}.
-     * Note: This method is case sensitive.
-     *
-     * @param enumClass
-     *      The {@link Class} of the {@link Enum}
-     * @param value
-     *      The {@link String value} to test
-     *
-     * @return if the {@link String value} is a valid value of the {@link Enum}
-     */
-    @SuppressWarnings("unchecked")
-    public static boolean isValidValue(Class<?> enumClass, String value) {
-        if (!enumClass.isEnum())
-            throw new IllegalArgumentException(
-                String.format("The type %s must be an enum.", enumClass.getSimpleName()));
-
-        try {
-            Enum.valueOf((Class<? extends Enum>) enumClass, value);
-            return true;
-        } catch (IllegalArgumentException exception) {
-            return false;
-        }
-    }
-
-    /**
      * Converts a {@link Collection} to an array.
      *
      * @param arrayElementClass
