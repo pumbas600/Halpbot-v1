@@ -29,6 +29,8 @@ import nz.pumbas.commands.OnShutdown;
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Language;
 import nz.pumbas.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter
@@ -99,14 +101,16 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
 
             try {
-                if (!this.handleCommandMethodCall(event, commandMethod, content)) {
+                Result<Object> result = this.handleCommandMethodCall(event, commandMethod, content);
+                if (result.hasValue())
+                    this.displayCommandMethodResult(event, result.getValue());
+                else if (result.hasReason())
                     //Content didn't match the required format of the command
                     event.getChannel()
                         .sendMessage(
-                        buildHelpMessage(commandAlias, commandMethod,
-                            "There seemed to be an error in the formatting of your command usage"))
+                            buildHelpMessage(commandAlias, commandMethod,
+                                result.getReason().getTranslation(Language.EN_UK)))
                         .queue();
-                }
             } catch (OutputException e) {
                 ErrorManager.handle(event, e);
             }
@@ -126,14 +130,13 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      * @return The {@link MessageEmbed} for the help message
      */
     public static MessageEmbed buildHelpMessage(@NotNull String commandAlias, @NotNull CommandMethod commandMethod,
-                                                @NotNull String message)
+                                         @NotNull String message)
     {
         return new EmbedBuilder()
             .setColor(Color.cyan)
             .setTitle("HALP")
             .addField(commandAlias, message, false)
-            .addField("Usage",
-                commandMethod.getDisplayCommand().isEmpty() ? "N/A" : commandMethod.getDisplayCommand(), true)
+            .addField("Usage",commandAlias + " " + commandMethod.getDisplayCommand(), true)
             .addField("Description", commandMethod.getDescription(), true)
             .build();
     }
@@ -170,16 +173,11 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      *
      * @param event
      *      The {@link MessageReceivedEvent} event that was sent
-     * @param oResult
-     *      The {@link Optional<Object>} that was returned by the {@link CommandMethod}
+     * @param result
+     *      The {@link Object} that was returned by the {@link CommandMethod}
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    protected void displayCommandMethodResult(@NotNull MessageReceivedEvent event, @NotNull Optional<Object> oResult)
+    protected void displayCommandMethodResult(@NotNull MessageReceivedEvent event, @NotNull Object result)
     {
-        if (oResult.isEmpty())
-            return;
-
-        Object result = oResult.get();
         if (result instanceof MessageEmbed)
             event.getChannel().sendMessage((MessageEmbed) result).queue();
         else
@@ -271,10 +269,10 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      * @param content
      *      The rest of the {@link String} after the {@link String command alias} or null if there was nothing else
      *
-     * @return If the {@link String content} matched this {@link CommandMethod} and it was invoked
+     * @return The parsed method call as a {@link Result}
      * @throws OutputException Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
      */
-    protected abstract boolean handleCommandMethodCall(@NotNull MessageReceivedEvent event,
-                                                       @NotNull CommandMethod commandMethod,
-                                                       @NotNull String content) throws OutputException;
+    protected abstract Result<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
+                                                              @NotNull CommandMethod commandMethod,
+                                                              @NotNull String content) throws OutputException;
 }

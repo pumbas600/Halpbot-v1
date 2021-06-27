@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 
 import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Language;
 
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
@@ -53,12 +54,12 @@ public interface ParsingToken extends CommandToken {
         if (null == defaultValue || "null".equalsIgnoreCase(defaultValue))
             return null;
         else {
-            InvocationContext context = InvocationContext.of(defaultValue).saveState(this);
-            if (!this.matchesOld(context))
+            Result<Object> result = this.parse(InvocationContext.of(defaultValue));
+            if (result.isValueAbsent())
                 throw new IllegalArgumentException(
-                        String.format("The default value %s doesn't match the required format of the type %s", defaultValue, this.getType().getSimpleName()));
+                    result.getReason().getTranslation(Language.EN_UK));
 
-            return this.parseOld(context.restoreState(this));
+            return result.getValue();
         }
     }
 

@@ -14,6 +14,7 @@ import nz.pumbas.halpbot.customparameters.Matrix
 import nz.pumbas.utilities.Utilities
 import nz.pumbas.utilities.request.Request
 import java.awt.Color
+import java.util.*
 
 class KotlinCommands : OnReady {
 
@@ -108,7 +109,7 @@ class KotlinCommands : OnReady {
     fun joke(@Unrequired category: String): String {
         var loweredCategory = category.lowercase()
         if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
-            return "You can only specify the one of the following categories: $jokeCategories"
+            return "You can only specify the one of the following categories: ${jokeCategories.contentToString()}"
         else if (loweredCategory.isEmpty())
             loweredCategory = Utilities.randomChoice(jokeCategories)
 

@@ -216,8 +216,8 @@ public class TokenTests {
     public void objectTypeTokenTest() {
         ObjectTypeToken token = new ObjectTypeToken(false, Shape.class, null);
 
-        Result<Shape> squareResult = token.parse(InvocationContext.of("Shape[Square 2 0 0]")).map(Shape.class::cast);
-        Result<Shape> rectangleResult = token.parse(InvocationContext.of("Shape[Rectangle 2 1 0 0]")).map(Shape.class::cast);
+        Result<Shape> squareResult = token.parse(InvocationContext.of("Shape[Square 2 0 0]")).cast();
+        Result<Shape> rectangleResult = token.parse(InvocationContext.of("Shape[Rectangle 2 1 0 0]")).cast();
         Result<Object> falseResult1 = token.parse(InvocationContext.of("Shope[Square 2 0 0]"));
         Result<Object> falseResult2 = token.parse(InvocationContext.of("Shape[2 0 0]"));
 
@@ -231,7 +231,7 @@ public class TokenTests {
 
         Assertions.assertFalse(falseResult2.hasValue());
         Assertions.assertTrue(falseResult2.hasReason());
-        Assertions.assertEquals("There doesn't appear to be a constructor that matches '2 0 0'",
+        Assertions.assertEquals("The token '2' doesn't match any of the values for the enum ShapeType",
             falseResult2.getReason().getTranslation(Language.EN_UK));
 
         Assertions.assertEquals(4, squareResult.getValue().getArea());
@@ -247,5 +247,24 @@ public class TokenTests {
         Assertions.assertTrue(oObject.isPresent());
         Assertions.assertTrue(oObject.get() instanceof Matrix);
         Assertions.assertEquals(4, ((Matrix)oObject.get()).getDeterminant());
+    }
+
+    @Test
+    public void TwoDArrayTest() {
+        ArrayToken oneDArrayToken = new ArrayToken(false, float[].class, null);
+        ArrayToken twoDArrayToken = new ArrayToken(false, float[][].class, null);
+
+        Result<float[]>   result1D = oneDArrayToken.parse(InvocationContext.of("[1 2 3]")).cast();
+        Result<float[][]> result2D = twoDArrayToken.parse(InvocationContext.of("[[1 1 1] [2 2 2] [3 3]]")).cast();
+
+        Result<float[][]> resultMissingBracket =
+            twoDArrayToken.parse(InvocationContext.of("[[1 1 1] [2 2 2] [3 3]")).cast();
+
+        Assertions.assertTrue(result1D.hasValue());
+        Assertions.assertTrue(result2D.hasValue());
+
+        Assertions.assertFalse(resultMissingBracket.hasValue());
+        Assertions.assertEquals("Expected surrounding '[ ]' when creating the list of float[]",
+            resultMissingBracket.getReason().getTranslation(Language.EN_UK));
     }
 }

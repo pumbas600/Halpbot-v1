@@ -36,11 +36,7 @@ public class ArrayToken implements ParsingToken {
         this.isOptional = isOptional;
         this.type = type;
         this.annotations = annotations;
-//        this.commandToken = TokenManager.isBuiltInType(Reflect.getArrayType(this.type))
-//                ? new BuiltInTypeToken(false, this.type.getComponentType(), null)
-//                : new ObjectTypeToken(false, this.type.getComponentType(), null);
         this.commandToken = this.generateCommandToken(Reflect.getArrayType(this.type));
-
         this.defaultValue = this.parseDefaultValue(defaultValue);
     }
 
@@ -207,28 +203,29 @@ public class ArrayToken implements ParsingToken {
     {
         List<Object> parsedArray = new ArrayList<>();
         context.saveState(this);
-        Result<Object> parsingResult;
+        Result<Object> parsingResult = Result.empty();
+        boolean hasAnnotation = Reflect.hasAnnotation(this.getAnnotations(), Implicit.class);
 
-        if (Reflect.hasAnnotation(this.getAnnotations(), Implicit.class)
-            && (parsingResult = this.commandToken.parse(context)).hasValue()) {
-
+        if (hasAnnotation && (parsingResult = this.commandToken.parse(context)).hasValue()) {
+            parsedArray.add(parsingResult.getValue());
             do {
-                parsedArray.add(parsingResult.getValue());
                 context.saveState(this);
-
                 parsingResult = this.commandToken.parse(context);
                 if (parsingResult.isValueAbsent()) {
                     context.restoreState(this);
                     break;
                 }
+                parsedArray.add(parsingResult.getValue());
             }
             while (context.hasNext());
         }
         else {
             Optional<String> oArrayParameters = context.restoreState(this).getNextSurrounded("[", "]");
-            if (oArrayParameters.isEmpty())
-                return Result.of(Resource.get("halpbot.commands.match.array.missingbrackets",
+            if (oArrayParameters.isEmpty()) {
+                if (parsingResult.hasReason()) return parsingResult;
+                else return Result.of(Resource.get("halpbot.commands.match.array.missingbrackets",
                     TokenManager.getTypeAlias(Reflect.getArrayType(this.getType()))));
+            }
 
             InvocationContext elementContext = InvocationContext.of(oArrayParameters.get());
 

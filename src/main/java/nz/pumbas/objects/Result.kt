@@ -56,24 +56,6 @@ data class Result<T>(val value: T?, var reason: Resource?)
         return null == this.value
     }
 
-    fun ifValueAbsent(reason: Resource): Result<T> {
-        if (this.isValueAbsent())
-            this.reason = reason
-        return this
-    }
-
-    fun ifReasonAbsent(reason: Resource): Result<T> {
-        if (this.isReasonAbsent())
-            this.reason = reason
-        return this
-    }
-
-    fun ifValuePresent(reason: Resource): Result<T> {
-        if (this.hasValue())
-            this.reason = reason
-        return this
-    }
-
     fun ifReasonPresent(consumer: (Resource) -> Unit): Result<T> {
         reason?.let { consumer(it) }
         return this
@@ -112,5 +94,18 @@ data class Result<T>(val value: T?, var reason: Resource?)
 
     fun <K> mapResult(mapper: (Result<T>) -> Result<K>): Result<K> {
         return mapper(this)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <K> cast(): Result<K> {
+        return this.map { t -> t as K }
+    }
+
+    fun <K> cast(clazz: Class<K>): Result<K> {
+        return this.map(clazz::cast)
+    }
+
+    override fun toString(): String {
+        return String.format("Result[%s, %s]", this.value, this.reason)
     }
 }

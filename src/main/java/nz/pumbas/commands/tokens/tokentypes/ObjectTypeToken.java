@@ -160,14 +160,8 @@ public class ObjectTypeToken implements ParsingToken
                     expectedTypeAlias, oParameters.get())));
             if (result.hasValue())
                 break;
-
-//            if (tokenCommand.matches(subInvocationToken.restoreState(this)))
-//                return Result.of(tokenCommand.invoke(subInvocationToken.restoreState(this)),
-//                    Resource.get("halpbot.commands.match.object.creationerror",
-//                        expectedTypeAlias, oParameters.get()));
         }
         return result;
-        //return Result.of(Resource.get("halpbot.commands.match.object.constructor", oParameters.get()));
     }
 
     @Override

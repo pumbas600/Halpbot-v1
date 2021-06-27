@@ -280,10 +280,17 @@ public class TokenCommand implements CommandMethod
 
     public Result<Object> parse(@NotNull InvocationContext context)
     {
-        Result<Object[]> parsedParameters = this.parseParameters(context);
+        return this.parse(context, null, null);
+    }
+
+    public Result<Object> parse(@NotNull InvocationContext context,
+                                @Nullable MessageReceivedEvent event,
+                                @Nullable AbstractCommandAdapter commandAdapter)
+    {
+        Result<Object[]> parsedParameters = this.parseParameters(context, event, commandAdapter);
         return parsedParameters.hasValue()
             ? Result.of(this.invoke(parsedParameters.getValue()))
-            : parsedParameters.map(Object.class::cast);
+            : parsedParameters.cast();
     }
 
     public Result<Object[]> parseParameters(@NotNull InvocationContext context)
@@ -302,7 +309,7 @@ public class TokenCommand implements CommandMethod
         int parameterIndex = 0;
         Result<Object[]> firstMismatch = Result.empty();
 
-        while (parameterIndex < parsedTokens.length && context.hasNext()) {
+        while (parameterIndex < parsedTokens.length) {
             Optional<Class<?>> assignableTo = Reflect.getAssignableTo(parameterTypes[parameterIndex],
                 TokenManager.getCustomParameterTypes());
 
@@ -316,20 +323,30 @@ public class TokenCommand implements CommandMethod
                 return firstMismatch.orIfEmpty(Result.of(Resource.get("halpbot.commands.match.tokenexcess")));
 
             CommandToken currentCommandToken = this.commandTokens.get(tokenIndex++);
+            Result<Object[]> mismatchResult = Result.empty();
             context.saveState(this);
-//                Optional<Object> invokedMethodResult;
-//
-//                if (invocationToken.hasNext()
-//                    && currentCommandToken instanceof ParsingToken
-//                    && (invokedMethodResult = TokenManager.handleReflectionSyntax(invocationToken,
-//                    this.getReflections(), ((ParsingToken)currentCommandToken).getType()))
-//                    .isPresent())
-//                {
-//                    parsedTokens[parameterIndex++] = invokedMethodResult.get();
-//                }
 
-            Result<Object[]> mismatchReason = Result.empty();
-            if (currentCommandToken instanceof ParsingToken) {
+            if (!context.hasNext()) {
+                if (currentCommandToken.isOptional()) {
+                    if (currentCommandToken instanceof ParsingToken)
+                        parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).getDefaultValue();
+                    continue;
+                }
+
+                if (firstMismatch.isEmpty())
+                    firstMismatch = Result.of(Resource.get("halpbot.commands.match.tokendeficit"));
+
+                return firstMismatch;
+            }
+            else if (currentCommandToken instanceof ParsingToken) {
+                Optional<Object> invokedMethodResult = TokenManager.handleReflectionSyntax(context,
+                    this.getReflections(), ((ParsingToken)currentCommandToken).getType());
+                if (invokedMethodResult.isPresent()) {
+                    parsedTokens[parameterIndex++] = invokedMethodResult.get();
+                    continue;
+                }
+                context.restoreState(this);
+
                 Result<Object> result = ((ParsingToken) currentCommandToken).parse(context);
                 if (result.hasValue()) {
                     if (!firstMismatch.isEmpty())
@@ -338,32 +355,32 @@ public class TokenCommand implements CommandMethod
                     parsedTokens[parameterIndex++] = result.getValue();
                     continue;
                 }
-
-                mismatchReason = Result.of(result.getReason());
+                mismatchResult = result.cast();
             }
             else if (currentCommandToken instanceof PlaceholderToken) {
                 Result<Boolean> result = ((PlaceholderToken) currentCommandToken).matches(context);
-                if (!result.getValue()) {
-                    mismatchReason = Result.of(result.getReason());
+                if (result.getValue()) {
+                    if (!firstMismatch.isEmpty())
+                        firstMismatch = Result.empty();
+                    continue;
                 }
-                else if (!firstMismatch.isEmpty())
-                    firstMismatch = Result.empty();
-
+                mismatchResult = Result.of(result.getReason());
             }
 
-            if (mismatchReason.hasReason()) {
-                if (currentCommandToken.isOptional()) {
-                    context.restoreState(this);
-                    if (firstMismatch.isEmpty())
-                        firstMismatch = mismatchReason;
-                } else return mismatchReason;
+
+            if (firstMismatch.isEmpty())
+                firstMismatch = mismatchResult;
+
+            if (currentCommandToken.isOptional()) {
+                if (currentCommandToken instanceof ParsingToken)
+                    parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).getDefaultValue();
+                context.restoreState(this);
             }
+            else return firstMismatch;
         }
 
-//        if (context.hasNext())
-//            return Result.of(Resource.get("halpbot.commands.match.tokenexcess"));
-         if (parameterIndex < parsedTokens.length)
-            return Result.of(Resource.get("halpbot.commands.match.tokendeficit"));
+        if (context.hasNext())
+            return firstMismatch.orIfEmpty(Result.of(Resource.get("halpbot.commands.match.tokenexcess")));
         return Result.of(parsedTokens);
     }
 

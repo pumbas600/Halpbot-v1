@@ -15,6 +15,8 @@ import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Resource;
 
 public class TokenCommandAdapter extends AbstractCommandAdapter
 {
@@ -58,26 +60,19 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
      *     Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
      */
     @Override
-    protected boolean handleCommandMethodCall(@NotNull MessageReceivedEvent event,
-                                              @NotNull CommandMethod commandMethod,
-                                              @NotNull String content) throws OutputException
+    protected Result<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
+                                                     @NotNull CommandMethod commandMethod,
+                                                     @NotNull String content) throws OutputException
     {
         if (!(commandMethod instanceof TokenCommand))
-            return false;
+            return Result.of(Resource.get("halpbot.commandadapter.wrongcommand",
+                commandMethod.getClass().getSimpleName(), this.getClass().getSimpleName()));
 
         TokenCommand tokenCommand = (TokenCommand) commandMethod;
         //If the command has been restricted and you're not whitelisted
         if (!tokenCommand.getRestrictedTo().isEmpty() && !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()))
-            return false;
+            return Result.of(Resource.get("halpbot.commands.restrictions.id"));
 
-        InvocationContext invocationToken = InvocationContext.of(content).saveState(this);
-        if (tokenCommand.matches(invocationToken)) {
-            Optional<Object> oResult = tokenCommand.invoke(invocationToken.restoreState(this), event, this);
-            super.displayCommandMethodResult(event, oResult);
-
-            return true;
-        }
-
-        return false;
+        return tokenCommand.parse(InvocationContext.of(content));
     }
 }
