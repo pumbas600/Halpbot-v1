@@ -5,13 +5,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import nz.pumbas.commands.CommandType;
+
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Command
 {
     String prefix() default "";
 
-    String alias();
+    String alias() default "";
 
     String command() default "";
 
@@ -22,4 +24,6 @@ public @interface Command
     long[] restrictedTo() default {};
 
     Class<?>[] reflections() default {};
+
+    CommandType commandType() default CommandType.MESSAGE;
 }

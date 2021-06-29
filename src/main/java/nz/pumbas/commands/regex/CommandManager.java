@@ -31,7 +31,7 @@ import nz.pumbas.commands.annotations.ParameterConstruction;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.utilities.Reflect;
-import nz.pumbas.utilities.Utilities;
+import nz.pumbas.utilities.Utils;
 
 public final class CommandManager extends ListenerAdapter
 {
@@ -215,7 +215,7 @@ public final class CommandManager extends ListenerAdapter
 
     private EmbedBuilder buildHelpMessage(EmbedBuilder builder, String commandAlias)
     {
-        builder.addField(Utilities.line, String.format("**Command:**    %s", commandAlias), false);
+        builder.addField(Utils.line, String.format("**Command:**    %s", commandAlias), false);
 
         //Couldn't find a command that matched
         this.registeredCommands.get(commandAlias).forEach(c -> {
@@ -310,12 +310,12 @@ public final class CommandManager extends ListenerAdapter
                 = commandInfo.regexCommand.length() - 1 > closeNonCapturingIndex && ' ' == commandInfo.regexCommand.charAt(closeNonCapturingIndex + 1);
 
             commandInfo.regexCommand = (spaceBefore && spaceAfter)
-                ? Utilities.replaceFirst(commandInfo.regexCommand, "> ", ")* ?")
-                : Utilities.replaceFirst(commandInfo.regexCommand, ">", ")*");
+                ? Utils.replaceFirst(commandInfo.regexCommand, "> ", ")* ?")
+                : Utils.replaceFirst(commandInfo.regexCommand, ">", ")*");
 
             commandInfo.regexCommand = (spaceBefore && !spaceAfter)
-                ? Utilities.replaceFirst(commandInfo.regexCommand, " <", " ?(?:")
-                : Utilities.replaceFirst(commandInfo.regexCommand, "<", "(?:");
+                ? Utils.replaceFirst(commandInfo.regexCommand, " <", " ?(?:")
+                : Utils.replaceFirst(commandInfo.regexCommand, "<", "(?:");
         }
 
         commandInfo.regexCommand = "^" + commandInfo.regexCommand + "$";
@@ -338,9 +338,9 @@ public final class CommandManager extends ListenerAdapter
                     .forEach(ci ->
                         resultCopy.forEach(resultCI -> {
                             CommandInfo commandInfo = new CommandInfo(
-                                Utilities.replaceFirst(resultCI.regexCommand, customParameter.getTypeAlias(), ci.regexCommand),
-                                Utilities.replaceFirst(resultCI.displayCommand, customParameter.getTypeAlias(),
-                                    String.format("%s[%s] ", Utilities.capitalise(customParameter.getTypeAlias()),
+                                Utils.replaceFirst(resultCI.regexCommand, customParameter.getTypeAlias(), ci.regexCommand),
+                                Utils.replaceFirst(resultCI.displayCommand, customParameter.getTypeAlias(),
+                                    String.format("%s[%s] ", Utils.capitalise(customParameter.getTypeAlias()),
                                         ci.displayCommand)));
                             commandInfo.constructors.addAll(resultCI.constructors);
                             commandInfo.constructors.add(constructorPair.constructor);

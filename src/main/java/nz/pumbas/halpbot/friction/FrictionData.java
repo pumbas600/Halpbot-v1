@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nz.pumbas.commands.exceptions.ErrorMessageException;
-import nz.pumbas.utilities.Utilities;
+import nz.pumbas.utilities.Utils;
 
 public class FrictionData
 {
@@ -24,7 +24,7 @@ public class FrictionData
     }
 
     public void setAngle(double angleDeg) {
-        if (0 > angleDeg || Utilities.quarterRotation <= angleDeg)
+        if (0 > angleDeg || Utils.quarterRotation <= angleDeg)
             throw new ErrorMessageException(
                 String.format("The angle %s must be between 0 and 90 degrees", angleDeg));
 

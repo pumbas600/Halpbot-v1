@@ -46,20 +46,6 @@ public class PlaceholderToken implements CommandToken
      *
      * @return If the {@link InvocationContext context} matches this {@link CommandToken}
      */
-    @Override
-    public boolean matchesOld(@NotNull InvocationContext context)
-    {
-        return this.placeHolder.equalsIgnoreCase(context.getNext());
-    }
-
-    /**
-     * Returns if the passed in {@link InvocationContext context} matches this {@link CommandToken}.
-     *
-     * @param context
-     *     The {@link InvocationContext context}
-     *
-     * @return If the {@link InvocationContext context} matches this {@link CommandToken}
-     */
     public Result<Boolean> matches(@NotNull InvocationContext context)
     {
         @NonNls String token = context.getNext();

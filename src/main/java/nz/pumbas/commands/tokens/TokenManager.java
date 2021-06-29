@@ -25,6 +25,8 @@ import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntaxDefinitions;
 import nz.pumbas.commands.tokens.tokentypes.CommandToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Resource;
 import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.enums.Modifiers;
 
@@ -34,13 +36,16 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -274,9 +279,9 @@ public final class TokenManager {
     public static TokenCommand generateTokenCommand(Object instance, Method method)
     {
 
-        List<Class<?>> reflections = method.isAnnotationPresent(Command.class)
-            ? List.of(method.getAnnotation(Command.class).reflections())
-            : Collections.emptyList();
+        Set<Class<?>> reflections = method.isAnnotationPresent(Command.class)
+            ? Set.of(method.getAnnotation(Command.class).reflections())
+            : Collections.emptySet();
 
         return generateTokenCommand(instance, method, reflections);
     }
@@ -293,7 +298,7 @@ public final class TokenManager {
      *
      * @return A {@link TokenCommand} representing the specified {@link Method}
      */
-    public static TokenCommand generateTokenCommand(Object instance, Method method, List<Class<?>> methodClasses)
+    public static TokenCommand generateTokenCommand(Object instance, Method method, Set<Class<?>> methodClasses)
     {
         return new TokenCommand(instance, method, parseCommand(method), methodClasses);
     }
@@ -313,11 +318,19 @@ public final class TokenManager {
      */
     public static TokenCommand generateTokenCommand(Object instance, Method method, Command command)
     {
+        Set<Long> restrictions = getRestrictedToList(command.restrictedTo());
+        Set<Class<?>> reflections = new HashSet<>(Arrays.asList(command.reflections()));
+
+        if (instance.getClass().isAnnotationPresent(Command.class)) {
+            Command classCommand = instance.getClass().getAnnotation(Command.class);
+            restrictions.addAll(getRestrictedToList(classCommand.restrictedTo()));
+            reflections.addAll(Set.of(classCommand.reflections()));
+
+        }
         String displayCommand = retrieveDisplayCommand(method);
 
         return new TokenCommand(instance, method, parseCommand(method, displayCommand),
-            displayCommand, command.description(), command.permission(), getRestrictedToList(command.restrictedTo()),
-            List.of(command.reflections()));
+            displayCommand, command.description(), command.permission(), restrictions, reflections);
     }
 
     /**
@@ -328,9 +341,9 @@ public final class TokenManager {
      *
      * @return A {@link List} of the ids of who can use this command.
      */
-    private static List<Long> getRestrictedToList(long[] restrictedTo)
+    private static Set<Long> getRestrictedToList(long[] restrictedTo)
     {
-        List<Long> restrictedToList = new ArrayList<>();
+        Set<Long> restrictedToList = new HashSet<>();
         for (long user : restrictedTo)
             restrictedToList.add(user);
 
@@ -478,7 +491,7 @@ public final class TokenManager {
     }
 
     /**
-     * Retrieves an {@link Optional} containing the result of any reflection syntax.
+     * Retrieves an {@link Result} containing the result of any reflection syntax.
      *
      * @param invocationToken
      *      The {@link InvocationContext}
@@ -487,16 +500,16 @@ public final class TokenManager {
      * @param requiredReturnType
      *      The required return type of the reflection
      *
-     * @return An {@link Optional} containing the result of any reflection syntax.
+     * @return An {@link Result} containing the result of any reflection syntax.
      */
-    public static Optional<Object> handleReflectionSyntax(@NotNull InvocationContext invocationToken,
-                                                          @NotNull List<Class<?>> reflections,
-                                                          @NotNull Class<?> requiredReturnType)
+    public static Result<Object> handleReflectionSyntax(@NotNull InvocationContext invocationToken,
+                                                        @NotNull Set<Class<?>> reflections,
+                                                        @NotNull Class<?> requiredReturnType)
     {
-        if (reflections.isEmpty()) return Optional.empty();
+        if (reflections.isEmpty()) return Result.empty();
 
         Optional<String> oType = invocationToken.getNext(".");
-        if (oType.isEmpty()) return Optional.empty();
+        if (oType.isEmpty()) return Result.empty();
 
 
         Optional<Class<?>> oClass = reflections
@@ -517,7 +530,7 @@ public final class TokenManager {
 
         }
 
-        return Optional.empty();
+        return Result.empty();
     }
 
     /**
@@ -534,27 +547,39 @@ public final class TokenManager {
      * @param requiredReturnType
      *      The {@link Class} required to be returned
      *
-     * @return An {@link Optional} containing the result of the invoked method
+     * @return An {@link Result} containing the result of the invoked method
      */
-    private static Optional<Object> handleMethodReflectionSyntax(@NotNull InvocationContext invocationToken,
-                                                                 @NotNull String methodName,
-                                                                 @NotNull List<Class<?>> reflections,
-                                                                 @NotNull Class<?> reflectionClass,
-                                                                 @NotNull Class<?> requiredReturnType)
+    private static Result<Object> handleMethodReflectionSyntax(@NotNull InvocationContext invocationToken,
+                                                               @NotNull String methodName,
+                                                               @NotNull Set<Class<?>> reflections,
+                                                               @NotNull Class<?> reflectionClass,
+                                                               @NotNull Class<?> requiredReturnType)
     {
         Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
-        if (oParameters.isEmpty()) return Optional.empty();
+        if (oParameters.isEmpty())
+            return Result.of(Resource.get("halpbot.commands.reflections.missingclosingbracket", methodName));
 
         InvocationContext parameters = InvocationContext.of(oParameters.get()).saveState(invocationToken);
 
-        return Reflect.getMethods(reflectionClass, methodName, true)
+        List<TokenCommand> tokenCommands =
+            Reflect.getMethods(reflectionClass, methodName, true)
             .stream()
             .filter(m -> requiredReturnType.isAssignableFrom(m.getReturnType()))
             .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
             .map(m -> TokenManager.generateTokenCommand(null, m, reflections))
-            .filter(m -> m.matches(parameters.restoreState(invocationToken)))
-            .findFirst()
-            .flatMap(tokenCommand -> tokenCommand.invoke(parameters.restoreState(invocationToken), null, null));
+            .collect(Collectors.toList());
+
+        if (tokenCommands.isEmpty())
+            return Result.of(Resource.get("halpbot.commands.reflections.nomethods", methodName));
+
+        Result<Object> result = Result.empty();
+        for (TokenCommand tokenCommand : tokenCommands) {
+            result = tokenCommand.parse(parameters);
+            if (result.hasValue())
+                break;
+        }
+
+        return result;
     }
 
     /**
@@ -568,16 +593,16 @@ public final class TokenManager {
      * @param requiredReturnType
      *      The {@link Class} required to be returned
      *
-     * @return An {@link Optional} containing the specified field.
+     * @return An {@link Result} containing the specified field.
      */
-    private static Optional<Object> handleFieldReflectionSyntax(@NotNull InvocationContext invocationToken,
-                                                                @NotNull Class<?> reflectionClass,
-                                                                @NotNull Class<?> requiredReturnType)
+    private static Result<Object> handleFieldReflectionSyntax(@NotNull InvocationContext invocationToken,
+                                                              @NotNull Class<?> reflectionClass,
+                                                              @NotNull Class<?> requiredReturnType)
     {
-        if (!invocationToken.hasNext()) return Optional.empty();
+        if (!invocationToken.hasNext()) return Result.empty();
         String fieldName = invocationToken.getNext();
 
-        return Reflect.getFields(reflectionClass, fieldName)
+        return Result.of(Reflect.getFields(reflectionClass, fieldName)
             .stream()
             .filter(f -> requiredReturnType.isAssignableFrom(f.getType()))
             .filter(f -> Reflect.hasModifiers(f, Modifiers.PUBLIC, Modifiers.STATIC, Modifiers.FINAL))
@@ -589,7 +614,7 @@ public final class TokenManager {
                     return new Object();
                 }
             })
-            .findFirst();
+            .findFirst(), Resource.get("halpbot.commands.reflections.nofields", fieldName));
     }
 
     /**

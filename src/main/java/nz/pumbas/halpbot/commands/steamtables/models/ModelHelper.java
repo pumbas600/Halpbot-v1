@@ -11,7 +11,7 @@ import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.halpbot.commands.steamtables.annotations.IgnoreColumn;
 import nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject;
 import nz.pumbas.utilities.Reflect;
-import nz.pumbas.utilities.Utilities;
+import nz.pumbas.utilities.Utils;
 
 public final class ModelHelper
 {
@@ -41,7 +41,7 @@ public final class ModelHelper
                 field.setAccessible(true);
                 String value = result.getString(n);
                 if (null != value)
-                    field.set(model, Utilities.TypeParsers.get(field.getType()).apply(value));
+                    field.set(model, Utils.TypeParsers.get(field.getType()).apply(value));
             } catch (NoSuchFieldException | SQLException | IllegalAccessException e) {
                 ErrorManager.handle(e);
             }

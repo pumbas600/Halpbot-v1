@@ -25,27 +25,18 @@ public interface ParsingToken extends CommandToken {
     Class<?> getType();
 
     /**
-     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
-     *
-     * @param context
-     *      The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
-     *
-     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
-     */
-    Object parseOld(@NotNull InvocationContext context);
-
-    /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Nullable
     Object getDefaultValue();
 
     /**
-     * Parses the {@link String default value} for a token. If this {@link String default value} is null or a string of 'null',
-     * then it returns null.
+     * Parses the {@link String default value} for a token. If this {@link String default value} is null or a string
+     * of 'null', then it returns null.
      * 
      * @param defaultValue
-     *      {@link String default value} to be parsed into an {@link Object} using {@link ParsingToken#parseOld(InvocationContext)}
+     *      {@link String default value} to be parsed into an {@link Object} using
+     *      {@link ParsingToken#parse(InvocationContext)}
      *      
      * @return The parsed {@link Object default value}
      */

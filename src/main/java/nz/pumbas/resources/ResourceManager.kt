@@ -1,9 +1,8 @@
 package nz.pumbas.resources
 
-import nz.pumbas.utilities.Utilities
+import nz.pumbas.utilities.Utils
 import java.io.File
 import java.lang.IllegalArgumentException
-import java.util.*
 import java.util.function.Consumer
 import kotlin.collections.HashMap
 
@@ -16,7 +15,7 @@ object ResourceManager {
      * resources from them.
      */
     init {
-        Utilities.retrieveResourcePath("translations")
+        Utils.retrieveResourcePath("translations")
             .ifPresent(Consumer<String>
             {
                 val files = File(it).listFiles() ?: return@Consumer
@@ -25,7 +24,7 @@ object ResourceManager {
                     if (file.name.startsWith("translations_") && file.name.endsWith(".properties")) {
                         val language = Language.valueOf(file.name.removePrefix("translations_").removeSuffix(".properties").uppercase())
 
-                        val translations = Utilities.parsePropertyFile("translations/${file.name}")
+                        val translations = Utils.parsePropertyFile("translations/${file.name}")
                         for (translation in translations) {
                             createOrAdd(translation.key, translation.value, language)
                         }

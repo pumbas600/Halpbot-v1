@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 public class TokenTests {
 
@@ -241,12 +241,11 @@ public class TokenTests {
     @Test
     public void methodInvocationTest()
     {
-        Optional<Object> oObject = TokenManager.handleReflectionSyntax(
-            InvocationContext.of("Matrix.scale[2]"), List.of(Matrix.class), Matrix.class);
+        Result<Matrix> result = TokenManager.handleReflectionSyntax(
+            InvocationContext.of("Matrix.scale[2]"), Set.of(Matrix.class), Matrix.class).cast();
 
-        Assertions.assertTrue(oObject.isPresent());
-        Assertions.assertTrue(oObject.get() instanceof Matrix);
-        Assertions.assertEquals(4, ((Matrix)oObject.get()).getDeterminant());
+        Assertions.assertTrue(result.hasValue());
+        Assertions.assertEquals(4, result.getValue().getDeterminant());
     }
 
     @Test

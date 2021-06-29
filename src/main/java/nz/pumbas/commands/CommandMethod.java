@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import nz.pumbas.commands.exceptions.OutputException;
 
@@ -40,13 +41,13 @@ public interface CommandMethod
      * @return The {@link String permission} for this command. If there is no permission, this will an empty string
      */
     @NotNull
-    List<Long> getRestrictedTo();
+    Set<Long> getRestrictedTo();
 
     /**
      * @return The {@link Class classes} that can have static methods invoked from
      */
     @NotNull
-    List<Class<?>> getReflections();
+    Set<Class<?>> getReflections();
 
     /**
      * Invokes the {@link Method} for this {@link CommandMethod}.

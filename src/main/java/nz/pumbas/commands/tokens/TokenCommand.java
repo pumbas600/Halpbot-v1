@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A container for the data of an {@link CommandToken} command.
@@ -37,24 +38,24 @@ public class TokenCommand implements CommandMethod
     private final @NotNull String displayCommand;
     private final @NotNull String description;
     private final @NotNull String permission;
-    private final @NotNull List<Long> restrictedTo;
-    private final @NotNull List<Class<?>> reflections;
+    private final @NotNull Set<Long> restrictedTo;
+    private final @NotNull Set<Class<?>> reflections;
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
-        this(instance, executable, commandTokens, Collections.emptyList());
+        this(instance, executable, commandTokens, Collections.emptySet());
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
                         @NotNull List<CommandToken> commandTokens,
-                        @NotNull List<Class<?>> reflections) {
+                        @NotNull Set<Class<?>> reflections) {
         this(instance, executable, commandTokens, "", "", "",
-            Collections.emptyList(), reflections);
+            Collections.emptySet(), reflections);
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
                         @NotNull List<CommandToken> commandTokens, @NotNull String displayCommand,
-                        @NotNull String description, @NotNull String permission, @NotNull List<Long> restrictedTo,
-                        @NotNull List<Class<?>> reflections)
+                        @NotNull String description, @NotNull String permission, @NotNull Set<Long> restrictedTo,
+                        @NotNull Set<Class<?>> reflections)
     {
         this.instance = instance;
         this.executable = executable;
@@ -118,7 +119,7 @@ public class TokenCommand implements CommandMethod
      * @return The {@link List<Long>} of user ids for who this command is restricted to
      */
     @Override
-    public @NotNull List<Long> getRestrictedTo()
+    public @NotNull Set<Long> getRestrictedTo()
     {
         return this.restrictedTo;
     }
@@ -127,7 +128,7 @@ public class TokenCommand implements CommandMethod
      * @return The {@link Class classes} that can have static methods invoked from
      */
     @Override
-    public @NotNull List<Class<?>> getReflections()
+    public @NotNull Set<Class<?>> getReflections()
     {
         return this.reflections;
     }
@@ -139,41 +140,6 @@ public class TokenCommand implements CommandMethod
     public @Nullable Object getInstance()
     {
         return this.instance;
-    }
-
-    /**
-     * Invokes the {@link Executable} for this {@link nz.pumbas.commands.annotations.Command}.
-     *
-     * @param context
-     *      The {@link List} of {@link String invocation tokens} which will be used to invoke the {@link Executable} with
-     *
-     * @return An {@link Optional} containing the result of the {@link Executable} if there is one
-     * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
-     */
-    public Optional<Object> invoke(@NotNull InvocationContext context) throws OutputException
-    {
-        return this.invoke(context, null, null);
-    }
-
-    /**
-     * Invokes the {@link Executable} for this {@link nz.pumbas.commands.annotations.Command} with the specified arguments.
-     *
-     * @param context
-     *      The {@link List} of {@link String invocation tokens} which will be used to invoke the {@link Executable} with
-     * @param event
-     *      The {@link MessageReceivedEvent} that invoked this command
-     * @param commandAdapter
-     *      The {@link AbstractCommandAdapter} which manages this command
-     *
-     * @return An {@link Optional} containing the result of the {@link Executable} if there is one
-     * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
-     */
-    public Optional<Object> invoke(@NotNull InvocationContext context,
-                                   @Nullable MessageReceivedEvent event,
-                                   @Nullable AbstractCommandAdapter commandAdapter) throws OutputException
-    {
-        Object[] parameters = this.parseInvocationTokens(context, event, commandAdapter);
-        return this.invoke(parameters);
     }
 
     /**
@@ -209,80 +175,34 @@ public class TokenCommand implements CommandMethod
     }
 
     /**
-     * Parses the {@link InvocationContext invocation tokens} into an array
-     * that can can be passed to an {@link Method} when being invoked.
+     * parses the {@link InvocationContext} and invokes the {@link Executable} for this
+     * {@link nz.pumbas.commands.annotations.Command}.
      *
-     * @param invocationToken
-     *      The {@link InvocationContext invocation tokens} that are to be parsed into objects
-     * @param event
-     *      The {@link MessageReceivedEvent} that invoked this command
-     * @param commandAdapter
-     *      The {@link AbstractCommandAdapter} which manages this command
+     * @param context
+     *      The {@link InvocationContext}
      *
-     * @return A {@link Object array} containing the parsed {@link List<String> invocation tokens}
+     * @return A {@link Result} containing the returned value of the {@link Executable}
+     * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
-    public Object[] parseInvocationTokens(@NotNull InvocationContext invocationToken,
-                                          @Nullable MessageReceivedEvent event,
-                                          @Nullable AbstractCommandAdapter commandAdapter)
-    {
-        Object[] parsedTokens = new Object[this.executable.getParameterCount()];
-        Class<?>[] parameterTypes = this.executable.getParameterTypes();
-
-        int tokenIndex = 0;
-        int parameterIndex = 0;
-        while (parameterIndex < parsedTokens.length) {
-            Optional<Class<?>> assignableFromClass = Reflect.getAssignableTo(
-                parameterTypes[parameterIndex], TokenManager.getCustomParameterTypes());
-
-            if (assignableFromClass.isPresent()) {
-                parsedTokens[parameterIndex++] =
-                    TokenManager.getCustomParameterMapper(assignableFromClass.get()).apply(event, commandAdapter);
-            }
-            else {
-                CommandToken currentCommandToken = this.commandTokens.get(tokenIndex++);
-                invocationToken.saveState(this);
-                Optional<Object> invokedMethodResult;
-
-                if (invocationToken.hasNext()
-                    && currentCommandToken instanceof ParsingToken
-                    && (invokedMethodResult = TokenManager.handleReflectionSyntax(invocationToken,
-                    this.getReflections(), ((ParsingToken)currentCommandToken).getType()))
-                    .isPresent())
-                {
-                    parsedTokens[parameterIndex++] = invokedMethodResult.get();
-                }
-                else if (currentCommandToken.matchesOld(invocationToken.restoreState(this)))
-                {
-                    if (currentCommandToken instanceof ParsingToken) {
-                        parsedTokens[parameterIndex++] =
-                            ((ParsingToken) currentCommandToken).parseOld(invocationToken.restoreState(this));
-                    }
-                }
-
-                else if (currentCommandToken.isOptional())
-                {
-                    invocationToken.restoreState(this);
-                    if (currentCommandToken instanceof ParsingToken) {
-                        parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).getDefaultValue();
-                    }
-                }
-                else {
-                    throw new IllegalArgumentException(
-                        String.format("There was an error parsing the invocation tokens %s, as they don't match this " +
-                            "command. Make sure to check the invocation tokens match by first calling the matches " +
-                            "method.", invocationToken.getOriginal()));
-                }
-            }
-        }
-
-        return parsedTokens;
-    }
-
     public Result<Object> parse(@NotNull InvocationContext context)
     {
         return this.parse(context, null, null);
     }
 
+    /**
+     * parses the {@link InvocationContext} and invokes the {@link Executable} for this
+     * {@link nz.pumbas.commands.annotations.Command}.
+     *
+     * @param context
+     *      The {@link InvocationContext}
+     * @param event
+     *      The {@link MessageReceivedEvent}
+     * @param commandAdapter
+     *      The {@link AbstractCommandAdapter}
+     *
+     * @return A {@link Result} containing the returned value of the {@link Executable}
+     * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
+     */
     public Result<Object> parse(@NotNull InvocationContext context,
                                 @Nullable MessageReceivedEvent event,
                                 @Nullable AbstractCommandAdapter commandAdapter)
@@ -293,11 +213,19 @@ public class TokenCommand implements CommandMethod
             : parsedParameters.cast();
     }
 
-    public Result<Object[]> parseParameters(@NotNull InvocationContext context)
-    {
-        return this.parseParameters(context, null, null);
-    }
-
+    /**
+     * Parses the {@link InvocationContext} into an array of {@link Object objects} which can be used to invoke this
+     * {@link Executable}.
+     *
+     * @param context
+     *      The {@link InvocationContext}
+     * @param event
+     *      The {@link MessageReceivedEvent}
+     * @param commandAdapter
+     *      The {@link AbstractCommandAdapter}
+     *
+     * @return A {@link Result} containing the parsed parameters
+     */
     public Result<Object[]> parseParameters(@NotNull InvocationContext context,
                                             @Nullable MessageReceivedEvent event,
                                             @Nullable AbstractCommandAdapter commandAdapter)
@@ -339,12 +267,15 @@ public class TokenCommand implements CommandMethod
                 return firstMismatch;
             }
             else if (currentCommandToken instanceof ParsingToken) {
-                Optional<Object> invokedMethodResult = TokenManager.handleReflectionSyntax(context,
+                Result<Object> invokedMethodResult = TokenManager.handleReflectionSyntax(context,
                     this.getReflections(), ((ParsingToken)currentCommandToken).getType());
-                if (invokedMethodResult.isPresent()) {
-                    parsedTokens[parameterIndex++] = invokedMethodResult.get();
+                if (invokedMethodResult.hasValue()) {
+                    parsedTokens[parameterIndex++] = invokedMethodResult.getValue();
                     continue;
                 }
+                else if (invokedMethodResult.hasReason())
+                    return invokedMethodResult.cast();
+
                 context.restoreState(this);
 
                 Result<Object> result = ((ParsingToken) currentCommandToken).parse(context);
@@ -382,41 +313,5 @@ public class TokenCommand implements CommandMethod
         if (context.hasNext())
             return firstMismatch.orIfEmpty(Result.of(Resource.get("halpbot.commands.match.tokenexcess")));
         return Result.of(parsedTokens);
-    }
-
-    /**
-     * Determines if the {@link InvocationContext invocation token} matches with this {@link TokenCommand}.
-     *
-     * @param invocationToken
-     *      The {@link InvocationContext invocation token} to check
-     *
-     * @return If the {@link InvocationContext invocation tokens} match this {@link TokenCommand}
-     */
-    public boolean matches(@NotNull InvocationContext invocationToken)
-    {
-        for (CommandToken currentCommandToken : this.commandTokens) {
-            if (!invocationToken.hasNext()) {
-                if (!currentCommandToken.isOptional())
-                    return false;
-                continue;
-            }
-            invocationToken.saveState(this);
-
-            if (!(currentCommandToken instanceof ParsingToken
-                && TokenManager.handleReflectionSyntax(invocationToken,
-                this.getReflections(),((ParsingToken)currentCommandToken).getType()).isPresent())
-                && !currentCommandToken.matchesOld(invocationToken.restoreState(this))) {
-
-                // If it doesn't match but the current command token is optional, it checks if the next invocation token matches
-                // Otherwise, if it doesn't match and its not optional, then these invocations don't match this command
-                if (currentCommandToken.isOptional() && invocationToken.hasNext())
-                    invocationToken.restoreState(this);
-                else
-                    return false;
-            }
-        }
-
-        //Return true IF there are no other invocation tokens left to be checked
-        return !invocationToken.hasNext();
     }
 }

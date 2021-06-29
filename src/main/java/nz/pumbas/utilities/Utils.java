@@ -1,7 +1,6 @@
 package nz.pumbas.utilities;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -9,24 +8,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +26,10 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -48,7 +38,7 @@ import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.utilities.functionalinterfaces.IOFunction;
 import nz.pumbas.utilities.io.ImageType;
 
-public final class Utilities
+public final class Utils
 {
 
     //A constant 'empty' UUID
@@ -69,7 +59,7 @@ public final class Utilities
         char.class, s -> s.charAt(0)
     );
 
-    private Utilities() {}
+    private Utils() {}
 
     /**
      * Calls a method on each element in a queue as they're dequeued.
@@ -325,7 +315,7 @@ public final class Utilities
     {
         String[] words = str.split(" ");
         return Arrays.stream(words)
-            .map(Utilities::capitalise)
+            .map(Utils::capitalise)
             .collect(Collectors.joining(" "));
     }
 
@@ -450,5 +440,25 @@ public final class Utilities
 
         Random random = new Random();
         return array[random.nextInt(array.length)];
+    }
+
+    /**
+     * Adds all of a {@link Collection} to another {@link Collection} and returns the collection.
+     *
+     * @param collection
+     *      The {@link Collection} to have the other collection added to
+     * @param toAdd
+     *      The {@link Collection} to add to the collection
+     * @param <TV>
+     *      The type of the values in the collection
+     * @param <TC>
+     *      The type of the collection
+     *
+     * @return The {@link Collection}
+     */
+    public static <TV, TC extends Collection<TV>> TC addAll(TC collection, TC toAdd)
+    {
+        collection.addAll(toAdd);
+        return collection;
     }
 }

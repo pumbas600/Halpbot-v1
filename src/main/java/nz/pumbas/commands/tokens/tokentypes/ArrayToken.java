@@ -76,39 +76,6 @@ public class ArrayToken implements ParsingToken {
         return this.isOptional;
     }
 
-    public boolean matchesOld(@NotNull InvocationContext invocationToken)
-    {
-        invocationToken.saveState(this);
-        if (Reflect.hasAnnotation(this.getAnnotations(), Implicit.class)
-            && this.commandToken.matchesOld(invocationToken)) {
-
-            invocationToken.saveState(this);
-            //Loop through as many possible tokens that match.
-            while (invocationToken.hasNext()) {
-                if (this.commandToken.matchesOld(invocationToken))
-                    invocationToken.saveState(this);
-                else {
-                    invocationToken.restoreState(this);
-                    break;
-                }
-            }
-            return true;
-        }
-        else {
-            Optional<String> oArrayParameters = invocationToken.restoreState(this).getNextSurrounded("[", "]");
-            if (oArrayParameters.isPresent()) {
-                InvocationContext subInvocationToken = InvocationContext.of(oArrayParameters.get());
-
-                while (subInvocationToken.hasNext()) {
-                    if (!this.commandToken.matchesOld(subInvocationToken))
-                        return false;
-                }
-                return !subInvocationToken.hasNext();
-            }
-        }
-        return false;
-    }
-
     /**
      * @return The {@link Annotation} annotations on this {@link ParsingToken}
      */
@@ -124,52 +91,6 @@ public class ArrayToken implements ParsingToken {
     @Override
     public Class<?> getType() {
         return this.type;
-    }
-
-    /**
-     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
-     *
-     * @param context
-     *     The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
-     *
-     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
-     */
-    @Override
-    @Nullable
-    public Object parseOld(@NotNull InvocationContext context)
-    {
-        List<Object> parsedArray = new ArrayList<>();
-        context.saveState(this);
-        if (Reflect.hasAnnotation(this.getAnnotations(), Implicit.class)
-            && this.commandToken.matchesOld(context)) {
-
-            context.restoreState(this);
-            do {
-                parsedArray.add(this.commandToken.parseOld(context));
-                context.saveState(this);
-
-                if (!this.commandToken.matchesOld(context)) {
-                    context.restoreState(this);
-                    break;
-                }
-                context.restoreState(this);
-            }
-            while (context.hasNext());
-        }
-        else {
-            Optional<String> oArrayParameters = context.restoreState(this).getNextSurrounded("[", "]");
-            if (oArrayParameters.isEmpty())
-                return null;
-
-            InvocationContext subInvocationToken = InvocationContext.of(oArrayParameters.get());
-
-
-            while (subInvocationToken.hasNext()) {
-                parsedArray.add(this.commandToken.parseOld(subInvocationToken));
-            }
-        }
-
-        return Reflect.toArray(Reflect.getArrayType(this.type), parsedArray);
     }
 
     /**

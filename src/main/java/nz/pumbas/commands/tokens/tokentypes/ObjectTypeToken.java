@@ -40,35 +40,6 @@ public class ObjectTypeToken implements ParsingToken
     }
 
     /**
-     * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *     The {@link InvocationContext invocation token} containing the invoking information
-     *
-     * @return If the {@link InvocationContext invocation token} matches this {@link CommandToken}
-     */
-    @Override
-    public boolean matchesOld(@NotNull InvocationContext invocationToken)
-    {
-        Optional<String> oTypeAlias = invocationToken.getNextSurrounded("#", "[", false);
-        if (oTypeAlias.isEmpty() || !oTypeAlias.get().equalsIgnoreCase(TokenManager.getTypeAlias(this.type)))
-            return false;
-
-        Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
-        if (oParameters.isPresent()) {
-            InvocationContext subInvocationToken = InvocationContext.of(oParameters.get());
-            subInvocationToken.saveState(this);
-
-            for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
-                if (tokenCommand.matches(subInvocationToken.restoreState(this)))
-                    return true;
-            }
-            return false;
-        }
-        return false;
-    }
-
-    /**
      * @return The {@link Annotation} annotations on this {@link ParsingToken}
      */
     @Override
@@ -84,34 +55,6 @@ public class ObjectTypeToken implements ParsingToken
     public Class<?> getType()
     {
         return this.type;
-    }
-
-    /**
-     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
-     *
-     * @param context
-     *     The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
-     *
-     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
-     */
-    @Override
-    @Nullable
-    public Object parseOld(@NotNull InvocationContext context)
-    {
-        context.getNext("[", false);
-        Optional<String> oParameters = context.getNextSurrounded("[", "]");
-
-        if (oParameters.isPresent()) {
-            InvocationContext subInvocationToken = InvocationContext.of(oParameters.get());
-            subInvocationToken.saveState(this);
-            for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(this.getType())) {
-                if (tokenCommand.matches(subInvocationToken.restoreState(this))) {
-                    return tokenCommand.invoke(subInvocationToken.restoreState(this), null, null)
-                        .orElse(null);
-                }
-            }
-        }
-        return null;
     }
 
     /**

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import nz.pumbas.commands.tokens.tokensyntax.InvocationContext;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
+import nz.pumbas.objects.Result;
+import nz.pumbas.resources.Language;
 
 public class InvocationContextTests
 {
@@ -16,8 +18,12 @@ public class InvocationContextTests
         InvocationContext tokenInfo2 = InvocationContext.of("[1 b a 4]");
         ArrayToken token = new ArrayToken(false, int[].class, "[]");
 
-        Assertions.assertTrue(token.matchesOld(tokenInfo1));
-        Assertions.assertFalse(token.matchesOld(tokenInfo2));
+        Result<Object> result = token.parse(tokenInfo2);
+
+        Assertions.assertTrue(token.parse(tokenInfo1).hasValue());
+        Assertions.assertTrue(result.hasReason());
+        Assertions.assertEquals("The token 'b' doesn't match the required syntax for a int",
+            result.getReason().getTranslation(Language.EN_UK));
     }
 
     @Test

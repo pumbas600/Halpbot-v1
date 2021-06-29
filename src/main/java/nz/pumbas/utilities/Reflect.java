@@ -538,7 +538,7 @@ public final class Reflect {
     }
 
     /**
-     * Converts a {@link Collection} to an array. Unlike {@link Utilities#toArray(Class, Collection)}, this doesn't
+     * Converts a {@link Collection} to an array. Unlike {@link Utils#toArray(Class, Collection)}, this doesn't
      * cast the result to the type the array, which can be useful in situations where the collection elements might
      * be {@link Object} objects rather than the actual type of the array.
      *

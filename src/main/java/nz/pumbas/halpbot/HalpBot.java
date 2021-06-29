@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 
+import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.regex.CommandManager;
 import nz.pumbas.commands.commandadapters.TokenCommandAdapter;
 import nz.pumbas.halpbot.commands.CalculusCommands;
@@ -45,7 +46,7 @@ public class HalpBot extends ListenerAdapter
             new FrictionCommands(),
             new CalculusCommands(this.process)
         );
-        new TokenCommandAdapter(builder, "$")
+        AbstractCommandAdapter commandAdapter = new TokenCommandAdapter(builder, "$")
             .registerCommands(
                 new TokenCommands(),
                 new KotlinCommands(),
@@ -53,6 +54,7 @@ public class HalpBot extends ListenerAdapter
                 new VectorCommands());
 
         this.jda = builder.build();
+        commandAdapter.registerSlashCommands(this.jda);
     }
 
     @Override

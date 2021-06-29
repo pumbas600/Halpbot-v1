@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import nz.pumbas.utilities.Utilities;
+import nz.pumbas.utilities.Utils;
 
 public final class MapHelper
 {
@@ -61,7 +61,7 @@ public final class MapHelper
                 String value = fieldMap.value()[i];
 
                 parsedFieldMap.put(key,
-                    allStrings ? value : Utilities.TypeParsers.get(classMap.value()[i]).apply(value));
+                    allStrings ? value : Utils.TypeParsers.get(classMap.value()[i]).apply(value));
             }
             parsedClassMap.put(field.getName(), Row.of(parsedFieldMap));
         }
@@ -92,7 +92,7 @@ public final class MapHelper
                 String value = pair[1];
 
                 parsedFieldMap.put(key,
-                    allStrings ? value : Utilities.TypeParsers.get(fieldMap.types()[i]).apply(value));
+                    allStrings ? value : Utils.TypeParsers.get(fieldMap.types()[i]).apply(value));
             }
             parsedClassMap.put(field.getName(), Row.of(parsedFieldMap));
         }

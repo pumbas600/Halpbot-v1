@@ -3,13 +3,13 @@ package nz.pumbas;
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.halpbot.HalpBot;
-import nz.pumbas.utilities.Utilities;
+import nz.pumbas.utilities.Utils;
 
 public class Main
 {
 
     public static void main(String[] args) throws LoginException {
-         HalpBot halpBot = new HalpBot(Utilities.getFirstLineFromFile("Token.txt"));
+         HalpBot halpBot = new HalpBot(Utils.getFirstLineFromFile("Token.txt"));
 
 //        SteamTableManager manager = new SteamTableManager();
 //

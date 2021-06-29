@@ -46,24 +46,6 @@ public class BuiltInTypeToken implements ParsingToken
     }
 
     /**
-     * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *     The {@link InvocationContext invocation token} containing the invoking information
-     *
-     * @return If the {@link InvocationContext invocation token} matches this {@link CommandToken}
-     */
-    @Override
-    public boolean matchesOld(@NotNull InvocationContext invocationToken)
-    {
-        if (this.type.isEnum()) {
-            return Reflect.isEnumValue(this.type, invocationToken.getNext().toUpperCase());
-        }
-
-        return Reflect.matches(invocationToken.getNext(), this.type);
-    }
-
-    /**
      * @return The {@link Annotation} annotations on this {@link ParsingToken}
      */
     @Override
@@ -79,25 +61,6 @@ public class BuiltInTypeToken implements ParsingToken
     public Class<?> getType()
     {
         return this.type;
-    }
-
-    /**
-     * Parses an {@link InvocationContext invocation token} to the type of the {@link ParsingToken}.
-     *
-     * @param context
-     *     The {@link InvocationContext invocation token} to be parsed into the type of the {@link ParsingToken}
-     *
-     * @return An {@link Object} parsing the {@link InvocationContext invocation token} to the correct type
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object parseOld(@NotNull InvocationContext context)
-    {
-        String token = context.getNext();
-        if (this.type.isEnum()) {
-            return Enum.valueOf((Class<? extends Enum>)this.type, token.toUpperCase());
-        }
-        return Reflect.parse(token, this.type);
     }
 
     /**

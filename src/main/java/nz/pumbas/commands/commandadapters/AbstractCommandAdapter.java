@@ -1,12 +1,19 @@
 package nz.pumbas.commands.commandadapters;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import nz.pumbas.commands.CommandMethod;
+import nz.pumbas.commands.CommandType;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.OnReady;
 import nz.pumbas.commands.OnShutdown;
@@ -40,6 +48,11 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      * A map of the registered {@link String command aliases} and their respective {@link CommandMethod}.
      */
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
+
+    /**
+     * A map of the registered command aliases and their respective slash {@link CommandMethod}.
+     */
+    protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
 
     protected final String commandPrefix;
 
@@ -64,6 +77,26 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
                 instance.getClass(), Command.class, false));
         }
         return this;
+    }
+
+    /**
+     * Registers all the slash commands. Note: According to JDA documentation, it can take up to an hour for the
+     * slash command to show up in the client.
+     *
+     * @param jda
+     *      The {@link JDA}
+     */
+    public void registerSlashCommands(JDA jda)
+    {
+        jda.upsertCommand("test", "A test slash command")
+            .addOption(OptionType.CHANNEL, "channel", "A test channel")
+            .queue();
+
+        for (String alias : this.registeredSlashCommands.keySet()) {
+            CommandMethod commandMethod = this.registeredCommands.get(alias);
+
+            jda.upsertCommand(alias, commandMethod.getDescription()).queue();
+        }
     }
 
     /**
@@ -106,15 +139,27 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
                     this.displayCommandMethodResult(event, result.getValue());
                 else if (result.hasReason())
                     //Content didn't match the required format of the command
-                    event.getChannel()
-                        .sendMessage(
-                            buildHelpMessage(commandAlias, commandMethod,
+                    event.getChannel().sendMessageEmbeds(
+                        buildHelpMessage(commandAlias, commandMethod,
                                 result.getReason().getTranslation(Language.EN_UK)))
                         .queue();
             } catch (OutputException e) {
                 ErrorManager.handle(event, e);
             }
         }
+    }
+
+    /**
+     * Listens to {@link SlashCommandEvent} and calls
+     * {@link AbstractCommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
+     * if the message is the invocation of a registered {@link CommandMethod}.
+     *
+     * @param event
+     *      The {@link SlashCommandEvent} that's been received
+     */
+    @Override
+    public void onSlashCommand(@NotNull SlashCommandEvent event) {
+        this.displayCommandMethodResult(event, event.getOptions());
     }
 
     /**
@@ -155,15 +200,17 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             method.setAccessible(true);
             Command command = method.getAnnotation(Command.class);
 
-            String commandAlias = this.getCommandPrefix() + command.alias();
+            String commandAlias = this.getCommandPrefix() + command.alias().toLowerCase();
             if (this.registeredCommands.containsKey(commandAlias))
                 throw new IllegalCommandException(
                     String.format("The alias %s has already been defined and so it can't be used by the method %s",
                         commandAlias, method.getName()));
-            else {
-                this.registeredCommands.put(commandAlias.toLowerCase(),
-                    this.createCommandMethod(instance, method, command));
-            }
+
+            CommandMethod commandMethod = this.createCommandMethod(instance, method, command);
+            if (CommandType.MESSAGE == command.commandType())
+                this.registeredCommands.put(commandAlias, commandMethod);
+            else
+                this.registeredSlashCommands.put(commandAlias, commandMethod);
         }
     }
 
@@ -172,16 +219,24 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      * cast and sent as such.
      *
      * @param event
-     *      The {@link MessageReceivedEvent} event that was sent
+     *      The {@link GenericEvent} event that was sent
      * @param result
      *      The {@link Object} that was returned by the {@link CommandMethod}
      */
-    protected void displayCommandMethodResult(@NotNull MessageReceivedEvent event, @NotNull Object result)
+    protected void displayCommandMethodResult(@NotNull GenericEvent event, @NotNull Object result)
     {
-        if (result instanceof MessageEmbed)
-            event.getChannel().sendMessage((MessageEmbed) result).queue();
-        else
-            event.getChannel().sendMessage(result.toString()).queue();
+        if (event instanceof GenericMessageEvent) {
+            if (result instanceof MessageEmbed)
+                ((GenericMessageEvent) event).getChannel().sendMessageEmbeds((MessageEmbed) result).queue();
+            else
+                ((GenericMessageEvent) event).getChannel().sendMessage(result.toString()).queue();
+        }
+        else if (event instanceof Interaction) {
+            if (result instanceof MessageEmbed)
+                ((Interaction) event).replyEmbeds((MessageEmbed) result).queue();
+            else
+                ((Interaction) event).reply(result.toString()).queue();
+        }
     }
 
     /**

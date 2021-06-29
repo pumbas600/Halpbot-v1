@@ -3,18 +3,15 @@ package nz.pumbas.halpbot.commands
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import nz.pumbas.commands.OnReady
 import nz.pumbas.commands.annotations.Command
 import nz.pumbas.commands.annotations.Unrequired
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
 import nz.pumbas.halpbot.HalpBot
 import nz.pumbas.halpbot.customparameters.Joke
-import nz.pumbas.halpbot.customparameters.Matrix
-import nz.pumbas.utilities.Utilities
+import nz.pumbas.utilities.Utils
 import nz.pumbas.utilities.request.Request
 import java.awt.Color
-import java.util.*
 
 class KotlinCommands : OnReady {
 
@@ -30,8 +27,8 @@ class KotlinCommands : OnReady {
      *      The JDA [ReadyEvent].
      */
     override fun onReady(event: ReadyEvent) {
-        comfortingMessages = Utilities.getAllLinesFromFile("ComfortingMessages.txt")
-        insultJokes = Utilities.getAllLinesFromFile("InsultJokes.txt")
+        comfortingMessages = Utils.getAllLinesFromFile("ComfortingMessages.txt")
+        insultJokes = Utils.getAllLinesFromFile("InsultJokes.txt")
     }
 
     @Command(alias = "Halp", description = "Displays the help information for the specified command")
@@ -69,7 +66,7 @@ class KotlinCommands : OnReady {
 
     @Command(alias= "GoodBot", description = "Allows you to praise the bot.")
     fun goodBot(): String {
-        return Utilities.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
+        return Utils.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
     }
 
     @Command(alias = "Id", description = "Returns the users discord id")
@@ -102,7 +99,7 @@ class KotlinCommands : OnReady {
 
     @Command(alias = "Comfort", description = "Sends a comforting message")
     fun comfort(): String {
-        return Utilities.randomChoice(this.comfortingMessages)
+        return Utils.randomChoice(this.comfortingMessages)
     }
 
     @Command(alias = "Joke", description = "Sends a random joke")
@@ -111,7 +108,7 @@ class KotlinCommands : OnReady {
         if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
             return "You can only specify the one of the following categories: ${jokeCategories.contentToString()}"
         else if (loweredCategory.isEmpty())
-            loweredCategory = Utilities.randomChoice(jokeCategories)
+            loweredCategory = Utils.randomChoice(jokeCategories)
 
         val url = "https://official-joke-api.appspot.com/jokes/$loweredCategory/random"
         val request = Request(url)
@@ -124,6 +121,6 @@ class KotlinCommands : OnReady {
 
     @Command(alias = "Insult", description = "Sends a joking insult")
     fun insult(): String {
-        return Utilities.randomChoice(insultJokes)
+        return Utils.randomChoice(insultJokes)
     }
 }

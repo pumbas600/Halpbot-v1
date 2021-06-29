@@ -35,30 +35,6 @@ public class MultiChoiceToken extends BuiltInTypeToken {
     }
 
     /**
-     * Returns if the passed in @link InvocationTokenInfo invocation token} matches this {@link CommandToken}.
-     *
-     * @param invocationToken
-     *     The {@link InvocationContext invocation token} containing the invoking information
-     *
-     * @return If the {@link InvocationContext invocation token} matches this {@link CommandToken}
-     */
-    @Override
-    public boolean matchesOld(@NotNull InvocationContext invocationToken)
-    {
-        String token = invocationToken.getNext();
-
-        if (this.options.contains(token))
-            return true;
-        else {
-            for (String option : this.options) {
-                if (option.equalsIgnoreCase(token))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Parses the context into the type of this {@link ParsingToken}. If the context doesn't match, the
      * {@link Result} will contain a {@link Resource} explaing why.
      *
