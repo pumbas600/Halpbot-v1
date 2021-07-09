@@ -6,7 +6,6 @@ import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.exceptions.UnimplementedFeatureException;
-import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.Vector2;
 
 @CommandGroup(defaultPrefix = "$")

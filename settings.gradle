@@ -1,2 +1,3 @@
 rootProject.name = 'HalpBot'
+include 'HalpBot-Core'
 
