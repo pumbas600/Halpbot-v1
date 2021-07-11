@@ -8,11 +8,13 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nz.pumbas.utilities.Exceptional;
+
 public class InvocationContext
 {
-    private final String original;
-    private int currentIndex;
-    private final Map<Object, Integer> savedIndices = new HashMap<>();
+    protected final String original;
+    protected int currentIndex;
+    protected final Map<Object, Integer> savedIndices = new HashMap<>();
 
     protected InvocationContext(@NotNull String context)
     {
@@ -185,25 +187,23 @@ public class InvocationContext
      *
      * @return An {@link Optional} containing the matched {@link String pattern} if present
      */
-    public Optional<String> getNext(@NotNull Pattern pattern)
+    public Exceptional<String> getNext(@NotNull Pattern pattern)
     {
-        if (!this.hasNext())
-            return Optional.empty();
+        if (this.hasNext()) {
+            String originalSubstring = this.original.substring(this.currentIndex);
+            Matcher matcher = pattern.matcher(originalSubstring);
+            if (matcher.lookingAt()) { //Will return true if the start of the string matches the Regex
+                String match = originalSubstring.substring(0, matcher.end());
+                this.currentIndex += matcher.end() + 1;
 
-        String originalSubstring = this.original.substring(this.currentIndex);
-        Matcher matcher = pattern.matcher(originalSubstring);
-        if (matcher.lookingAt()) { //Will return true if the start of the string matches the Regex
-            String match = originalSubstring.substring(0, matcher.end());
-            this.currentIndex += matcher.end() + 1;
+                //If there's a space right after the match, skip past it
+                if (this.hasNext() && ' ' == this.original.charAt(this.currentIndex))
+                    this.currentIndex++;
 
-            //If there's a space right after the match, skip past it
-            if (this.hasNext() && ' ' == this.original.charAt(this.currentIndex))
-                this.currentIndex++;
-
-            return Optional.of(match);
+                return Exceptional.of(match);
+            }
         }
-
-        return Optional.empty();
+        return Exceptional.empty();
     }
 
     /**
@@ -267,5 +267,9 @@ public class InvocationContext
     public void setCurrentIndex(int index)
     {
         this.currentIndex = index;
+    }
+
+    public void incrementIndex() {
+        this.currentIndex++;
     }
 }

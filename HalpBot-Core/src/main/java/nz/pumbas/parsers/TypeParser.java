@@ -4,36 +4,43 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import nz.pumbas.commands.tokens.context.ParsingContext;
-import nz.pumbas.objects.Result;
+import nz.pumbas.utilities.Exceptional;
 
 public class TypeParser<T>
 {
-    private final Class<T> type;
-    private final Function<ParsingContext, Result<T>> parser;
+    private final Function<ParsingContext, Exceptional<T>> parser;
 
-    public TypeParser(Class<T> type, Function<ParsingContext, Result<T>> parser)
+    public TypeParser(Function<ParsingContext, Exceptional<T>> parser)
     {
-        this.type = type;
         this.parser = parser;
     }
 
-    public static <T> TypeParser<T> of(@NotNull Class<T> type, @NotNull Function<ParsingContext, Result<T>> parser) {
-        return new TypeParser<>(type, parser);
+    public static <T> TypeParser<T> of(@NotNull Class<T> type,
+                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
+        return new TypeParser<>(parser);
     }
 
-    public static <T> TypeParser<T> of(@NotNull Class<T> type, @NotNull Class<? extends Annotation> annotation,
-                                    @NotNull Function<ParsingContext, Result<T>> parser) {
-        return new TypeParser<>(type, parser);
+    public static <T> TypeParser<T> of(@NotNull Predicate<Class<?>> filter,
+                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
+        return new TypeParser<>(parser);
     }
 
-    public Class<T> getType()
-    {
-        return this.type;
+    public static <T> TypeParser<T> of(@NotNull Class<T> type,
+                                       @NotNull Class<? extends Annotation> annotation,
+                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
+        return new TypeParser<>(parser);
     }
 
-    public Function<ParsingContext, Result<T>> getParser()
+    public static <T> TypeParser<T> of(@NotNull Predicate<Class<?>> filter,
+                                       @NotNull Class<? extends Annotation> annotation,
+                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
+        return new TypeParser<>(parser);
+    }
+
+    public Function<ParsingContext, Exceptional<T>> getParser()
     {
         return this.parser;
     }

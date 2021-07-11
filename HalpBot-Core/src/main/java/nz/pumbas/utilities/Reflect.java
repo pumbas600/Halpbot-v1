@@ -38,12 +38,12 @@ public final class Reflect {
      * corresponding parsers.
      */
     private static final Map<Class<?>, Tuple<Pattern, Function<String, Object>>> TypeParsers = Map.of(
-        String.class,  Tuple.of(Pattern.compile(".*"),             s -> s),
-        int.class,     Tuple.of(Pattern.compile("-?\\d+"),         Integer::parseInt),
-        float.class,   Tuple.of(Pattern.compile("-?\\d+\\.?\\d*"), Float::parseFloat),
-        double.class,  Tuple.of(Pattern.compile("-?\\d+\\.?\\d*"), Double::parseDouble),
-        char.class,    Tuple.of(Pattern.compile("."),              s -> s.charAt(0)),
-        boolean.class, Tuple.of(Pattern.compile("true|yes|false|no|t|f|y|n"),
+        String.class,   Tuple.of(Pattern.compile(".*"),                 s -> s),
+        Integer.class,  Tuple.of(Pattern.compile("[-|+]?\\d+"),         Integer::parseInt),
+        Float.class,    Tuple.of(Pattern.compile("[-|+]?\\d+\\.?\\d*"), Float::parseFloat),
+        Double.class,   Tuple.of(Pattern.compile("[-|+]?\\d+\\.?\\d*"), Double::parseDouble),
+        Character.class,Tuple.of(Pattern.compile("."),                  s -> s.charAt(0)),
+        Boolean.class,  Tuple.of(Pattern.compile("true|yes|false|no|t|f|y|n"),
             s -> {
                 String lowered = s.toLowerCase();
                 return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered) || "y".equals(lowered);
@@ -53,12 +53,12 @@ public final class Reflect {
     /**
      * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
      */
-    private static final Map<Class<?>, Class<?>> WrapperToPrimitive = Map.of(
-        Integer.class,   int.class,
-        Float.class,     float.class,
-        Double.class,    double.class,
-        Character.class, char.class,
-        Boolean.class,   boolean.class
+    private static final Map<Class<?>, Class<?>> PrimativeWrappers = Map.of(
+        int.class,    Integer.class,
+        float.class,  Float.class,
+        double.class, Double.class,
+        char.class,   Character.class,
+        boolean.class,Boolean.class
     );
 
     /**
@@ -74,12 +74,13 @@ public final class Reflect {
      */
     public static Object parse(String s, Class<?> type)
     {
-        Class<?> unwrappedType = getPrimativeType(type);
+        if (type.isPrimitive())
+            type = PrimativeWrappers.getOrDefault(type, type);
 
-        if (!TypeParsers.containsKey(unwrappedType))
+        if (!TypeParsers.containsKey(type))
             throw new IllegalArgumentException("You can only parse simple build in types");
 
-        return TypeParsers.get(unwrappedType).getValue().apply(s);
+        return TypeParsers.get(type).getValue().apply(s);
     }
 
     /**
@@ -144,7 +145,7 @@ public final class Reflect {
      */
     public static Class<?> getPrimativeType(Class<?> type)
     {
-        return WrapperToPrimitive.getOrDefault(type, type);
+        return PrimativeWrappers.getOrDefault(type, type);
     }
 
     /**
