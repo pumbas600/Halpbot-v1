@@ -15,9 +15,9 @@ import nz.pumbas.commands.tokens.context.InvocationContext;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.validation.Implicit;
-//import nz.pumbas.halpbot.customparameters.Matrix;
-//import nz.pumbas.halpbot.customparameters.Shape;
-//import nz.pumbas.halpbot.customparameters.Vector3;
+import nz.pumbas.halpbot.customparameters.Matrix;
+import nz.pumbas.halpbot.customparameters.Shape;
+import nz.pumbas.halpbot.customparameters.Vector3;
 import nz.pumbas.objects.Result;
 import nz.pumbas.resources.Language;
 import nz.pumbas.utilities.Reflect;
@@ -103,10 +103,10 @@ public class TokenCommandTests
 
     }
 
-//    @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
-//    private double customObjectTokenCommandMethodTest(Vector3 vector3) {
-//        return vector3.getY();
-//    }
+    @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
+    private double customObjectTokenCommandMethodTest(Vector3 vector3) {
+        return vector3.getY();
+    }
 
     @Test
     public void implicitArrayTokenTest() {
@@ -152,15 +152,15 @@ public class TokenCommandTests
         Assertions.assertEquals(20000D, result2.getValue());
     }
 
-//    @Command(alias = "ImplicitArrayTest2", description = "Tests the @Implicit attribute with no parameter after it")
-//    private double implicitArrayTokenAtEndMethodTest(@Implicit Shape[] shapes) {
-//        double totalArea = 0;
-//        for (Shape shape : shapes) {
-//            totalArea += shape.getArea();
-//        }
-//
-//        return totalArea;
-//    }
+    @Command(alias = "ImplicitArrayTest2", description = "Tests the @Implicit attribute with no parameter after it")
+    private double implicitArrayTokenAtEndMethodTest(@Implicit Shape[] shapes) {
+        double totalArea = 0;
+        for (Shape shape : shapes) {
+            totalArea += shape.getArea();
+        }
+
+        return totalArea;
+    }
 
     @Test
     public void stringDefaultValueTest() {
@@ -335,10 +335,10 @@ public class TokenCommandTests
         Assertions.assertTrue(command.parse(InvocationContext.of("Matrix.unitSquare()")).isValueAbsent());
     }
 
-//    @Command(alias = "test", reflections = Matrix.class)
-//    private int commandWithComplexCustomParameterMethodTest(Matrix matrix) {
-//        return matrix.getColumns();
-//    }
+    @Command(alias = "test", reflections = Matrix.class)
+    private int commandWithComplexCustomParameterMethodTest(Matrix matrix) {
+        return matrix.getColumns();
+    }
 
 
 

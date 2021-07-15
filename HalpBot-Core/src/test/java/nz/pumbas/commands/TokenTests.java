@@ -13,23 +13,19 @@ import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.tokensyntax.TokenSyntax;
-//import nz.pumbas.halpbot.customparameters.Matrix;
-//import nz.pumbas.halpbot.customparameters.Shape;
-//import nz.pumbas.halpbot.customparameters.ShapeType;
+import nz.pumbas.halpbot.customparameters.Matrix;
+import nz.pumbas.halpbot.customparameters.Shape;
+import nz.pumbas.halpbot.customparameters.ShapeType;
 import nz.pumbas.objects.Result;
 import nz.pumbas.resources.Language;
 import nz.pumbas.utilities.Reflect;
-import nz.pumbas.utilities.enums.Tristate;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 public class TokenTests {
 
@@ -201,56 +197,56 @@ public class TokenTests {
         Assertions.assertFalse(multiChoiceToken.parse(InvocationContext.of("axis")).hasValue());
     }
 
-//    @Test
-//    public void enumTokenTest() {
-//        BuiltInTypeToken token = new BuiltInTypeToken(false, ShapeType.class, null);
-//
-//        Result<ShapeType> result = token.parse(InvocationContext.of("Line")).map(ShapeType.class::cast);
-//
-//        Assertions.assertTrue(token.parse(InvocationContext.of("Square")).hasValue());
-//        Assertions.assertTrue(token.parse(InvocationContext.of("Circle")).hasValue());
-//        Assertions.assertFalse(token.parse(InvocationContext.of("1")).hasValue());
-//        Assertions.assertFalse(result.hasValue());
-//        Assertions.assertTrue(result.hasReason());
-//        Assertions.assertEquals("The token 'Line' doesn't match any of the values for the enum ShapeType",
-//            result.getReason().getTranslation(Language.EN_UK));
-//    }
-//
-//    @Test
-//    public void objectTypeTokenTest() {
-//        ObjectTypeToken token = new ObjectTypeToken(false, Shape.class, null);
-//
-//        Result<Shape> squareResult = token.parse(InvocationContext.of("Shape[Square 2 0 0]")).cast();
-//        Result<Shape> rectangleResult = token.parse(InvocationContext.of("Shape[Rectangle 2 1 0 0]")).cast();
-//        Result<Object> falseResult1 = token.parse(InvocationContext.of("Shope[Square 2 0 0]"));
-//        Result<Object> falseResult2 = token.parse(InvocationContext.of("Shape[2 0 0]"));
-//
-//        Assertions.assertTrue(squareResult.hasValue());
-//        Assertions.assertTrue(rectangleResult.hasValue());
-//
-//        Assertions.assertFalse(falseResult1.hasValue());
-//        Assertions.assertTrue(falseResult1.hasReason());
-//        Assertions.assertEquals("The alias 'Shope', didn't match the expected Shape",
-//            falseResult1.getReason().getTranslation(Language.EN_UK));
-//
-//        Assertions.assertFalse(falseResult2.hasValue());
-//        Assertions.assertTrue(falseResult2.hasReason());
-//        Assertions.assertEquals("The token '2' doesn't match any of the values for the enum ShapeType",
-//            falseResult2.getReason().getTranslation(Language.EN_UK));
-//
-//        Assertions.assertEquals(4, squareResult.getValue().getArea());
-//        Assertions.assertEquals(2, rectangleResult.getValue().getArea());
-//    }
-//
-//    @Test
-//    public void methodInvocationTest()
-//    {
-//        Result<Matrix> result = TokenManager.handleReflectionSyntax(
-//            InvocationContext.of("Matrix.scale[2]"), Set.of(Matrix.class), Matrix.class).cast();
-//
-//        Assertions.assertTrue(result.hasValue());
-//        Assertions.assertEquals(4, result.getValue().getDeterminant());
-//    }
+    @Test
+    public void enumTokenTest() {
+        BuiltInTypeToken token = new BuiltInTypeToken(false, ShapeType.class, null);
+
+        Result<ShapeType> result = token.parse(InvocationContext.of("Line")).map(ShapeType.class::cast);
+
+        Assertions.assertTrue(token.parse(InvocationContext.of("Square")).hasValue());
+        Assertions.assertTrue(token.parse(InvocationContext.of("Circle")).hasValue());
+        Assertions.assertFalse(token.parse(InvocationContext.of("1")).hasValue());
+        Assertions.assertFalse(result.hasValue());
+        Assertions.assertTrue(result.hasReason());
+        Assertions.assertEquals("The token 'Line' doesn't match any of the values for the enum ShapeType",
+            result.getReason().getTranslation(Language.EN_UK));
+    }
+
+    @Test
+    public void objectTypeTokenTest() {
+        ObjectTypeToken token = new ObjectTypeToken(false, Shape.class, null);
+
+        Result<Shape> squareResult = token.parse(InvocationContext.of("Shape[Square 2 0 0]")).cast();
+        Result<Shape> rectangleResult = token.parse(InvocationContext.of("Shape[Rectangle 2 1 0 0]")).cast();
+        Result<Object> falseResult1 = token.parse(InvocationContext.of("Shope[Square 2 0 0]"));
+        Result<Object> falseResult2 = token.parse(InvocationContext.of("Shape[2 0 0]"));
+
+        Assertions.assertTrue(squareResult.hasValue());
+        Assertions.assertTrue(rectangleResult.hasValue());
+
+        Assertions.assertFalse(falseResult1.hasValue());
+        Assertions.assertTrue(falseResult1.hasReason());
+        Assertions.assertEquals("The alias 'Shope', didn't match the expected Shape",
+            falseResult1.getReason().getTranslation(Language.EN_UK));
+
+        Assertions.assertFalse(falseResult2.hasValue());
+        Assertions.assertTrue(falseResult2.hasReason());
+        Assertions.assertEquals("The token '2' doesn't match any of the values for the enum ShapeType",
+            falseResult2.getReason().getTranslation(Language.EN_UK));
+
+        Assertions.assertEquals(4, squareResult.getValue().getArea());
+        Assertions.assertEquals(2, rectangleResult.getValue().getArea());
+    }
+
+    @Test
+    public void methodInvocationTest()
+    {
+        Result<Matrix> result = TokenManager.handleReflectionSyntax(
+            InvocationContext.of("Matrix.scale[2]"), Set.of(Matrix.class), Matrix.class).cast();
+
+        Assertions.assertTrue(result.hasValue());
+        Assertions.assertEquals(4, result.getValue().getDeterminant());
+    }
 
     @Test
     public void TwoDArrayTest() {
@@ -269,12 +265,5 @@ public class TokenTests {
         Assertions.assertFalse(resultMissingBracket.hasValue());
         Assertions.assertEquals("Expected surrounding '[ ]' when creating the list of float[]",
             resultMissingBracket.getReason().getTranslation(Language.EN_UK));
-    }
-
-    @Test
-    public void test() {
-        System.out.println(Enum.class.isAssignableFrom(Tristate.class));
-        System.out.println(Object[].class.isAssignableFrom(float[].class));
-        System.out.println(Object.class.isAssignableFrom(Object[].class));
     }
 }

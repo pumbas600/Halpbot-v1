@@ -8,13 +8,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nz.pumbas.utilities.Exceptional;
-
 public class InvocationContext
 {
-    protected final String original;
-    protected int currentIndex;
-    protected final Map<Object, Integer> savedIndices = new HashMap<>();
+    private final String original;
+    private int currentIndex;
+    private final Map<Object, Integer> savedIndices = new HashMap<>();
 
     protected InvocationContext(@NotNull String context)
     {
@@ -187,23 +185,25 @@ public class InvocationContext
      *
      * @return An {@link Optional} containing the matched {@link String pattern} if present
      */
-    public Exceptional<String> getNext(@NotNull Pattern pattern)
+    public Optional<String> getNext(@NotNull Pattern pattern)
     {
-        if (this.hasNext()) {
-            String originalSubstring = this.original.substring(this.currentIndex);
-            Matcher matcher = pattern.matcher(originalSubstring);
-            if (matcher.lookingAt()) { //Will return true if the start of the string matches the Regex
-                String match = originalSubstring.substring(0, matcher.end());
-                this.currentIndex += matcher.end() + 1;
+        if (!this.hasNext())
+            return Optional.empty();
 
-                //If there's a space right after the match, skip past it
-                if (this.hasNext() && ' ' == this.original.charAt(this.currentIndex))
-                    this.currentIndex++;
+        String originalSubstring = this.original.substring(this.currentIndex);
+        Matcher matcher = pattern.matcher(originalSubstring);
+        if (matcher.lookingAt()) { //Will return true if the start of the string matches the Regex
+            String match = originalSubstring.substring(0, matcher.end());
+            this.currentIndex += matcher.end() + 1;
 
-                return Exceptional.of(match);
-            }
+            //If there's a space right after the match, skip past it
+            if (this.hasNext() && ' ' == this.original.charAt(this.currentIndex))
+                this.currentIndex++;
+
+            return Optional.of(match);
         }
-        return Exceptional.empty();
+
+        return Optional.empty();
     }
 
     /**
@@ -267,9 +267,5 @@ public class InvocationContext
     public void setCurrentIndex(int index)
     {
         this.currentIndex = index;
-    }
-
-    public void incrementIndex() {
-        this.currentIndex++;
     }
 }
