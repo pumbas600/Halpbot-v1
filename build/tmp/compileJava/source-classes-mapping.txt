@@ -136,8 +136,8 @@ nz/pumbas/commands/tokens/tokensyntax/InvocationContext.java
  nz.pumbas.commands.tokens.tokensyntax.InvocationContext
 nz/pumbas/halpbot/commands/TokenCommands.java
  nz.pumbas.halpbot.commands.TokenCommands
-nz/pumbas/halpbot/commands/VectorCommands.java
- nz.pumbas.halpbot.commands.VectorCommands
+nz/pumbas/objects/keys/Keys.java
+ nz.pumbas.objects.keys.Keys
 nz/pumbas/utilities/enums/Modifiers.java
  nz.pumbas.utilities.enums.Modifiers
 nz/pumbas/utilities/io/ImageType.java
@@ -180,14 +180,14 @@ nz/pumbas/halpbot/commands/steamtables/models/SaturatedSteamModel.java
  nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel
 nz/pumbas/objects/keys/Key.java
  nz.pumbas.objects.keys.Key
-nz/pumbas/objects/keys/Keys.java
- nz.pumbas.objects.keys.Keys
 nz/pumbas/commands/tokens/TokenManager.java
  nz.pumbas.commands.tokens.TokenManager
 nz/pumbas/commands/tokens/TokenCommand.java
  nz.pumbas.commands.tokens.TokenCommand
 nz/pumbas/commands/commandadapters/TokenCommandAdapter.java
  nz.pumbas.commands.commandadapters.TokenCommandAdapter
+nz/pumbas/halpbot/commands/VectorCommands.java
+ nz.pumbas.halpbot.commands.VectorCommands
 nz/pumbas/halpbot/HalpBot.java
  nz.pumbas.halpbot.HalpBot
 nz/pumbas/commands/commandadapters/AbstractCommandAdapter.java
