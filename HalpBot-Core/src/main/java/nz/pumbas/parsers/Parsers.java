@@ -81,60 +81,71 @@ public final class Parsers
         parsers.add(Tuple.of(annotationType, typeParser));
     }
 
-    public static final TypeParser<Integer> INTEGER_PARSER = TypeParser.of(Integer.class, ctx ->
-        ctx.getNext(Reflect.getSyntax(Integer.class))
-            .map(Integer::parseInt)
-    );
+    public static final TypeParser<Integer> INTEGER_PARSER = TypeParser.builder(Integer.class)
+        .convert(ctx ->
+            ctx.getNext(Reflect.getSyntax(Integer.class))
+                .map(Integer::parseInt))
+        .register();
 
-    public static final TypeParser<Float> FLOAT_PARSER = TypeParser.of(Float.class, ctx ->
-        ctx.getNext(Reflect.getSyntax(Float.class))
-            .map(Float::parseFloat)
-    );
+    public static final TypeParser<Float> FLOAT_PARSER = TypeParser.builder(Float.class)
+        .convert(ctx ->
+            ctx.getNext(Reflect.getSyntax(Float.class))
+                .map(Float::parseFloat))
+        .register();
 
-    public static final TypeParser<Double> DOUBLE_PARSER = TypeParser.of(Double.class, ctx ->
-        ctx.getNext(Reflect.getSyntax(Double.class))
-            .map(Double::parseDouble)
-    );
+    public static final TypeParser<Double> DOUBLE_PARSER = TypeParser.builder(Double.class)
+        .convert(ctx ->
+            ctx.getNext(Reflect.getSyntax(Double.class))
+                .map(Double::parseDouble))
+        .register();
 
-    public static final TypeParser<Character> CHARACTER_PARSER = TypeParser.of(Character.class, ctx ->
-        ctx.getNext(Reflect.getSyntax(Character.class))
-            .map(s -> s.charAt(0))
-    );
+    public static final TypeParser<Character> CHARACTER_PARSER = TypeParser.builder(Character.class)
+        .convert(ctx ->
+            ctx.getNext(Reflect.getSyntax(Character.class))
+                .map(in -> in.charAt(0)))
+        .register();
 
-    public static final TypeParser<String> STRING_PARSER = TypeParser.of(String.class, ctx ->
-        Exceptional.of(ctx.getNext())
-    );
+    public static final TypeParser<String> STRING_PARSER = TypeParser.builder(String.class)
+        .convert(ctx -> Exceptional.of(ctx.getNext()))
+        .register();
 
-    public static final TypeParser<Boolean> BOOLEAN_PARSER = TypeParser.of(Boolean.class, ctx ->
-        ctx.getNext(Reflect.getSyntax(Boolean.class))
-            .map(s -> {
-                String lowered = s.toLowerCase(Locale.ROOT);
-                return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered) || "y".equals(lowered);
-            })
-    );
+    public static final TypeParser<Boolean> BOOLEAN_PARSER = TypeParser.builder(Boolean.class)
+        .convert(ctx ->
+            ctx.getNext(Reflect.getSyntax(Boolean.class))
+                .map(in -> {
+                    String lowered = in.toLowerCase(Locale.ROOT);
+                    return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered) || "y".equals(lowered);
+            }))
+        .register();
 
-    public static final TypeParser<Enum> ENUM_PARSER = TypeParser.of(Enum.class, ctx ->
-        Exceptional.of(Reflect.parseEnumValue(ctx.getType(), ctx.getNext()))
-    );
+    public static final TypeParser<Enum> ENUM_PARSER = TypeParser.builder(Enum.class)
+        .convert(ctx ->
+            Exceptional.of(
+                Reflect.parseEnumValue(ctx.getType(), ctx.getNext())))
+        .register();
 
-    public static final TypeParser<List> LIST_PARSER = TypeParser.of(List.class, ctx -> {
-        TypeParser<?> elementParser = retrieveParser(Reflect.getArrayType(ctx.getType()), ctx);
-        return Exceptional.of(() -> {
-            List<Object> list = new ArrayList<>();
-            ctx.assertNext('[');
+    public static final TypeParser<List> LIST_PARSER = TypeParser.builder(List.class)
+        .convert(ctx -> {
+            TypeParser<?> elementParser = retrieveParser(Reflect.getArrayType(ctx.getType()), ctx);
+            return Exceptional.of(() -> {
+                List<Object> list = new ArrayList<>();
+                ctx.assertNext('[');
 
-            while (!ctx.isNext(']', true)) {
-                elementParser.getParser()
-                    .apply(ctx)
-                    .present(list::add)
-                    .rethrow();
-            }
-            return list;
-        });
-    });
+                while (!ctx.isNext(']', true)) {
+                    elementParser.getParser()
+                        .apply(ctx)
+                        .present(list::add)
+                        .rethrow();
+                }
+                return list;
+            });
+        }).register();
 
-    public static final TypeParser<List> IMPLICIT_LIST_PARSER = TypeParser.of(List.class, Implicit.class,
-        Priority.LAST, ctx -> {
+
+    public static final TypeParser<List> IMPLICIT_LIST_PARSER = TypeParser.builder(List.class)
+        .annotation(Implicit.class)
+        .priority(Priority.LAST)
+        .convert(ctx -> {
             TypeParser<?> elementParser = retrieveParser(Reflect.getArrayType(ctx.getType()), ctx);
             List<Object> list = new ArrayList<>();
 
@@ -149,14 +160,16 @@ public final class Parsers
             }
 
             return Exceptional.of(list);
-    });
+        }).register();
 
-    public static final TypeParser<List> UNMODIFIABLE_LIST_PARSER = TypeParser.of(List.class, Unmodifiable.class,
-        Priority.EARLY, ctx ->
-        retrieveParser(List.class, ctx).getParser()
-            .apply(ctx)
-            .map(Collections::unmodifiableList)
-    );
+    public static final TypeParser<List> UNMODIFIABLE_LIST_PARSER = TypeParser.builder(List.class)
+        .annotation(Unmodifiable.class)
+        .priority(Priority.EARLY)
+        .convert(ctx ->
+            retrieveParser(List.class, ctx).getParser()
+                .apply(ctx)
+                .map(Collections::unmodifiableList))
+        .register();
 
     public static final TypeParser<Set> SET_PARSER = TypeParser.of(Set.class, ctx ->
         retrieveParser(List.class, ctx).getParser()

@@ -43,6 +43,14 @@ public class TypeParser<T>
         return new TypeParser<>(parser, priority);
     }
 
+    public static <T> TypeParserBuilder<T> builder(@NotNull Class<T> type) {
+        return new TypeParserBuilder<>(type);
+    }
+
+    public static <T> TypeParserBuilder<T> builder(@NotNull Predicate<Class<?>> filter) {
+        return new TypeParserBuilder<>(filter);
+    }
+
     public Function<ParsingContext, Exceptional<T>> getParser()
     {
         return this.parser;
@@ -51,5 +59,43 @@ public class TypeParser<T>
     public Priority getPriority()
     {
         return this.priority;
+    }
+
+    public static class TypeParserBuilder<T> {
+
+        private Class<T> type;
+        private Predicate<Class<?>> filter;
+        private Function<ParsingContext, Exceptional<T>> parser;
+        private Priority priority = Priority.DEFAULT;
+        private Class<? extends Annotation> annotation;
+
+        public TypeParserBuilder() { }
+
+        protected TypeParserBuilder(@NotNull Class<T> type) {
+            this.type = type;
+        }
+
+        protected TypeParserBuilder(@NotNull Predicate<Class<?>> filter) {
+            this.filter = filter;
+        }
+
+        public TypeParserBuilder<T> convert(@NotNull Function<ParsingContext, Exceptional<T>> parser) {
+            this.parser = parser;
+            return this;
+        }
+
+        public TypeParserBuilder<T> priority(@NotNull Priority priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public TypeParserBuilder<T> annotation(@NotNull Class<? extends Annotation> annotation) {
+            this.annotation = annotation;
+            return this;
+        }
+
+        public TypeParser<T> register() {
+            return new TypeParser<>(this.parser, this.priority);
+        }
     }
 }

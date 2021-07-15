@@ -13,7 +13,7 @@ import nz.pumbas.utilities.Utils
 import nz.pumbas.utilities.request.Request
 import java.awt.Color
 
-class KotlinCommands : nz.pumbas.commands.OnReady {
+class KotlinCommands : OnReady {
 
     private lateinit var comfortingMessages: List<String>
     private lateinit var insultJokes: List<String>
@@ -27,12 +27,12 @@ class KotlinCommands : nz.pumbas.commands.OnReady {
      *      The JDA [ReadyEvent].
      */
     override fun onReady(event: ReadyEvent) {
-        comfortingMessages = nz.pumbas.utilities.Utils.getAllLinesFromFile("ComfortingMessages.txt")
-        insultJokes = nz.pumbas.utilities.Utils.getAllLinesFromFile("InsultJokes.txt")
+        comfortingMessages = Utils.getAllLinesFromFile("ComfortingMessages.txt")
+        insultJokes = Utils.getAllLinesFromFile("InsultJokes.txt")
     }
 
     @nz.pumbas.commands.annotations.Command(alias = "Halp", description = "Displays the help information for the specified command")
-    fun halp(commandAdapter: nz.pumbas.commands.commandadapters.AbstractCommandAdapter, @nz.pumbas.commands.annotations.Unrequired commandAlias: String): Any {
+    fun halp(commandAdapter: AbstractCommandAdapter, @nz.pumbas.commands.annotations.Unrequired commandAlias: String): Any {
         if (commandAlias.isEmpty()) {
             val embedBuilder = EmbedBuilder()
                 .setColor(Color.ORANGE)
@@ -61,12 +61,12 @@ class KotlinCommands : nz.pumbas.commands.OnReady {
         if (commandMethod.isEmpty)
             return "That doesn't seem to be a registered command :sob:"
 
-        return nz.pumbas.commands.commandadapters.AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview")
+        return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview")
     }
 
     @nz.pumbas.commands.annotations.Command(alias= "GoodBot", description = "Allows you to praise the bot.")
     fun goodBot(): String {
-        return nz.pumbas.utilities.Utils.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
+        return Utils.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
     }
 
     @nz.pumbas.commands.annotations.Command(alias = "Id", description = "Returns the users discord id")
@@ -99,7 +99,7 @@ class KotlinCommands : nz.pumbas.commands.OnReady {
 
     @nz.pumbas.commands.annotations.Command(alias = "Comfort", description = "Sends a comforting message")
     fun comfort(): String {
-        return nz.pumbas.utilities.Utils.randomChoice(this.comfortingMessages)
+        return Utils.randomChoice(this.comfortingMessages)
     }
 
     @nz.pumbas.commands.annotations.Command(alias = "Joke", description = "Sends a random joke")
@@ -108,7 +108,7 @@ class KotlinCommands : nz.pumbas.commands.OnReady {
         if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
             return "You can only specify the one of the following categories: ${jokeCategories.contentToString()}"
         else if (loweredCategory.isEmpty())
-            loweredCategory = nz.pumbas.utilities.Utils.randomChoice(jokeCategories)
+            loweredCategory = Utils.randomChoice(jokeCategories)
 
         val url = "https://official-joke-api.appspot.com/jokes/$loweredCategory/random"
         val request = Request(url)
@@ -121,6 +121,6 @@ class KotlinCommands : nz.pumbas.commands.OnReady {
 
     @nz.pumbas.commands.annotations.Command(alias = "Insult", description = "Sends a joking insult")
     fun insult(): String {
-        return nz.pumbas.utilities.Utils.randomChoice(insultJokes)
+        return Utils.randomChoice(insultJokes)
     }
 }
