@@ -1,18 +1,35 @@
 package nz.pumbas.parsers;
 
-import java.lang.reflect.Array;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import nz.pumbas.commands.annotations.Source;
 import nz.pumbas.commands.annotations.Unmodifiable;
+import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.commands.validation.Implicit;
+import nz.pumbas.objects.Tuple;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
+import nz.pumbas.utilities.enums.Priority;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class Parsers
@@ -20,12 +37,49 @@ public final class Parsers
 
     private Parsers() {}
 
-//    public static final TypeParser<Enum> ENUM_PARSER = TypeParser.of(Enum.class, ctx -> {
-//        String token = ctx.getNext();
-//
-//        return Result.of(Reflect.parseEnumValue(ctx.getType(), token),
-//            Resource.get("halpbot.commands.match.enum", token, ctx.getType().getSimpleName()));
-//    });
+    private static final Map<Class<?>, List<Tuple<Class<?>, TypeParser<?>>>> TypeParsers = new HashMap<>();
+    private static final List<Tuple<Predicate<Class<?>>, TypeParser<?>>> FallbackTypeParsers = new ArrayList<>();
+
+    public static <T> TypeParser<T> retrieveParser(@NotNull Class<T> type,
+                                                   @NotNull ParsingContext ctx) {
+
+        if (TypeParsers.containsKey(type)) {
+            return (TypeParser<T>) retrieveParserByAnnotation(TypeParsers.get(type), ctx);
+        }
+        else {
+            return (TypeParser<T>) TypeParsers.keySet()
+                .stream()
+                .filter(c -> c.isAssignableFrom(type))
+                .findFirst()
+                .map(c -> (Object) retrieveParserByAnnotation(TypeParsers.get(c), ctx))
+                .orElseGet(() -> FallbackTypeParsers.stream()
+                    .filter(t -> t.getKey().test(type))
+                    .findFirst()
+                    .map(Tuple::getValue)
+                    .orElseThrow());
+        }
+    }
+
+    private static TypeParser<?> retrieveParserByAnnotation(@NotNull List<Tuple<Class<?>, TypeParser<?>>> parsers,
+                                                            @NotNull ParsingContext ctx) {
+        return null;
+    }
+
+    public static void registerParser(@NotNull Class<?> type,
+                                      @NotNull Class<?> annotationType,
+                                      @NotNull TypeParser<?> typeParser) {
+        if (!TypeParsers.containsKey(type))
+            TypeParsers.put(type, new ArrayList<>());
+
+        List<Tuple<Class<?>, TypeParser<?>>> parsers = TypeParsers.get(type);
+        for (int i = 0; i < parsers.size(); i++) {
+            if (0 > parsers.get(i).getValue().getPriority().compareTo(typeParser.getPriority())) {
+                parsers.add(i, Tuple.of(annotationType, typeParser));
+                break;
+            }
+        }
+        parsers.add(Tuple.of(annotationType, typeParser));
+    }
 
     public static final TypeParser<Integer> INTEGER_PARSER = TypeParser.of(Integer.class, ctx ->
         ctx.getNext(Reflect.getSyntax(Integer.class))
@@ -59,6 +113,10 @@ public final class Parsers
             })
     );
 
+    public static final TypeParser<Enum> ENUM_PARSER = TypeParser.of(Enum.class, ctx ->
+        Exceptional.of(Reflect.parseEnumValue(ctx.getType(), ctx.getNext()))
+    );
+
     public static final TypeParser<List> LIST_PARSER = TypeParser.of(List.class, ctx -> {
         TypeParser<?> elementParser = retrieveParser(Reflect.getArrayType(ctx.getType()), ctx);
         return Exceptional.of(() -> {
@@ -75,24 +133,26 @@ public final class Parsers
         });
     });
 
-    public static final TypeParser<List> IMPLICIT_LIST_PARSER = TypeParser.of(List.class, Implicit.class, ctx -> {
-        TypeParser<?> elementParser = retrieveParser(Reflect.getArrayType(ctx.getType()), ctx);
-        List<Object> list = new ArrayList<>();
+    public static final TypeParser<List> IMPLICIT_LIST_PARSER = TypeParser.of(List.class, Implicit.class,
+        Priority.LAST, ctx -> {
+            TypeParser<?> elementParser = retrieveParser(Reflect.getArrayType(ctx.getType()), ctx);
+            List<Object> list = new ArrayList<>();
 
-        Exceptional<?> element = elementParser.getParser().apply(ctx)
-            .present(list::add);
-        if (element.absent()) return Exceptional.of(element.error());
+            Exceptional<?> element = elementParser.getParser().apply(ctx)
+                .present(list::add);
+            if (element.absent()) return Exceptional.of(element.error());
 
-        while (ctx.hasNext()) {
-            element = elementParser.getParser().apply(ctx);
-            if (element.present()) list.add(element.get());
-            else break;
-        }
+            while (ctx.hasNext()) {
+                element = elementParser.getParser().apply(ctx);
+                if (element.present()) list.add(element.get());
+                else break;
+            }
 
-        return Exceptional.of(list);
+            return Exceptional.of(list);
     });
 
-    public static final TypeParser<List> UNMODIFIABLE_LIST_PARSER = TypeParser.of(List.class, Unmodifiable.class, ctx ->
+    public static final TypeParser<List> UNMODIFIABLE_LIST_PARSER = TypeParser.of(List.class, Unmodifiable.class,
+        Priority.EARLY, ctx ->
         retrieveParser(List.class, ctx).getParser()
             .apply(ctx)
             .map(Collections::unmodifiableList)
@@ -104,7 +164,8 @@ public final class Parsers
             .map(HashSet::new)
     );
 
-    public static final TypeParser<Set> UNMODIFIABLE_SET_PARSER = TypeParser.of(Set.class, Unmodifiable.class, ctx ->
+    public static final TypeParser<Set> UNMODIFIABLE_SET_PARSER = TypeParser.of(Set.class,
+        Unmodifiable.class, Priority.EARLY, ctx ->
         retrieveParser(Set.class, ctx).getParser()
             .apply(ctx)
             .map(Collections::unmodifiableSet)
@@ -116,8 +177,35 @@ public final class Parsers
             .map(list -> Reflect.toArray(Reflect.getArrayType(ctx.getType()), list))
     );
 
-    public static <T> TypeParser<T> retrieveParser(Class<T> type, ParsingContext ctx) {
-        //TODO: This
-        return null;
-    }
+    public static final TypeParser<MessageChannel> SOURCE_MESSAGE_CHANNEL_PARSER = TypeParser.of(MessageChannel.class,
+        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getChannel())
+    );
+
+    public static final TypeParser<TextChannel> SOURCE_TEXT_CHANNEL_PARSER = TypeParser.of(TextChannel.class,
+        Source.class, Priority.FIRST, ctx -> Exceptional.of(() -> ctx.getEvent().getTextChannel())
+    );
+
+    public static final TypeParser<PrivateChannel> SOURCE_PRIVATE_CHANNEL_PARSER = TypeParser.of(PrivateChannel.class,
+        Source.class, Priority.FIRST, ctx -> Exceptional.of(() -> ctx.getEvent().getPrivateChannel())
+    );
+
+    public static final TypeParser<GenericEvent> EVENT_PARSER = TypeParser.of(GenericEvent.class,
+        ctx -> Exceptional.of(ctx.getEvent())
+    );
+
+    public static final TypeParser<AbstractCommandAdapter> COMMAND_ADAPTER_PARSER = TypeParser.of(
+        AbstractCommandAdapter.class, ctx -> Exceptional.of(ctx.getCommandAdapter())
+    );
+
+    public static final TypeParser<User> SOURCE_USER_PARSER = TypeParser.of(User.class,
+        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getAuthor())
+    );
+
+    public static final TypeParser<Guild> SOURCE_GUILD_PARSER = TypeParser.of(Guild.class,
+        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getGuild())
+    );
+
+    public static final TypeParser<ChannelType> SOURCE_CHANNEL_TYPE_PARSER = TypeParser.of(ChannelType.class,
+        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getChannelType())
+    );
 }
