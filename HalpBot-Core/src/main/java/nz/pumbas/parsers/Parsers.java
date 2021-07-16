@@ -31,7 +31,7 @@ import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.enums.Priority;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
 public final class Parsers
 {
 
@@ -62,7 +62,16 @@ public final class Parsers
 
     private static TypeParser<?> retrieveParserByAnnotation(@NotNull List<Tuple<Class<?>, TypeParser<?>>> parsers,
                                                             @NotNull ParsingContext ctx) {
-        return null;
+        assert !parsers.isEmpty();
+
+        for (Tuple<Class<?>, TypeParser<?>> parser : parsers) {
+            if (ctx.getAnnotations().contains(parser.getKey())) {
+                ctx.getAnnotations().remove(parser.getKey());
+                return parser.getValue();
+            }
+        }
+        //otherwise return the last parser
+        return parsers.get(parsers.size() - 1).getValue();
     }
 
     public static void registerParser(@NotNull Class<?> type,
@@ -73,12 +82,18 @@ public final class Parsers
 
         List<Tuple<Class<?>, TypeParser<?>>> parsers = TypeParsers.get(type);
         for (int i = 0; i < parsers.size(); i++) {
-            if (0 > parsers.get(i).getValue().getPriority().compareTo(typeParser.getPriority())) {
+            if (0 < parsers.get(i).getValue().getPriority().compareTo(typeParser.getPriority())) {
                 parsers.add(i, Tuple.of(annotationType, typeParser));
-                break;
+                return;
             }
         }
         parsers.add(Tuple.of(annotationType, typeParser));
+    }
+
+    public static void registerParser(@NotNull Predicate<Class<?>> filter,
+                                      @NotNull TypeParser<?> typeParser) {
+
+        FallbackTypeParsers.add(Tuple.of(filter, typeParser));
     }
 
     public static final TypeParser<Integer> INTEGER_PARSER = TypeParser.builder(Integer.class)
@@ -171,54 +186,75 @@ public final class Parsers
                 .map(Collections::unmodifiableList))
         .register();
 
-    public static final TypeParser<Set> SET_PARSER = TypeParser.of(Set.class, ctx ->
-        retrieveParser(List.class, ctx).getParser()
-            .apply(ctx)
-            .map(HashSet::new)
-    );
+    public static final TypeParser<Set> SET_PARSER = TypeParser.builder(Set.class)
+        .convert(ctx ->
+            retrieveParser(List.class, ctx).getParser()
+                .apply(ctx)
+                .map(HashSet::new))
+        .register();
 
-    public static final TypeParser<Set> UNMODIFIABLE_SET_PARSER = TypeParser.of(Set.class,
-        Unmodifiable.class, Priority.EARLY, ctx ->
-        retrieveParser(Set.class, ctx).getParser()
-            .apply(ctx)
-            .map(Collections::unmodifiableSet)
-    );
 
-    public static final TypeParser<Object> ARRAY_PARSER = TypeParser.of(Class::isArray, ctx ->
-        retrieveParser(List.class, ctx).getParser()
-            .apply(ctx)
-            .map(list -> Reflect.toArray(Reflect.getArrayType(ctx.getType()), list))
-    );
+    public static final TypeParser<Set> UNMODIFIABLE_SET_PARSER = TypeParser.builder(Set.class)
+        .annotation(Unmodifiable.class)
+        .priority(Priority.EARLY)
+        .convert(ctx ->
+            retrieveParser(Set.class, ctx).getParser()
+                .apply(ctx)
+                .map(Collections::unmodifiableSet))
+        .register();
 
-    public static final TypeParser<MessageChannel> SOURCE_MESSAGE_CHANNEL_PARSER = TypeParser.of(MessageChannel.class,
-        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getChannel())
-    );
+    public static final TypeParser<Object> ARRAY_PARSER = TypeParser.builder(Class::isArray)
+        .convert(ctx ->
+            retrieveParser(List.class, ctx).getParser()
+                .apply(ctx)
+                .map(list -> Reflect.toArray(Reflect.getArrayType(ctx.getType()), list)))
+        .register();
 
-    public static final TypeParser<TextChannel> SOURCE_TEXT_CHANNEL_PARSER = TypeParser.of(TextChannel.class,
-        Source.class, Priority.FIRST, ctx -> Exceptional.of(() -> ctx.getEvent().getTextChannel())
-    );
+    public static final TypeParser<GenericEvent> EVENT_PARSER = TypeParser.builder(GenericEvent.class)
+        .convert(ctx -> Exceptional.of(ctx.getEvent()))
+        .register();
 
-    public static final TypeParser<PrivateChannel> SOURCE_PRIVATE_CHANNEL_PARSER = TypeParser.of(PrivateChannel.class,
-        Source.class, Priority.FIRST, ctx -> Exceptional.of(() -> ctx.getEvent().getPrivateChannel())
-    );
+    public static final TypeParser<AbstractCommandAdapter> COMMAND_ADAPTER_PARSER =
+        TypeParser.builder(AbstractCommandAdapter.class)
+            .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
+            .register();
 
-    public static final TypeParser<GenericEvent> EVENT_PARSER = TypeParser.of(GenericEvent.class,
-        ctx -> Exceptional.of(ctx.getEvent())
-    );
+    public static final TypeParser<MessageChannel> SOURCE_MESSAGE_CHANNEL_PARSER =
+        TypeParser.builder(MessageChannel.class)
+            .annotation(Source.class)
+            .priority(Priority.FIRST)
+            .convert(ctx -> Exceptional.of(ctx.getEvent().getChannel()))
+            .register();
 
-    public static final TypeParser<AbstractCommandAdapter> COMMAND_ADAPTER_PARSER = TypeParser.of(
-        AbstractCommandAdapter.class, ctx -> Exceptional.of(ctx.getCommandAdapter())
-    );
+    public static final TypeParser<TextChannel> SOURCE_TEXT_CHANNEL_PARSER =
+        TypeParser.builder(TextChannel.class)
+            .annotation(Source.class)
+            .priority(Priority.FIRST)
+            .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getTextChannel()))
+            .register();
 
-    public static final TypeParser<User> SOURCE_USER_PARSER = TypeParser.of(User.class,
-        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getAuthor())
-    );
+    public static final TypeParser<PrivateChannel> SOURCE_PRIVATE_CHANNEL_PARSER =
+        TypeParser.builder(PrivateChannel.class)
+            .annotation(Source.class)
+            .priority(Priority.FIRST)
+            .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getPrivateChannel()))
+            .register();
 
-    public static final TypeParser<Guild> SOURCE_GUILD_PARSER = TypeParser.of(Guild.class,
-        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getGuild())
-    );
+    public static final TypeParser<User> SOURCE_USER_PARSER = TypeParser.builder(User.class)
+        .annotation(Source.class)
+        .priority(Priority.FIRST)
+        .convert(ctx -> Exceptional.of(ctx.getEvent().getAuthor()))
+        .register();
 
-    public static final TypeParser<ChannelType> SOURCE_CHANNEL_TYPE_PARSER = TypeParser.of(ChannelType.class,
-        Source.class, Priority.FIRST, ctx -> Exceptional.of(ctx.getEvent().getChannelType())
-    );
+    public static final TypeParser<Guild> SOURCE_GUILD_PARSER = TypeParser.builder(Guild.class)
+        .annotation(Source.class)
+        .priority(Priority.FIRST)
+        .convert(ctx -> Exceptional.of(ctx.getEvent().getGuild()))
+        .register();
+
+    public static final TypeParser<ChannelType> SOURCE_CHANNEL_TYPE_PARSER = TypeParser.builder(ChannelType.class)
+        .annotation(Source.class)
+        .priority(Priority.FIRST)
+        .convert(ctx -> Exceptional.of(ctx.getEvent().getChannelType()))
+        .register();
 }

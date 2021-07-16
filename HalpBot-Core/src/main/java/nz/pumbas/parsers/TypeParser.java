@@ -21,28 +21,6 @@ public class TypeParser<T>
         this.priority = priority;
     }
 
-    public static <T> TypeParser<T> of(@NotNull Class<T> type,
-                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
-        return new TypeParser<>(parser, Priority.DEFAULT);
-    }
-
-    public static <T> TypeParser<T> of(@NotNull Predicate<Class<?>> filter,
-                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
-        return new TypeParser<>(parser, Priority.DEFAULT);
-    }
-
-    public static <T> TypeParser<T> of(@NotNull Class<T> type,
-                                       @NotNull Class<? extends Annotation> annotation, Priority priority,
-                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
-        return new TypeParser<>(parser, priority);
-    }
-
-    public static <T> TypeParser<T> of(@NotNull Predicate<Class<?>> filter,
-                                       @NotNull Class<? extends Annotation> annotation, Priority priority,
-                                       @NotNull Function<ParsingContext, Exceptional<T>> parser) {
-        return new TypeParser<>(parser, priority);
-    }
-
     public static <T> TypeParserBuilder<T> builder(@NotNull Class<T> type) {
         return new TypeParserBuilder<>(type);
     }
@@ -67,7 +45,7 @@ public class TypeParser<T>
         private Predicate<Class<?>> filter;
         private Function<ParsingContext, Exceptional<T>> parser;
         private Priority priority = Priority.DEFAULT;
-        private Class<? extends Annotation> annotation;
+        private Class<?> annotation = Void.class;
 
         public TypeParserBuilder() { }
 
@@ -95,7 +73,13 @@ public class TypeParser<T>
         }
 
         public TypeParser<T> register() {
-            return new TypeParser<>(this.parser, this.priority);
+            TypeParser<T> typeParser = new TypeParser<>(this.parser, this.priority);
+
+            if (null == this.type)
+                Parsers.registerParser(this.filter, typeParser);
+            else Parsers.registerParser(this.type, this.annotation, typeParser);
+
+            return typeParser;
         }
     }
 }

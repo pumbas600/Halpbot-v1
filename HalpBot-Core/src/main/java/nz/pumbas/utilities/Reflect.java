@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -506,6 +507,20 @@ public final class Reflect {
     public static Class<?> getArrayType(Class<?> clazz)
     {
         return clazz.isArray() ? clazz.getComponentType() : clazz;
+    }
+
+    /**
+     * Retrieves the {@link Class} of the elements in the {@link List}.
+     *
+     * @param listField
+     *      The {@link Field} of the {@link List}
+     *
+     * @return The {@link Class} of the elements in the {@link List}
+     */
+    public static Class<?> getListType(Field listField) {
+        return (Class<?>) ((ParameterizedType) listField.getGenericType())
+            .getActualTypeArguments()[0];
+
     }
 
     /**

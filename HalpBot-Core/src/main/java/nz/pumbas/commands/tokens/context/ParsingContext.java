@@ -3,8 +3,11 @@ package nz.pumbas.commands.tokens.context;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
@@ -20,6 +23,30 @@ public class ParsingContext extends InvocationContext
     protected ParsingContext(@NotNull String context)
     {
         super(context);
+    }
+
+    protected ParsingContext(@NotNull String context, @NotNull Class<?> type,
+                             @Nullable AbstractCommandAdapter commandAdapter,
+                             @Nullable MessageReceivedEvent event,
+                             @NotNull List<Class<? extends Annotation>> annotations)
+    {
+        super(context);
+        this.type = type;
+        this.commandAdapter = commandAdapter;
+        this.event = event;
+        this.annotations = annotations;
+    }
+
+    @SafeVarargs
+    public static ParsingContext of(@NotNull Class<?> type,
+                                    @NotNull Class<? extends Annotation>... annotations) {
+        return new ParsingContext("", type, null, null, new ArrayList<>(Arrays.asList(annotations)));
+    }
+
+    @SafeVarargs
+    public static ParsingContext of(@NotNull String context, @NotNull Class<?> type,
+                                    @NotNull Class<? extends Annotation>... annotations) {
+        return new ParsingContext(context, type, null, null, new ArrayList<>(Arrays.asList(annotations)));
     }
 
     public void assertNext(char character) {

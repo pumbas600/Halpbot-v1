@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -36,7 +35,6 @@ import javax.imageio.ImageIO;
 
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.utilities.functionalinterfaces.IOFunction;
-import nz.pumbas.utilities.io.ImageType;
 
 public final class Utils
 {
@@ -339,29 +337,29 @@ public final class Utils
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
-    /**
-     * Converts an {@link BufferedImage} to an array of bytes.
-     *
-     * @param image
-     *      The {@link BufferedImage} to convert to bytes
-     * @param imageType
-     *      The {@link ImageType} of the {@link BufferedImage}
-     *
-     * @return An array of bytes
-     */
-    public static byte[] toByteArray(BufferedImage image, ImageType imageType)
-    {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ImageIO.write(image, imageType.getType(), outputStream);
-            return outputStream.toByteArray();
-
-        } catch (IOException e) {
-            ErrorManager.handle(e);
-        }
-
-        return new byte[0];
-    }
+//    /**
+//     * Converts an {@link BufferedImage} to an array of bytes.
+//     *
+//     * @param image
+//     *      The {@link BufferedImage} to convert to bytes
+//     * @param imageType
+//     *      The {@link ImageType} of the {@link BufferedImage}
+//     *
+//     * @return An array of bytes
+//     */
+//    public static byte[] toByteArray(BufferedImage image, ImageType imageType)
+//    {
+//        try {
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//            ImageIO.write(image, imageType.getType(), outputStream);
+//            return outputStream.toByteArray();
+//
+//        } catch (IOException e) {
+//            ErrorManager.handle(e);
+//        }
+//
+//        return new byte[0];
+//    }
 
     /**
      * Determines if two values are approximately equal, by checking if the difference between them is less than the
