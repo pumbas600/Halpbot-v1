@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +59,8 @@ public final class Reflect {
         int.class,    Integer.class,
         float.class,  Float.class,
         double.class, Double.class,
+        long.class,   Long.class,
+        short.class,  Short.class,
         char.class,   Character.class,
         boolean.class,Boolean.class
     );
@@ -96,12 +99,12 @@ public final class Reflect {
      */
     public static boolean matches(String s, Class<?> type)
     {
-        Class<?> unwrappedType = getPrimativeType(type);
+        Class<?> wrappedType = wrapPrimative(type);
 
-        if (!TypeParsers.containsKey(unwrappedType))
+        if (!TypeParsers.containsKey(wrappedType))
             throw new IllegalArgumentException("You can only match strings of simple types");
 
-        return TypeParsers.get(unwrappedType)
+        return TypeParsers.get(wrappedType)
             .getKey()
             .matcher(s)
             .matches();
@@ -144,7 +147,7 @@ public final class Reflect {
      *
      * @return the primative type of a wrapper type, or the passed in type if it has no primative type
      */
-    public static Class<?> getPrimativeType(Class<?> type)
+    public static Class<?> wrapPrimative(Class<?> type)
     {
         return PrimativeWrappers.getOrDefault(type, type);
     }
@@ -510,17 +513,39 @@ public final class Reflect {
     }
 
     /**
-     * Retrieves the {@link Class} of the elements in the {@link List}.
+     * Retrieves the generic type of a {@link Type}. If the type is an array, it will return the type of the elements
+     * in the array.
      *
-     * @param listField
-     *      The {@link Field} of the {@link List}
+     * @param type
+     *      The {@link Type} to find the generic type of
      *
-     * @return The {@link Class} of the elements in the {@link List}
+     * @return The {@link Type generic type}
      */
-    public static Class<?> getListType(Field listField) {
-        return (Class<?>) ((ParameterizedType) listField.getGenericType())
-            .getActualTypeArguments()[0];
+    public static Type getGenericType(Type type) {
+        if (type instanceof Class<?>) {
+            return Reflect.getArrayType((Class<?>) type);
+        }
+        else if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Type[] genericTypes = parameterizedType.getActualTypeArguments();
+            if (0 < genericTypes.length)
+                return genericTypes[0];
+        }
+        return Void.class;
+    }
 
+    /**
+     * Retrieves the {@link Type} as a raw {@link Class}. If the type is not an instance of Class, then it returns
+     * {@code ((ParameterizedType) type).getRawType()}.
+     *
+     * @param type
+     *      The {@link Type}
+     *
+     * @return The type as a {@link Class}
+     */
+    public static Class<?> asClass(Type type) {
+        return (Class<?>) (type instanceof Class<?>
+            ? type : ((ParameterizedType) type).getRawType());
     }
 
     /**

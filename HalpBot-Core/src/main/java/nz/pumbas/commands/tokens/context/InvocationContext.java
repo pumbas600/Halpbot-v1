@@ -179,6 +179,25 @@ public class InvocationContext
     }
 
     /**
+     * Determine if the specified string is next. If it is, then it steps past.
+     *
+     * @param next
+     *      The string to check if is next
+     *
+     * @return If the specified string is next
+     */
+    public boolean nextMatches(@NotNull String next) {
+        int endIndex = this.currentIndex + next.length();
+        if (this.original.substring(this.currentIndex, endIndex).equalsIgnoreCase(next)) {
+            this.currentIndex = endIndex;
+            if (this.currentlyOnSpace())
+                this.incrementIndex();
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Gets the next {@link String token} that matches the specified {@link Pattern}. If the next token doesn't match
      * the {@link Pattern} then an empty {@link Optional} is returned.
      *
@@ -194,7 +213,7 @@ public class InvocationContext
             Matcher matcher = pattern.matcher(originalSubstring);
             if (matcher.lookingAt()) { //Will return true if the start of the string matches the Regex
                 String match = originalSubstring.substring(0, matcher.end());
-                this.currentIndex += matcher.end() + 1;
+                this.currentIndex += matcher.end();
 
                 //If there's a space right after the match, skip past it
                 if (this.hasNext() && ' ' == this.original.charAt(this.currentIndex))

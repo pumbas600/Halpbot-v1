@@ -4,64 +4,83 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.List;
 
-import nz.pumbas.commands.tokens.context.InvocationContext;
-import nz.pumbas.objects.Result;
-import nz.pumbas.resources.Language;
+import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.parsers.TypeParser;
 
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
  */
-public interface ParsingToken extends CommandToken {
+public interface ParsingToken extends Token
+{
 
     /**
      * @return The {@link Annotation} annotations on this {@link ParsingToken}
      */
-    Annotation[] getAnnotations();
+    @NotNull
+    Annotation[] annotations();
 
     /**
-     * @return The required {@link Class type} of this {@link ParsingToken}
+     * @return An {@link List} of the {@link Class types} of the annotations on this {@link ParsingToken}
      */
-    Class<?> getType();
+    @NotNull
+    List<Class<? extends Annotation>> annotationTypes();
+
+    /**
+     * @return The required {@link Type} of this {@link ParsingToken}
+     */
+    @NotNull
+    Type type();
+
+    /**
+     * @return The {@link TypeParser} for this token
+     */
+    @NotNull
+    TypeParser<?> typeParser();
 
     /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Nullable
-    Object getDefaultValue();
+    Object defaultValue();
 
     /**
-     * Parses the {@link String default value} for a token. If this {@link String default value} is null or a string
-     * of 'null', then it returns null.
-     * 
-     * @param defaultValue
-     *      {@link String default value} to be parsed into an {@link Object} using
-     *      {@link ParsingToken#parse(InvocationContext)}
-     *      
-     * @return The parsed {@link Object default value}
+     * Retrieves the {@link Annotation} on this {@link ParsingToken} based on the specified {@link Class annotation
+     * type}.
+     *
+     * @param annotationType
+     *      The {@link Class annotation type}
+     *
+     * @return The {@link Annotation} with the matching {@link Class annotation type}
      */
     @Nullable
-    default Object parseDefaultValue(@Nullable String defaultValue) {
-        if (null == defaultValue || "null".equalsIgnoreCase(defaultValue))
+    @SuppressWarnings("unchecked")
+    default <T extends Annotation> T annotation(Class<T> annotationType) {
+        int index = this.annotationTypes().indexOf(annotationType);
+        if (-1 == index)
             return null;
-        else {
-            Result<Object> result = this.parse(InvocationContext.of(defaultValue));
-            if (result.isValueAbsent())
-                throw new IllegalArgumentException(
-                    result.getReason().getTranslation(Language.EN_UK));
-
-            return result.getValue();
-        }
+        return (T) this.annotations()[index];
     }
 
     /**
-     * Parses the context into the type of this {@link ParsingToken}. If the context doesn't match, the
-     * {@link Result} will contain a {@link nz.pumbas.resources.Resource} explaing why.
+     * Parses the {@link ParsingContext} of the default value.
      *
-     * @param context
-     *      The {@link InvocationContext}
+     * @param ctx
+     *      {@link ParsingContext} containing the default value to be parsed into an {@link Object} using the token's
+     *      {@link TypeParser}
      *
-     * @return An {@link Result} containing the parsed context
+     * @return The parsed {@link Object default value}
      */
-    Result<Object> parse(@NotNull InvocationContext context);
+    @Nullable
+    default Object parseDefaultValue(@NotNull ParsingContext ctx) {
+        if ("null".equalsIgnoreCase(ctx.getOriginal()))
+            return null;
+        return this.typeParser().getParser()
+            .apply(ctx)
+            .rethrow()
+            .get();
+
+    }
 }

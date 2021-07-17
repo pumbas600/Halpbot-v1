@@ -6,13 +6,15 @@ import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.commands.exceptions.TokenCommandException;
 import nz.pumbas.commands.tokens.context.InvocationContext;
-import nz.pumbas.commands.tokens.tokentypes.CommandToken;
+import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.tokentypes.Token;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.objects.Result;
 import nz.pumbas.resources.Resource;
-import nz.pumbas.utilities.Reflect;
+import nz.pumbas.utilities.Exceptional;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,39 +29,39 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * A container for the data of an {@link CommandToken} command.
+ * A container for the data of an {@link Token} command.
  */
 public class TokenCommand implements CommandMethod
 {
 
     private final @Nullable Object instance;
     private final @NotNull Executable executable;
-    private final @NotNull List<CommandToken> commandTokens;
+    private final @NotNull List<Token> tokens;
     private final @NotNull String displayCommand;
     private final @NotNull String description;
     private final @NotNull String permission;
     private final @NotNull Set<Long> restrictedTo;
     private final @NotNull Set<Class<?>> reflections;
 
-    public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<CommandToken> commandTokens) {
-        this(instance, executable, commandTokens, Collections.emptySet());
+    public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<Token> tokens) {
+        this(instance, executable, tokens, Collections.emptySet());
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
-                        @NotNull List<CommandToken> commandTokens,
+                        @NotNull List<Token> tokens,
                         @NotNull Set<Class<?>> reflections) {
-        this(instance, executable, commandTokens, "", "", "",
+        this(instance, executable, tokens, "", "", "",
             Collections.emptySet(), reflections);
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
-                        @NotNull List<CommandToken> commandTokens, @NotNull String displayCommand,
+                        @NotNull List<Token> tokens, @NotNull String displayCommand,
                         @NotNull String description, @NotNull String permission, @NotNull Set<Long> restrictedTo,
                         @NotNull Set<Class<?>> reflections)
     {
         this.instance = instance;
         this.executable = executable;
-        this.commandTokens = commandTokens;
+        this.tokens = tokens;
         this.displayCommand = displayCommand;
         this.description = description;
         this.permission = permission;
@@ -75,10 +77,10 @@ public class TokenCommand implements CommandMethod
     }
 
     /**
-     * @return An {@link List} of {@link CommandToken command tokens} representing this {@link nz.pumbas.commands.annotations.Command}
+     * @return An {@link List} of {@link Token command tokens} representing this {@link nz.pumbas.commands.annotations.Command}
      */
-    public @NotNull List<CommandToken> getCommandTokens() {
-        return this.commandTokens;
+    public @NotNull List<Token> getCommandTokens() {
+        return this.tokens;
     }
 
     /**
@@ -226,49 +228,41 @@ public class TokenCommand implements CommandMethod
      *
      * @return A {@link Result} containing the parsed parameters
      */
-    public Result<Object[]> parseParameters(@NotNull InvocationContext context,
-                                            @Nullable MessageReceivedEvent event,
-                                            @Nullable AbstractCommandAdapter commandAdapter)
+    public Exceptional<Object[]> parseParameters(@NotNull ParsingContext ctx)
     {
         Object[] parsedTokens = new Object[this.executable.getParameterCount()];
         Class<?>[] parameterTypes = this.executable.getParameterTypes();
 
         int tokenIndex = 0;
         int parameterIndex = 0;
-        Result<Object[]> firstMismatch = Result.empty();
+        Exceptional<Object[]> firstMismatch = Exceptional.empty();
 
         while (parameterIndex < parsedTokens.length) {
-            Optional<Class<?>> assignableTo = Reflect.getAssignableTo(parameterTypes[parameterIndex],
-                TokenManager.getCustomParameterTypes());
+            if (tokenIndex >= this.tokens.size())
+                return firstMismatch.isErrorAbsent()
+                    ? Exceptional.of(new TokenCommandException("There appears to be too many parameters for this command"))
+                    : firstMismatch;
 
-            if (assignableTo.isPresent()) {
-                parsedTokens[parameterIndex++] = TokenManager.getCustomParameterMapper(assignableTo.get())
-                        .apply(event, commandAdapter);
-                continue;
-            }
+            Token currentToken = this.tokens.get(tokenIndex++);
+            Exceptional<Object[]> mismatchResult = Exceptional.empty();
+            ctx.saveState(this);
 
-            if (tokenIndex >= this.commandTokens.size())
-                return firstMismatch.orIfEmpty(Result.of(Resource.get("halpbot.commands.match.tokenexcess")));
-
-            CommandToken currentCommandToken = this.commandTokens.get(tokenIndex++);
-            Result<Object[]> mismatchResult = Result.empty();
-            context.saveState(this);
-
-            if (!context.hasNext()) {
-                if (currentCommandToken.isOptional()) {
-                    if (currentCommandToken instanceof ParsingToken)
-                        parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).getDefaultValue();
+            if (!ctx.hasNext()) {
+                if (currentToken.isOptional()) {
+                    if (currentToken instanceof ParsingToken)
+                        parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
                     continue;
                 }
 
-                if (firstMismatch.isEmpty())
-                    firstMismatch = Result.of(Resource.get("halpbot.commands.match.tokendeficit"));
+                if (firstMismatch.isErrorAbsent())
+                    firstMismatch = Exceptional.of(
+                        new TokenCommandException("You appear to be missing a few parameters for this command"));
 
                 return firstMismatch;
             }
-            else if (currentCommandToken instanceof ParsingToken) {
-                Result<Object> invokedMethodResult = TokenManager.handleReflectionSyntax(context,
-                    this.getReflections(), ((ParsingToken)currentCommandToken).getType());
+            else if (currentToken instanceof ParsingToken) {
+                Result<Object> invokedMethodResult = TokenManager.handleReflectionSyntax(ctx,
+                    this.getReflections(), ((ParsingToken) currentToken).type());
                 if (invokedMethodResult.hasValue()) {
                     parsedTokens[parameterIndex++] = invokedMethodResult.getValue();
                     continue;
@@ -278,7 +272,7 @@ public class TokenCommand implements CommandMethod
 
                 context.restoreState(this);
 
-                Result<Object> result = ((ParsingToken) currentCommandToken).parse(context);
+                Result<Object> result = ((ParsingToken) currentToken).parse(context);
                 if (result.hasValue()) {
                     if (!firstMismatch.isEmpty())
                         firstMismatch = Result.empty();
@@ -288,8 +282,8 @@ public class TokenCommand implements CommandMethod
                 }
                 mismatchResult = result.cast();
             }
-            else if (currentCommandToken instanceof PlaceholderToken) {
-                Result<Boolean> result = ((PlaceholderToken) currentCommandToken).matches(context);
+            else if (currentToken instanceof PlaceholderToken) {
+                Result<Boolean> result = ((PlaceholderToken) currentToken).matches(context);
                 if (result.getValue()) {
                     if (!firstMismatch.isEmpty())
                         firstMismatch = Result.empty();
@@ -302,9 +296,9 @@ public class TokenCommand implements CommandMethod
             if (firstMismatch.isEmpty())
                 firstMismatch = mismatchResult;
 
-            if (currentCommandToken.isOptional()) {
-                if (currentCommandToken instanceof ParsingToken)
-                    parsedTokens[parameterIndex++] = ((ParsingToken) currentCommandToken).getDefaultValue();
+            if (currentToken.isOptional()) {
+                if (currentToken instanceof ParsingToken)
+                    parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
                 context.restoreState(this);
             }
             else return firstMismatch;

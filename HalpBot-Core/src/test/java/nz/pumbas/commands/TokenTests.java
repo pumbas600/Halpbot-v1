@@ -6,7 +6,7 @@ import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.tokens.context.InvocationContext;
 import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
 import nz.pumbas.commands.tokens.tokentypes.BuiltInTypeToken;
-import nz.pumbas.commands.tokens.tokentypes.CommandToken;
+import nz.pumbas.commands.tokens.tokentypes.Token;
 import nz.pumbas.commands.tokens.tokentypes.MultiChoiceToken;
 import nz.pumbas.commands.tokens.tokentypes.ObjectTypeToken;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
@@ -25,11 +25,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 public class TokenTests {
 
@@ -133,9 +130,9 @@ public class TokenTests {
 
     @Test
     public void simpleCommandParsingTest() {
-        List<CommandToken> commandTokens = TokenManager.parseCommand(
+        List<Token> commandTokens = TokenManager.parseCommand(
                 Reflect.getMethod(TokenTests.class, "simpleCommandParsingMethod"));
-        int[] defaultValues = (int[]) ((ParsingToken) commandTokens.get(3)).getDefaultValue();
+        int[] defaultValues = (int[]) ((ParsingToken) commandTokens.get(3)).defaultValue();
 
 
         Assertions.assertEquals(4, commandTokens.size());
@@ -185,16 +182,16 @@ public class TokenTests {
 
     @Test
     public void parsingMultiChoiceTokenTest() {
-        List<CommandToken> commandTokens = TokenManager.parseCommand(
+        List<Token> tokens = TokenManager.parseCommand(
                 "#double <from the> [x-axis|y-axis]", new Class<?>[] { Double.class, String.class },
             new Annotation[2][0]);
-        ParsingToken multiChoiceToken = (ParsingToken) commandTokens.get(3);
+        ParsingToken multiChoiceToken = (ParsingToken) tokens.get(3);
 
-        Assertions.assertEquals(4, commandTokens.size());
-        Assertions.assertTrue(commandTokens.get(0) instanceof BuiltInTypeToken);
-        Assertions.assertTrue(commandTokens.get(1) instanceof PlaceholderToken);
-        Assertions.assertTrue(commandTokens.get(2) instanceof PlaceholderToken);
-        Assertions.assertTrue(commandTokens.get(3) instanceof MultiChoiceToken);
+        Assertions.assertEquals(4, tokens.size());
+        Assertions.assertTrue(tokens.get(0) instanceof BuiltInTypeToken);
+        Assertions.assertTrue(tokens.get(1) instanceof PlaceholderToken);
+        Assertions.assertTrue(tokens.get(2) instanceof PlaceholderToken);
+        Assertions.assertTrue(tokens.get(3) instanceof MultiChoiceToken);
 
         Assertions.assertTrue(multiChoiceToken.parse(InvocationContext.of("x-axis")).hasValue());
         Assertions.assertTrue(multiChoiceToken.parse(InvocationContext.of("Y-axis")).hasValue());

@@ -203,7 +203,7 @@ public class TokenCommandTests
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
         Assertions.assertTrue(command.getCommandTokens().get(0) instanceof ArrayToken);
-        Assertions.assertEquals(2, ((ParsingToken) command.getCommandTokens().get(0)).getAnnotations().length);
+        Assertions.assertEquals(2, ((ParsingToken) command.getCommandTokens().get(0)).annotations().length);
 
         Assertions.assertTrue(command.parse(InvocationContext.of("")).isReasonAbsent());
         Assertions.assertTrue(command.parse(InvocationContext.of("1 2 3")).isReasonAbsent());

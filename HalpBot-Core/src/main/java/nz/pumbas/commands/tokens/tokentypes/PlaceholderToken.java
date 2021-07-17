@@ -11,7 +11,7 @@ import nz.pumbas.resources.Resource;
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command:
  * {@code <my name is> #String}, the text 'my name is' are {@link PlaceholderToken placeholder tokens}.
  */
-public class PlaceholderToken implements CommandToken
+public class PlaceholderToken implements Token
 {
     private final boolean isOptional;
     private final String placeHolder;
@@ -24,13 +24,13 @@ public class PlaceholderToken implements CommandToken
     /**
      * @return The placeholder text
      */
-    public String getPlaceHolder()
+    public String placeHolder()
     {
         return this.placeHolder;
     }
 
     /**
-     * @return If this {@link CommandToken} is optional or not
+     * @return If this {@link Token} is optional or not
      */
     @Override
     public boolean isOptional()
@@ -39,19 +39,16 @@ public class PlaceholderToken implements CommandToken
     }
 
     /**
-     * Returns if the passed in {@link InvocationContext context} matches this {@link CommandToken}.
+     * Returns if the passed in {@link InvocationContext context} matches this {@link Token}.
      *
      * @param context
      *     The {@link InvocationContext context}
      *
-     * @return If the {@link InvocationContext context} matches this {@link CommandToken}
+     * @return If the {@link InvocationContext context} matches this {@link Token}
      */
-    public Result<Boolean> matches(@NotNull InvocationContext context)
+    public boolean matches(@NotNull InvocationContext context)
     {
-        @NonNls String token = context.getNext();
-        boolean matches = this.placeHolder.equalsIgnoreCase(token);
-        return matches ? Result.of(matches)
-            : Result.of(matches, Resource.get("halpbot.commands.match.placeholder", token, this.placeHolder));
+        return context.nextMatches(this.placeHolder());
     }
 
     /**

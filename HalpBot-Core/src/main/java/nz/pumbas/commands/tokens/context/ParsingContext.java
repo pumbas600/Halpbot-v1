@@ -6,47 +6,60 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.exceptions.IllegalFormatException;
+import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
+import nz.pumbas.utilities.Reflect;
 
 public class ParsingContext extends InvocationContext
 {
-    private Class<?> type;
+    private Class<?> clazz;
+    private Type type;
     private AbstractCommandAdapter commandAdapter;
     private MessageReceivedEvent event;
-    private List<Class<? extends Annotation>> annotations;
+    private List<Class<? extends Annotation>> annotationTypes;
 
     protected ParsingContext(@NotNull String context)
     {
         super(context);
     }
 
-    protected ParsingContext(@NotNull String context, @NotNull Class<?> type,
+    protected ParsingContext(@NotNull String context, @NotNull Type type,
                              @Nullable AbstractCommandAdapter commandAdapter,
                              @Nullable MessageReceivedEvent event,
-                             @NotNull List<Class<? extends Annotation>> annotations)
+                             @NotNull List<Class<? extends Annotation>> annotationTypes)
     {
         super(context);
+        this.clazz = Reflect.wrapPrimative(Reflect.asClass(type));
         this.type = type;
         this.commandAdapter = commandAdapter;
         this.event = event;
-        this.annotations = annotations;
+        this.annotationTypes = annotationTypes;
     }
 
     @SafeVarargs
-    public static ParsingContext of(@NotNull Class<?> type,
-                                    @NotNull Class<? extends Annotation>... annotations) {
-        return new ParsingContext("", type, null, null, new ArrayList<>(Arrays.asList(annotations)));
+    public static ParsingContext of(@NotNull Type type,
+                                    @NotNull Class<? extends Annotation>... annotationTypes) {
+        return new ParsingContext("", type, null, null, new ArrayList<>(Arrays.asList(annotationTypes)));
     }
 
     @SafeVarargs
-    public static ParsingContext of(@NotNull String context, @NotNull Class<?> type,
-                                    @NotNull Class<? extends Annotation>... annotations) {
-        return new ParsingContext(context, type, null, null, new ArrayList<>(Arrays.asList(annotations)));
+    public static ParsingContext of(@NotNull String context, @NotNull Type type,
+                                    @NotNull Class<? extends Annotation>... annotationTypes) {
+        return new ParsingContext(context, type, null, null, new ArrayList<>(Arrays.asList(annotationTypes)));
+    }
+
+    public static ParsingContext of(@NotNull String context, @NotNull ParsingToken parsingToken) {
+        return new ParsingContext(context, parsingToken.type(), null, null, parsingToken.annotationTypes());
+    }
+
+    public static ParsingContext of(@NotNull ParsingToken parsingToken) {
+        return of("", parsingToken);
     }
 
     public void assertNext(char character) {
@@ -68,22 +81,30 @@ public class ParsingContext extends InvocationContext
         return isNext;
     }
 
-    public Class<?> getType() {
+    public Class<?> clazz() {
+        return this.clazz;
+    }
+
+    public Type type() {
         return this.type;
     }
 
-    public AbstractCommandAdapter getCommandAdapter()
+    public void type(Type type) {
+        this.type = type;
+    }
+
+    public AbstractCommandAdapter commandAdapter()
     {
         return this.commandAdapter;
     }
 
-    public MessageReceivedEvent getEvent()
+    public MessageReceivedEvent event()
     {
         return this.event;
     }
 
-    public List<Class<? extends Annotation>> getAnnotations()
+    public List<Class<? extends Annotation>> annotationTypes()
     {
-        return this.annotations;
+        return this.annotationTypes;
     }
 }
