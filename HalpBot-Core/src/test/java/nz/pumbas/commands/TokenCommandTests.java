@@ -11,15 +11,13 @@ import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.context.InvocationContext;
-import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
+import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.validation.Implicit;
-//import nz.pumbas.halpbot.customparameters.Matrix;
-//import nz.pumbas.halpbot.customparameters.Shape;
-//import nz.pumbas.halpbot.customparameters.Vector3;
-import nz.pumbas.objects.Result;
-import nz.pumbas.resources.Language;
+import nz.pumbas.objects.Matrix;
+import nz.pumbas.objects.Shape;
+import nz.pumbas.objects.Vector3;
+import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 
 public class TokenCommandTests
@@ -29,11 +27,11 @@ public class TokenCommandTests
         TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Assertions.assertTrue(tokenCommand.parse(InvocationContext.of("1 [2 3 4 1]")).isReasonAbsent());
-        Assertions.assertTrue(tokenCommand.parse(InvocationContext.of("2")).isReasonAbsent());
-        Assertions.assertTrue(tokenCommand.parse(InvocationContext.of("2 [1 a 2]")).hasReason());
-        Assertions.assertTrue(tokenCommand.parse(InvocationContext.of("abc [1 3 2]")).hasReason());
-        Assertions.assertTrue(tokenCommand.parse(InvocationContext.of("2 agf")).hasReason());
+        Assertions.assertTrue(tokenCommand.parse(ParsingContext.of("1 [2 3 4 1]")).present());
+        Assertions.assertTrue(tokenCommand.parse(ParsingContext.of("2")).present());
+        Assertions.assertTrue(tokenCommand.parse(ParsingContext.of("2 [1 a 2]")).absent());
+        Assertions.assertTrue(tokenCommand.parse(ParsingContext.of("abc [1 3 2]")).absent());
+        Assertions.assertTrue(tokenCommand.parse(ParsingContext.of("2 agf")).absent());
     }
 
     @Test
@@ -41,13 +39,12 @@ public class TokenCommandTests
         TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Result<Boolean> result1 = tokenCommand.parse(InvocationContext.of("1 [2 1 4 3]")).cast();
-        Result<Boolean> result2 = tokenCommand.parse(InvocationContext.of("2 [9 5 4 3]")).cast();
-
-        Assertions.assertTrue(result1.hasValue());
-        Assertions.assertTrue(result2.hasValue());
-        Assertions.assertTrue(result1.getValue());
-        Assertions.assertFalse(result2.getValue());
+        Exceptional<Boolean> result1 = tokenCommand.parse(ParsingContext.of("1 [2 1 4 3]")).map(o -> (Boolean) o);
+        Exceptional<Boolean> result2 = tokenCommand.parse(ParsingContext.of("2 [9 5 4 3]")).map(o -> (Boolean) o);
+        Assertions.assertTrue(result1.present());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertTrue(result1.get());
+        Assertions.assertFalse(result2.get());
     }
 
     @Test
@@ -55,10 +52,10 @@ public class TokenCommandTests
         TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Result<Boolean> result = tokenCommand.parse(InvocationContext.of("1")).cast();
+        Exceptional<Boolean> result = tokenCommand.parse(ParsingContext.of("1")).map(o -> (Boolean) o);
 
-        Assertions.assertTrue(result.hasValue());
-        Assertions.assertFalse(result.getValue());
+        Assertions.assertTrue(result.present());
+        Assertions.assertFalse(result.get());
     }
 
     @Command(alias = "contained", description = "Returns if the item is within the specified elements")
@@ -75,15 +72,15 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 [1 3 3]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("3")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("alpha")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 [1 4 c]")).hasReason());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 [1 3 3]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("3")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("alpha")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 [1 4 c]")).absent());
 
-        Result<Boolean> result = command.parse(InvocationContext.of("2 [1 2 3]")).cast();
-        Assertions.assertTrue(result.hasValue());
-        Assertions.assertTrue(result.getValue());
+        Exceptional<Boolean> result = command.parse(ParsingContext.of("2 [1 2 3]")).map(o -> (Boolean) o);
+        Assertions.assertTrue(result.present());
+        Assertions.assertTrue(result.get());
 
     }
 
@@ -92,36 +89,36 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("Vector3[1 2 3]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Vector3[3 1]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("#Vector3[3 1]")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("[3 1 2]")).hasReason());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Vector3[1 2 3]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Vector3[3 1]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("#Vector3[3 1]")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("[3 1 2]")).absent());
 
-        Result<Double> result = command.parse(InvocationContext.of("Vector3[1 2 3]")).cast();
-        Assertions.assertTrue(result.hasValue());
-        Assertions.assertEquals(2, result.getValue());
+        Exceptional<Double> result = command.parse(ParsingContext.of("Vector3[1 2 3]")).map(o -> (Double) o);
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals(2, result.get());
 
     }
 
-//    @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
-//    private double customObjectTokenCommandMethodTest(Vector3 vector3) {
-//        return vector3.getY();
-//    }
+    @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
+    private double customObjectTokenCommandMethodTest(Vector3 vector3) {
+        return vector3.getY();
+    }
 
     @Test
     public void implicitArrayTokenTest() {
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this,"implicitArrayTokenMethodTest"));
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 3 2 1 4 Heyo")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 3 Hi")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 [2 3 8] Hi")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 Hi")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("a 1 2 Hi")).hasReason());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 3 2 1 4 Heyo")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 3 Hi")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 [2 3 8] Hi")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 Hi")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("a 1 2 Hi")).absent());
 
-        Result<Object> result = command.parse(InvocationContext.of("2 3 2 1 4 Heyo"));
-        Assertions.assertTrue(result.hasValue());
-        Assertions.assertEquals("2: [3, 2, 1, 4]: Heyo", result.getValue());
+        Exceptional<Object> result = command.parse(ParsingContext.of("2 3 2 1 4 Heyo"));
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals("2: [3, 2, 1, 4]: Heyo", result.get());
     }
 
 
@@ -135,50 +132,50 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this,"implicitArrayTokenAtEndMethodTest"));
 
-        Result<Object> result1 = command.parse(InvocationContext.of(""));
-        Result<Double> result2 = command.parse(InvocationContext.of(
-            "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150]")).cast();
+        Exceptional<Object> result1 = command.parse(ParsingContext.of(""));
+        Exceptional<Double> result2 = command.parse(ParsingContext.of(
+            "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150]")).map(o -> (Double) o);
 
-        Assertions.assertTrue(command.parse(InvocationContext.of(
-            "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150] Shape[Rectangle 200 50 100 275]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of(
-            "Shape[Rectangle 200 50 100 25]")).isReasonAbsent());
+        Assertions.assertTrue(command.parse(ParsingContext.of(
+            "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150] Shape[Rectangle 200 50 100 275]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of(
+            "Shape[Rectangle 200 50 100 25]")).present());
 
-        Assertions.assertTrue(result1.hasReason());
-        Assertions.assertEquals("You appear to be missing a few parameters for this command",
-            result1.getReason().getTranslation(Language.EN_UK));
+        Assertions.assertTrue(result1.absent());
+//        Assertions.assertEquals("You appear to be missing a few parameters for this command",
+//            Exceptional1.getReason().getTranslation(Language.EN_UK));
 
-        Assertions.assertTrue(result2.hasValue());
-        Assertions.assertEquals(20000D, result2.getValue());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertEquals(20000D, result2.get());
     }
 
-//    @Command(alias = "ImplicitArrayTest2", description = "Tests the @Implicit attribute with no parameter after it")
-//    private double implicitArrayTokenAtEndMethodTest(@Implicit Shape[] shapes) {
-//        double totalArea = 0;
-//        for (Shape shape : shapes) {
-//            totalArea += shape.getArea();
-//        }
-//
-//        return totalArea;
-//    }
+    @Command(alias = "ImplicitArrayTest2", description = "Tests the @Implicit attribute with no parameter after it")
+    private double implicitArrayTokenAtEndMethodTest(@Implicit Shape[] shapes) {
+        double totalArea = 0;
+        for (Shape shape : shapes) {
+            totalArea += shape.getArea();
+        }
+
+        return totalArea;
+    }
 
     @Test
     public void stringDefaultValueTest() {
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this,"stringDefaultValueMethodTest"));
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Hi")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("-1")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("a -1")).hasReason());
+        Assertions.assertTrue(command.parse(ParsingContext.of("")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Hi")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("-1")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("a -1")).absent());
 
-        Result<Object> result = command.parse(InvocationContext.of(""));
-        Assertions.assertTrue(result.hasValue());
-        Assertions.assertEquals("", result.getValue());
+        Exceptional<Object> result = command.parse(ParsingContext.of(""));
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals("default value", result.get());
     }
 
     @Command(alias = "test")
-    private String stringDefaultValueMethodTest(@Unrequired String string) {
+    private String stringDefaultValueMethodTest(@Unrequired("default value") String string) {
         return string;
     }
 
@@ -187,8 +184,8 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithMessageReceivedEventParameterMethodTest"));
 
-        Assertions.assertTrue(command.getCommandTokens().isEmpty());
-        Assertions.assertTrue(command.parse(InvocationContext.of("")).isReasonAbsent());
+        Assertions.assertEquals(1, command.getCommandTokens().size());
+        Assertions.assertTrue(command.parse(ParsingContext.of("")).present());
     }
 
     @Command(alias = "test")
@@ -202,14 +199,13 @@ public class TokenCommandTests
             Reflect.getMethod(this, "commandWithMultipleAnnotationsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
-        Assertions.assertTrue(command.getCommandTokens().get(0) instanceof ArrayToken);
         Assertions.assertEquals(2, ((ParsingToken) command.getCommandTokens().get(0)).annotations().length);
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("1 2 3")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("[1 2 3]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("1.0 2 3")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("[1 2 3")).hasReason());
+        Assertions.assertTrue(command.parse(ParsingContext.of("")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("1 2 3")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("[1 2 3]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("1.0 2 3")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("[1 2 3")).absent());
     }
 
     @Command(alias = "test")
@@ -223,12 +219,11 @@ public class TokenCommandTests
             Reflect.getMethod(this, "commandWithVarargsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
-        Assertions.assertTrue(command.getCommandTokens().get(0) instanceof ArrayToken);
-        Assertions.assertTrue(command.parse(InvocationContext.of("[1 2 3]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("1 2 3")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("1.0 2 3")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("[1 2 3")).hasReason());
+        Assertions.assertTrue(command.parse(ParsingContext.of("[1 2 3]")).isErrorAbsent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("")).caught());
+        Assertions.assertTrue(command.parse(ParsingContext.of("1 2 3")).caught());
+        Assertions.assertTrue(command.parse(ParsingContext.of("1.0 2 3")).caught());
+        Assertions.assertTrue(command.parse(ParsingContext.of("[1 2 3")).caught());
     }
 
     @Command(alias = "test")
@@ -242,17 +237,17 @@ public class TokenCommandTests
             Reflect.getMethod(this, "commandStringWithMultipleAnnotationsMethodTest"));
 
         Assertions.assertEquals(4, command.getCommandTokens().size());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 x 3")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 x 2 [1 0 0 1]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 2 [1 0 0 1]")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 x 2 1 0 0 1")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 2 1 0 0 1")).isReasonAbsent());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 2 x 1 0 0 1")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 2 1.2")).hasReason());
-        Assertions.assertTrue(command.parse(InvocationContext.of("2 2 [1 2 0.0 3]")).hasReason());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 x 3")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 x 2 [1 0 0 1]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 2 [1 0 0 1]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 x 2 1 0 0 1")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 2 1 0 0 1")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 2 x 1 0 0 1")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 2 1.2")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("2 2 [1 2 0.0 3]")).absent());
     }
 
-    @Command(alias = "test", command = "#int <x> #int #int[]")
+    @Command(alias = "test", command = "#Integer <x> #Integer #Integer[]")
     private void commandStringWithMultipleAnnotationsMethodTest(int rows, int columns, @Unrequired("[]") @Implicit int... values) {
 
     }
@@ -262,31 +257,31 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Result<Object> result1 = command.parse(InvocationContext.of("Matrix[2 2 x 1 0 0 1]"));
-        Result<Object> result2 = command.parse(InvocationContext.of("Matr[2 2 [1 2 0.0 3]]"));
-        Result<Object> result3 = command.parse(InvocationContext.of("Matrix[2 2 [1 2 1 3]"));
+        Exceptional<Object> result1 = command.parse(ParsingContext.of("Matrix[2 2 x 1 0 0 1]"));
+        Exceptional<Object> result2 = command.parse(ParsingContext.of("Matr[2 2 [1 2 0.0 3]]"));
+        Exceptional<Object> result3 = command.parse(ParsingContext.of("Matrix[2 2 [1 2 1 3]"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 x 3]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 x 2 [1 0 0 1]]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 2 [1 0 0 1]]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 x 2 1 0 0 1]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 2 1 0 0 1]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 2 1.2]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 2 [1 2 0.0 3]]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]")).hasValue());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 x 3]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 x 2 [1 0 0 1]]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 2 [1 0 0 1]]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 x 2 1 0 0 1]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 2 1 0 0 1]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 2 1.2]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 2 [1 2 0.0 3]]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]")).present());
 
-        Assertions.assertFalse(result1.hasValue());
+        Assertions.assertFalse(result1.present());
         Assertions.assertEquals("Expected surrounding '[ ]' when creating the list of double",
-            result1.getReason().getTranslation(Language.EN_UK));
+            result1.error().getMessage());
 
-        Assertions.assertFalse(result2.hasValue());
+        Assertions.assertFalse(result2.present());
         Assertions.assertEquals("The alias 'Matr', didn't match the expected Matrix",
-            result2.getReason().getTranslation(Language.EN_UK));
+            result2.error().getMessage());
 
-        Assertions.assertFalse(result3.hasValue());
+        Assertions.assertFalse(result3.present());
         Assertions.assertEquals("You seem to be missing a ']' when creating a Matrix",
-            result3.getReason().getTranslation(Language.EN_UK));
+            result3.error().getMessage());
     }
 
     @Test
@@ -294,10 +289,10 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Result<Object> result = command.parse(InvocationContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]"));
+        Exceptional<Object> result = command.parse(ParsingContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]"));
 
-        Assertions.assertTrue(result.hasValue());
-        Assertions.assertEquals(3, result.getValue());
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals(3, result.get());
     }
 
     @Test
@@ -305,10 +300,10 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[[1 0 0 1]]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[[1 0] [0 1]]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix[[0 1] 0 1 2]")).isValueAbsent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[[1 0 0 1]]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[[1 0] [0 1]]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[[0 1] 0 1 2]")).absent());
     }
 
     @Test
@@ -316,13 +311,13 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Result<Object> result = command.parse(InvocationContext.of("Matrix.yShear[4"));
+        Exceptional<Object> result = command.parse(ParsingContext.of("Matrix.yShear[4"));
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix.scale[2]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix.roTaTe[45]")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix.xShear[2]")).hasValue());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.scale[2]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.roTaTe[45]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.xShear[2]")).present());
 
-        Assertions.assertFalse(result.hasValue());
+        Assertions.assertFalse(result.present());
     }
 
     @Test
@@ -330,17 +325,13 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix.UnitSquare")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix.uNiTsquAre")).hasValue());
-        Assertions.assertTrue(command.parse(InvocationContext.of("Matrix.unitSquare()")).isValueAbsent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.UnitSquare")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.uNiTsquAre")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.unitSquare()")).absent());
     }
 
-//    @Command(alias = "test", reflections = Matrix.class)
-//    private int commandWithComplexCustomParameterMethodTest(Matrix matrix) {
-//        return matrix.getColumns();
-//    }
-
-
-
-
+    @Command(alias = "test", reflections = Matrix.class)
+    private int commandWithComplexCustomParameterMethodTest(Matrix matrix) {
+        return matrix.getColumns();
+    }
 }

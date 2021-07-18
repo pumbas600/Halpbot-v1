@@ -38,6 +38,7 @@ import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.objects.Result;
 import nz.pumbas.resources.Language;
+import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter
@@ -133,15 +134,13 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
 
             try {
-                Result<Object> result = this.handleCommandMethodCall(event, commandMethod, content);
-                if (result.hasValue())
-                    this.displayCommandMethodResult(event, result.getValue());
-                else if (result.hasReason())
-                    //Content didn't match the required format of the command
-                    event.getChannel().sendMessageEmbeds(
-                        buildHelpMessage(commandAlias, commandMethod,
-                                result.getReason().getTranslation(Language.EN_UK)))
-                        .queue();
+                this.handleCommandMethodCall(event, commandMethod, content)
+                    .present(value -> this.displayCommandMethodResult(event, value))
+                    .caught(exception -> event.getChannel()
+                        .sendMessageEmbeds(
+                        buildHelpMessage(commandAlias, commandMethod,exception.getMessage()))
+                        .queue());
+
             } catch (OutputException e) {
                 ErrorManager.handle(event, e);
             }
@@ -326,7 +325,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      * @return The parsed method call as a {@link Result}
      * @throws OutputException Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
      */
-    protected abstract Result<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
-                                                              @NotNull CommandMethod commandMethod,
-                                                              @NotNull String content) throws OutputException;
+    protected abstract Exceptional<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
+                                                                   @NotNull CommandMethod commandMethod,
+                                                                   @NotNull String content) throws OutputException;
 }

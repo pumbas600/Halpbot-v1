@@ -77,6 +77,8 @@ public interface ParsingToken extends Token
     default Object parseDefaultValue(@NotNull ParsingContext ctx) {
         if ("null".equalsIgnoreCase(ctx.getOriginal()))
             return null;
+        if (String.class.isAssignableFrom(ctx.clazz()))
+            return ctx.getOriginal();
         return this.typeParser().getParser()
             .apply(ctx)
             .rethrow()

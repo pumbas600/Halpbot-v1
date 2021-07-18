@@ -6,25 +6,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import nz.pumbas.commands.tokens.context.InvocationContext;
-import nz.pumbas.commands.tokens.tokentypes.ArrayToken;
-import nz.pumbas.objects.Result;
-import nz.pumbas.resources.Language;
 
 public class InvocationContextTests
 {
-    @Test
-    public void simpleArrayTest() {
-        InvocationContext tokenInfo1 = InvocationContext.of("[1 2 3 4]");
-        InvocationContext tokenInfo2 = InvocationContext.of("[1 b a 4]");
-        ArrayToken token = new ArrayToken(false, int[].class, "[]");
-
-        Result<Object> result = token.parse(tokenInfo2);
-
-        Assertions.assertTrue(token.parse(tokenInfo1).hasValue());
-        Assertions.assertTrue(result.hasReason());
-        Assertions.assertEquals("The token 'b' doesn't match the required syntax for a int",
-            result.getReason().getTranslation(Language.EN_UK));
-    }
 
     @Test
     public void getNextSurroundedTest() {

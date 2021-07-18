@@ -11,13 +11,16 @@ import nz.pumbas.commands.annotations.Source;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.exceptions.IllegalFormatException;
+import nz.pumbas.commands.exceptions.TokenCommandException;
 import nz.pumbas.commands.tokens.context.InvocationContext;
+import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.commands.tokens.tokentypes.SimpleParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.Token;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.objects.Result;
 import nz.pumbas.resources.Resource;
+import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.enums.Modifiers;
 
@@ -269,8 +272,7 @@ public final class TokenManager {
                     tokens.add(currentToken);
                 }
                 else throw new IllegalFormatException(
-                    "The alias, " + alias + ", doesn't match the expected " + getTypeAlias(parameterClasses[parameterIndex]));
-
+                    "The alias '" + alias + "', doesn't match the expected " + getTypeAlias(parameterClasses[parameterIndex]));
                 parameterIndex++;
                 currentToken = new SimpleParsingToken(
                     parameterTypes[parameterIndex], parameterAnnotations[parameterIndex]);
@@ -404,120 +406,101 @@ public final class TokenManager {
     }
 
     /**
-     * Retrieves an {@link Result} containing the result of any reflection syntax.
+     * Retrieves an {@link Exceptional} containing the result of any reflection syntax.
      *
-     * @param invocationToken
-     *      The {@link InvocationContext}
-     * @param reflections
-     *      The {@link List<Class>} of classes that the reflections can access
-     * @param requiredReturnType
-     *      The required return type of the reflection
+     * @param ctx
+     *      The {@link ParsingContext}
      *
-     * @return An {@link Result} containing the result of any reflection syntax.
+     * @return An {@link Exceptional} containing the result of any reflection syntax.
      */
-    public static Result<Object> handleReflectionSyntax(@NotNull InvocationContext invocationToken,
-                                                        @NotNull Set<Class<?>> reflections,
-                                                        @NotNull Class<?> requiredReturnType)
+    public static Exceptional<Object> handleReflectionSyntax(@NotNull ParsingContext ctx)
     {
-        if (reflections.isEmpty()) return Result.empty();
+        if (ctx.reflections().isEmpty()) return Exceptional.empty();
 
-        Optional<String> oType = invocationToken.getNext(".");
-        if (oType.isEmpty()) return Result.empty();
+        Optional<String> oType = ctx.getNext(".");
+        if (oType.isPresent()) {
 
+            Optional<Class<?>> oClass = ctx.reflections()
+                .stream()
+                .filter(c -> TokenManager.getTypeAlias(c).equalsIgnoreCase(oType.get()))
+                .findFirst();
 
-        Optional<Class<?>> oClass = reflections
-            .stream()
-            .filter(c -> TokenManager.getTypeAlias(c).equalsIgnoreCase(oType.get()))
-            .findFirst();
+            if (oClass.isPresent()) {
+                Class<?> reflectionClass = oClass.get();
 
-        if (oClass.isPresent()) {
-            Class<?> reflectionClass = oClass.get();
+                Optional<String> oMethodName = ctx.getNext("[", false);
 
-            Optional<String> oMethodName = invocationToken.getNext("[", false);
-
-            return oMethodName.isPresent()
-                ? handleMethodReflectionSyntax(invocationToken, oMethodName.get(),
-                    reflections, reflectionClass, requiredReturnType)
-                : handleFieldReflectionSyntax(invocationToken, reflectionClass,
-                requiredReturnType);
-
+                return oMethodName.isPresent()
+                    ? handleMethodReflectionSyntax(ctx, oMethodName.get(), reflectionClass)
+                    : handleFieldReflectionSyntax(ctx, reflectionClass);
+            }
         }
 
-        return Result.empty();
+        return Exceptional.empty();
     }
 
     /**
      * Handles {@link Method} reflection syntax invocation and parsing. Note: Only public, static methods may be invoked.
      *
-     * @param invocationToken
-     *      The {@link InvocationContext}
+     * @param ctx
+     *      The {@link ParsingContext}
      * @param methodName
      *      The {@link String name} of the method
-     * @param reflections
-     *      The {@link List} of classes that reflections can access
      * @param reflectionClass
      *      The {@link Class} that is being referenced in the reflection syntax
-     * @param requiredReturnType
-     *      The {@link Class} required to be returned
      *
-     * @return An {@link Result} containing the result of the invoked method
+     * @return An {@link Exceptional} containing the result of the invoked method
      */
-    private static Result<Object> handleMethodReflectionSyntax(@NotNull InvocationContext invocationToken,
-                                                               @NotNull String methodName,
-                                                               @NotNull Set<Class<?>> reflections,
-                                                               @NotNull Class<?> reflectionClass,
-                                                               @NotNull Class<?> requiredReturnType)
+    private static Exceptional<Object> handleMethodReflectionSyntax(@NotNull ParsingContext ctx,
+                                                                    @NotNull String methodName,
+                                                                    @NotNull Class<?> reflectionClass)
     {
-        Optional<String> oParameters = invocationToken.getNextSurrounded("[", "]");
-        if (oParameters.isEmpty())
-            return Result.of(Resource.get("halpbot.commands.reflections.missingclosingbracket", methodName));
+        return Exceptional.of(() -> {
+            ctx.assertNext('[');
 
-        InvocationContext parameters = InvocationContext.of(oParameters.get()).saveState(invocationToken);
+            List<TokenCommand> tokenCommands =
+                Reflect.getMethods(reflectionClass, methodName, true)
+                    .stream()
+                    .filter(m -> ctx.clazz().isAssignableFrom(m.getReturnType()))
+                    .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
+                    .map(m -> generateTokenCommand(null, m, ctx.reflections()))
+                    .collect(Collectors.toList());
 
-        List<TokenCommand> tokenCommands =
-            Reflect.getMethods(reflectionClass, methodName, true)
-            .stream()
-            .filter(m -> requiredReturnType.isAssignableFrom(m.getReturnType()))
-            .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
-            .map(m -> generateTokenCommand(null, m, reflections))
-            .collect(Collectors.toList());
+            if (tokenCommands.isEmpty())
+                return Exceptional.of(() -> new TokenCommandException("There were no methods with the name " + methodName));
 
-        if (tokenCommands.isEmpty())
-            return Result.of(Resource.get("halpbot.commands.reflections.nomethods", methodName));
+            Exceptional<Object> result = Exceptional.empty();
+            for (TokenCommand tokenCommand : tokenCommands) {
+                result = tokenCommand.parse(ctx, true);
+                if (result.present())
+                    break;
+            }
 
-        Result<Object> result = Result.empty();
-        for (TokenCommand tokenCommand : tokenCommands) {
-            result = tokenCommand.parse(parameters);
-            if (result.hasValue())
-                break;
-        }
-
-        return result;
+            ctx.assertNext(']');
+            return result;
+        });
     }
 
     /**
      * Handles {@link java.lang.reflect.Field} reflection syntax invocation and parsing. Note: Only public, static, final fields can be
      * referenced.
      *
-     * @param invocationToken
+     * @param ctx
      *      The {@link InvocationContext}
      * @param reflectionClass
      *      The {@link Class} that is being referenced in the reflection syntax
-     * @param requiredReturnType
-     *      The {@link Class} required to be returned
      *
-     * @return An {@link Result} containing the specified field.
+     * @return An {@link Exceptional} containing the specified field.
      */
-    private static Result<Object> handleFieldReflectionSyntax(@NotNull InvocationContext invocationToken,
-                                                              @NotNull Class<?> reflectionClass,
-                                                              @NotNull Class<?> requiredReturnType)
+    private static Exceptional<Object> handleFieldReflectionSyntax(@NotNull ParsingContext ctx,
+                                                                   @NotNull Class<?> reflectionClass)
     {
-        if (!invocationToken.hasNext()) return Result.empty();
-        String fieldName = invocationToken.getNext();
+        if (!ctx.hasNext()) return Exceptional.empty();
+        String fieldName = ctx.getNext();
 
-        return Result.of(Reflect.getFields(reflectionClass, fieldName)
+        return Exceptional.of(Reflect.getFields(reflectionClass, fieldName)
             .stream()
-            .filter(f -> requiredReturnType.isAssignableFrom(f.getType()))
+            .filter(f -> ctx.clazz().isAssignableFrom(f.getType()))
             .filter(f -> Reflect.hasModifiers(f, Modifiers.PUBLIC, Modifiers.STATIC, Modifiers.FINAL))
             .map(f -> {
                 try {
@@ -527,23 +510,7 @@ public final class TokenManager {
                     return new Object();
                 }
             })
-            .findFirst(), Resource.get("halpbot.commands.reflections.nofields", fieldName));
-    }
-
-    /**
-     * Generates an individual {@link Token} for the specified {@link Class}.
-     *
-     * @param type
-     *      The {@link Class type} of the command token
-     * @param annotations
-     *      The {@link Annotation annotations} on the command token
-     *
-     * @return The generated {@link Token}
-     */
-    public static Token generateCommandToken(Class<?> type, Annotation[] annotations)
-    {
-        //TODO: This
-        return (Token) new Object();
+            .findFirst());
     }
 
     /**

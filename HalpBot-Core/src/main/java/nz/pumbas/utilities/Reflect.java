@@ -536,14 +536,16 @@ public final class Reflect {
 
     /**
      * Retrieves the {@link Type} as a raw {@link Class}. If the type is not an instance of Class, then it returns
-     * {@code ((ParameterizedType) type).getRawType()}.
+     * {@code ((ParameterizedType) type).getRawType()}. Note: If the type is null then {@code Void.class} is returned.
      *
      * @param type
      *      The {@link Type}
      *
      * @return The type as a {@link Class}
      */
-    public static Class<?> asClass(Type type) {
+    public static Class<?> asClass(@Nullable Type type) {
+        if (null == type) return Void.class;
+
         return (Class<?>) (type instanceof Class<?>
             ? type : ((ParameterizedType) type).getRawType());
     }
@@ -682,5 +684,22 @@ public final class Reflect {
             .map(Enum.class::cast)
             .filter(e -> e.name().equalsIgnoreCase(value))
             .findFirst();
+    }
+
+    /**
+     * Casts the specified object to the return type without checking.
+     *
+     * @param value
+     *      The object to cast
+     * @param <R>
+     *      The return type
+     * @param <T>
+     *      The type of the value
+     *
+     * @return The casted value
+     */
+    @SuppressWarnings("unchecked")
+    public static <R, T> R cast(T value) {
+        return (R) value;
     }
 }

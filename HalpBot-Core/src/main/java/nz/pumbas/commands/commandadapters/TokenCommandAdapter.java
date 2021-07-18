@@ -11,11 +11,14 @@ import java.lang.reflect.Method;
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.commands.exceptions.TokenCommandException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.context.InvocationContext;
+import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.objects.Result;
 import nz.pumbas.resources.Resource;
+import nz.pumbas.utilities.Exceptional;
 
 public class TokenCommandAdapter extends AbstractCommandAdapter
 {
@@ -59,19 +62,21 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
      *     Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
      */
     @Override
-    protected Result<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
-                                                     @NotNull CommandMethod commandMethod,
-                                                     @NotNull String content) throws OutputException
+    protected Exceptional<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
+                                                          @NotNull CommandMethod commandMethod,
+                                                          @NotNull String content) throws OutputException
     {
         if (!(commandMethod instanceof TokenCommand))
-            return Result.of(Resource.get("halpbot.commandadapter.wrongcommand",
-                commandMethod.getClass().getSimpleName(), this.getClass().getSimpleName()));
+            return Exceptional.of(
+                new TokenCommandException("The command method " + commandMethod.getDisplayCommand()
+                    + " cannot be used with the command adapter " + this.getClass().getSimpleName()));
 
         TokenCommand tokenCommand = (TokenCommand) commandMethod;
         //If the command has been restricted and you're not whitelisted
         if (!tokenCommand.getRestrictedTo().isEmpty() && !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()))
-            return Result.of(Resource.get("halpbot.commands.restrictions.id"));
+            return Exceptional.of(new TokenCommandException("You do not have permission to use this command"));
 
-        return tokenCommand.parse(InvocationContext.of(content));
+        ParsingContext ctx = ParsingContext.of(content, this, event, tokenCommand.getReflections());
+        return tokenCommand.parse(ctx, false);
     }
 }

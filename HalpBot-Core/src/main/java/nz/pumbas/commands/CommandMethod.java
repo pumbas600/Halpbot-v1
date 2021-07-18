@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import nz.pumbas.commands.exceptions.OutputException;
+import nz.pumbas.utilities.Exceptional;
 
 public interface CommandMethod
 {
@@ -57,5 +58,5 @@ public interface CommandMethod
      * @return An {@link Optional} containing the output of the {@link Method}
      * @throws OutputException Any {@link OutputException} thrown during the invocation of the method
      */
-    Optional<Object> invoke(Object... args) throws OutputException;
+    Exceptional<Object> invoke(Object... args) throws OutputException;
 }

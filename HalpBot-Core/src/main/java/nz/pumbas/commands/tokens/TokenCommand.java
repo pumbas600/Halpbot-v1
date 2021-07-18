@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A container for the data of an {@link Token} command.
@@ -154,13 +155,13 @@ public class TokenCommand implements CommandMethod
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
     @SuppressWarnings("ThrowInsideCatchBlockWhichIgnoresCaughtException")
-    public Optional<Object> invoke(@NotNull Object... parameters) throws OutputException
+    public Exceptional<Object> invoke(@NotNull Object... parameters) throws OutputException
     {
         try {
             if (this.executable instanceof Method)
-                return Optional.ofNullable(((Method) this.executable).invoke(this.instance, parameters));
+                return Exceptional.of(((Method) this.executable).invoke(this.instance, parameters));
             else if (this.executable instanceof Constructor<?>)
-                return Optional.of(((Constructor<?>) this.executable).newInstance(parameters));
+                return Exceptional.of(((Constructor<?>) this.executable).newInstance(parameters));
         }
         catch (java.lang.IllegalAccessException | InstantiationException e) {
             ErrorManager.handle(e, String.format("There was an error invoking the command method, %s",
@@ -173,65 +174,58 @@ public class TokenCommand implements CommandMethod
                 this.executable.getName()));
         }
 
-        return Optional.empty();
+        return Exceptional.empty();
     }
 
     /**
-     * parses the {@link InvocationContext} and invokes the {@link Executable} for this
-     * {@link nz.pumbas.commands.annotations.Command}.
+     * parses the {@link ParsingContext} and invokes the {@link Executable} for this
+     * {@link nz.pumbas.commands.annotations.Command}. By default, it cannot have any tokens left over.
      *
-     * @param context
-     *      The {@link InvocationContext}
+     * @param ctx
+     *      The {@link ParsingContext}
      *
-     * @return A {@link Result} containing the returned value of the {@link Executable}
+     * @return A {@link Exceptional} containing the returned value of the {@link Executable}
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
-    public Result<Object> parse(@NotNull InvocationContext context)
+    public Exceptional<Object> parse(@NotNull ParsingContext ctx)
     {
-        return this.parse(context, null, null);
+        return this.parse(ctx, false);
     }
 
     /**
-     * parses the {@link InvocationContext} and invokes the {@link Executable} for this
+     * parses the {@link ParsingContext} and invokes the {@link Executable} for this
      * {@link nz.pumbas.commands.annotations.Command}.
      *
-     * @param context
-     *      The {@link InvocationContext}
-     * @param event
-     *      The {@link MessageReceivedEvent}
-     * @param commandAdapter
-     *      The {@link AbstractCommandAdapter}
+     * @param ctx
+     *      The {@link ParsingContext}
+     * @param canHaveTokensLeft
+     *      If there can be tokens left over
      *
-     * @return A {@link Result} containing the returned value of the {@link Executable}
+     * @return A {@link Exceptional} containing the returned value of the {@link Executable}
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
-    public Result<Object> parse(@NotNull InvocationContext context,
-                                @Nullable MessageReceivedEvent event,
-                                @Nullable AbstractCommandAdapter commandAdapter)
+    public Exceptional<Object> parse(@NotNull ParsingContext ctx, boolean canHaveTokensLeft)
     {
-        Result<Object[]> parsedParameters = this.parseParameters(context, event, commandAdapter);
-        return parsedParameters.hasValue()
-            ? Result.of(this.invoke(parsedParameters.getValue()))
-            : parsedParameters.cast();
+        ctx.saveState(this);
+        Exceptional<Object> result = this.parseParameters(ctx, canHaveTokensLeft)
+            .flatMap((Function<Object[], Exceptional<Object>>) this::invoke);
+
+        if (result.caught()) ctx.restoreState(this);
+        return result;
     }
 
     /**
-     * Parses the {@link InvocationContext} into an array of {@link Object objects} which can be used to invoke this
+     * Parses the {@link ParsingContext} into an array of {@link Object objects} which can be used to invoke this
      * {@link Executable}.
      *
-     * @param context
-     *      The {@link InvocationContext}
-     * @param event
-     *      The {@link MessageReceivedEvent}
-     * @param commandAdapter
-     *      The {@link AbstractCommandAdapter}
+     * @param ctx
+     *      The {@link ParsingContext}
      *
      * @return A {@link Result} containing the parsed parameters
      */
-    public Exceptional<Object[]> parseParameters(@NotNull ParsingContext ctx)
+    public Exceptional<Object[]> parseParameters(@NotNull ParsingContext ctx, boolean canHaveTokensLeft)
     {
         Object[] parsedTokens = new Object[this.executable.getParameterCount()];
-        Class<?>[] parameterTypes = this.executable.getParameterTypes();
 
         int tokenIndex = 0;
         int parameterIndex = 0;
@@ -261,35 +255,44 @@ public class TokenCommand implements CommandMethod
                 return firstMismatch;
             }
             else if (currentToken instanceof ParsingToken) {
-                Result<Object> invokedMethodResult = TokenManager.handleReflectionSyntax(ctx,
-                    this.getReflections(), ((ParsingToken) currentToken).type());
-                if (invokedMethodResult.hasValue()) {
-                    parsedTokens[parameterIndex++] = invokedMethodResult.getValue();
+                ParsingToken parsingToken = (ParsingToken) currentToken;
+                ctx.update(parsingToken);
+
+                Exceptional<Object> result = TokenManager.handleReflectionSyntax(ctx);
+                if (result.present()) {
+                    parsedTokens[parameterIndex++] = result.get();
                     continue;
                 }
-                else if (invokedMethodResult.hasReason())
-                    return invokedMethodResult.cast();
+                else if (result.caught())
+                    return result.map(o -> new Object[0]);
+                else {
+                    ctx.restoreState(this);
 
-                context.restoreState(this);
+                    result = parsingToken.typeParser()
+                        .getParser()
+                        .apply(ctx)
+                        .map(o -> o);
 
-                Result<Object> result = ((ParsingToken) currentToken).parse(context);
-                if (result.hasValue()) {
-                    if (!firstMismatch.isEmpty())
-                        firstMismatch = Result.empty();
+                    if (result.present()) {
+                        if (!firstMismatch.isEmpty())
+                            firstMismatch = Exceptional.empty();
 
-                    parsedTokens[parameterIndex++] = result.getValue();
-                    continue;
+                        parsedTokens[parameterIndex++] = result.get();
+                        continue;
+                    }
+                    mismatchResult = result.map(o -> new Object[0]);
                 }
-                mismatchResult = result.cast();
             }
             else if (currentToken instanceof PlaceholderToken) {
-                Result<Boolean> result = ((PlaceholderToken) currentToken).matches(context);
-                if (result.getValue()) {
+                PlaceholderToken placeholderToken = (PlaceholderToken) currentToken;
+
+                if (placeholderToken.matches(ctx)) {
                     if (!firstMismatch.isEmpty())
-                        firstMismatch = Result.empty();
+                        firstMismatch = Exceptional.empty();
                     continue;
                 }
-                mismatchResult = Result.of(result.getReason());
+                mismatchResult = Exceptional.of(
+                    new TokenCommandException("Expected the placeholder " + placeholderToken.placeHolder()));
             }
 
 
@@ -299,13 +302,15 @@ public class TokenCommand implements CommandMethod
             if (currentToken.isOptional()) {
                 if (currentToken instanceof ParsingToken)
                     parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
-                context.restoreState(this);
             }
             else return firstMismatch;
         }
 
-        if (context.hasNext())
-            return firstMismatch.orIfEmpty(Result.of(Resource.get("halpbot.commands.match.tokenexcess")));
-        return Result.of(parsedTokens);
+        if (ctx.hasNext() && !canHaveTokensLeft)
+            return firstMismatch.caught()
+                ? firstMismatch : Exceptional.of(
+                    new TokenCommandException("There appears to be too many parameters for this command"));
+
+        return Exceptional.of(parsedTokens);
     }
 }

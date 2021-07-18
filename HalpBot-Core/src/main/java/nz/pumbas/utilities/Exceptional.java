@@ -212,6 +212,30 @@ public final class Exceptional<T> {
     }
 
     /**
+     * Return {@code true} if there is no value present and no error present.
+     *
+     * @return {@code true} if there is no value and no error present, otherwise {@code false}
+     */
+    public boolean isEmpty() {
+        return this.absent() && this.isErrorAbsent();
+    }
+
+    /**
+     * If this is empty then invoke the specified runnable, otherwise do nothing.
+     *
+     * @param runnable
+     *      Block to be executed if this is empty
+     *
+     * @return The {@code Exceptional}, for chaining
+     * @throws NullPointerException
+     *      If {@code runnable} is null
+     */
+    public Exceptional<T> ifEmpty(Runnable runnable) {
+        if (this.isEmpty()) runnable.run();
+        return this;
+    }
+
+    /**
      * Return the value if present, otherwise return null.
      *
      * @return The value, if present, otherwise null

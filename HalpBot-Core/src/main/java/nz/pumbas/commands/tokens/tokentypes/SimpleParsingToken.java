@@ -14,7 +14,6 @@ import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.parsers.Parsers;
 import nz.pumbas.parsers.TypeParser;
-import nz.pumbas.utilities.Reflect;
 
 public class SimpleParsingToken implements ParsingToken
 {
@@ -30,7 +29,7 @@ public class SimpleParsingToken implements ParsingToken
         this.type = type;
         this.annotations = annotations;
         this.annotationTypes = Stream.of(annotations)
-            .map(Annotation::getClass)
+            .map(Annotation::annotationType)
             .collect(Collectors.toUnmodifiableList());
 
         Unrequired unrequired = this.annotation(Unrequired.class);

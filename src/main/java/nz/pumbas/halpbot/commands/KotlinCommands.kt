@@ -64,17 +64,17 @@ class KotlinCommands : OnReady {
         return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview")
     }
 
-    @nz.pumbas.commands.annotations.Command(alias= "GoodBot", description = "Allows you to praise the bot.")
+    @Command(alias= "GoodBot", description = "Allows you to praise the bot.")
     fun goodBot(): String {
         return Utils.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
     }
 
-    @nz.pumbas.commands.annotations.Command(alias = "Id", description = "Returns the users discord id")
+    @Command(alias = "Id", description = "Returns the users discord id")
     fun id(author: User): String {
         return author.id
     }
 
-    @nz.pumbas.commands.annotations.Command(alias = "Calc", description = "Simple calculation operations in Kotlin")
+    @Command(alias = "Calc", description = "Simple calculation operations in Kotlin")
     fun kotlinCalculator(num1: Double, operator: Char, num2: Double): Any {
         return when (operator) {
             '+'  -> num1 + num2
@@ -85,25 +85,25 @@ class KotlinCommands : OnReady {
         }
     }
 
-    @nz.pumbas.commands.annotations.Command(alias = "Is", command = "#Int <in> #Int[]",
+    @Command(alias = "Is", command = "#Integer <in> #Integer[]",
             description = "Tests if the element is contained within the array")
-    fun kotlinTesting(num: Int, @nz.pumbas.commands.annotations.Unrequired("[]") array: Array<Int>?): String {
+    fun kotlinTesting(num: Int, @Unrequired("[]") array: Array<Int>?): String {
         return if (null != array && num in array) "That number is in the array! :tada:"
         else "Sorry, it seems that number isn't in the array. :point_right: :point_left:"
     }
 
-    @nz.pumbas.commands.annotations.Command(alias = "Creator", description = "Creator only command :eyes:", restrictedTo = [HalpBot.CREATOR_ID])
+    @Command(alias = "Creator", description = "Creator only command :eyes:", restrictedTo = [HalpBot.CREATOR_ID])
     fun creator(): String {
         return "Hello there creator :wave:"
     }
 
-    @nz.pumbas.commands.annotations.Command(alias = "Comfort", description = "Sends a comforting message")
+    @Command(alias = "Comfort", description = "Sends a comforting message")
     fun comfort(): String {
         return Utils.randomChoice(this.comfortingMessages)
     }
 
-    @nz.pumbas.commands.annotations.Command(alias = "Joke", description = "Sends a random joke")
-    fun joke(@nz.pumbas.commands.annotations.Unrequired category: String): String {
+    @Command(alias = "Joke", description = "Sends a random joke")
+    fun joke(@Unrequired category: String): String {
         var loweredCategory = category.lowercase()
         if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
             return "You can only specify the one of the following categories: ${jokeCategories.contentToString()}"
@@ -119,7 +119,7 @@ class KotlinCommands : OnReady {
         return request.parseResponse<List<Joke>>(true)[0].toString()
     }
 
-    @nz.pumbas.commands.annotations.Command(alias = "Insult", description = "Sends a joking insult")
+    @Command(alias = "Insult", description = "Sends a joking insult")
     fun insult(): String {
         return Utils.randomChoice(insultJokes)
     }

@@ -47,8 +47,6 @@ public class TypeParser<T>
         private Priority priority = Priority.DEFAULT;
         private Class<?> annotation = Void.class;
 
-        public TypeParserBuilder() { }
-
         protected TypeParserBuilder(@NotNull Class<T> type) {
             this.type = type;
         }
@@ -58,7 +56,11 @@ public class TypeParser<T>
         }
 
         public TypeParserBuilder<T> convert(@NotNull Function<ParsingContext, Exceptional<T>> parser) {
-            this.parser = parser;
+            this.parser = ctx -> {
+                ctx.saveState(this);
+                return parser.apply(ctx)
+                    .absent(() -> ctx.restoreState(this));
+            };
             return this;
         }
 
@@ -72,8 +74,12 @@ public class TypeParser<T>
             return this;
         }
 
+        public TypeParser<T> build() {
+            return new TypeParser<>(this.parser, this.priority);
+        }
+
         public TypeParser<T> register() {
-            TypeParser<T> typeParser = new TypeParser<>(this.parser, this.priority);
+            TypeParser<T> typeParser = this.build();
 
             if (null == this.type)
                 Parsers.registerParser(this.filter, typeParser);

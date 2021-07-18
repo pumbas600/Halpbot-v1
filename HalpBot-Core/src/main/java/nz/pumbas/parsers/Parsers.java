@@ -18,12 +18,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import nz.pumbas.commands.annotations.Source;
 import nz.pumbas.commands.annotations.Unmodifiable;
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.commands.exceptions.TokenCommandException;
+import nz.pumbas.commands.tokens.TokenCommand;
+import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.commands.validation.Implicit;
 import nz.pumbas.objects.Tuple;
@@ -58,7 +62,7 @@ public final class Parsers
                 .filter(t -> t.getKey().test(type))
                 .findFirst()
                 .map(Tuple::getValue)
-                .orElseThrow());
+                .orElse(Reflect.cast(OBJECT_PARSER)));
 
     }
 
@@ -144,6 +148,34 @@ public final class Parsers
             Exceptional.of(
                 Reflect.parseEnumValue(ctx.clazz(), ctx.getNext())))
         .register();
+
+    public static final TypeParser<Object> OBJECT_PARSER = TypeParser.builder(c -> true)
+        .convert(ctx -> Exceptional.of(
+            () -> {
+                String expectedTypeAlias = TokenManager.getTypeAlias(ctx.clazz());
+                Optional<String> oTypeAlias = ctx.getNext("[", false);
+
+                if (oTypeAlias.isEmpty())
+                    return Exceptional.of(new TokenCommandException("Missing '[' when creating object " + expectedTypeAlias));
+
+                if (!oTypeAlias.get().equalsIgnoreCase(expectedTypeAlias))
+                    return Exceptional.of(
+                        new TokenCommandException("Expected alias " + expectedTypeAlias + " but got " + oTypeAlias.get()));
+
+                ctx.assertNext('[');
+
+                Exceptional<Object> result = Exceptional.empty();
+                for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(ctx.clazz())) {
+                    result = tokenCommand.parse(ctx, true);
+                    if (result.isEmpty()) result = Exceptional.of(
+                        new TokenCommandException("There seems to have been an error when constructing a "));
+
+                    if (result.present())
+                        break;
+                }
+                return result;
+            }))
+        .build();
 
     //endregion
 
