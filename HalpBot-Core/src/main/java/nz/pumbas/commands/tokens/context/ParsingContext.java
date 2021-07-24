@@ -15,22 +15,18 @@ import java.util.Set;
 
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.exceptions.IllegalFormatException;
+import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.utilities.Reflect;
 
 public class ParsingContext extends InvocationContext
 {
+    private final AbstractCommandAdapter commandAdapter;
+    private final MessageReceivedEvent event;
+    private final Set<Class<?>> reflections;
     private Class<?> clazz;
     private Type type;
-    private AbstractCommandAdapter commandAdapter;
-    private MessageReceivedEvent event;
     private List<Class<? extends Annotation>> annotationTypes;
-    private Set<Class<?>> reflections;
-
-    protected ParsingContext(@NotNull String context)
-    {
-        super(context);
-    }
 
     protected ParsingContext(@NotNull String context, @Nullable Type type,
                              @Nullable AbstractCommandAdapter commandAdapter,
@@ -79,29 +75,14 @@ public class ParsingContext extends InvocationContext
         return new ParsingContext(content, null, null, null, Collections.emptyList(), Collections.emptySet());
     }
 
+    public static ParsingContext of(@NotNull String content, TokenCommand tokenCommand) {
+        return new ParsingContext(content, null, null, null, Collections.emptyList(), tokenCommand.getReflections());
+    }
+
     public void update(@NotNull ParsingToken parsingToken) {
         this.type = parsingToken.type();
         this.clazz = Reflect.wrapPrimative(Reflect.asClass(this.type));
         this.annotationTypes = parsingToken.annotationTypes();
-    }
-
-    public void assertNext(char character) {
-        if (super.getOriginal().charAt(super.getCurrentIndex()) == character) {
-            super.incrementIndex();
-        }
-        else throw new IllegalFormatException(
-            String.format("Expected the character %s", character));
-    }
-
-    public boolean isNext(char character) {
-        return this.isNext(character, false);
-    }
-
-    public boolean isNext(char character, boolean stepPast) {
-        boolean isNext = super.getOriginal().charAt(super.getCurrentIndex()) == character;
-
-        if (isNext && stepPast) super.incrementIndex();
-        return isNext;
     }
 
     public Class<?> clazz() {
@@ -110,10 +91,6 @@ public class ParsingContext extends InvocationContext
 
     public Type type() {
         return this.type;
-    }
-
-    public void type(Type type) {
-        this.type = type;
     }
 
     public AbstractCommandAdapter commandAdapter()

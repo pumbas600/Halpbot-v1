@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nz.pumbas.commands.exceptions.IllegalFormatException;
 import nz.pumbas.utilities.Exceptional;
 
 public class InvocationContext
@@ -49,8 +50,17 @@ public class InvocationContext
     @NotNull
     public String getNext()
     {
+        return this.getNextSafe().or("");
+    }
+
+    /**
+     * @return An {@link Exceptional} containing the next {@link String token} (Split on spaces) from the current
+     * index or {@link Exceptional#empty()} if there are no more tokens;
+     */
+    public Exceptional<String> getNextSafe()
+    {
         if (!this.hasNext())
-            return "";
+            return Exceptional.of(new IllegalFormatException("No string next in " + this.original));
 
         int endIndex = this.original.indexOf(" ", this.currentIndex);
 
@@ -58,8 +68,9 @@ public class InvocationContext
 
         String match = this.original.substring(this.currentIndex, endIndex);
         this.currentIndex = endIndex + 1;
+        this.skipPastSpaces();
 
-        return match;
+        return Exceptional.of(match);
     }
 
     /**
@@ -102,8 +113,7 @@ public class InvocationContext
 
         if (stepPast) {
             this.currentIndex += until.length();
-            if (this.currentlyOnSpace())
-                this.currentIndex++;
+            this.skipPastSpaces();
         }
         return Optional.of(match);
     }
@@ -171,8 +181,7 @@ public class InvocationContext
 
         if (stepPast) {
             this.currentIndex += stop.length();
-            if (this.currentlyOnSpace())
-                this.currentIndex++;
+            this.skipPastSpaces();
         }
 
         return Optional.of(match);
@@ -219,10 +228,13 @@ public class InvocationContext
                 if (this.hasNext() && ' ' == this.original.charAt(this.currentIndex))
                     this.currentIndex++;
 
+                this.skipPastSpaces();
+
                 return Exceptional.of(match);
             }
         }
-        return Exceptional.empty();
+        return Exceptional.of(
+            new IllegalFormatException("The start of " + this.getNext() + " doesn't match the expected format"));
     }
 
     /**
@@ -290,5 +302,37 @@ public class InvocationContext
 
     public void incrementIndex() {
         this.currentIndex++;
+    }
+
+    public void skipPastSpaces() {
+        while (this.currentlyOnSpace())
+            this.currentIndex++;
+    }
+
+    public boolean isNext(char character) {
+        return this.isNext(character, false);
+    }
+
+    public boolean isNext(char character, boolean stepPast) {
+        if (!this.hasNext())
+            return false;
+
+        boolean isNext = this.getOriginal().charAt(this.getCurrentIndex()) == character;
+
+        if (isNext && stepPast) {
+            this.incrementIndex();
+            this.skipPastSpaces();
+        }
+        return isNext;
+    }
+
+
+    public void assertNext(char character) {
+        if (this.hasNext() && this.getOriginal().charAt(this.getCurrentIndex()) == character) {
+            this.incrementIndex();
+            this.skipPastSpaces();
+        }
+        else throw new IllegalFormatException(
+            String.format("Expected the character %s", character));
     }
 }

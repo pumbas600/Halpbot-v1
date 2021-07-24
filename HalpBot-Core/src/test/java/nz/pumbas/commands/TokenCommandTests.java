@@ -17,6 +17,7 @@ import nz.pumbas.commands.validation.Implicit;
 import nz.pumbas.objects.Matrix;
 import nz.pumbas.objects.Shape;
 import nz.pumbas.objects.Vector3;
+import nz.pumbas.parsers.Parsers;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 
@@ -89,6 +90,9 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
+        Assertions.assertEquals(
+            Parsers.OBJECT_PARSER, ((ParsingToken) command.getCommandTokens().get(0)).typeParser());
+
         Assertions.assertTrue(command.parse(ParsingContext.of("Vector3[1 2 3]")).present());
         Assertions.assertTrue(command.parse(ParsingContext.of("Vector3[3 1]")).present());
         Assertions.assertTrue(command.parse(ParsingContext.of("#Vector3[3 1]")).absent());
@@ -142,9 +146,6 @@ public class TokenCommandTests
             "Shape[Rectangle 200 50 100 25]")).present());
 
         Assertions.assertTrue(result1.absent());
-//        Assertions.assertEquals("You appear to be missing a few parameters for this command",
-//            Exceptional1.getReason().getTranslation(Language.EN_UK));
-
         Assertions.assertTrue(result2.present());
         Assertions.assertEquals(20000D, result2.get());
     }
@@ -189,8 +190,8 @@ public class TokenCommandTests
     }
 
     @Command(alias = "test")
-    private void commandWithMessageReceivedEventParameterMethodTest(MessageReceivedEvent event) {
-
+    private boolean commandWithMessageReceivedEventParameterMethodTest(MessageReceivedEvent event) {
+        return true;
     }
 
     @Test
@@ -209,8 +210,8 @@ public class TokenCommandTests
     }
 
     @Command(alias = "test")
-    private void commandWithMultipleAnnotationsMethodTest(@Unrequired("[]") @Implicit int[] array) {
-
+    private int commandWithMultipleAnnotationsMethodTest(@Unrequired("[]") @Implicit int[] array) {
+        return -1;
     }
 
     @Test
@@ -248,8 +249,8 @@ public class TokenCommandTests
     }
 
     @Command(alias = "test", command = "#Integer <x> #Integer #Integer[]")
-    private void commandStringWithMultipleAnnotationsMethodTest(int rows, int columns, @Unrequired("[]") @Implicit int... values) {
-
+    private int commandStringWithMultipleAnnotationsMethodTest(int rows, int columns, @Unrequired("[]") @Implicit int... values) {
+        return rows;
     }
 
     @Test
@@ -272,15 +273,15 @@ public class TokenCommandTests
         Assertions.assertTrue(command.parse(ParsingContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]")).present());
 
         Assertions.assertFalse(result1.present());
-        Assertions.assertEquals("Expected surrounding '[ ]' when creating the list of double",
+        Assertions.assertEquals("There seems to have been an error when constructing the Matrix",
             result1.error().getMessage());
 
         Assertions.assertFalse(result2.present());
-        Assertions.assertEquals("The alias 'Matr', didn't match the expected Matrix",
+        Assertions.assertEquals("Expected the alias Matrix but got Matr",
             result2.error().getMessage());
 
         Assertions.assertFalse(result3.present());
-        Assertions.assertEquals("You seem to be missing a ']' when creating a Matrix",
+        Assertions.assertEquals("There seems to have been an error when constructing the Matrix",
             result3.error().getMessage());
     }
 
@@ -311,11 +312,11 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Exceptional<Object> result = command.parse(ParsingContext.of("Matrix.yShear[4"));
+        Exceptional<Object> result = command.parse(ParsingContext.of("Matrix.yShear[4", command));
 
-        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.scale[2]")).present());
-        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.roTaTe[45]")).present());
-        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.xShear[2]")).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.scale[2]", command)).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.roTaTe[45]", command)).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.xShear[2]", command)).present());
 
         Assertions.assertFalse(result.present());
     }
@@ -325,9 +326,9 @@ public class TokenCommandTests
         TokenCommand command = TokenManager.generateTokenCommand(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
-        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.UnitSquare")).present());
-        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.uNiTsquAre")).present());
-        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.unitSquare()")).absent());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.UnitSquare", command)).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.uNiTsquAre", command)).present());
+        Assertions.assertTrue(command.parse(ParsingContext.of("Matrix.unitSquare[]", command)).absent());
     }
 
     @Command(alias = "test", reflections = Matrix.class)

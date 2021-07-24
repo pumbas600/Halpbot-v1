@@ -1,19 +1,14 @@
 package nz.pumbas.commands.tokens;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
-import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.exceptions.TokenCommandException;
-import nz.pumbas.commands.tokens.context.InvocationContext;
 import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.commands.tokens.tokentypes.Token;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.objects.Result;
-import nz.pumbas.resources.Resource;
 import nz.pumbas.utilities.Exceptional;
 
 import org.jetbrains.annotations.NotNull;
@@ -241,20 +236,20 @@ public class TokenCommand implements CommandMethod
             Exceptional<Object[]> mismatchResult = Exceptional.empty();
             ctx.saveState(this);
 
-            if (!ctx.hasNext()) {
-                if (currentToken.isOptional()) {
-                    if (currentToken instanceof ParsingToken)
-                        parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
-                    continue;
-                }
-
-                if (firstMismatch.isErrorAbsent())
-                    firstMismatch = Exceptional.of(
-                        new TokenCommandException("You appear to be missing a few parameters for this command"));
-
-                return firstMismatch;
-            }
-            else if (currentToken instanceof ParsingToken) {
+//            if (!ctx.hasNext()) {
+//                if (currentToken.isOptional()) {
+//                    if (currentToken instanceof ParsingToken)
+//                        parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
+//                    continue;
+//                }
+//
+//                if (firstMismatch.isErrorAbsent())
+//                    firstMismatch = Exceptional.of(
+//                        new TokenCommandException("You appear to be missing a few parameters for this command"));
+//
+//                return firstMismatch;
+//            }
+            if (currentToken instanceof ParsingToken) {
                 ParsingToken parsingToken = (ParsingToken) currentToken;
                 ctx.update(parsingToken);
 
@@ -269,18 +264,19 @@ public class TokenCommand implements CommandMethod
                     ctx.restoreState(this);
 
                     result = parsingToken.typeParser()
-                        .getParser()
                         .apply(ctx)
                         .map(o -> o);
 
-                    if (result.present()) {
+                    if (result.caught())
+                        mismatchResult = result.map(o -> new Object[0]);
+                    else {
                         if (!firstMismatch.isEmpty())
                             firstMismatch = Exceptional.empty();
 
-                        parsedTokens[parameterIndex++] = result.get();
+                        parsedTokens[parameterIndex++] = result.orNull();
                         continue;
                     }
-                    mismatchResult = result.map(o -> new Object[0]);
+
                 }
             }
             else if (currentToken instanceof PlaceholderToken) {

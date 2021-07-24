@@ -20,7 +20,7 @@ public class Matrix
 
     private final double[][] values;
 
-    @ParameterConstruction(constructor = "#int <x> #int #double[]")
+    @ParameterConstruction(constructor = "#Integer <x> #Integer #Double[]")
     public Matrix(int rows, int columns, @Unrequired("[]") @Implicit double... values)
     {
         this.rows = rows;

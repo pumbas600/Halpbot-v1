@@ -254,14 +254,15 @@ public final class TokenManager {
         int parameterIndex = 0;
         int itemIndex = 0;
 
-        ParsingToken currentToken =
-            new SimpleParsingToken(parameterTypes[parameterIndex], parameterAnnotations[parameterIndex]);
-
         while (itemIndex < splitCommand.size()) {
+            ParsingToken currentToken =
+                new SimpleParsingToken(parameterTypes[parameterIndex], parameterAnnotations[parameterIndex]);
             String item = splitCommand.get(itemIndex);
 
-            if (item.startsWith("<"))
+            if (item.startsWith("<")) {
                 tokens.add(new PlaceholderToken(true, item.substring(1, item.length() - 1)));
+                itemIndex++;
+            }
             else if (item.startsWith("#")) {
                 String alias = item.substring(1);
                 if (alias.equalsIgnoreCase(getTypeAlias(parameterClasses[parameterIndex]))) {
@@ -274,10 +275,11 @@ public final class TokenManager {
                 else throw new IllegalFormatException(
                     "The alias '" + alias + "', doesn't match the expected " + getTypeAlias(parameterClasses[parameterIndex]));
                 parameterIndex++;
-                currentToken = new SimpleParsingToken(
-                    parameterTypes[parameterIndex], parameterAnnotations[parameterIndex]);
             }
-            else tokens.add(new PlaceholderToken(false, item));
+            else {
+                tokens.add(new PlaceholderToken(false, item));
+                itemIndex++;
+            }
         }
 
         return tokens;
@@ -305,7 +307,7 @@ public final class TokenManager {
                     throw new IllegalFormatException("Expected ending '>' in command: " + command);
 
                 splitCommand.add(command.substring(currentIndex, endIndex + 1));
-                currentIndex = endIndex;
+                currentIndex = endIndex + 1;
             }
             else {
                 int spaceIndex = command.indexOf(' ', currentIndex);
@@ -455,30 +457,30 @@ public final class TokenManager {
                                                                     @NotNull String methodName,
                                                                     @NotNull Class<?> reflectionClass)
     {
-        return Exceptional.of(() -> {
-            ctx.assertNext('[');
+        if (!ctx.isNext('[', true))
+            return Exceptional.of(new IllegalFormatException("Expected the character ["));
 
-            List<TokenCommand> tokenCommands =
-                Reflect.getMethods(reflectionClass, methodName, true)
-                    .stream()
-                    .filter(m -> ctx.clazz().isAssignableFrom(m.getReturnType()))
-                    .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
-                    .map(m -> generateTokenCommand(null, m, ctx.reflections()))
-                    .collect(Collectors.toList());
+        List<TokenCommand> tokenCommands =
+            Reflect.getMethods(reflectionClass, methodName, true)
+                .stream()
+                .filter(m -> ctx.clazz().isAssignableFrom(m.getReturnType()))
+                .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
+                .map(m -> generateTokenCommand(null, m, ctx.reflections()))
+                .collect(Collectors.toList());
 
-            if (tokenCommands.isEmpty())
-                return Exceptional.of(() -> new TokenCommandException("There were no methods with the name " + methodName));
+        if (tokenCommands.isEmpty())
+            return Exceptional.of(() -> new TokenCommandException("There were no methods with the name " + methodName));
 
-            Exceptional<Object> result = Exceptional.empty();
-            for (TokenCommand tokenCommand : tokenCommands) {
-                result = tokenCommand.parse(ctx, true);
-                if (result.present())
-                    break;
-            }
+        Exceptional<Object> result = Exceptional.empty();
+        for (TokenCommand tokenCommand : tokenCommands) {
+            result = tokenCommand.parse(ctx, true);
+            if (result.present())
+                break;
+        }
 
-            ctx.assertNext(']');
-            return result;
-        });
+        if (!ctx.isNext(']', true))
+            return Exceptional.of(new IllegalFormatException("Expected the character ]"));
+        return result;
     }
 
     /**

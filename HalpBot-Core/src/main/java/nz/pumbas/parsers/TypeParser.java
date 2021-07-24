@@ -3,6 +3,8 @@ package nz.pumbas.parsers;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -12,8 +14,15 @@ import nz.pumbas.utilities.enums.Priority;
 
 public class TypeParser<T>
 {
-    private final Function<ParsingContext, Exceptional<T>> parser;
+    private Function<ParsingContext, Exceptional<T>> parser;
+    private BiFunction<Type, ParsingContext, Exceptional<T>> biParser;
     private final Priority priority;
+
+    public TypeParser(BiFunction<Type, ParsingContext, Exceptional<T>> biParser, Priority priority)
+    {
+        this.biParser = biParser;
+        this.priority = priority;
+    }
 
     public TypeParser(Function<ParsingContext, Exceptional<T>> parser, Priority priority)
     {
@@ -29,9 +38,26 @@ public class TypeParser<T>
         return new TypeParserBuilder<>(filter);
     }
 
+    public BiFunction<Type, ParsingContext, Exceptional<T>> getBiParser()
+    {
+        return this.biParser;
+    }
+
     public Function<ParsingContext, Exceptional<T>> getParser()
     {
         return this.parser;
+    }
+
+    public Exceptional<T> apply(@NotNull Type type, @NotNull ParsingContext ctx) {
+        if (null != this.biParser)
+            return this.biParser.apply(type, ctx);
+        return this.parser.apply(ctx);
+    }
+
+    public Exceptional<T> apply(@NotNull ParsingContext ctx) {
+        if (null != this.parser)
+            return this.parser.apply(ctx);
+        return this.biParser.apply(ctx.type(), ctx);
     }
 
     public Priority getPriority()
@@ -43,7 +69,9 @@ public class TypeParser<T>
 
         private Class<T> type;
         private Predicate<Class<?>> filter;
+
         private Function<ParsingContext, Exceptional<T>> parser;
+        private BiFunction<Type, ParsingContext, Exceptional<T>> biParser;
         private Priority priority = Priority.DEFAULT;
         private Class<?> annotation = Void.class;
 
@@ -64,6 +92,15 @@ public class TypeParser<T>
             return this;
         }
 
+        public TypeParserBuilder<T> convert(@NotNull BiFunction<Type, ParsingContext, Exceptional<T>> biParser) {
+            this.biParser = (type, ctx) -> {
+                ctx.saveState(this);
+                return biParser.apply(type, ctx)
+                    .absent(() -> ctx.restoreState(this));
+            };
+            return this;
+        }
+
         public TypeParserBuilder<T> priority(@NotNull Priority priority) {
             this.priority = priority;
             return this;
@@ -75,6 +112,8 @@ public class TypeParser<T>
         }
 
         public TypeParser<T> build() {
+            if (null == this.parser)
+                return new TypeParser<>(this.biParser, this.priority);
             return new TypeParser<>(this.parser, this.priority);
         }
 

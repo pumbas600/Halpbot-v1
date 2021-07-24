@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 
 import nz.pumbas.commands.tokens.context.ParsingContext;
@@ -79,7 +80,7 @@ public interface ParsingToken extends Token
             return null;
         if (String.class.isAssignableFrom(ctx.clazz()))
             return ctx.getOriginal();
-        return this.typeParser().getParser()
+        return this.typeParser()
             .apply(ctx)
             .rethrow()
             .get();
