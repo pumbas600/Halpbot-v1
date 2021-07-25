@@ -182,14 +182,16 @@ public final class Parsers
         .convert((type, ctx) -> {
             Class<?> clazz = Reflect.asClass(type);
             String expectedTypeAlias = TokenManager.getTypeAlias(clazz);
-            Exceptional<String> oTypeAlias = ctx.getNext("[", false);
+            Exceptional<String> typeAlias = ctx.getNext("[", false);
 
-            if (oTypeAlias.isEmpty())
+            if (typeAlias.caught())
+                return Exceptional.of(typeAlias.error());
+            if (typeAlias.isEmpty())
                 return Exceptional.of(new TokenCommandException("Missing '[' when creating object " + expectedTypeAlias));
 
-            if (!oTypeAlias.get().equalsIgnoreCase(expectedTypeAlias))
+            if (!typeAlias.get().equalsIgnoreCase(expectedTypeAlias))
                 return Exceptional.of(
-                    new TokenCommandException("Expected the alias " + expectedTypeAlias + " but got " + oTypeAlias.get()));
+                    new TokenCommandException("Expected the alias " + expectedTypeAlias + " but got " + typeAlias.get()));
 
             ctx.assertNext('[');
             int currentIndex = ctx.getCurrentIndex();

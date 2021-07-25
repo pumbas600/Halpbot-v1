@@ -32,8 +32,8 @@ nz/pumbas/halpbot/customparameters/math/Matrix.java
  nz.pumbas.halpbot.customparameters.math.Matrix
 nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
  nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
-nz/pumbas/halpbot/customparameters/ShapeType.java
- nz.pumbas.halpbot.customparameters.ShapeType
+nz/pumbas/halpbot/HalpBot.java
+ nz.pumbas.halpbot.HalpBot
 nz/pumbas/halpbot/commands/steamtables/annotations/ModelObject.java
  nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject
 nz/pumbas/halpbot/customparameters/Shape.java
@@ -54,5 +54,5 @@ nz/pumbas/halpbot/customparameters/math/Vector3.java
  nz.pumbas.halpbot.customparameters.math.Vector3
 nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
  nz.pumbas.halpbot.commands.steamtables.SteamTableManager
-nz/pumbas/halpbot/HalpBot.java
- nz.pumbas.halpbot.HalpBot
+nz/pumbas/halpbot/customparameters/ShapeType.java
+ nz.pumbas.halpbot.customparameters.ShapeType
