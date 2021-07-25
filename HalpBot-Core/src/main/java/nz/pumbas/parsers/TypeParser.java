@@ -1,6 +1,7 @@
 package nz.pumbas.parsers;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -12,7 +13,7 @@ import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.enums.Priority;
 
-public class TypeParser<T>
+public class TypeParser<T> implements Parser<T>
 {
     private Function<ParsingContext, Exceptional<T>> parser;
     private BiFunction<Type, ParsingContext, Exceptional<T>> biParser;
@@ -30,42 +31,64 @@ public class TypeParser<T>
         this.priority = priority;
     }
 
+    /**
+     * Returns a {@link TypeParserBuilder} that parses an element to the specified {@link Class type}.
+     *
+     * @param type
+     *      The {@link Class type} of the parsed element
+     * @param <T>
+     *      The type of the parsed element
+     *
+     * @return A {@link TypeParserBuilder}
+     */
     public static <T> TypeParserBuilder<T> builder(@NotNull Class<T> type) {
         return new TypeParserBuilder<>(type);
     }
 
+    /**
+     * Returns a {@link TypeParserBuilder} that utilises a {@link Predicate<Class> filter}.
+     *
+     * @param filter
+     *      The {@link Predicate<Class>} filter that matches classes to this {@link Parser}
+     * @param <T>
+     *      The type of the parsed element
+     *
+     * @return A {@link TypeParserBuilder}
+     */
     public static <T> TypeParserBuilder<T> builder(@NotNull Predicate<Class<?>> filter) {
         return new TypeParserBuilder<>(filter);
     }
 
-    public BiFunction<Type, ParsingContext, Exceptional<T>> getBiParser()
+    /**
+     * @return The {@link BiFunction} for this {@link Parser}
+     */
+    @Override
+    public @Nullable BiFunction<Type, ParsingContext, Exceptional<T>> biParser()
     {
         return this.biParser;
     }
 
-    public Function<ParsingContext, Exceptional<T>> getParser()
+    /**
+     * @return The {@link Function} for this {@link Parser}
+     */
+    @Override
+    public @Nullable Function<ParsingContext, Exceptional<T>> parser()
     {
         return this.parser;
     }
 
-    public Exceptional<T> apply(@NotNull Type type, @NotNull ParsingContext ctx) {
-        if (null != this.biParser)
-            return this.biParser.apply(type, ctx);
-        return this.parser.apply(ctx);
-    }
-
-    public Exceptional<T> apply(@NotNull ParsingContext ctx) {
-        if (null != this.parser)
-            return this.parser.apply(ctx);
-        return this.biParser.apply(ctx.type(), ctx);
-    }
-
-    public Priority getPriority()
+    /**
+     * @return The {@link Priority} associated with this {@link Parser}
+     */
+    @Override
+    public Priority priority()
     {
         return this.priority;
     }
 
-    public static class TypeParserBuilder<T> {
+
+
+    protected static class TypeParserBuilder<T> {
 
         private Class<T> type;
         private Predicate<Class<?>> filter;
@@ -85,18 +108,18 @@ public class TypeParser<T>
 
         public TypeParserBuilder<T> convert(@NotNull Function<ParsingContext, Exceptional<T>> parser) {
             this.parser = ctx -> {
-                ctx.saveState(this);
+                int currentIndex = ctx.getCurrentIndex();
                 return parser.apply(ctx)
-                    .absent(() -> ctx.restoreState(this));
+                    .absent(() -> ctx.setCurrentIndex(currentIndex));
             };
             return this;
         }
 
         public TypeParserBuilder<T> convert(@NotNull BiFunction<Type, ParsingContext, Exceptional<T>> biParser) {
             this.biParser = (type, ctx) -> {
-                ctx.saveState(this);
+                int currentIndex = ctx.getCurrentIndex();
                 return biParser.apply(type, ctx)
-                    .absent(() -> ctx.restoreState(this));
+                    .absent(() -> ctx.setCurrentIndex(currentIndex));
             };
             return this;
         }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
-import nz.pumbas.commands.exceptions.IllegalFormatException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.utilities.Reflect;
@@ -24,7 +23,6 @@ public class ParsingContext extends InvocationContext
     private final AbstractCommandAdapter commandAdapter;
     private final MessageReceivedEvent event;
     private final Set<Class<?>> reflections;
-    private Class<?> clazz;
     private Type type;
     private List<Class<? extends Annotation>> annotationTypes;
 
@@ -35,7 +33,6 @@ public class ParsingContext extends InvocationContext
                              @NotNull Set<Class<?>> reflections)
     {
         super(context);
-        this.clazz = Reflect.wrapPrimative(Reflect.asClass(type));
         this.type = type;
         this.commandAdapter = commandAdapter;
         this.event = event;
@@ -81,12 +78,11 @@ public class ParsingContext extends InvocationContext
 
     public void update(@NotNull ParsingToken parsingToken) {
         this.type = parsingToken.type();
-        this.clazz = Reflect.wrapPrimative(Reflect.asClass(this.type));
         this.annotationTypes = parsingToken.annotationTypes();
     }
 
     public Class<?> clazz() {
-        return this.clazz;
+        return Reflect.wrapPrimative(Reflect.asClass(this.type));
     }
 
     public Type type() {

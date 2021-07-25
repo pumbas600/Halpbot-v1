@@ -5,11 +5,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Optional;
 
 import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.objects.keys.Key;
 import nz.pumbas.objects.keys.Keys;
 
-@CommandGroup(defaultPrefix = "$")
 public class FrictionCommands
 {
     public static final double Gravity = 9.81D;

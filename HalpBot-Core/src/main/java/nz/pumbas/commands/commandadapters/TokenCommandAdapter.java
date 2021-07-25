@@ -66,6 +66,7 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
                                                           @NotNull CommandMethod commandMethod,
                                                           @NotNull String content) throws OutputException
     {
+        // Sanity check (This shouldn't be an issue)
         if (!(commandMethod instanceof TokenCommand))
             return Exceptional.of(
                 new TokenCommandException("The command method " + commandMethod.getDisplayCommand()

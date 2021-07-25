@@ -2,8 +2,6 @@ package nz.pumbas.commands.tokens.context;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +13,6 @@ public class InvocationContext
 {
     protected final String original;
     protected int currentIndex;
-    protected final Map<Object, Integer> savedIndices = new HashMap<>();
 
     protected InvocationContext(@NotNull String context)
     {
@@ -47,8 +44,7 @@ public class InvocationContext
      * @return The next {@link String token} (Split on spaces) from the current index or an empty
      * {@link String} if there are no more tokens;
      */
-    @NotNull
-    public String getNext()
+    public @NotNull String getNext()
     {
         return this.getNextSafe().or("");
     }
@@ -83,7 +79,7 @@ public class InvocationContext
      *
      * @return an {@link Optional} containing the next string up until the specified string
      */
-    public Optional<String> getNext(String until)
+    public Exceptional<String> getNext(String until)
     {
         return this.getNext(until, true);
     }
@@ -99,14 +95,14 @@ public class InvocationContext
      *
      * @return an {@link Optional} containing the next string up until the specified string
      */
-    public Optional<String> getNext(String until, boolean stepPast)
+    public Exceptional<String> getNext(String until, boolean stepPast)
     {
         if (!this.hasNext())
-            return Optional.empty();
+            return Exceptional.of(new IllegalFormatException("There is nothing left to retrieve"));
 
         int endIndex = this.original.indexOf(until, this.currentIndex);
         if (-1 == endIndex)
-            return Optional.empty();
+            return Exceptional.of(new IllegalFormatException("Missing the ending " + until));
 
         String match = this.original.substring(this.currentIndex, endIndex);
         this.currentIndex = endIndex;
@@ -115,7 +111,7 @@ public class InvocationContext
             this.currentIndex += until.length();
             this.skipPastSpaces();
         }
-        return Optional.of(match);
+        return Exceptional.of(match);
     }
 
     /**
@@ -132,7 +128,7 @@ public class InvocationContext
      *
      * @return The {@link String} between the start and stop
      */
-    public Optional<String> getNextSurrounded(String start, String stop)
+    public Exceptional<String> getNextSurrounded(String start, String stop)
     {
         return this.getNextSurrounded(start, stop, true);
     }
@@ -154,10 +150,10 @@ public class InvocationContext
      *
      * @return The {@link String} between the start and stop
      */
-    public Optional<String> getNextSurrounded(String start, String stop, boolean stepPast)
+    public Exceptional<String> getNextSurrounded(String start, String stop, boolean stepPast)
     {
         if (!this.hasNext() || this.original.indexOf(start, this.currentIndex) != this.currentIndex)
-            return Optional.empty();
+            return Exceptional.of(new IllegalFormatException("Missing the starting " + start));
 
         int startCount = 1;
         int startIndex = this.currentIndex + 1;
@@ -165,7 +161,7 @@ public class InvocationContext
         do {
             endIndex = this.original.indexOf(stop, endIndex + 1);
             if (-1 == endIndex)
-                return Optional.empty();
+                return Exceptional.of(new IllegalFormatException("Missing the ending " + stop));
 
             startCount--;
 
@@ -176,7 +172,7 @@ public class InvocationContext
             }
         } while (0 != startCount);
 
-        String match = this.original.substring(this.currentIndex + 1, endIndex);
+        String match = this.original.substring(this.currentIndex + start.length(), endIndex);
         this.currentIndex = endIndex;
 
         if (stepPast) {
@@ -184,7 +180,7 @@ public class InvocationContext
             this.skipPastSpaces();
         }
 
-        return Optional.of(match);
+        return Exceptional.of(match);
     }
 
     /**
@@ -238,6 +234,18 @@ public class InvocationContext
     }
 
     /**
+     * @return The remaining strings
+     */
+    public String getRemaining() {
+        if (!this.hasNext())
+            throw new IllegalFormatException("There are no remaining strings");
+
+        String remaining = this.original.substring(this.currentIndex);
+        this.currentIndex = this.original.length();
+        return remaining;
+    }
+
+    /**
      * @return The original string
      */
     public String getOriginal()
@@ -251,34 +259,6 @@ public class InvocationContext
     public int getCurrentIndex()
     {
         return this.currentIndex;
-    }
-
-    /**
-     * Saves the current index so that it can be restored later if necessary.
-     *
-     * @param reference
-     *      The {@link Object} to store the index against
-     *
-     * @return Itself
-     */
-    public InvocationContext saveState(Object reference)
-    {
-        this.savedIndices.put(reference, this.currentIndex);
-        return this;
-    }
-
-    /**
-     * Restores the current index to the last saved index.
-     *
-     * @param reference
-     *      The {@link Object} to store the index against
-     *
-     * @return Itself
-     */
-    public InvocationContext restoreState(Object reference)
-    {
-        this.currentIndex = this.savedIndices.getOrDefault(reference, this.currentIndex);
-        return this;
     }
 
     /**
@@ -300,19 +280,44 @@ public class InvocationContext
         this.currentIndex = index;
     }
 
+    /**
+     * Increments the current index by one.
+     */
     public void incrementIndex() {
         this.currentIndex++;
     }
 
+    /**
+     * While the current index is on a space, it will continue incrementing the current index.
+     */
     public void skipPastSpaces() {
         while (this.currentlyOnSpace())
             this.currentIndex++;
     }
 
+    /**
+     * Returns if the character at the current index is the one specified but does not step past it.
+     *
+     * @param character
+     *      The character to check
+     *
+     * @return If the character is at the current index
+     */
     public boolean isNext(char character) {
         return this.isNext(character, false);
     }
 
+    /**
+     * Returns if the character at the current index is the one specified. If you want to step past the character, it
+     * will also step past any spaces.
+     *
+     * @param character
+     *      The character to check
+     * @param stepPast
+     *      If the character should be stepped past
+     *
+     * @return If the character is at the current index
+     */
     public boolean isNext(char character, boolean stepPast) {
         if (!this.hasNext())
             return false;
@@ -326,13 +331,14 @@ public class InvocationContext
         return isNext;
     }
 
-
+    /**
+     * If {@link InvocationContext#isNext(char)} returns false, then it throws an {@link IllegalFormatException}.
+     *
+     * @param character
+     *      The character to assert is next.
+     */
     public void assertNext(char character) {
-        if (this.hasNext() && this.getOriginal().charAt(this.getCurrentIndex()) == character) {
-            this.incrementIndex();
-            this.skipPastSpaces();
-        }
-        else throw new IllegalFormatException(
-            String.format("Expected the character %s", character));
+        if (!this.isNext(character, true))
+            throw new IllegalFormatException("Expected the character '"  + character + "'");
     }
 }

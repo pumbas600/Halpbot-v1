@@ -270,6 +270,26 @@ public final class Exceptional<T> {
     }
 
     /**
+     * Returns the other {@link Exceptional} if this is empty or itself.
+     *
+     * @param supplier
+     *      The other {@link Exceptional} to be returned if this is empty
+     *
+     * @return The other {@link Exceptional} if this is empty or itself.
+     */
+    public Exceptional<T> or(Supplier<Exceptional<T>> supplier) {
+        Objects.requireNonNull(supplier);
+        if (!this.isEmpty()) return this;
+        else {
+            try {
+                return supplier.get();
+            } catch (Exception e) {
+                return of(e);
+            }
+        }
+    }
+
+    /**
      * If a value is present, apply the provided {@code Exceptional}-bearing mapping function to it,
      * return that result, otherwise return {@link Exceptional#empty()}. This method is similar to
      * {@link Exceptional#map(Function)}, but the provided mapper is one whose result is already an

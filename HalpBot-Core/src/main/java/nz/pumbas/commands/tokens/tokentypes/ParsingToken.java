@@ -5,10 +5,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.List;
 
 import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.parsers.Parser;
 import nz.pumbas.parsers.TypeParser;
 
 /**
@@ -39,7 +39,7 @@ public interface ParsingToken extends Token
      * @return The {@link TypeParser} for this token
      */
     @NotNull
-    TypeParser<?> typeParser();
+    Parser<?> parser();
 
     /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
@@ -80,7 +80,7 @@ public interface ParsingToken extends Token
             return null;
         if (String.class.isAssignableFrom(ctx.clazz()))
             return ctx.getOriginal();
-        return this.typeParser()
+        return this.parser()
             .apply(ctx)
             .rethrow()
             .get();

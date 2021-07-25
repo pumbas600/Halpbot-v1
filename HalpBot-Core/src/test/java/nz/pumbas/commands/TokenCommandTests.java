@@ -91,7 +91,7 @@ public class TokenCommandTests
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
         Assertions.assertEquals(
-            Parsers.OBJECT_PARSER, ((ParsingToken) command.getCommandTokens().get(0)).typeParser());
+            Parsers.OBJECT_PARSER, ((ParsingToken) command.getCommandTokens().get(0)).parser());
 
         Assertions.assertTrue(command.parse(ParsingContext.of("Vector3[1 2 3]")).present());
         Assertions.assertTrue(command.parse(ParsingContext.of("Vector3[3 1]")).present());

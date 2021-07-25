@@ -3,12 +3,10 @@ package nz.pumbas.halpbot.commands;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.exceptions.UnimplementedFeatureException;
-import nz.pumbas.halpbot.customparameters.Vector2;
+import nz.pumbas.halpbot.customparameters.math.Vector2;
 
-@CommandGroup(defaultPrefix = "$")
 public class HalpBotCommands
 {
 

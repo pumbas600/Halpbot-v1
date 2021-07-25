@@ -5,25 +5,11 @@ import javax.security.auth.login.LoginException;
 import nz.pumbas.halpbot.HalpBot;
 import nz.pumbas.utilities.Utils;
 
-public class Main
+public final class Main
 {
+    private Main() {}
 
     public static void main(String[] args) throws LoginException {
-         HalpBot halpBot = new HalpBot(Utils.getFirstLineFromFile("Token.txt"));
-
-//        SteamTableManager manager = new SteamTableManager();
-//
-//        var file = Utilities.parseCSVFile("H2O_Sat.csv");
-//        file.forEach(line -> {
-//            List<Double> records;
-//            try {
-//                records = Arrays.stream(line)
-//                    .map(Double::parseDouble)
-//                    .collect(Collectors.toList());
-//            } catch (NumberFormatException e) {
-//                return;
-//            }
-//            manager.insertRecord(SteamInserts.SATURATED, records);
-//        });
+        HalpBot halpBot = new HalpBot(Utils.getFirstLineFromFile("Token.txt"));
     }
 }

@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.customparameters;
+package nz.pumbas.halpbot.customparameters.math;
 
 import nz.pumbas.commands.annotations.ParameterConstruction;
 

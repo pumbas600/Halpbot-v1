@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.commands
 
 import nz.pumbas.commands.annotations.Command
-import nz.pumbas.halpbot.customparameters.Matrix
+import nz.pumbas.halpbot.customparameters.math.Matrix
 
 @Command(reflections = [Matrix::class])
 class MatrixCommands {

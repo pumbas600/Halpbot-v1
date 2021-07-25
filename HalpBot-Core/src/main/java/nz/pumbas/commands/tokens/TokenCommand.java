@@ -201,11 +201,11 @@ public class TokenCommand implements CommandMethod
      */
     public Exceptional<Object> parse(@NotNull ParsingContext ctx, boolean canHaveTokensLeft)
     {
-        ctx.saveState(this);
+        int currentIndex = ctx.getCurrentIndex();
         Exceptional<Object> result = this.parseParameters(ctx, canHaveTokensLeft)
             .flatMap((Function<Object[], Exceptional<Object>>) this::invoke);
 
-        if (result.caught()) ctx.restoreState(this);
+        if (result.caught()) ctx.setCurrentIndex(currentIndex);
         return result;
     }
 
@@ -234,21 +234,8 @@ public class TokenCommand implements CommandMethod
 
             Token currentToken = this.tokens.get(tokenIndex++);
             Exceptional<Object[]> mismatchResult = Exceptional.empty();
-            ctx.saveState(this);
+            int currentIndex = ctx.getCurrentIndex();
 
-//            if (!ctx.hasNext()) {
-//                if (currentToken.isOptional()) {
-//                    if (currentToken instanceof ParsingToken)
-//                        parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
-//                    continue;
-//                }
-//
-//                if (firstMismatch.isErrorAbsent())
-//                    firstMismatch = Exceptional.of(
-//                        new TokenCommandException("You appear to be missing a few parameters for this command"));
-//
-//                return firstMismatch;
-//            }
             if (currentToken instanceof ParsingToken) {
                 ParsingToken parsingToken = (ParsingToken) currentToken;
                 ctx.update(parsingToken);
@@ -261,9 +248,9 @@ public class TokenCommand implements CommandMethod
                 else if (result.caught())
                     return result.map(o -> new Object[0]);
                 else {
-                    ctx.restoreState(this);
+                    ctx.setCurrentIndex(currentIndex);
 
-                    result = parsingToken.typeParser()
+                    result = parsingToken.parser()
                         .apply(ctx)
                         .map(o -> o);
 
@@ -276,7 +263,6 @@ public class TokenCommand implements CommandMethod
                         parsedTokens[parameterIndex++] = result.orNull();
                         continue;
                     }
-
                 }
             }
             else if (currentToken instanceof PlaceholderToken) {

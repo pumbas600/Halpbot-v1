@@ -419,22 +419,22 @@ public final class TokenManager {
     {
         if (ctx.reflections().isEmpty()) return Exceptional.empty();
 
-        Optional<String> oType = ctx.getNext(".");
-        if (oType.isPresent()) {
+        Exceptional<String> type = ctx.getNext(".");
+        if (type.present()) {
 
             Optional<Class<?>> oClass = ctx.reflections()
                 .stream()
-                .filter(c -> TokenManager.getTypeAlias(c).equalsIgnoreCase(oType.get()))
+                .filter(c -> TokenManager.getTypeAlias(c).equalsIgnoreCase(type.get()))
                 .findFirst();
 
             if (oClass.isPresent()) {
                 Class<?> reflectionClass = oClass.get();
 
-                Optional<String> oMethodName = ctx.getNext("[", false);
+                Exceptional<String> methodName = ctx.getNext("[", false);
 
-                return oMethodName.isPresent()
-                    ? handleMethodReflectionSyntax(ctx, oMethodName.get(), reflectionClass)
-                    : handleFieldReflectionSyntax(ctx, reflectionClass);
+                return methodName
+                    .map(name -> handleMethodReflectionSyntax(ctx, name, reflectionClass))
+                    .or(handleFieldReflectionSyntax(ctx, reflectionClass));
             }
         }
 

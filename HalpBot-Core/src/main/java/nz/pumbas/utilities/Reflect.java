@@ -35,57 +35,37 @@ public final class Reflect {
 
     private Reflect() {}
 
+    private static final Pattern IntegerPattern = Pattern.compile("[-|+]?\\d+");
+    private static final Pattern DoublePattern  = Pattern.compile("[-|+]?\\d+\\.?\\d*");
+
     /**
-     * An {@link Map} of the built-in {@link Class classes} and a {@link Tuple} of a regex syntax along with their
-     * corresponding parsers.
+     * An {@link Map} of the built-in {@link Class classes} and their regex syntax.
      */
-    private static final Map<Class<?>, Tuple<Pattern, Function<String, Object>>> TypeParsers = Map.of(
-        String.class,   Tuple.of(Pattern.compile(".*"),                 s -> s),
-        Integer.class,  Tuple.of(Pattern.compile("[-|+]?\\d+"),         Integer::parseInt),
-        Float.class,    Tuple.of(Pattern.compile("[-|+]?\\d+\\.?\\d*"), Float::parseFloat),
-        Double.class,   Tuple.of(Pattern.compile("[-|+]?\\d+\\.?\\d*"), Double::parseDouble),
-        Character.class,Tuple.of(Pattern.compile("."),                  s -> s.charAt(0)),
-        Boolean.class,  Tuple.of(Pattern.compile("true|yes|false|no|t|f|y|n"),
-            s -> {
-                String lowered = s.toLowerCase();
-                return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered) || "y".equals(lowered);
-            })
+    private static final Map<Class<?>, Pattern> TypeParsers = Map.of(
+        String.class,   Pattern.compile(".*"),
+        Byte.class,     IntegerPattern,
+        Short.class,    IntegerPattern,
+        Integer.class,  IntegerPattern,
+        Long.class,     IntegerPattern,
+        Float.class,    DoublePattern,
+        Double.class,   DoublePattern,
+        Character.class,Pattern.compile("."),
+        Boolean.class,  Pattern.compile("true|yes|false|no|t|f|y|n")
     );
 
     /**
      * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
      */
     private static final Map<Class<?>, Class<?>> PrimativeWrappers = Map.of(
+        byte.class,   Byte.class,
+        short.class,  Short.class,
         int.class,    Integer.class,
+        long.class,   Long.class,
         float.class,  Float.class,
         double.class, Double.class,
-        long.class,   Long.class,
-        short.class,  Short.class,
         char.class,   Character.class,
         boolean.class,Boolean.class
     );
-
-    /**
-     * Parses a string to the type specified using the type parsers. It will not check if the string matches the
-     * format. To do this, call {@link Reflect#matches(String, Class)}
-     *
-     * @param s
-     *      The {@link String} to parse
-     * @param type
-     *      The {@link Class type} to parse the string to
-     *
-     * @return The parsed string
-     */
-    public static Object parse(String s, Class<?> type)
-    {
-        if (type.isPrimitive())
-            type = PrimativeWrappers.getOrDefault(type, type);
-
-        if (!TypeParsers.containsKey(type))
-            throw new IllegalArgumentException("You can only parse simple build in types");
-
-        return TypeParsers.get(type).getValue().apply(s);
-    }
 
     /**
      * Checks if the string matches the required syntax of the specified type.
@@ -105,7 +85,6 @@ public final class Reflect {
             throw new IllegalArgumentException("You can only match strings of simple types");
 
         return TypeParsers.get(wrappedType)
-            .getKey()
             .matcher(s)
             .matches();
     }
@@ -123,7 +102,7 @@ public final class Reflect {
         if (!TypeParsers.containsKey(type))
             throw new IllegalArgumentException("You can only match simple build in types");
 
-        return TypeParsers.get(type).getKey();
+        return TypeParsers.get(type);
     }
 
     /**

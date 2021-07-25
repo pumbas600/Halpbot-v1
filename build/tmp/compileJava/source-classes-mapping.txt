@@ -1,11 +1,9 @@
 nz/pumbas/halpbot/commands/HalpBotCommands.java
  nz.pumbas.halpbot.commands.HalpBotCommands
+nz/pumbas/halpbot/customparameters/math/Vector2.java
+ nz.pumbas.halpbot.customparameters.math.Vector2
 nz/pumbas/processes/PipeProcess.java
  nz.pumbas.processes.PipeProcess
-nz/pumbas/halpbot/customparameters/Vector3.java
- nz.pumbas.halpbot.customparameters.Vector3
-nz/pumbas/halpbot/customparameters/Matrix.java
- nz.pumbas.halpbot.customparameters.Matrix
 nz/pumbas/halpbot/friction/FrictionData.java
  nz.pumbas.halpbot.friction.FrictionData
 nz/pumbas/halpbot/commands/steamtables/SteamInserts.java
@@ -16,18 +14,26 @@ nz/pumbas/halpbot/commands/TokenCommands.java
  nz.pumbas.halpbot.commands.TokenCommands
 nz/pumbas/halpbot/commands/VectorCommands.java
  nz.pumbas.halpbot.commands.VectorCommands
+nz/pumbas/halpbot/customparameters/math/Vector.java
+ nz.pumbas.halpbot.customparameters.math.Vector
 nz/pumbas/Main.java
  nz.pumbas.Main
 nz/pumbas/halpbot/commands/steamtables/models/Model.java
  nz.pumbas.halpbot.commands.steamtables.models.Model
+nz/pumbas/halpbot/customparameters/math/Line.java
+ nz.pumbas.halpbot.customparameters.math.Line
 nz/pumbas/halpbot/commands/steamtables/annotations/IgnoreColumn.java
  nz.pumbas.halpbot.commands.steamtables.annotations.IgnoreColumn
 nz/pumbas/halpbot/commands/steamtables/SteamTable.java
  nz.pumbas.halpbot.commands.steamtables.SteamTable
+nz/pumbas/halpbot/customparameters/math/Plane.java
+ nz.pumbas.halpbot.customparameters.math.Plane
+nz/pumbas/halpbot/customparameters/math/Matrix.java
+ nz.pumbas.halpbot.customparameters.math.Matrix
 nz/pumbas/halpbot/commands/steamtables/models/ColumnModel.java
  nz.pumbas.halpbot.commands.steamtables.models.ColumnModel
-nz/pumbas/halpbot/HalpBot.java
- nz.pumbas.halpbot.HalpBot
+nz/pumbas/halpbot/customparameters/ShapeType.java
+ nz.pumbas.halpbot.customparameters.ShapeType
 nz/pumbas/halpbot/commands/steamtables/annotations/ModelObject.java
  nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject
 nz/pumbas/halpbot/customparameters/Shape.java
@@ -36,23 +42,17 @@ nz/pumbas/halpbot/commands/CalculusCommands.java
  nz.pumbas.halpbot.commands.CalculusCommands
 nz/pumbas/halpbot/friction/FrictionCommands.java
  nz.pumbas.halpbot.friction.FrictionCommands
-nz/pumbas/halpbot/customparameters/Vector2.java
- nz.pumbas.halpbot.customparameters.Vector2
-nz/pumbas/halpbot/customparameters/Plane.java
- nz.pumbas.halpbot.customparameters.Plane
 nz/pumbas/halpbot/commands/steamtables/models/ModelHelper.java
  nz.pumbas.halpbot.commands.steamtables.models.ModelHelper
-nz/pumbas/halpbot/customparameters/Vector.java
- nz.pumbas.halpbot.customparameters.Vector
 nz/pumbas/halpbot/commands/SteamLookupCommands.java
  nz.pumbas.halpbot.commands.SteamLookupCommands
 nz/pumbas/halpbot/commands/steamtables/models/SaturatedSteamModel.java
  nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel
 nz/pumbas/halpbot/commands/steamtables/models/SuperheatedSteamModel.java
  nz.pumbas.halpbot.commands.steamtables.models.SuperheatedSteamModel
+nz/pumbas/halpbot/customparameters/math/Vector3.java
+ nz.pumbas.halpbot.customparameters.math.Vector3
 nz/pumbas/halpbot/commands/steamtables/SteamTableManager.java
  nz.pumbas.halpbot.commands.steamtables.SteamTableManager
-nz/pumbas/halpbot/customparameters/ShapeType.java
- nz.pumbas.halpbot.customparameters.ShapeType
-nz/pumbas/halpbot/customparameters/Line.java
- nz.pumbas.halpbot.customparameters.Line
+nz/pumbas/halpbot/HalpBot.java
+ nz.pumbas.halpbot.HalpBot

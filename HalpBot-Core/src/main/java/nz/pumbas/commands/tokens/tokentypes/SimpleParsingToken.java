@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import nz.pumbas.commands.annotations.Unrequired;
 import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.parsers.Parser;
 import nz.pumbas.parsers.Parsers;
 import nz.pumbas.parsers.TypeParser;
 
@@ -21,7 +22,7 @@ public class SimpleParsingToken implements ParsingToken
     private final Annotation[] annotations;
     private final List<Class<? extends Annotation>> annotationTypes;
     private final boolean isOptional;
-    private final TypeParser<?> typeParser;
+    private final Parser<?> parser;
     private final Object defaultValue;
 
     public SimpleParsingToken(Type type, Annotation[] annotations)
@@ -38,7 +39,7 @@ public class SimpleParsingToken implements ParsingToken
         String defaultValue = this.isOptional ? unrequired.value() : "null";
         ParsingContext ctx = ParsingContext.of(defaultValue, this);
 
-        this.typeParser = Parsers.from(ctx);
+        this.parser = Parsers.from(ctx);
         this.defaultValue = this.parseDefaultValue(ctx);
     }
 
@@ -82,9 +83,9 @@ public class SimpleParsingToken implements ParsingToken
      * @return The {@link TypeParser} for this token
      */
     @Override
-    public @NotNull TypeParser<?> typeParser()
+    public @NotNull Parser<?> parser()
     {
-        return this.typeParser;
+        return this.parser;
     }
 
     /**

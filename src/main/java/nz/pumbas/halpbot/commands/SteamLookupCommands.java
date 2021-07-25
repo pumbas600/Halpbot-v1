@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.annotations.CommandGroup;
 import nz.pumbas.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.steamtables.SteamTable;
 import nz.pumbas.halpbot.commands.steamtables.SteamTableManager;
@@ -23,7 +22,6 @@ import nz.pumbas.utilities.enums.Flags;
 import nz.pumbas.utilities.maps.MapHelper;
 import nz.pumbas.utilities.maps.Row;
 
-@CommandGroup(defaultPrefix = "$")
 public class SteamLookupCommands
 {
     @Command(alias = "columns", description = "Lists all the available columns for saturated steam look ups")
