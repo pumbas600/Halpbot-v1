@@ -10,17 +10,11 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.utils.cache.MemberCacheView;
 
+import nz.pumbas.commands.annotations.Children;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 import nz.pumbas.commands.annotations.Remaining;
@@ -191,7 +185,7 @@ public final class Parsers
 
             if (!typeAlias.get().equalsIgnoreCase(expectedTypeAlias))
                 return Exceptional.of(
-                    new TokenCommandException("Expected the alias " + expectedTypeAlias + " but got " + typeAlias.get()));
+                        new TokenCommandException("Expected the alias " + expectedTypeAlias + " but got " + typeAlias.get()));
 
             ctx.assertNext('[');
             int currentIndex = ctx.getCurrentIndex();
@@ -207,6 +201,22 @@ public final class Parsers
             }
             return result;
         }).build();
+
+    public static final TypeParser<Object> CHILDREN_TYPE_PARSER = TypeParser.builder(Objects::nonNull)
+        .priority(Priority.LAST)
+        .annotation(Children.class)
+        .convert((type, ctx) -> {
+            Exceptional<Object> result = OBJECT_PARSER.apply(type, ctx);
+            if (result.caught())
+                for (Class<?> child : ctx.annotation(Children.class).value()) {
+                    result = OBJECT_PARSER.apply(child, ctx);
+                    if (result.isErrorAbsent()) break;
+                }
+
+            return result;
+        }).register();
+
+
 
     //endregion
 

@@ -25,12 +25,14 @@ public class ParsingContext extends InvocationContext
     private final Set<Class<?>> reflections;
     private Type type;
     private List<Class<? extends Annotation>> annotationTypes;
+    private Annotation[] annotations;
 
     protected ParsingContext(@NotNull String context, @Nullable Type type,
                              @Nullable AbstractCommandAdapter commandAdapter,
                              @Nullable MessageReceivedEvent event,
                              @NotNull List<Class<? extends Annotation>> annotationTypes,
-                             @NotNull Set<Class<?>> reflections)
+                             @NotNull Set<Class<?>> reflections,
+                             @NotNull Annotation[] annotations)
     {
         super(context);
         this.type = type;
@@ -38,25 +40,26 @@ public class ParsingContext extends InvocationContext
         this.event = event;
         this.annotationTypes = annotationTypes;
         this.reflections = reflections;
+        this.annotations = annotations;
     }
 
     @SafeVarargs
     public static ParsingContext of(@NotNull Type type,
                                     @NotNull Class<? extends Annotation>... annotationTypes) {
         return new ParsingContext(
-            "", type, null, null, new ArrayList<>(Arrays.asList(annotationTypes)), Collections.emptySet());
+            "", type, null, null, new ArrayList<>(Arrays.asList(annotationTypes)), Collections.emptySet(), new Annotation[0]);
     }
 
     @SafeVarargs
     public static ParsingContext of(@NotNull String context, @NotNull Type type,
                                     @NotNull Class<? extends Annotation>... annotationTypes) {
         return new ParsingContext(
-            context, type, null, null, new ArrayList<>(Arrays.asList(annotationTypes)), Collections.emptySet());
+            context, type, null, null, new ArrayList<>(Arrays.asList(annotationTypes)), Collections.emptySet(), new Annotation[0]);
     }
 
     public static ParsingContext of(@NotNull String context, @NotNull ParsingToken parsingToken) {
         return new ParsingContext(
-            context, parsingToken.type(), null, null, parsingToken.annotationTypes(), Collections.emptySet());
+            context, parsingToken.type(), null, null, parsingToken.annotationTypes(), Collections.emptySet(), parsingToken.annotations());
     }
 
     public static ParsingContext of(@NotNull ParsingToken parsingToken) {
@@ -65,20 +68,21 @@ public class ParsingContext extends InvocationContext
 
     public static ParsingContext of(@NotNull String content, @NotNull AbstractCommandAdapter commandAdapter,
                                     @NotNull MessageReceivedEvent event, @NotNull Set<Class<?>> reflections) {
-        return new ParsingContext(content, null, commandAdapter, event, Collections.emptyList(), reflections);
+        return new ParsingContext(content, null, commandAdapter, event, Collections.emptyList(), reflections, new Annotation[0]);
     }
 
     public static ParsingContext of(@NotNull String content) {
-        return new ParsingContext(content, null, null, null, Collections.emptyList(), Collections.emptySet());
+        return new ParsingContext(content, null, null, null, Collections.emptyList(), Collections.emptySet(), new Annotation[0]);
     }
 
     public static ParsingContext of(@NotNull String content, TokenCommand tokenCommand) {
-        return new ParsingContext(content, null, null, null, Collections.emptyList(), tokenCommand.getReflections());
+        return new ParsingContext(content, null, null, null, Collections.emptyList(), tokenCommand.getReflections(), new Annotation[0]);
     }
 
     public void update(@NotNull ParsingToken parsingToken) {
         this.type = parsingToken.type();
         this.annotationTypes = parsingToken.annotationTypes();
+        this.annotations = parsingToken.annotations();
     }
 
     public Class<?> clazz() {
@@ -107,5 +111,15 @@ public class ParsingContext extends InvocationContext
     public Set<Class<?>> reflections()
     {
         return this.reflections;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Annotation> T annotation(Class<T> type) {
+        int index = this.annotationTypes.indexOf(type);
+        if (-1 != index && index < this.annotations.length)
+            return (T) this.annotations[index];
+
+        // Annotation isn't present
+        return null;
     }
 }
