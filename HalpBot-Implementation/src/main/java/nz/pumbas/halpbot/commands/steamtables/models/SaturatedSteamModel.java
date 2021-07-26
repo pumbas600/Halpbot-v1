@@ -1,8 +1,8 @@
 package nz.pumbas.halpbot.commands.steamtables.models;
 
+import nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject;
 import nz.pumbas.utilities.maps.ClassMap;
 import nz.pumbas.utilities.maps.FieldMap;
-import nz.pumbas.halpbot.commands.steamtables.annotations.ModelObject;
 
 @ClassMap(keys = {"displayName", "units"})
 @ModelObject(tableName = "saturated")

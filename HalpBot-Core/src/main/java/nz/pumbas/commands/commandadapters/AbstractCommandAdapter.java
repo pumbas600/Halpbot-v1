@@ -36,8 +36,6 @@ import nz.pumbas.commands.OnShutdown;
 import nz.pumbas.commands.annotations.Command;
 import nz.pumbas.commands.exceptions.IllegalCommandException;
 import nz.pumbas.commands.exceptions.OutputException;
-import nz.pumbas.objects.Result;
-import nz.pumbas.resources.Language;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 
@@ -322,7 +320,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      * @param content
      *      The rest of the {@link String} after the {@link String command alias} or null if there was nothing else
      *
-     * @return The parsed method call as a {@link Result}
+     * @return The parsed method call as an {@link Exceptional}
      * @throws OutputException Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
      */
     protected abstract Exceptional<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,

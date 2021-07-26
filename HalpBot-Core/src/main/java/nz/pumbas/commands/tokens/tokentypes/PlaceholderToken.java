@@ -1,11 +1,8 @@
 package nz.pumbas.commands.tokens.tokentypes;
 
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.commands.tokens.context.InvocationContext;
-import nz.pumbas.objects.Result;
-import nz.pumbas.resources.Resource;
 
 /**
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command:

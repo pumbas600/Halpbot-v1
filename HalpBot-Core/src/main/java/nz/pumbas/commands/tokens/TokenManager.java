@@ -18,8 +18,6 @@ import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.commands.tokens.tokentypes.SimpleParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.Token;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
-import nz.pumbas.objects.Result;
-import nz.pumbas.resources.Resource;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.enums.Modifiers;

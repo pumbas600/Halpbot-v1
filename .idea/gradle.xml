@@ -14,6 +14,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/HalpBot-Core" />
+            <option value="$PROJECT_DIR$/HalpBot-Implementation" />
           </set>
         </option>
       </GradleProjectSettings>

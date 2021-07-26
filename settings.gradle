@@ -1,3 +1,12 @@
 rootProject.name = 'HalpBot'
-include 'HalpBot-Core'
+gradle.startParameter.continueOnFailure = true
 
+includeAll(rootDir, '')
+
+def includeAll(File dir, String prefix, String... blacklist) {
+    dir.listFiles().each {
+        if (!blacklist.contains(it.name) && it.directory && new File(it, 'build.gradle').exists()) {
+            include(prefix + ":${it.name}")
+        }
+    }
+}

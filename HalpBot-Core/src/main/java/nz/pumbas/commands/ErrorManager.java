@@ -41,7 +41,7 @@ public final class ErrorManager
 
     public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message)
     {
-        event.getChannel().sendMessage(
+        event.getChannel().sendMessageEmbeds(
             new EmbedBuilder().setTitle(":confounded: Sorry...")
                 .setColor(Color.red)
                 .addField("This feature is not implemented yet", message, false)

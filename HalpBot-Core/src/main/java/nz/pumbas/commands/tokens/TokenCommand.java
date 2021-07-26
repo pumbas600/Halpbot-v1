@@ -8,7 +8,6 @@ import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.commands.tokens.tokentypes.Token;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
-import nz.pumbas.objects.Result;
 import nz.pumbas.utilities.Exceptional;
 
 import org.jetbrains.annotations.NotNull;
@@ -216,7 +215,7 @@ public class TokenCommand implements CommandMethod
      * @param ctx
      *      The {@link ParsingContext}
      *
-     * @return A {@link Result} containing the parsed parameters
+     * @return An {@link Exceptional} containing the parsed parameters
      */
     public Exceptional<Object[]> parseParameters(@NotNull ParsingContext ctx, boolean canHaveTokensLeft)
     {

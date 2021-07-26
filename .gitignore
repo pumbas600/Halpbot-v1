@@ -10,6 +10,16 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# Generic build outputs
+build
+subject
+# Project specifics
+.gradle/
+.idea/
+*.iml
+*.hprof
+dependency-reduced-pom.xml
+
 # Package Files #
 *.jar
 *.war
