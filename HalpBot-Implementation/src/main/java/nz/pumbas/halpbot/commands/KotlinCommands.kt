@@ -142,4 +142,9 @@ class KotlinCommands : OnReady {
     fun insult(): String {
         return Utils.randomChoice(insultJokes)
     }
+
+    @Command(alias = "List", description = "Creates a simple list of integers")
+    fun list(list: List<Int>): List<Int> {
+        return list
+    }
 }

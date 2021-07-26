@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import nz.pumbas.commands.CommandMethod;
@@ -124,7 +125,10 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     {
         if (event.getAuthor().isBot()) return;
 
-        String[] splitText = event.getMessage().getContentRaw().split(" ", 2);
+        // Remove all the additional whitespace
+        String message = event.getMessage().getContentRaw().replaceAll("\\s+", " ");
+
+        String[] splitText = message.split(" ", 2);
         String commandAlias = splitText[0].toLowerCase();
         String content = 2 == splitText.length ? splitText[1] : "";
 
