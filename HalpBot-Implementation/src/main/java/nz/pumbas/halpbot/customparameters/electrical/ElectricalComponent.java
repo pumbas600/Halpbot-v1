@@ -7,7 +7,7 @@ public abstract class ElectricalComponent {
 
     protected double voltageDrop;
     protected double currentAcross;
-    
+
     public double voltageDrop() {
         return this.voltageDrop;
     }

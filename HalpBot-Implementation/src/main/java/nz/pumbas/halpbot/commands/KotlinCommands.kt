@@ -10,6 +10,7 @@ import nz.pumbas.commands.annotations.Command
 import nz.pumbas.commands.annotations.Remaining
 import nz.pumbas.commands.annotations.Unrequired
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
+import nz.pumbas.commands.validation.Implicit
 import nz.pumbas.halpbot.HalpBot
 import nz.pumbas.halpbot.customparameters.Joke
 import nz.pumbas.utilities.Utils
@@ -144,7 +145,7 @@ class KotlinCommands : OnReady {
     }
 
     @Command(alias = "List", description = "Creates a simple list of integers")
-    fun list(list: List<Int>): List<Int> {
+    fun list(@Implicit list: List<Int>): List<Int> {
         return list
     }
 }
