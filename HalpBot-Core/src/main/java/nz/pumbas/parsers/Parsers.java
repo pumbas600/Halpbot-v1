@@ -8,14 +8,17 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.utils.cache.MemberCacheView;
 
 import nz.pumbas.commands.annotations.Children;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 
 import nz.pumbas.commands.annotations.Remaining;
 import nz.pumbas.commands.annotations.Source;
@@ -25,9 +28,7 @@ import nz.pumbas.commands.exceptions.TokenCommandException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
 import nz.pumbas.commands.tokens.context.InvocationContext;
-import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.commands.validation.Implicit;
-import nz.pumbas.objects.Tuple;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 import nz.pumbas.utilities.enums.Priority;
@@ -37,69 +38,6 @@ public final class Parsers
 {
 
     private Parsers() {}
-
-    //region Parser Management
-
-    private static final Map<Class<?>, List<Tuple<Class<?>, Parser<?>>>> TypeParsers = new HashMap<>();
-    private static final List<Tuple<Predicate<Class<?>>, Parser<?>>> FallbackTypeParsers = new ArrayList<>();
-
-    public static <T> Parser<T> from(@NotNull ParsingContext ctx) {
-        return (Parser<T>) from(ctx.clazz(), ctx);
-    }
-
-    public static <T> Parser<T> from(@NotNull Class<T> type, @NotNull ParsingContext ctx) {
-        if (TypeParsers.containsKey(type)) {
-            return (Parser<T>) retrieveParserByAnnotation(TypeParsers.get(type), ctx);
-        }
-        return (Parser<T>) TypeParsers.keySet()
-            .stream()
-            .filter(c -> c.isAssignableFrom(type))
-            .findFirst()
-            .map(c -> (Object) retrieveParserByAnnotation(TypeParsers.get(c), ctx))
-            .orElseGet(() -> FallbackTypeParsers.stream()
-                .filter(t -> t.getKey().test(type))
-                .findFirst()
-                .map(Tuple::getValue)
-                .orElse(Reflect.cast(OBJECT_PARSER)));
-    }
-
-    private static Parser<?> retrieveParserByAnnotation(@NotNull List<Tuple<Class<?>, Parser<?>>> parsers,
-                                                            @NotNull ParsingContext ctx) {
-        assert !parsers.isEmpty();
-
-        for (Tuple<Class<?>, Parser<?>> parser : parsers) {
-            if (ctx.annotationTypes().contains(parser.getKey())) {
-                ctx.annotationTypes().remove(parser.getKey());
-                return parser.getValue();
-            }
-        }
-        //otherwise return the last parser
-        return parsers.get(parsers.size() - 1).getValue();
-    }
-
-    public static void registerParser(@NotNull Class<?> type,
-                                      @NotNull Class<?> annotationType,
-                                      @NotNull Parser<?> typeParser) {
-        if (!TypeParsers.containsKey(type))
-            TypeParsers.put(type, new ArrayList<>());
-
-        List<Tuple<Class<?>, Parser<?>>> parsers = TypeParsers.get(type);
-        for (int i = 0; i < parsers.size(); i++) {
-            if (0 < parsers.get(i).getValue().priority().compareTo(typeParser.priority())) {
-                parsers.add(i, Tuple.of(annotationType, typeParser));
-                return;
-            }
-        }
-        parsers.add(Tuple.of(annotationType, typeParser));
-    }
-
-    public static void registerParser(@NotNull Predicate<Class<?>> filter,
-                                      @NotNull Parser<?> typeParser) {
-
-        FallbackTypeParsers.add(Tuple.of(filter, typeParser));
-    }
-
-    //endregion
 
     //region Parsers
 
@@ -205,18 +143,22 @@ public final class Parsers
     public static final TypeParser<Object> CHILDREN_TYPE_PARSER = TypeParser.builder(Objects::nonNull)
         .priority(Priority.LAST)
         .annotation(Children.class)
+        .includeClassAnnotations()
         .convert((type, ctx) -> {
-            Exceptional<Object> result = OBJECT_PARSER.apply(type, ctx);
-            if (result.caught())
-                for (Class<?> child : ctx.annotation(Children.class).value()) {
-                    result = OBJECT_PARSER.apply(child, ctx);
-                    if (result.isErrorAbsent()) break;
+            final Exceptional<Object> result = OBJECT_PARSER.apply(type, ctx);
+            if (result.isErrorAbsent())
+                return result;
+            return ctx.annotation(Children.class).flatMap(children -> {
+                // If there are no children then it will return the error in 'result'
+                Exceptional<Object> parsed = result;
+
+                for (Class<?> child : children.value()) {
+                    parsed = OBJECT_PARSER.apply(child, ctx);
+                    if (parsed.isErrorAbsent()) break;
                 }
-
-            return result;
+                return parsed;
+            });
         }).register();
-
-
 
     //endregion
 
@@ -225,7 +167,7 @@ public final class Parsers
     public static final TypeParser<List> LIST_PARSER = TypeParser.builder(List.class)
         .convert((type, ctx) -> {
             Type subType = Reflect.getGenericType(type);
-            Parser<?> elementParser = from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
+            Parser<?> elementParser = ParserManager.from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
 
             return Exceptional.of(() -> {
                 List<Object> list = new ArrayList<>();
@@ -244,14 +186,12 @@ public final class Parsers
         .annotation(Implicit.class)
         .priority(Priority.LAST)
         .convert((type, ctx) -> {
-            int currentIndex = ctx.getCurrentIndex();
             Exceptional<List> listExceptional = LIST_PARSER.apply(type, ctx);
-            if (listExceptional.present())
+            if (listExceptional.isErrorAbsent())
                 return listExceptional;
 
-            ctx.setCurrentIndex(currentIndex);
             Type subType = Reflect.getGenericType(type);
-            Parser<?> elementParser = from(Reflect.wrapPrimative(Reflect.asClass(subType)),ctx);
+            Parser<?> elementParser = ParserManager.from(Reflect.wrapPrimative(Reflect.asClass(subType)),ctx);
 
             List<Object> list = new ArrayList<>();
 
@@ -273,14 +213,14 @@ public final class Parsers
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
         .convert((type, ctx) ->
-            from(List.class, ctx)
+            ParserManager.from(List.class, ctx)
                 .apply(type, ctx)
                 .map(Collections::unmodifiableList))
         .register();
 
     public static final TypeParser<Set> SET_PARSER = TypeParser.builder(Set.class)
         .convert((type, ctx) ->
-            from(List.class, ctx)
+            ParserManager.from(List.class, ctx)
                 .apply(type, ctx)
                 .map(HashSet::new))
         .register();
@@ -290,14 +230,14 @@ public final class Parsers
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
         .convert((type, ctx) ->
-            from(Set.class, ctx)
+            ParserManager.from(Set.class, ctx)
                 .apply(type, ctx)
                 .map(Collections::unmodifiableSet))
         .register();
 
     public static final TypeParser<Object> ARRAY_PARSER = TypeParser.builder(Class::isArray)
         .convert((type, ctx) ->
-            from(List.class, ctx)
+            ParserManager.from(List.class, ctx)
                 .apply(type, ctx)
                 .map(list -> Reflect.toArray(Reflect.getArrayType(Reflect.asClass(type)), list)))
         .register();

@@ -12,10 +12,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
+import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.Reflect;
 
 public class ParsingContext extends InvocationContext
@@ -108,18 +110,40 @@ public class ParsingContext extends InvocationContext
         return this.annotationTypes;
     }
 
+    public void annotationTypes(List<Class<? extends Annotation>> annotationTypes) {
+        this.annotationTypes = annotationTypes;
+    }
+
+    public Annotation[] annotations() {
+        return this.annotations;
+    }
+
+    public void annotations(Annotation[] annotations) {
+        this.annotations = annotations;
+    }
+
     public Set<Class<?>> reflections()
     {
         return this.reflections;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Annotation> T annotation(Class<T> type) {
-        int index = this.annotationTypes.indexOf(type);
-        if (-1 != index && index < this.annotations.length)
-            return (T) this.annotations[index];
+    public ContextState contextState() {
+        return new ContextState(this.currentIndex, this.annotations, this.annotationTypes);
+    }
 
-        // Annotation isn't present
-        return null;
+    public void contextState(ContextState contextState) {
+        this.currentIndex = contextState.currentIndex();
+        this.annotations = contextState.annotations();
+        this.annotationTypes = contextState.annotationTypes();
+
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Annotation> Exceptional<T> annotation(Class<T> type) {
+        return Exceptional.of(
+            Arrays.stream(this.annotations)
+                .filter(a -> a.annotationType().isAssignableFrom(type))
+                .findFirst()
+                .map(a -> (T)a));
     }
 }

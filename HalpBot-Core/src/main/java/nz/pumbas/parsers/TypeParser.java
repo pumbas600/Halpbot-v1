@@ -5,10 +5,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import nz.pumbas.commands.tokens.context.ContextState;
 import nz.pumbas.commands.tokens.context.ParsingContext;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.enums.Priority;
@@ -97,6 +100,7 @@ public class TypeParser<T> implements Parser<T>
         private BiFunction<Type, ParsingContext, Exceptional<T>> biParser;
         private Priority priority = Priority.DEFAULT;
         private Class<?> annotation = Void.class;
+        private boolean includeClassAnnotations;
 
         protected TypeParserBuilder(@NotNull Class<T> type) {
             this.type = type;
@@ -108,18 +112,20 @@ public class TypeParser<T> implements Parser<T>
 
         public TypeParserBuilder<T> convert(@NotNull Function<ParsingContext, Exceptional<T>> parser) {
             this.parser = ctx -> {
-                int currentIndex = ctx.getCurrentIndex();
+                ContextState state = ctx.contextState();
                 return parser.apply(ctx)
-                    .absent(() -> ctx.setCurrentIndex(currentIndex));
+                    .caught(t -> ctx.contextState(state))
+                    .ifErrorAbsent(() -> ctx.annotations(state.annotations()));
             };
             return this;
         }
 
         public TypeParserBuilder<T> convert(@NotNull BiFunction<Type, ParsingContext, Exceptional<T>> biParser) {
             this.biParser = (type, ctx) -> {
-                int currentIndex = ctx.getCurrentIndex();
+                ContextState state = ctx.contextState();
                 return biParser.apply(type, ctx)
-                    .absent(() -> ctx.setCurrentIndex(currentIndex));
+                    .caught(t -> ctx.contextState(state))
+                    .ifErrorAbsent(() -> ctx.annotations(state.annotations()));
             };
             return this;
         }
@@ -134,6 +140,11 @@ public class TypeParser<T> implements Parser<T>
             return this;
         }
 
+        public TypeParserBuilder<T> includeClassAnnotations() {
+            this.includeClassAnnotations = true;
+            return this;
+        }
+
         public TypeParser<T> build() {
             if (null == this.parser)
                 return new TypeParser<>(this.biParser, this.priority);
@@ -144,8 +155,8 @@ public class TypeParser<T> implements Parser<T>
             TypeParser<T> typeParser = this.build();
 
             if (null == this.type)
-                Parsers.registerParser(this.filter, typeParser);
-            else Parsers.registerParser(this.type, this.annotation, typeParser);
+                ParserManager.registerParser(this.filter, this.annotation, typeParser);
+            else ParserManager.registerParser(this.type, this.annotation, typeParser);
 
             return typeParser;
         }

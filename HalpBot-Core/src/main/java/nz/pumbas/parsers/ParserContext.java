@@ -2,22 +2,22 @@ package nz.pumbas.parsers;
 
 public class ParserContext {
 
-    private final Class<?> annotation;
-    private final TypeParser<?> typeParser;
+    private final Class<?> annotationType;
+    private final Parser<?> parser;
     private final boolean includeClassAnnotations;
 
-    public ParserContext(Class<?> annotation, TypeParser<?> typeParser, boolean includeClassAnnotations) {
-        this.annotation = annotation;
-        this.typeParser = typeParser;
+    public ParserContext(Class<?> annotationType, Parser<?> parser, boolean includeClassAnnotations) {
+        this.annotationType = annotationType;
+        this.parser = parser;
         this.includeClassAnnotations = includeClassAnnotations;
     }
 
-    public Class<?> annotation() {
-        return this.annotation;
+    public Class<?> annotationType() {
+        return this.annotationType;
     }
 
-    public TypeParser<?> typeParser() {
-        return this.typeParser;
+    public Parser<?> parser() {
+        return this.parser;
     }
 
     public boolean includeClassAnnotations() {
