@@ -4,15 +4,12 @@ import nz.pumbas.commands.annotations.ParameterConstruction;
 
 public class PowerSupply extends ElectricalComponent {
 
-    protected double voltageRating;
-
     @ParameterConstruction
     public PowerSupply(double rating) {
-        this.voltageRating = rating;
+        this.voltageDrop = -rating;
     }
 
-
     public double voltageRating() {
-        return this.voltageRating;
+        return -this.voltageDrop;
     }
 }

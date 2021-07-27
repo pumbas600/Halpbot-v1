@@ -12,15 +12,16 @@ public class ElectricalComponent {
     public double voltageDrop() {
         return this.voltageDrop;
     }
+
     public double currentAcross() {
         return this.currentAcross;
     }
 
-    public void setVoltageDrop(double voltageDrop) {
+    public void voltageDrop(double voltageDrop) {
         this.voltageDrop = voltageDrop;
     }
 
-    public void setCurrentAcross(double currentAcross) {
+    public void currentAcross(double currentAcross) {
         this.currentAcross = currentAcross;
     }
 
@@ -30,7 +31,7 @@ public class ElectricalComponent {
 
     @Override
     public String toString() {
-        return String.format("%s{voltage-drop=%sV, current-across=%sA, power-usage=%sW",
+        return String.format("%s{voltage-drop=%.4fV, current-across=%.4fA, power-usage=%.4fW}",
             this.getClass().getSimpleName(), this.voltageDrop(), this.currentAcross(), this.powerUsage());
     }
 }
