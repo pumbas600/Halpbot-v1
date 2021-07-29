@@ -14,7 +14,7 @@ import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.exceptions.TokenCommandException;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.TokenManager;
-import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.context.MethodContext;
 import nz.pumbas.utilities.Exceptional;
 
 public class TokenCommandAdapter extends AbstractCommandAdapter
@@ -74,7 +74,7 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
         if (!tokenCommand.getRestrictedTo().isEmpty() && !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()))
             return Exceptional.of(new TokenCommandException("You do not have permission to use this command"));
 
-        ParsingContext ctx = ParsingContext.of(content, this, event, tokenCommand.getReflections());
+        MethodContext ctx = MethodContext.of(content, this, event, tokenCommand.getReflections());
         return tokenCommand.parse(ctx, false);
     }
 }

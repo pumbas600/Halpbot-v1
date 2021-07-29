@@ -1,25 +1,59 @@
 package nz.pumbas.commands.tokens.context;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import nz.pumbas.utilities.Reflect;
 
 public class ContextState
 {
-    private final int currentIndex;
-    private final Annotation[] annotations;
-    private final List<Class<? extends Annotation>> annotationTypes;
+    public static final ContextState EMPTY = new ContextState(null, new Annotation[0], Collections.emptyList());
 
-    public ContextState(int currentIndex, Annotation[] annotations, List<Class<? extends Annotation>> annotationTypes)
+    private Type type;
+    private Annotation[] annotations;
+    private List<Class<? extends Annotation>> annotationTypes;
+
+    public ContextState(Type type, Annotation[] annotations, List<Class<? extends Annotation>> annotationTypes)
     {
-        this.currentIndex = currentIndex;
+        this.type = type;
         this.annotations = annotations;
         this.annotationTypes = new ArrayList<>(annotationTypes);
     }
 
-    public int currentIndex()
+    /**
+     * Creates a copy of the context state, unless this is the {@link ContextState#EMPTY} context state, in which
+     * case it just returns itself. Otherwise, changes to the type, annotation array or annotation types list won't be
+     * reflected in the copy, but changes to the objects in the collections will.
+     *
+     * @return A copy of this {@link ContextState}
+     */
+    public ContextState copyContextState() {
+        if (this.equals(EMPTY))
+            return this;
+        return new ContextState(this.type, this.annotations, new ArrayList<>(this.annotationTypes));
+    }
+
+    public void type(Type type)
     {
-        return this.currentIndex;
+        this.type = type;
+    }
+
+    public void annotations(Annotation[] annotations)
+    {
+        this.annotations = annotations;
+    }
+
+    public void annotationTypes(List<Class<? extends Annotation>> annotationTypes)
+    {
+        this.annotationTypes = annotationTypes;
+    }
+
+    public Type type()
+    {
+        return this.type;
     }
 
     public Annotation[] annotations()
@@ -30,5 +64,9 @@ public class ContextState
     public List<Class<? extends Annotation>> annotationTypes()
     {
         return this.annotationTypes;
+    }
+
+    public Class<?> clazz() {
+        return Reflect.wrapPrimative(Reflect.asClass(this.type));
     }
 }

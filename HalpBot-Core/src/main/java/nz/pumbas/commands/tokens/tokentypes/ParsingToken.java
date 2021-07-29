@@ -7,7 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.context.MethodContext;
 import nz.pumbas.parsers.Parser;
 import nz.pumbas.parsers.TypeParser;
 
@@ -66,21 +66,22 @@ public interface ParsingToken extends Token
     }
 
     /**
-     * Parses the {@link ParsingContext} of the default value.
+     * Parses the {@link MethodContext} of the default value.
      *
      * @param ctx
-     *      {@link ParsingContext} containing the default value to be parsed into an {@link Object} using the token's
+     *      {@link MethodContext} containing the default value to be parsed into an {@link Object} using the token's
      *      {@link TypeParser}
      *
      * @return The parsed {@link Object default value}
      */
     @Nullable
-    default Object parseDefaultValue(@NotNull ParsingContext ctx) {
+    default Object parseDefaultValue(@NotNull MethodContext ctx) {
         if ("null".equalsIgnoreCase(ctx.getOriginal()))
             return null;
-        if (String.class.isAssignableFrom(ctx.clazz()))
+        if (String.class.isAssignableFrom(ctx.contextState().clazz()))
             return ctx.getOriginal();
         return this.parser()
+            .mapper()
             .apply(ctx)
             .rethrow()
             .get();

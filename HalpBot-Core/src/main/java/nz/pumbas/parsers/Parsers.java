@@ -105,14 +105,14 @@ public final class Parsers
         .register();
 
     public static final TypeParser<Enum> ENUM_PARSER = TypeParser.builder(Enum.class)
-        .convert((type, ctx) ->
+        .convert(ctx ->
             Exceptional.of(
-                Reflect.parseEnumValue(Reflect.asClass(type), ctx.getNext())))
+                Reflect.parseEnumValue(ctx.contextState().clazz(), ctx.getNext())))
         .register();
 
     public static final TypeParser<Object> OBJECT_PARSER = TypeParser.builder(c -> true)
-        .convert((type, ctx) -> {
-            Class<?> clazz = Reflect.asClass(type);
+        .convert(ctx -> {
+            Class<?> clazz = ctx.contextState().clazz();
             String expectedTypeAlias = TokenManager.getTypeAlias(clazz);
             Exceptional<String> typeAlias = ctx.getNext("[", false);
 
@@ -144,8 +144,8 @@ public final class Parsers
         .priority(Priority.LAST)
         .annotation(Children.class)
         .includeClassAnnotations()
-        .convert((type, ctx) -> {
-            final Exceptional<Object> result = OBJECT_PARSER.apply(type, ctx);
+        .convert(ctx -> {
+            final Exceptional<Object> result = OBJECT_PARSER.mapper().apply(ctx);
             if (result.isErrorAbsent())
                 return result;
             return ctx.annotation(Children.class).flatMap(children -> {
@@ -153,7 +153,8 @@ public final class Parsers
                 Exceptional<Object> parsed = result;
 
                 for (Class<?> child : children.value()) {
-                    parsed = OBJECT_PARSER.apply(child, ctx);
+                    ctx.contextState().type(child);
+                    parsed = OBJECT_PARSER.mapper().apply(ctx);
                     if (parsed.isErrorAbsent()) break;
                 }
                 return parsed;
@@ -165,16 +166,18 @@ public final class Parsers
     //region Collection Parsers
 
     public static final TypeParser<List> LIST_PARSER = TypeParser.builder(List.class)
-        .convert((type, ctx) -> {
-            Type subType = Reflect.getGenericType(type);
+        .convert(ctx -> {
+            Type subType = Reflect.getGenericType(ctx.contextState().type());
             Parser<?> elementParser = ParserManager.from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
 
             return Exceptional.of(() -> {
                 List<Object> list = new ArrayList<>();
                 ctx.assertNext('[');
+                ctx.contextState().type(subType);
 
                 while (!ctx.isNext(']', true)) {
-                    elementParser.apply(subType, ctx)
+                    elementParser.mapper()
+                        .apply(ctx)
                         .present(list::add)
                         .rethrow();
                 }
@@ -185,22 +188,25 @@ public final class Parsers
     public static final TypeParser<List> IMPLICIT_LIST_PARSER = TypeParser.builder(List.class)
         .annotation(Implicit.class)
         .priority(Priority.LAST)
-        .convert((type, ctx) -> {
-            Exceptional<List> listExceptional = LIST_PARSER.apply(type, ctx);
+        .convert(ctx -> {
+            Exceptional<List> listExceptional = LIST_PARSER.mapper().apply(ctx);
             if (listExceptional.isErrorAbsent())
                 return listExceptional;
 
-            Type subType = Reflect.getGenericType(type);
+            Type subType = Reflect.getGenericType(ctx.contextState().type());
             Parser<?> elementParser = ParserManager.from(Reflect.wrapPrimative(Reflect.asClass(subType)),ctx);
+            ctx.contextState().type(subType);
 
             List<Object> list = new ArrayList<>();
 
-            Exceptional<?> element = elementParser.apply(subType, ctx)
+            Exceptional<?> element = elementParser.mapper()
+                .apply(ctx)
                 .present(list::add);
             if (element.absent()) return Exceptional.of(element.error());
 
             while (ctx.hasNext()) {
-                element = elementParser.apply(subType, ctx);
+                element = elementParser.mapper()
+                    .apply(ctx);
                 if (element.present()) list.add(element.get());
                 else break;
             }
@@ -212,16 +218,18 @@ public final class Parsers
     public static final TypeParser<List> UNMODIFIABLE_LIST_PARSER = TypeParser.builder(List.class)
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
-        .convert((type, ctx) ->
+        .convert(ctx ->
             ParserManager.from(List.class, ctx)
-                .apply(type, ctx)
+                .mapper()
+                .apply(ctx)
                 .map(Collections::unmodifiableList))
         .register();
 
     public static final TypeParser<Set> SET_PARSER = TypeParser.builder(Set.class)
-        .convert((type, ctx) ->
+        .convert(ctx ->
             ParserManager.from(List.class, ctx)
-                .apply(type, ctx)
+                .mapper()
+                .apply(ctx)
                 .map(HashSet::new))
         .register();
 
@@ -229,17 +237,20 @@ public final class Parsers
     public static final TypeParser<Set> UNMODIFIABLE_SET_PARSER = TypeParser.builder(Set.class)
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
-        .convert((type, ctx) ->
+        .convert(ctx ->
             ParserManager.from(Set.class, ctx)
-                .apply(type, ctx)
+                .mapper()
+                .apply(ctx)
                 .map(Collections::unmodifiableSet))
         .register();
 
     public static final TypeParser<Object> ARRAY_PARSER = TypeParser.builder(Class::isArray)
-        .convert((type, ctx) ->
+        .convert(ctx ->
             ParserManager.from(List.class, ctx)
-                .apply(type, ctx)
-                .map(list -> Reflect.toArray(Reflect.getArrayType(Reflect.asClass(type)), list)))
+                .mapper()
+                .apply(ctx)
+                .map(list ->
+                    Reflect.toArray(Reflect.getArrayType(ctx.contextState().clazz()),list)))
         .register();
 
     //endregion

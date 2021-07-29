@@ -31,7 +31,7 @@ public class ElectricalComponent {
 
     @Override
     public String toString() {
-        return String.format("%s{voltage-drop=%.4fV, current-across=%.4fA, power-usage=%.4fW}",
+        return String.format("%s{V=%.4fV, I=%.4fA, P=%.4fW}",
             this.getClass().getSimpleName(), this.voltageDrop(), this.currentAcross(), this.powerUsage());
     }
 }

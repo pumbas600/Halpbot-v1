@@ -13,7 +13,7 @@ import nz.pumbas.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.commands.exceptions.IllegalFormatException;
 import nz.pumbas.commands.exceptions.TokenCommandException;
 import nz.pumbas.commands.tokens.context.InvocationContext;
-import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.context.MethodContext;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.commands.tokens.tokentypes.SimpleParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.Token;
@@ -409,11 +409,11 @@ public final class TokenManager {
      * Retrieves an {@link Exceptional} containing the result of any reflection syntax.
      *
      * @param ctx
-     *      The {@link ParsingContext}
+     *      The {@link MethodContext}
      *
      * @return An {@link Exceptional} containing the result of any reflection syntax.
      */
-    public static Exceptional<Object> handleReflectionSyntax(@NotNull ParsingContext ctx)
+    public static Exceptional<Object> handleReflectionSyntax(@NotNull MethodContext ctx)
     {
         if (ctx.reflections().isEmpty()) return Exceptional.empty();
 
@@ -443,7 +443,7 @@ public final class TokenManager {
      * Handles {@link Method} reflection syntax invocation and parsing. Note: Only public, static methods may be invoked.
      *
      * @param ctx
-     *      The {@link ParsingContext}
+     *      The {@link MethodContext}
      * @param methodName
      *      The {@link String name} of the method
      * @param reflectionClass
@@ -451,7 +451,7 @@ public final class TokenManager {
      *
      * @return An {@link Exceptional} containing the result of the invoked method
      */
-    private static Exceptional<Object> handleMethodReflectionSyntax(@NotNull ParsingContext ctx,
+    private static Exceptional<Object> handleMethodReflectionSyntax(@NotNull MethodContext ctx,
                                                                     @NotNull String methodName,
                                                                     @NotNull Class<?> reflectionClass)
     {
@@ -461,7 +461,7 @@ public final class TokenManager {
         List<TokenCommand> tokenCommands =
             Reflect.getMethods(reflectionClass, methodName, true)
                 .stream()
-                .filter(m -> ctx.clazz().isAssignableFrom(m.getReturnType()))
+                .filter(m -> ctx.contextState().clazz().isAssignableFrom(m.getReturnType()))
                 .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
                 .map(m -> generateTokenCommand(null, m, ctx.reflections()))
                 .collect(Collectors.toList());
@@ -492,7 +492,7 @@ public final class TokenManager {
      *
      * @return An {@link Exceptional} containing the specified field.
      */
-    private static Exceptional<Object> handleFieldReflectionSyntax(@NotNull ParsingContext ctx,
+    private static Exceptional<Object> handleFieldReflectionSyntax(@NotNull MethodContext ctx,
                                                                    @NotNull Class<?> reflectionClass)
     {
         if (!ctx.hasNext()) return Exceptional.empty();
@@ -500,7 +500,7 @@ public final class TokenManager {
 
         return Exceptional.of(Reflect.getFields(reflectionClass, fieldName)
             .stream()
-            .filter(f -> ctx.clazz().isAssignableFrom(f.getType()))
+            .filter(f -> ctx.contextState().clazz().isAssignableFrom(f.getType()))
             .filter(f -> Reflect.hasModifiers(f, Modifiers.PUBLIC, Modifiers.STATIC, Modifiers.FINAL))
             .map(f -> {
                 try {

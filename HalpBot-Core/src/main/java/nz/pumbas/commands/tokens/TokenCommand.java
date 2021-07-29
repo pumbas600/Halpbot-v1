@@ -4,7 +4,7 @@ import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.ErrorManager;
 import nz.pumbas.commands.exceptions.OutputException;
 import nz.pumbas.commands.exceptions.TokenCommandException;
-import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.context.MethodContext;
 import nz.pumbas.commands.tokens.tokentypes.Token;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.commands.tokens.tokentypes.PlaceholderToken;
@@ -172,33 +172,33 @@ public class TokenCommand implements CommandMethod
     }
 
     /**
-     * parses the {@link ParsingContext} and invokes the {@link Executable} for this
+     * parses the {@link MethodContext} and invokes the {@link Executable} for this
      * {@link nz.pumbas.commands.annotations.Command}. By default, it cannot have any tokens left over.
      *
      * @param ctx
-     *      The {@link ParsingContext}
+     *      The {@link MethodContext}
      *
      * @return A {@link Exceptional} containing the returned value of the {@link Executable}
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
-    public Exceptional<Object> parse(@NotNull ParsingContext ctx)
+    public Exceptional<Object> parse(@NotNull MethodContext ctx)
     {
         return this.parse(ctx, false);
     }
 
     /**
-     * parses the {@link ParsingContext} and invokes the {@link Executable} for this
+     * parses the {@link MethodContext} and invokes the {@link Executable} for this
      * {@link nz.pumbas.commands.annotations.Command}.
      *
      * @param ctx
-     *      The {@link ParsingContext}
+     *      The {@link MethodContext}
      * @param canHaveTokensLeft
      *      If there can be tokens left over
      *
      * @return A {@link Exceptional} containing the returned value of the {@link Executable}
      * @throws OutputException Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
-    public Exceptional<Object> parse(@NotNull ParsingContext ctx, boolean canHaveTokensLeft)
+    public Exceptional<Object> parse(@NotNull MethodContext ctx, boolean canHaveTokensLeft)
     {
         int currentIndex = ctx.getCurrentIndex();
         Exceptional<Object> result = this.parseParameters(ctx, canHaveTokensLeft)
@@ -209,15 +209,15 @@ public class TokenCommand implements CommandMethod
     }
 
     /**
-     * Parses the {@link ParsingContext} into an array of {@link Object objects} which can be used to invoke this
+     * Parses the {@link MethodContext} into an array of {@link Object objects} which can be used to invoke this
      * {@link Executable}.
      *
      * @param ctx
-     *      The {@link ParsingContext}
+     *      The {@link MethodContext}
      *
      * @return An {@link Exceptional} containing the parsed parameters
      */
-    public Exceptional<Object[]> parseParameters(@NotNull ParsingContext ctx, boolean canHaveTokensLeft)
+    public Exceptional<Object[]> parseParameters(@NotNull MethodContext ctx, boolean canHaveTokensLeft)
     {
         Object[] parsedTokens = new Object[this.executable.getParameterCount()];
 
@@ -250,6 +250,7 @@ public class TokenCommand implements CommandMethod
                     ctx.setCurrentIndex(currentIndex);
 
                     result = parsingToken.parser()
+                        .mapper()
                         .apply(ctx)
                         .map(o -> o);
 

@@ -3,7 +3,15 @@ package nz.pumbas.commands;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import nz.pumbas.commands.annotations.Children;
+import nz.pumbas.commands.annotations.Unrequired;
+import nz.pumbas.commands.tokens.context.ContextState;
 import nz.pumbas.commands.tokens.context.InvocationContext;
+import nz.pumbas.commands.validation.Implicit;
 import nz.pumbas.utilities.Exceptional;
 
 public class InvocationContextTests
@@ -54,5 +62,22 @@ public class InvocationContextTests
 
         Assertions.assertEquals("Block", oType.get());
         Assertions.assertEquals("1 2 3", oParameters.get());
+    }
+
+    @Test
+    public void contextStateCopyTest() {
+        ContextState contextState = new ContextState(Integer.class, new Annotation[0], new ArrayList<>(
+            Arrays.asList(Unrequired.class, Children.class, Implicit.class)));
+
+        ContextState copy = contextState.copyContextState();
+        contextState.type(Float.class);
+        contextState.annotationTypes().remove(Children.class);
+
+        Assertions.assertFalse(contextState.annotationTypes().contains(Children.class));
+        Assertions.assertTrue(copy.annotationTypes().contains(Children.class));
+
+        Assertions.assertEquals(Float.class, contextState.type());
+        Assertions.assertEquals(Integer.class, copy.type());
+
     }
 }

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import nz.pumbas.commands.annotations.Unrequired;
-import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.context.MethodContext;
 import nz.pumbas.parsers.Parser;
 import nz.pumbas.parsers.ParserManager;
 import nz.pumbas.parsers.TypeParser;
@@ -37,7 +37,7 @@ public class SimpleParsingToken implements ParsingToken
         this.isOptional = null != unrequired;
 
         String defaultValue = this.isOptional ? unrequired.value() : "null";
-        ParsingContext ctx = ParsingContext.of(defaultValue, this);
+        MethodContext ctx = MethodContext.of(defaultValue, this);
 
         this.parser = ParserManager.from(ctx);
         this.defaultValue = this.parseDefaultValue(ctx);

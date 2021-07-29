@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.context.MethodContext;
 import nz.pumbas.objects.Tuple;
 import nz.pumbas.utilities.Reflect;
 
@@ -20,12 +20,12 @@ public final class ParserManager
     private static final List<Tuple<Predicate<Class<?>>, ParserContext>> FallbackTypeParsers = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
-    public static <T> Parser<T> from(@NotNull ParsingContext ctx) {
-        return (Parser<T>) from(ctx.clazz(), ctx);
+    public static <T> Parser<T> from(@NotNull MethodContext ctx) {
+        return (Parser<T>) from(ctx.contextState().clazz(), ctx);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Parser<T> from(@NotNull Class<T> type, @NotNull ParsingContext ctx) {
+    public static <T> Parser<T> from(@NotNull Class<T> type, @NotNull MethodContext ctx) {
         if (TypeParsers.containsKey(type)) {
             return (Parser<T>) retrieveParserByAnnotation(TypeParsers.get(type), ctx);
         }
@@ -42,13 +42,13 @@ public final class ParserManager
     }
 
     private static Parser<?> retrieveParserByAnnotation(@NotNull List<ParserContext> parsers,
-                                                        @NotNull ParsingContext ctx) {
+                                                        @NotNull MethodContext ctx) {
         if (parsers.isEmpty())
             return Parsers.OBJECT_PARSER;
 
         for (ParserContext parser : parsers) {
-            if (ctx.annotationTypes().contains(parser.annotationType())) {
-                ctx.annotationTypes().remove(parser.annotationType());
+            if (ctx.contextState().annotationTypes().contains(parser.annotationType())) {
+                ctx.contextState().annotationTypes().remove(parser.annotationType());
                 return parser.parser();
             }
         }
@@ -58,14 +58,14 @@ public final class ParserManager
 
     private static boolean filterFallbackParsers(@NotNull Tuple<Predicate<Class<?>>, ParserContext> tuple,
                                                  @NotNull Class<?> type,
-                                                 @NotNull ParsingContext ctx) {
+                                                 @NotNull MethodContext ctx) {
         if (!tuple.getKey().test(type)) return false;
 
         Class<?> annotationType = tuple.getValue().annotationType();
         if (annotationType.isAssignableFrom(Void.class))
             return true;
-        else if (ctx.annotationTypes().contains(annotationType)) {
-            ctx.annotationTypes().remove(annotationType);
+        else if (ctx.contextState().annotationTypes().contains(annotationType)) {
+            ctx.contextState().annotationTypes().remove(annotationType);
             return true;
         }
         else if (tuple.getValue().includeClassAnnotations()) {

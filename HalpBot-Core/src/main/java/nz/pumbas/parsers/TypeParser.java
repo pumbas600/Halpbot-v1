@@ -1,34 +1,22 @@
 package nz.pumbas.parsers;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import nz.pumbas.commands.tokens.context.ContextState;
-import nz.pumbas.commands.tokens.context.ParsingContext;
+import nz.pumbas.commands.tokens.context.MethodContext;
 import nz.pumbas.utilities.Exceptional;
 import nz.pumbas.utilities.enums.Priority;
 
 public class TypeParser<T> implements Parser<T>
 {
-    private Function<ParsingContext, Exceptional<T>> parser;
-    private BiFunction<Type, ParsingContext, Exceptional<T>> biParser;
+    private final Function<MethodContext, Exceptional<T>> parser;
     private final Priority priority;
 
-    public TypeParser(BiFunction<Type, ParsingContext, Exceptional<T>> biParser, Priority priority)
-    {
-        this.biParser = biParser;
-        this.priority = priority;
-    }
-
-    public TypeParser(Function<ParsingContext, Exceptional<T>> parser, Priority priority)
+    public TypeParser(Function<MethodContext, Exceptional<T>> parser, Priority priority)
     {
         this.parser = parser;
         this.priority = priority;
@@ -63,19 +51,10 @@ public class TypeParser<T> implements Parser<T>
     }
 
     /**
-     * @return The {@link BiFunction} for this {@link Parser}
-     */
-    @Override
-    public @Nullable BiFunction<Type, ParsingContext, Exceptional<T>> biParser()
-    {
-        return this.biParser;
-    }
-
-    /**
      * @return The {@link Function} for this {@link Parser}
      */
     @Override
-    public @Nullable Function<ParsingContext, Exceptional<T>> parser()
+    public Function<MethodContext, Exceptional<T>> mapper()
     {
         return this.parser;
     }
@@ -96,8 +75,7 @@ public class TypeParser<T> implements Parser<T>
         private Class<T> type;
         private Predicate<Class<?>> filter;
 
-        private Function<ParsingContext, Exceptional<T>> parser;
-        private BiFunction<Type, ParsingContext, Exceptional<T>> biParser;
+        private Function<MethodContext, Exceptional<T>> parser;
         private Priority priority = Priority.DEFAULT;
         private Class<?> annotation = Void.class;
         private boolean includeClassAnnotations;
@@ -110,22 +88,16 @@ public class TypeParser<T> implements Parser<T>
             this.filter = filter;
         }
 
-        public TypeParserBuilder<T> convert(@NotNull Function<ParsingContext, Exceptional<T>> parser) {
+        public TypeParserBuilder<T> convert(@NotNull Function<MethodContext, Exceptional<T>> parser) {
             this.parser = ctx -> {
-                ContextState state = ctx.contextState();
-                return parser.apply(ctx)
-                    .caught(t -> ctx.contextState(state))
-                    .ifErrorAbsent(() -> ctx.annotations(state.annotations()));
-            };
-            return this;
-        }
+                int currentIndex = ctx.getCurrentIndex();
+                ContextState state = ctx.contextState().copyContextState();
+                Exceptional<T> result = parser.apply(ctx)
+                    .caught(t -> ctx.setCurrentIndex(currentIndex));
 
-        public TypeParserBuilder<T> convert(@NotNull BiFunction<Type, ParsingContext, Exceptional<T>> biParser) {
-            this.biParser = (type, ctx) -> {
-                ContextState state = ctx.contextState();
-                return biParser.apply(type, ctx)
-                    .caught(t -> ctx.contextState(state))
-                    .ifErrorAbsent(() -> ctx.annotations(state.annotations()));
+                // Always restore the state of parser back to what it was when it was called.
+                ctx.contextState(state);
+                return result;
             };
             return this;
         }
@@ -146,8 +118,6 @@ public class TypeParser<T> implements Parser<T>
         }
 
         public TypeParser<T> build() {
-            if (null == this.parser)
-                return new TypeParser<>(this.biParser, this.priority);
             return new TypeParser<>(this.parser, this.priority);
         }
 
