@@ -37,6 +37,12 @@ import nz.pumbas.utilities.enums.Priority;
 public final class Parsers
 {
 
+    /**
+     * A static method that can be called so that the parsers in this file are loaded.
+     * Note: This is already automatically called by {@link ParserManager}.
+     */
+    public static void load() {}
+
     private Parsers() {}
 
     //region Parsers

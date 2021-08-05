@@ -220,6 +220,8 @@ public class TokenCommandTests
             Reflect.getMethod(this, "commandWithVarargsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
+        Assertions.assertEquals(Parsers.ARRAY_PARSER, ((ParsingToken) command.getCommandTokens().get(0)).parser());
+
         Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3]")).isErrorAbsent());
         Assertions.assertTrue(command.parse(MethodContext.of("")).caught());
         Assertions.assertTrue(command.parse(MethodContext.of("1 2 3")).caught());
@@ -229,7 +231,6 @@ public class TokenCommandTests
 
     @Command(alias = "test")
     private void commandWithVarargsMethodTest(int... values) {
-
     }
 
     @Test

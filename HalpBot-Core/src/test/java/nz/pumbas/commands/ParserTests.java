@@ -19,6 +19,13 @@ public class ParserTests
 {
 
     @Test
+    public void retrievingArrayParserTest() {
+        Parser<Object[]> arrayParser = ParserManager.from(MethodContext.of(Object[].class));
+
+        Assertions.assertEquals(Parsers.ARRAY_PARSER, arrayParser);
+    }
+
+    @Test
     public void retrievingIntegerParserTest() {
         Parser<Integer> integerParser = ParserManager.from(MethodContext.of(Integer.class));
 

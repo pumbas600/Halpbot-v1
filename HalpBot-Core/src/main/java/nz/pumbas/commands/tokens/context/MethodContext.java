@@ -10,14 +10,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.tokens.TokenCommand;
 import nz.pumbas.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.utilities.Exceptional;
-import nz.pumbas.utilities.Reflect;
 
 public class MethodContext extends InvocationContext
 {

@@ -14,10 +14,18 @@ import nz.pumbas.utilities.Reflect;
 
 public final class ParserManager
 {
+    static {
+        TypeParsers = new HashMap<>();
+        FallbackTypeParsers = new ArrayList<>();
+
+        // Causes the static parsers to be loaded.
+        Parsers.load();
+    }
+
     private ParserManager() {}
 
-    private static final Map<Class<?>, List<ParserContext>> TypeParsers = new HashMap<>();
-    private static final List<Tuple<Predicate<Class<?>>, ParserContext>> FallbackTypeParsers = new ArrayList<>();
+    private static final Map<Class<?>, List<ParserContext>> TypeParsers;
+    private static final List<Tuple<Predicate<Class<?>>, ParserContext>> FallbackTypeParsers;
 
     @SuppressWarnings("unchecked")
     public static <T> Parser<T> from(@NotNull MethodContext ctx) {
