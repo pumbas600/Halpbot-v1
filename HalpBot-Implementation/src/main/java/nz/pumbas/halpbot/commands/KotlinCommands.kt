@@ -1,16 +1,12 @@
 package nz.pumbas.halpbot.commands
 
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.ReadyEvent
 import nz.pumbas.commands.OnReady
 import nz.pumbas.commands.annotations.Command
-import nz.pumbas.commands.annotations.Remaining
 import nz.pumbas.commands.annotations.Unrequired
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
-import nz.pumbas.commands.validation.Implicit
 import nz.pumbas.halpbot.HalpBot
 import nz.pumbas.halpbot.customparameters.Joke
 import nz.pumbas.utilities.Utils
@@ -46,9 +42,9 @@ class KotlinCommands : OnReady {
             val stringBuilder = StringBuilder()
             for (command in registeredCommands) {
                 stringBuilder.append("\n**Usage**\n")
-                    .append(command.value.displayCommand.ifEmpty { "N/A" })
+                    .append(if (command.value.displayCommand.isEmpty()) "N/A" else command.value.displayCommand)
                     .append("\n**Description**\n")
-                    .append(command.value.description.ifEmpty { "N/A" })
+                    .append(if (command.value.description.isEmpty()) "N/A" else command.value.description)
 
                 embedBuilder.addField(command.key, stringBuilder.toString(), true)
                 stringBuilder.clear()
@@ -68,29 +64,14 @@ class KotlinCommands : OnReady {
         return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview")
     }
 
-    @Command(alias = "Repeat", description = "Repeats back what you said")
-    fun repeat(@Remaining text: String): String {
-        return text
-    }
-
-    @Command(alias = "Channel", description = "Returns the text channel specified")
-    fun channel(channel: TextChannel): TextChannel {
-        return channel
-    }
-
-    @Command(alias = "Member", description = "Returns the member specified")
-    fun member(member: Member): Member {
-        return member
-    }
-
-    @Command(alias = "User", description = "Returns the user specified")
-    fun user(user: User): User {
-        return user
-    }
-
-    @Command(alias = "GoodBot", description = "Allows you to praise the bot.")
+    @Command(alias= "GoodBot", description = "Allows you to praise the bot.")
     fun goodBot(): String {
         return Utils.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
+    }
+
+    @Command(alias = "Id", description = "Returns the users discord id")
+    fun id(author: User): String {
+        return author.id
     }
 
     @Command(alias = "Calc", description = "Simple calculation operations in Kotlin")
@@ -104,7 +85,7 @@ class KotlinCommands : OnReady {
         }
     }
 
-    @Command(alias = "Is", command = "#Integer <in> #Integer[]",
+    @Command(alias = "Is", command = "#Int <in> #Int[]",
             description = "Tests if the element is contained within the array")
     fun kotlinTesting(num: Int, @Unrequired("[]") array: Array<Int>?): String {
         return if (null != array && num in array) "That number is in the array! :tada:"
@@ -122,7 +103,7 @@ class KotlinCommands : OnReady {
     }
 
     @Command(alias = "Joke", description = "Sends a random joke")
-    fun joke(@Unrequired("") category: String): String {
+    fun joke(@Unrequired category: String): String {
         var loweredCategory = category.lowercase()
         if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
             return "You can only specify the one of the following categories: ${jokeCategories.contentToString()}"
@@ -135,17 +116,11 @@ class KotlinCommands : OnReady {
         if (!request.responseCode().isSuccessful)
             return "Jokes on you - there was an error trying to contact the API!"
 
-        val joke = request.parseResponse<List<Joke>>()[0].toString()
-        return joke.replace("â€™", "'")
+        return request.parseResponse<List<Joke>>(true)[0].toString()
     }
 
     @Command(alias = "Insult", description = "Sends a joking insult")
     fun insult(): String {
         return Utils.randomChoice(insultJokes)
-    }
-
-    @Command(alias = "List", description = "Creates a simple list of integers")
-    fun list(@Implicit list: List<Int>): List<Int> {
-        return list
     }
 }

@@ -5,66 +5,26 @@ plugins {
 }
 
 group 'nz.pumbas'
-version '1.0.1'
+version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-
+    //jcenter();
     maven {
-        url "https://m2.dv8tion.net/releases"
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
     }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation "net.dv8tion:JDA:4.3.0_285"
+    implementation 'org.xerial:sqlite-jdbc:3.34.0'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
 }
 
 test {
     useJUnitPlatform()
-}
-
-subprojects { Project subProject ->
-    apply plugin: "java"
-    apply plugin: "org.jetbrains.kotlin.jvm"
-    apply plugin: "org.jetbrains.kotlin.plugin.serialization"
-
-    group project.group
-    version project.version
-
-    sourceCompatibility = 11
-    targetCompatibility = 11
-
-    // Include HalpBot-Core in all projects that aren't the core project.
-    if (!subProject.name.equals("HalpBot-Core")) {
-        dependencies {
-            implementation project(":HalpBot-Core")
-        }
-    }
-}
-
-allprojects {
-    plugins.withType(JavaPlugin) {
-        repositories {
-            mavenCentral()
-            maven {
-                url "https://m2.dv8tion.net/releases"
-            }
-        }
-
-        configurations {
-            include
-            implementation.extendsFrom(include)
-            testImplementation.extendsFrom(include)
-        }
-
-        dependencies {
-            include "net.dv8tion:JDA:4.3.0_285"
-
-            implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-            implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
-
-            testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0"
-            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-        }
-
-        test {
-            useJUnitPlatform()
-        }
-    }
 }

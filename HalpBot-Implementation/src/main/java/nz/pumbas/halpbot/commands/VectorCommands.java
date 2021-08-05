@@ -6,6 +6,11 @@ import nz.pumbas.halpbot.customparameters.math.Vector3;
 public class VectorCommands
 {
 
+    @Command(alias = "VDisplay", description = "Displays a vector")
+    public Vector3 onDisplay(Vector3 a) {
+        return a;
+    }
+
     @Command(alias = "VAdd", description = "Adds 2 vectors")
     public Vector3 onAdd(Vector3 a, Vector3 b) {
         return a.add(b);
