@@ -34,7 +34,7 @@ public class BuiltInCommands
             return embedBuilder.build();
         }
 
-        var alias = commandAlias.toLowerCase(Locale.ROOT);
+        String alias = commandAlias.toLowerCase(Locale.ROOT);
         if (!alias.startsWith(commandAdapter.getCommandPrefix()))
             alias = commandAdapter.getCommandPrefix() + alias;
 

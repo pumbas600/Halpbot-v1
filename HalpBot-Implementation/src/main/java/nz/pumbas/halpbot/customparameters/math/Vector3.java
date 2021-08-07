@@ -13,11 +13,8 @@ public class Vector3
     private final double x, y, z;
 
     @ParameterConstruction
-    public Vector3(double x, double y)
-    {
-        this.x = x;
-        this.y = y;
-        this.z = 0;
+    public Vector3(double x, double y) {
+        this(x, y, 0);
     }
 
     @ParameterConstruction

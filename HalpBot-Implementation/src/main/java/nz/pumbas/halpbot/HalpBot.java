@@ -15,6 +15,7 @@ import javax.security.auth.login.LoginException;
 import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.commands.commandadapters.TokenCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
+import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.KotlinCommands;
 import nz.pumbas.halpbot.commands.MatrixCommands;
 import nz.pumbas.halpbot.commands.TokenCommands;
@@ -36,7 +37,8 @@ public class HalpBot extends ListenerAdapter
                 new KotlinCommands(),
                 new MatrixCommands(),
                 new VectorCommands(),
-                new ElectricalCommands());
+                new ElectricalCommands(),
+                new HalpBotCommands());
 
         this.jda = builder.build();
         commandAdapter.registerSlashCommands(this.jda);
