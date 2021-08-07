@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.utils.MiscUtil;
 
 import nz.pumbas.commands.annotations.Children;
 
@@ -20,6 +21,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
+import nz.pumbas.commands.annotations.Id;
 import nz.pumbas.commands.annotations.Remaining;
 import nz.pumbas.commands.annotations.Source;
 import nz.pumbas.commands.annotations.Unmodifiable;
@@ -70,7 +72,11 @@ public final class Parsers
     public static final TypeParser<Long> LONG_PARSER = TypeParser.builder(Long.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Long.class))
-                .map(Long::parseLong))
+                .map(number -> {
+                    if (number.startsWith("-"))
+                        return Long.parseLong(number);
+                    else return Long.parseUnsignedLong(number);
+                }))
         .register();
 
     public static final TypeParser<Float> FLOAT_PARSER = TypeParser.builder(Float.class)
@@ -279,6 +285,22 @@ public final class Parsers
         .convert(ctx ->
             ctx.getNextSurrounded("<@!", ">")
                 .map(id -> ctx.event().getJDA().retrieveUserById(id).complete()))
+        .register();
+
+    public static final TypeParser<Long> ID_LONG_PARSER = TypeParser.builder(Long.class)
+        .annotation(Id.class)
+        .priority(Priority.EARLY)
+        .convert(
+            ctx -> {
+                Class<?> idType = ctx.annotation(Id.class).get().value();
+
+                if (TextChannel.class.isAssignableFrom(idType))
+                    return ctx.getNextSurrounded("<#", ">").map(MiscUtil::parseSnowflake);
+                else if (Member.class.isAssignableFrom(idType) || User.class.isAssignableFrom(idType))
+                    return ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
+                else
+                    return LONG_PARSER.mapper().apply(ctx);
+            })
         .register();
 
     //endregion

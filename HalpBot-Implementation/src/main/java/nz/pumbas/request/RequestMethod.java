@@ -1,4 +1,4 @@
-package nz.pumbas.utilities.request;
+package nz.pumbas.request;
 
 public enum RequestMethod
 {

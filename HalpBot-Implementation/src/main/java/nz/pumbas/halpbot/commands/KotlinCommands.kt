@@ -1,6 +1,5 @@
 package nz.pumbas.halpbot.commands
 
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
@@ -9,12 +8,11 @@ import nz.pumbas.commands.OnReady
 import nz.pumbas.commands.annotations.Command
 import nz.pumbas.commands.annotations.Remaining
 import nz.pumbas.commands.annotations.Unrequired
-import nz.pumbas.commands.commandadapters.AbstractCommandAdapter
 import nz.pumbas.commands.validation.Implicit
 import nz.pumbas.halpbot.HalpBot
 import nz.pumbas.halpbot.customparameters.Joke
 import nz.pumbas.utilities.Utils
-import nz.pumbas.utilities.request.Request
+import nz.pumbas.request.Request
 import java.awt.Color
 
 class KotlinCommands : OnReady {
@@ -33,39 +31,6 @@ class KotlinCommands : OnReady {
     override fun onReady(event: ReadyEvent) {
         comfortingMessages = Utils.getAllLinesFromFile("ComfortingMessages.txt")
         insultJokes = Utils.getAllLinesFromFile("InsultJokes.txt")
-    }
-
-    @Command(alias = "Halp", description = "Displays the help information for the specified command")
-    fun halp(commandAdapter: AbstractCommandAdapter, @Unrequired commandAlias: String): Any {
-        if (commandAlias.isEmpty()) {
-            val embedBuilder = EmbedBuilder()
-                .setColor(Color.ORANGE)
-                .setTitle("HALP - Commands")
-
-            val registeredCommands = commandAdapter.registeredCommands;
-            val stringBuilder = StringBuilder()
-            for (command in registeredCommands) {
-                stringBuilder.append("\n**Usage**\n")
-                    .append(command.value.displayCommand.ifEmpty { "N/A" })
-                    .append("\n**Description**\n")
-                    .append(command.value.description.ifEmpty { "N/A" })
-
-                embedBuilder.addField(command.key, stringBuilder.toString(), true)
-                stringBuilder.clear()
-            }
-
-            return embedBuilder.build()
-        }
-
-        var alias = commandAlias.lowercase();
-        if (!alias.startsWith(commandAdapter.commandPrefix))
-            alias = commandAdapter.commandPrefix + alias
-
-        val commandMethod = commandAdapter.getCommandMethod(alias)
-        if (commandMethod.isEmpty)
-            return "That doesn't seem to be a registered command :sob:"
-
-        return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview")
     }
 
     @Command(alias = "Repeat", description = "Repeats back what you said")

@@ -1,4 +1,4 @@
-package nz.pumbas.utilities.request
+package nz.pumbas.request
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json

@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import nz.pumbas.BuiltInCommands;
 import nz.pumbas.commands.CommandMethod;
 import nz.pumbas.commands.CommandType;
 import nz.pumbas.commands.ErrorManager;
@@ -59,6 +59,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     {
         builder.addEventListeners(this);
         this.commandPrefix = commandPrefix;
+        this.registerCommands(new BuiltInCommands());
     }
 
     /**
