@@ -6,7 +6,7 @@ import java.util.Map;
 import nz.pumbas.halpbot.commands.steamtables.models.Model;
 import nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel;
 import nz.pumbas.halpbot.commands.steamtables.models.SuperheatedSteamModel;
-import nz.pumbas.utilities.enums.Flag;
+import nz.pumbas.halpbot.utilities.enums.Flag;
 
 public enum SteamTable implements Flag<SteamTable>
 {

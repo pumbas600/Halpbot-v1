@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.customparameters.math;
 
-import nz.pumbas.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
 
 public class Line {
 

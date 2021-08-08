@@ -4,9 +4,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Optional;
 
-import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.objects.keys.Key;
-import nz.pumbas.objects.keys.Keys;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.objects.keys.Key;
+import nz.pumbas.halpbot.objects.keys.Keys;
 
 public class FrictionCommands
 {

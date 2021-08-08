@@ -4,16 +4,14 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.ReadyEvent
-import nz.pumbas.commands.OnReady
-import nz.pumbas.commands.annotations.Command
-import nz.pumbas.commands.annotations.Remaining
-import nz.pumbas.commands.annotations.Unrequired
-import nz.pumbas.commands.validation.Implicit
+import nz.pumbas.halpbot.commands.annotations.Command
+import nz.pumbas.halpbot.commands.annotations.Remaining
+import nz.pumbas.halpbot.commands.annotations.Unrequired
+import nz.pumbas.halpbot.commands.annotations.Implicit
 import nz.pumbas.halpbot.HalpBot
 import nz.pumbas.halpbot.customparameters.Joke
-import nz.pumbas.utilities.Utils
-import nz.pumbas.request.Request
-import java.awt.Color
+import nz.pumbas.halpbot.utilities.HalpbotUtils
+import nz.pumbas.halpbot.request.Request
 
 class KotlinCommands : OnReady {
 
@@ -29,8 +27,8 @@ class KotlinCommands : OnReady {
      *      The JDA [ReadyEvent].
      */
     override fun onReady(event: ReadyEvent) {
-        comfortingMessages = Utils.getAllLinesFromFile("ComfortingMessages.txt")
-        insultJokes = Utils.getAllLinesFromFile("InsultJokes.txt")
+        comfortingMessages = HalpbotUtils.getAllLinesFromFile("ComfortingMessages.txt")
+        insultJokes = HalpbotUtils.getAllLinesFromFile("InsultJokes.txt")
     }
 
     @Command(alias = "Repeat", description = "Repeats back what you said")
@@ -55,7 +53,7 @@ class KotlinCommands : OnReady {
 
     @Command(alias = "GoodBot", description = "Allows you to praise the bot.")
     fun goodBot(): String {
-        return Utils.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
+        return HalpbotUtils.randomChoice(listOf("Thank you!", "I try my best :)", "Don't worry about it"))
     }
 
     @Command(alias = "Calc", description = "Simple calculation operations in Kotlin")
@@ -83,7 +81,7 @@ class KotlinCommands : OnReady {
 
     @Command(alias = "Comfort", description = "Sends a comforting message")
     fun comfort(): String {
-        return Utils.randomChoice(this.comfortingMessages)
+        return HalpbotUtils.randomChoice(this.comfortingMessages)
     }
 
     @Command(alias = "Joke", description = "Sends a random joke")
@@ -92,7 +90,7 @@ class KotlinCommands : OnReady {
         if (loweredCategory.isNotEmpty() && loweredCategory !in jokeCategories)
             return "You can only specify the one of the following categories: ${jokeCategories.contentToString()}"
         else if (loweredCategory.isEmpty())
-            loweredCategory = Utils.randomChoice(jokeCategories)
+            loweredCategory = HalpbotUtils.randomChoice(jokeCategories)
 
         val url = "https://official-joke-api.appspot.com/jokes/$loweredCategory/random"
         val request = Request(url)
@@ -106,7 +104,7 @@ class KotlinCommands : OnReady {
 
     @Command(alias = "Insult", description = "Sends a joking insult")
     fun insult(): String {
-        return Utils.randomChoice(insultJokes)
+        return HalpbotUtils.randomChoice(insultJokes)
     }
 
     @Command(alias = "List", description = "Creates a simple list of integers")

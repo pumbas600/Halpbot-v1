@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.customparameters.math;
 
-import nz.pumbas.utilities.Utils;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class Vector2
 {
@@ -18,8 +18,8 @@ public class Vector2
     public Vector2(double magnitude, double angle, boolean fromX, String units)
     {
         if (!fromX) //Makes the angle from the x-axis
-            angle += Utils.quarterRotation;
-        angle %= Utils.fullRotation;
+            angle += HalpbotUtils.quarterRotation;
+        angle %= HalpbotUtils.fullRotation;
 
         double radians = Math.toRadians(angle);
         this.x = magnitude * Math.cos(radians);

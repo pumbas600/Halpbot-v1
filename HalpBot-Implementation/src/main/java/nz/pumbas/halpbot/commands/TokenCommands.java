@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.commands;
 
-import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.validation.Implicit;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.customparameters.Shape;
 
 public class TokenCommands

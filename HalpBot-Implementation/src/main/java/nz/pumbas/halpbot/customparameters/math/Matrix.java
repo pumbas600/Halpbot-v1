@@ -2,11 +2,11 @@ package nz.pumbas.halpbot.customparameters.math;
 
 import java.util.Arrays;
 
-import nz.pumbas.commands.annotations.ParameterConstruction;
-import nz.pumbas.commands.annotations.Unrequired;
-import nz.pumbas.commands.exceptions.ErrorMessageException;
-import nz.pumbas.commands.exceptions.UnimplementedFeatureException;
-import nz.pumbas.commands.validation.Implicit;
+import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
+import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
+import nz.pumbas.halpbot.commands.annotations.Implicit;
 
 public class Matrix
 {

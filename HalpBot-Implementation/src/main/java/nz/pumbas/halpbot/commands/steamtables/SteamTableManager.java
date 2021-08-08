@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import nz.pumbas.commands.ErrorManager;
-import nz.pumbas.commands.exceptions.ErrorMessageException;
+import nz.pumbas.halpbot.commands.ErrorManager;
+import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.steamtables.models.ColumnModel;
 import nz.pumbas.halpbot.commands.steamtables.models.Model;
 import nz.pumbas.halpbot.commands.steamtables.models.ModelHelper;
-import nz.pumbas.utilities.enums.Flags;
+import nz.pumbas.halpbot.utilities.enums.Flags;
 
 public class SteamTableManager
 {

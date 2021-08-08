@@ -1,8 +1,8 @@
 package nz.pumbas.halpbot.customparameters;
 
-import nz.pumbas.commands.annotations.ParameterConstruction;
-import nz.pumbas.commands.exceptions.ErrorMessageException;
-import nz.pumbas.commands.exceptions.UnimplementedFeatureException;
+import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
+import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
 public class Shape
 {

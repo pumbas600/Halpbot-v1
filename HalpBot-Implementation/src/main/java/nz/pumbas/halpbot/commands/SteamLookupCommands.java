@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.exceptions.ErrorMessageException;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.steamtables.SteamTable;
 import nz.pumbas.halpbot.commands.steamtables.models.Model;
 import nz.pumbas.halpbot.commands.steamtables.models.SaturatedSteamModel;
 import nz.pumbas.halpbot.commands.steamtables.SteamTableManager;
-import nz.pumbas.utilities.Singleton;
-import nz.pumbas.utilities.enums.Flags;
-import nz.pumbas.utilities.maps.MapHelper;
-import nz.pumbas.utilities.maps.Row;
+import nz.pumbas.halpbot.utilities.Singleton;
+import nz.pumbas.halpbot.utilities.enums.Flags;
+import nz.pumbas.halpbot.utilities.maps.MapHelper;
+import nz.pumbas.halpbot.utilities.maps.Row;
 
 public class SteamLookupCommands
 {

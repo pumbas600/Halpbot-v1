@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.friction;
 
-import nz.pumbas.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
 
 public class BlockData
 {

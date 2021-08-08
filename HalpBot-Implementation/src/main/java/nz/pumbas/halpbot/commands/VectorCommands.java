@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.commands;
 
-import nz.pumbas.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.customparameters.math.Vector3;
 
 public class VectorCommands

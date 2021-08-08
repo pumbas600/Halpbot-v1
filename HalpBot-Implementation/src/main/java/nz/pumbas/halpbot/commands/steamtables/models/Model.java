@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.commands.steamtables.models;
 
-import nz.pumbas.objects.keys.KeyHolder;
-import nz.pumbas.utilities.Reflect;
+import nz.pumbas.halpbot.objects.keys.KeyHolder;
+import nz.pumbas.halpbot.utilities.Reflect;
 
 public interface Model extends KeyHolder<Model>
 {

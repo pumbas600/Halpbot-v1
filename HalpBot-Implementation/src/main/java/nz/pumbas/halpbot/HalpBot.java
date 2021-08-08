@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.commands.commandadapters.AbstractCommandAdapter;
-import nz.pumbas.commands.commandadapters.TokenCommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.TokenCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.KotlinCommands;

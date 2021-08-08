@@ -4,10 +4,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Base64;
 
-import nz.pumbas.commands.annotations.Command;
-import nz.pumbas.commands.exceptions.ErrorMessageException;
-import nz.pumbas.processes.PipeProcess;
-import nz.pumbas.utilities.enums.StatusCode;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
+import nz.pumbas.halpbot.processes.PipeProcess;
+import nz.pumbas.halpbot.utilities.enums.StatusCode;
 
 public class CalculusCommands
 {
