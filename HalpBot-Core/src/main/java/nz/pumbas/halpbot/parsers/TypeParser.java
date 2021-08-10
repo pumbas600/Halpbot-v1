@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import nz.pumbas.halpbot.commands.tokens.context.ContextState;
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
 import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 public class TypeParser<T> implements Parser<T>
@@ -138,7 +139,7 @@ public class TypeParser<T> implements Parser<T>
         }
 
         /**
-         * Builds the {@link TypeParser} with the specified information but doesn't register it with {@link ParserManager}.
+         * Builds the {@link TypeParser} with the specified information but doesn't register it with {@link ParserHandlerImpl}.
          *
          * @return The built {@link TypeParser}
          */
@@ -147,8 +148,8 @@ public class TypeParser<T> implements Parser<T>
         }
 
         /**
-         * Builds the {@link TypeParser} and automatically registers it with {@link ParserManager}. This makes it
-         * available to be retrieved using {@link ParserManager#from}.
+         * Builds the {@link TypeParser} and automatically registers it with {@link ParserHandlerImpl}. This makes it
+         * available to be retrieved using {@link ParserHandlerImpl#from}.
          *
          * @return The built {@link TypeParser}
          */
@@ -156,8 +157,10 @@ public class TypeParser<T> implements Parser<T>
             TypeParser<T> typeParser = this.build();
 
             if (null == this.type)
-                ParserManager.registerParser(this.filter, this.annotation, typeParser);
-            else ParserManager.registerParser(this.type, this.annotation, typeParser);
+                HalpbotUtils.context().get(ParserHandler.class)
+                    .registerParser(this.filter, this.annotation, typeParser);
+            else HalpbotUtils.context().get(ParserHandler.class)
+                    .registerParser(this.type, this.annotation, typeParser);
 
             return typeParser;
         }

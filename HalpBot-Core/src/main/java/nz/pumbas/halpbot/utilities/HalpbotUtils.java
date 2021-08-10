@@ -29,6 +29,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.commands.ErrorManager;
+import nz.pumbas.halpbot.parsers.Parsers;
+import nz.pumbas.halpbot.utilities.context.ContextHandler;
+import nz.pumbas.halpbot.utilities.context.ContextHandlerImpl;
+import nz.pumbas.halpbot.utilities.context.DefaultContext;
 import nz.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
 
 public final class HalpbotUtils
@@ -42,8 +46,6 @@ public final class HalpbotUtils
     public static final float halfRotation = 180F;
     public static final float quarterRotation = 90F;
 
-    public static final String line = "-----------------------------------------------------------";
-
     public static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
         String.class, s -> s,
         int.class, Integer::parseInt,
@@ -52,7 +54,17 @@ public final class HalpbotUtils
         char.class, s -> s.charAt(0)
     );
 
+    private static final ContextHandler contextHandler = new ContextHandlerImpl();
+
     private HalpbotUtils() {}
+
+    static {
+        DefaultContext.addAll();
+    }
+
+    public static ContextHandler context() {
+        return contextHandler;
+    }
 
     /**
      * Calls a method on each element in a queue as they're dequeued.

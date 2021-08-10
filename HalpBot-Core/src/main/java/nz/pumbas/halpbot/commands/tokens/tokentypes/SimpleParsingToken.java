@@ -12,9 +12,10 @@ import java.util.stream.Stream;
 
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
 import nz.pumbas.halpbot.parsers.Parser;
-import nz.pumbas.halpbot.parsers.ParserManager;
+import nz.pumbas.halpbot.parsers.ParserHandler;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.parsers.TypeParser;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class SimpleParsingToken implements ParsingToken
 {
@@ -38,7 +39,7 @@ public class SimpleParsingToken implements ParsingToken
         String defaultValue = this.isOptional ? unrequired.value() : "null";
         MethodContext ctx = MethodContext.of(defaultValue, this);
 
-        this.parser = ParserManager.from(ctx);
+        this.parser = HalpbotUtils.context().get(ParserHandler.class).from(ctx);
         this.defaultValue = this.parseDefaultValue(ctx);
     }
 

@@ -11,8 +11,6 @@ import nz.pumbas.halpbot.commands.CommandType;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Command
 {
-    String prefix() default "";
-
     String alias() default "";
 
     String command() default "";

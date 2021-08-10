@@ -11,51 +11,58 @@ import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Unmodifiable;
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
 import nz.pumbas.halpbot.parsers.Parser;
-import nz.pumbas.halpbot.parsers.ParserManager;
+import nz.pumbas.halpbot.parsers.ParserHandler;
 import nz.pumbas.halpbot.parsers.Parsers;
 import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ParserTests
 {
 
     @Test
     public void retrievingArrayParserTest() {
-        Parser<Object[]> arrayParser = ParserManager.from(MethodContext.of(Object[].class));
+        Parser<Object[]> arrayParser = HalpbotUtils.context().get(ParserHandler.class)
+            .from(MethodContext.of(Object[].class));
 
         Assertions.assertEquals(Parsers.ARRAY_PARSER, arrayParser);
     }
 
     @Test
     public void retrievingIntegerParserTest() {
-        Parser<Integer> integerParser = ParserManager.from(MethodContext.of(Integer.class));
+        Parser<Integer> integerParser = HalpbotUtils.context().get(ParserHandler.class)
+            .from(MethodContext.of(Integer.class));
 
         Assertions.assertEquals(Parsers.INTEGER_PARSER, integerParser);
     }
 
     @Test
     public void retrievingListParserTest() {
-        Parser<List<?>> listParser = ParserManager.from(MethodContext.of(List.class));
+        Parser<List<?>> listParser = HalpbotUtils.context().get(ParserHandler.class)
+            .from(MethodContext.of(List.class));
 
         Assertions.assertEquals(Parsers.LIST_PARSER, listParser);
     }
 
     @Test
     public void retrievingSetParserTest() {
-        Parser<Set<?>> setParser = ParserManager.from(MethodContext.of(Set.class));
+        Parser<Set<?>> setParser = HalpbotUtils.context().get(ParserHandler.class)
+            .from(MethodContext.of(Set.class));
 
         Assertions.assertEquals(Parsers.SET_PARSER, setParser);
     }
 
     @Test
     public void retrievingUnmodifiableListParserTest() {
-        Parser<List<?>> listParser = ParserManager.from(MethodContext.of(List.class, Unmodifiable.class));
+        Parser<List<?>> listParser = HalpbotUtils.context().get(ParserHandler.class)
+            .from(MethodContext.of(List.class, Unmodifiable.class));
 
         Assertions.assertEquals(Parsers.UNMODIFIABLE_LIST_PARSER, listParser);
     }
 
     @Test
     public void retrievingRemainingStringsParserTest() {
-        Parser<String> remainingStringsParser = ParserManager.from(MethodContext.of(String.class, Remaining.class));
+        Parser<String> remainingStringsParser = HalpbotUtils.context().get(ParserHandler.class)
+            .from(MethodContext.of(String.class, Remaining.class));
 
         Assertions.assertEquals(Parsers.REMAINING_STRINGS_PARSER, remainingStringsParser);
     }
@@ -63,7 +70,7 @@ public class ParserTests
     @Test
     public void parsingRemainingStringsTest() {
         MethodContext ctx = MethodContext.of("This is a test sentence.", String.class, Remaining.class);
-        Parser<String> parser = ParserManager.from(ctx);
+        Parser<String> parser = HalpbotUtils.context().get(ParserHandler.class).from(ctx);
 
         Exceptional<String> sentence = parser.getMapper().apply(ctx);
 
@@ -74,7 +81,7 @@ public class ParserTests
     @Test
     public void parsingArrayTest() {
         MethodContext ctx = MethodContext.of("[5 1 3 12 20]", Integer[].class);
-        Parser<Integer[]> parser = ParserManager.from(ctx);
+        Parser<Integer[]> parser = HalpbotUtils.context().get(ParserHandler.class).from(ctx);
 
         Exceptional<Integer[]> array = parser.getMapper().apply(ctx);
 

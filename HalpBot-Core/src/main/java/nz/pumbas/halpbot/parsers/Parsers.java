@@ -19,6 +19,7 @@ import nz.pumbas.halpbot.commands.tokens.TokenManager;
 import nz.pumbas.halpbot.commands.tokens.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 import nz.pumbas.halpbot.commands.annotations.Children;
@@ -41,7 +42,7 @@ public final class Parsers
 
     /**
      * A static method that can be called so that the parsers in this file are loaded.
-     * Note: This is already automatically called by {@link ParserManager}.
+     * Note: This is already automatically called by {@link ParserHandlerImpl}.
      */
     public static void load() {}
 
@@ -179,7 +180,8 @@ public final class Parsers
     public static final TypeParser<List> LIST_PARSER = TypeParser.builder(List.class)
         .convert(ctx -> {
             Type subType = Reflect.getGenericType(ctx.getContextState().getType());
-            Parser<?> elementParser = ParserManager.from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
+            Parser<?> elementParser = HalpbotUtils.context().get(ParserHandler.class)
+                .from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
 
             return Exceptional.of(() -> {
                 List<Object> list = new ArrayList<>();
@@ -205,7 +207,8 @@ public final class Parsers
                 return listExceptional;
 
             Type subType = Reflect.getGenericType(ctx.getContextState().getType());
-            Parser<?> elementParser = ParserManager.from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
+            Parser<?> elementParser = HalpbotUtils.context().get(ParserHandler.class)
+                .from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
             ctx.getContextState().setType(subType);
 
             List<Object> list = new ArrayList<>();
@@ -230,7 +233,8 @@ public final class Parsers
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
         .convert(ctx ->
-            ParserManager.from(List.class, ctx)
+            HalpbotUtils.context().get(ParserHandler.class)
+                .from(List.class, ctx)
                 .getMapper()
                 .apply(ctx)
                 .map(Collections::unmodifiableList))
@@ -238,7 +242,8 @@ public final class Parsers
 
     public static final TypeParser<Set> SET_PARSER = TypeParser.builder(Set.class)
         .convert(ctx ->
-            ParserManager.from(List.class, ctx)
+            HalpbotUtils.context().get(ParserHandler.class)
+                .from(List.class, ctx)
                 .getMapper()
                 .apply(ctx)
                 .map(HashSet::new))
@@ -249,7 +254,8 @@ public final class Parsers
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
         .convert(ctx ->
-            ParserManager.from(Set.class, ctx)
+            HalpbotUtils.context().get(ParserHandler.class)
+                .from(Set.class, ctx)
                 .getMapper()
                 .apply(ctx)
                 .map(Collections::unmodifiableSet))
@@ -257,7 +263,8 @@ public final class Parsers
 
     public static final TypeParser<Object> ARRAY_PARSER = TypeParser.builder(Class::isArray)
         .convert(ctx ->
-            ParserManager.from(List.class, ctx)
+            HalpbotUtils.context().get(ParserHandler.class)
+                .from(List.class, ctx)
                 .getMapper()
                 .apply(ctx)
                 .map(list ->

@@ -5,23 +5,23 @@ public class ParserContext
 
     private final Class<?> annotationType;
     private final Parser<?> parser;
-    private final boolean includeClassAnnotations;
 
-    public ParserContext(Class<?> annotationType, Parser<?> parser, boolean includeClassAnnotations) {
+    public ParserContext(Class<?> annotationType, Parser<?> parser) {
         this.annotationType = annotationType;
         this.parser = parser;
-        this.includeClassAnnotations = includeClassAnnotations;
     }
 
-    public Class<?> annotationType() {
+    /**
+     * @return The {@link Class annotation type} for this {@link ParserContext}
+     */
+    public Class<?> getAnnotationType() {
         return this.annotationType;
     }
 
-    public Parser<?> parser() {
+    /**
+     * @return The {@link Parser} for this {@link ParserContext}
+     */
+    public Parser<?> getParser() {
         return this.parser;
-    }
-
-    public boolean includeClassAnnotations() {
-        return this.includeClassAnnotations;
     }
 }
