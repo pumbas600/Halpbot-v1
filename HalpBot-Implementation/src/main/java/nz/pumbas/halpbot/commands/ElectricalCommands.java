@@ -70,4 +70,12 @@ public class ElectricalCommands
 
         return String.format("```V_a = %.10f\nI_1 = %.10f```", voltageAtA, currentThrough1);
     }
+
+    @Command(alias = "A2Q7", description = "Solves Assignment 2 Question 7", restrictedTo = HalpBot.CREATOR_ID)
+    public String a2q7(double currentSource1, double currentSource2, double r1, double r2) {
+        double voltageAtTop = (currentSource1 + currentSource2) / ((1/r1) + (1/r2));
+        double currentAcrossAB = (voltageAtTop / r2) - currentSource2;
+
+        return String.format("```V_top = %.10f\nMagnitude of I_AB = %.10f```", voltageAtTop, Math.abs(currentAcrossAB));
+    }
 }
