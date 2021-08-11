@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.Permission;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 
@@ -20,5 +22,12 @@ public class HalpBotCommands
     public String choose(@Implicit String[] choices) {
         // Use of @Implicit means that its not necessary to surround the choices with [...]
         return choices[(int)(Math.random() * choices.length)];
+    }
+
+    @Command(alias = "permission",
+             description = "Tests command permissions (If you have permission to view audit logs)",
+             permissions = Permission.VIEW_AUDIT_LOGS)
+    public String permission() {
+        return "You have permission to use this command!";
     }
 }

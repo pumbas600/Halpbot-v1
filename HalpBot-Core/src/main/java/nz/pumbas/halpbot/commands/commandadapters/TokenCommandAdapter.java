@@ -1,6 +1,8 @@
 package nz.pumbas.halpbot.commands.commandadapters;
 
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
@@ -68,8 +70,10 @@ public class TokenCommandAdapter extends AbstractCommandAdapter
 
         TokenCommand tokenCommand = (TokenCommand) commandMethod;
         //If the command has been restricted and you're not whitelisted
-        if (!tokenCommand.getRestrictedTo().isEmpty() && !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()))
-            return Exceptional.of(new TokenCommandException("You do not have permission to use this command"));
+        if (!tokenCommand.getRestrictedTo().isEmpty() &&
+            !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()) ||
+            !event.getMember().hasPermission(commandMethod.getPermissions()))
+                return Exceptional.of(new TokenCommandException("You do not have permission to use this command"));
 
         MethodContext ctx = MethodContext.of(content, this, event, tokenCommand.getReflections());
         return tokenCommand.parse(ctx, false);

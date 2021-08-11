@@ -39,6 +39,10 @@ subprojects { Project subProject ->
 }
 
 allprojects {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << '-parameters'
+    }
+
     plugins.withType(JavaPlugin) {
         repositories {
             mavenCentral()
@@ -59,6 +63,7 @@ allprojects {
             testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
         }
+
 
         test {
             useJUnitPlatform()

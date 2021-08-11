@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.commands.tokens;
 
+import net.dv8tion.jda.api.Permission;
+
 import nz.pumbas.halpbot.commands.CommandMethod;
 import nz.pumbas.halpbot.commands.ErrorManager;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
@@ -35,9 +37,10 @@ public class TokenCommand implements CommandMethod
     private final @NotNull List<Token> tokens;
     private final @NotNull String displayCommand;
     private final @NotNull String description;
-    private final @NotNull String permission;
+    private final @NotNull Permission[] permissions;
     private final @NotNull Set<Long> restrictedTo;
     private final @NotNull Set<Class<?>> reflections;
+    private final @NotNull String usage;
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<Token> tokens) {
         this(instance, executable, tokens, Collections.emptySet());
@@ -46,22 +49,23 @@ public class TokenCommand implements CommandMethod
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
                         @NotNull List<Token> tokens,
                         @NotNull Set<Class<?>> reflections) {
-        this(instance, executable, tokens, "", "", "",
-            Collections.emptySet(), reflections);
+        this(instance, executable, tokens, "N/A", "N/A",
+            Permission.EMPTY_PERMISSIONS, Collections.emptySet(), reflections, "N/A");
     }
 
     public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
                         @NotNull List<Token> tokens, @NotNull String displayCommand,
-                        @NotNull String description, @NotNull String permission, @NotNull Set<Long> restrictedTo,
-                        @NotNull Set<Class<?>> reflections) {
+                        @NotNull String description, @NotNull Permission[] permissions, @NotNull Set<Long> restrictedTo,
+                        @NotNull Set<Class<?>> reflections, @NotNull String usage) {
         this.instance = instance;
         this.executable = executable;
         this.tokens = tokens;
         this.displayCommand = displayCommand;
         this.description = description;
-        this.permission = permission;
+        this.permissions = permissions;
         this.restrictedTo = restrictedTo;
         this.reflections = reflections;
+        this.usage = usage;
     }
 
     /**
@@ -105,12 +109,12 @@ public class TokenCommand implements CommandMethod
      * @return The {@link String permission} for this command. If there is no permission, this will an empty string
      */
     @Override
-    public @NotNull String getPermission() {
-        return this.permission;
+    public @NotNull Permission[] getPermissions() {
+        return this.permissions;
     }
 
     /**
-     * @return The {@link List<Long>} of user ids for who this command is restricted to
+     * @return @return The {@link Set<Long> ids} of who this command is restricted to
      */
     @Override
     public @NotNull Set<Long> getRestrictedTo() {
@@ -123,6 +127,14 @@ public class TokenCommand implements CommandMethod
     @Override
     public @NotNull Set<Class<?>> getReflections() {
         return this.reflections;
+    }
+
+    /**
+     * @return The {@link String usage} for this command
+     */
+    @Override
+    public @NotNull String getUsage() {
+        return this.usage;
     }
 
     /**

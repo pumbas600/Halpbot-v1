@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.Permission;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,10 +37,10 @@ public interface CommandMethod
      * @return The {@link String permission} for this command. If there is no permission, this will an empty string
      */
     @NotNull
-    String getPermission();
+    Permission[] getPermissions();
 
     /**
-     * @return The {@link String permission} for this command. If there is no permission, this will an empty string
+     * @return The {@link Set<Long> ids} of who this command is restricted to
      */
     @NotNull
     Set<Long> getRestrictedTo();
@@ -48,6 +50,12 @@ public interface CommandMethod
      */
     @NotNull
     Set<Class<?>> getReflections();
+
+    /**
+     * @return The {@link String usage} for this command
+     */
+    @NotNull
+    String getUsage();
 
     /**
      * Invokes the {@link Method} for this {@link CommandMethod}.

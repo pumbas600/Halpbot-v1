@@ -176,7 +176,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             .setColor(Color.cyan)
             .setTitle("HALP")
             .addField(commandAlias, message, false)
-            .addField("Usage", commandAlias + " " + commandMethod.getDisplayCommand(), true)
+            .addField("Usage", commandAlias + " " + commandMethod.getUsage(), true)
             .addField("Description", commandMethod.getDescription(), true)
             .build();
     }

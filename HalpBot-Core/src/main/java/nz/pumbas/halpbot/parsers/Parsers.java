@@ -299,13 +299,13 @@ public final class Parsers
         .convert(
             ctx -> {
                 Class<?> idType = ctx.getAnnotation(Id.class).get().value();
+                Exceptional<Long> parsedId = Exceptional.empty();
 
                 if (TextChannel.class.isAssignableFrom(idType))
-                    return ctx.getNextSurrounded("<#", ">").map(MiscUtil::parseSnowflake);
+                    parsedId = ctx.getNextSurrounded("<#", ">").map(MiscUtil::parseSnowflake);
                 else if (Member.class.isAssignableFrom(idType) || User.class.isAssignableFrom(idType))
-                    return ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
-                else
-                    return LONG_PARSER.getMapper().apply(ctx);
+                    parsedId = ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
+                return parsedId.absent() ? LONG_PARSER.getMapper().apply(ctx) : parsedId;
             })
         .register();
 

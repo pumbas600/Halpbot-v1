@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.commands.annotations;
 
+import net.dv8tion.jda.api.Permission;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -15,9 +17,9 @@ public @interface Command
 
     String command() default "";
 
-    String description() default "";
+    String description() default "N/A";
 
-    String permission() default "";
+    Permission[] permissions() default {};
 
     long[] restrictedTo() default {};
 

@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.commands.tokens;
 
+import net.dv8tion.jda.api.events.GenericEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.halpbot.commands.ErrorManager;
@@ -7,6 +9,7 @@ import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
@@ -24,6 +27,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -289,7 +293,31 @@ public final class TokenManager
         return new TokenCommand(instance, method,
             displayCommand.isEmpty() ? generateTokens(method) : generateTokens(displayCommand, method),
             displayCommand.isEmpty() ? "Not Defined" : displayCommand,
-            command.description(), command.permission(), restrictions, reflections);
+            command.description(), command.permissions(), restrictions, reflections, generateUsage(method));
+    }
+
+    public static String generateUsage(Executable executable) {
+        StringBuilder builder = new StringBuilder();
+        Parameter[] parameters = executable.getParameters();
+        Annotation[][] annotations = executable.getParameterAnnotations();
+
+        for (int i = 0; i < parameters.length; i++) {
+            if (!Reflect.hasAnnotation(annotations[i], Source.class) &&
+                !parameters[i].getType().isAssignableFrom(GenericEvent.class) &&
+                !parameters[i].getType().isAssignableFrom(AbstractCommandAdapter.class)) {
+
+                builder.append('<')
+                    .append(parameters[i].getName())
+                    .append('{')
+                    .append(getTypeAlias(parameters[i].getType()))
+                    .append("}> ");
+            }
+        }
+        // Removes the ending space.
+        if (0 < builder.length())
+            builder.deleteCharAt(builder.length() - 1);
+
+        return builder.toString();
     }
 
     /**
