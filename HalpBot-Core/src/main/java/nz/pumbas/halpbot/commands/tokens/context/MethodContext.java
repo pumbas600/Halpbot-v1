@@ -15,7 +15,7 @@ import java.util.Set;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.tokens.TokenCommand;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 
 public class MethodContext extends InvocationContext
 {

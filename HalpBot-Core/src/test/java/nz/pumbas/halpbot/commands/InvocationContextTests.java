@@ -12,7 +12,7 @@ import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.commands.tokens.context.ContextState;
 import nz.pumbas.halpbot.commands.tokens.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 
 public class InvocationContextTests
 {

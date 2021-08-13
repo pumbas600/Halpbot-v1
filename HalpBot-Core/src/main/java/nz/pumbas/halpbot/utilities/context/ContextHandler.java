@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.utilities.context;
 
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 
 public interface ContextHandler
 {

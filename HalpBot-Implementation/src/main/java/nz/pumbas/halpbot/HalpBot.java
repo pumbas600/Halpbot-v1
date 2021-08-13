@@ -18,7 +18,6 @@ import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.KotlinCommands;
 import nz.pumbas.halpbot.commands.MatrixCommands;
-import nz.pumbas.halpbot.commands.TokenCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
 
 public class HalpBot extends ListenerAdapter
@@ -33,7 +32,6 @@ public class HalpBot extends ListenerAdapter
             .addEventListeners(this);
         AbstractCommandAdapter commandAdapter = new TokenCommandAdapter(builder, "$")
             .registerCommands(
-                new TokenCommands(),
                 new KotlinCommands(),
                 new MatrixCommands(),
                 new VectorCommands(),

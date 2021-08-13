@@ -19,7 +19,7 @@ import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.SimpleParsingToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Modifiers;
 

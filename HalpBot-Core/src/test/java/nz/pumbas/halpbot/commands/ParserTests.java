@@ -13,7 +13,7 @@ import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
 import nz.pumbas.halpbot.parsers.Parser;
 import nz.pumbas.halpbot.parsers.ParserHandler;
 import nz.pumbas.halpbot.parsers.Parsers;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ParserTests

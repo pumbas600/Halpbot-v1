@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 
 public interface CommandMethod
 {

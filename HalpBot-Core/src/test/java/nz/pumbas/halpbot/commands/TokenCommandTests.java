@@ -18,7 +18,7 @@ import nz.pumbas.halpbot.objects.Matrix;
 import nz.pumbas.halpbot.objects.Vector3;
 import nz.pumbas.halpbot.objects.Shape;
 import nz.pumbas.halpbot.parsers.Parsers;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public class TokenCommandTests

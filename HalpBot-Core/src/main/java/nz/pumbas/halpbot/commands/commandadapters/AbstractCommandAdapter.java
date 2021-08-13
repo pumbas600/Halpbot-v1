@@ -37,7 +37,7 @@ import nz.pumbas.halpbot.BuiltInCommands;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCommandException;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter

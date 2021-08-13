@@ -15,7 +15,7 @@
  * along with this library. If not, see {@literal<http://www.gnu.org/licenses/>}.
  */
 
-package nz.pumbas.halpbot.utilities;
+package nz.pumbas.halpbot.objects;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;

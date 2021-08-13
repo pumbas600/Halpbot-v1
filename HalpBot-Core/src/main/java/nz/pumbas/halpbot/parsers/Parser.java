@@ -3,7 +3,7 @@ package nz.pumbas.halpbot.parsers;
 import java.util.function.Function;
 
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 public interface Parser<T>

@@ -1,8 +1,6 @@
 package nz.pumbas.halpbot.commands.commandadapters;
 
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +15,7 @@ import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
 import nz.pumbas.halpbot.commands.tokens.TokenCommand;
 import nz.pumbas.halpbot.commands.tokens.TokenManager;
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 
 public class TokenCommandAdapter extends AbstractCommandAdapter
 {

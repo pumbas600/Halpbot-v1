@@ -11,7 +11,7 @@ import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

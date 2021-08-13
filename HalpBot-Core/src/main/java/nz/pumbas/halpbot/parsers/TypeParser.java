@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 import nz.pumbas.halpbot.commands.tokens.context.ContextState;
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 

@@ -18,7 +18,7 @@ import nz.pumbas.halpbot.commands.tokens.TokenCommand;
 import nz.pumbas.halpbot.commands.tokens.TokenManager;
 import nz.pumbas.halpbot.commands.tokens.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
-import nz.pumbas.halpbot.utilities.Exceptional;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Priority;
