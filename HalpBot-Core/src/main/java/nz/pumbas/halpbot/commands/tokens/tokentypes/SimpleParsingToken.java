@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
-import nz.pumbas.halpbot.parsers.Parser;
-import nz.pumbas.halpbot.parsers.ParserHandler;
+import nz.pumbas.halpbot.converters.Converter;
+import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
-import nz.pumbas.halpbot.parsers.TypeParser;
+import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class SimpleParsingToken implements ParsingToken
@@ -23,7 +23,7 @@ public class SimpleParsingToken implements ParsingToken
     private final Annotation[] annotations;
     private final List<Class<? extends Annotation>> annotationTypes;
     private final boolean isOptional;
-    private final Parser<?> parser;
+    private final Converter<?> converter;
     private final Object defaultValue;
 
     public SimpleParsingToken(Type type, Annotation[] annotations) {
@@ -39,7 +39,7 @@ public class SimpleParsingToken implements ParsingToken
         String defaultValue = this.isOptional ? unrequired.value() : "null";
         MethodContext ctx = MethodContext.of(defaultValue, this);
 
-        this.parser = HalpbotUtils.context().get(ParserHandler.class).from(ctx);
+        this.converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
         this.defaultValue = this.parseDefaultValue(ctx);
     }
 
@@ -76,11 +76,11 @@ public class SimpleParsingToken implements ParsingToken
     }
 
     /**
-     * @return The {@link TypeParser} for this token
+     * @return The {@link TypeConverter} for this token
      */
     @Override
-    public @NotNull Parser<?> getParser() {
-        return this.parser;
+    public @NotNull Converter<?> getConverter() {
+        return this.converter;
     }
 
     /**

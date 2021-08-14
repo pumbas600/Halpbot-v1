@@ -29,7 +29,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.commands.ErrorManager;
-import nz.pumbas.halpbot.parsers.Parsers;
 import nz.pumbas.halpbot.utilities.context.ContextHandler;
 import nz.pumbas.halpbot.utilities.context.ContextHandlerImpl;
 import nz.pumbas.halpbot.utilities.context.DefaultContext;

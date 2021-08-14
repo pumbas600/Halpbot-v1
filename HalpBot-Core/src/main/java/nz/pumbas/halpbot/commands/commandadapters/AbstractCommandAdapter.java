@@ -42,7 +42,6 @@ import nz.pumbas.halpbot.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter
 {
-
     /**
      * A map of the registered {@link String command aliases} and their respective {@link CommandMethod}.
      */
@@ -91,7 +90,6 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 
         for (String alias : this.registeredSlashCommands.keySet()) {
             CommandMethod commandMethod = this.registeredCommands.get(alias);
-
             jda.upsertCommand(alias, commandMethod.getDescription()).queue();
         }
     }

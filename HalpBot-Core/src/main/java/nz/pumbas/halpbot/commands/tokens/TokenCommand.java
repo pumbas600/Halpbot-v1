@@ -251,7 +251,7 @@ public class TokenCommand implements CommandMethod
                 else {
                     ctx.setCurrentIndex(currentIndex);
 
-                    result = parsingToken.getParser()
+                    result = parsingToken.getConverter()
                         .getMapper()
                         .apply(ctx)
                         .map(o -> o);

@@ -20,8 +20,8 @@ test {
 subprojects { Project subProject ->
     apply plugin: "java"
 
-    group project.group
-    version project.version
+    group 'nz.pumbas'
+    version '1.0.1'
 
     sourceCompatibility = 11
 

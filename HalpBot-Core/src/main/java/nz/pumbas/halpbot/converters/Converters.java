@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.parsers;
+package nz.pumbas.halpbot.converters;
 
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
@@ -37,40 +37,40 @@ import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Unmodifiable;
 
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
-public final class Parsers
+public final class Converters
 {
 
     /**
-     * A static method that can be called so that the parsers in this file are loaded.
-     * Note: This is already automatically called by {@link ParserHandlerImpl}.
+     * A static method that can be called so that the converters in this file are loaded.
+     * Note: This is already automatically called by {@link ConverterHandlerImpl}.
      */
     public static void load() {}
 
-    private Parsers() {}
+    private Converters() {}
 
-    //region Parsers
+    //region Converters
 
-    //region Simple Parsers
+    //region Simple Converters
 
-    public static final TypeParser<Byte> BYTE_PARSER = TypeParser.builder(Byte.class)
+    public static final TypeConverter<Byte> BYTE_CONVERTER = TypeConverter.builder(Byte.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Byte.class))
                 .map(Byte::parseByte))
         .register();
 
-    public static final TypeParser<Short> SHORT_PARSER = TypeParser.builder(Short.class)
+    public static final TypeConverter<Short> SHORT_CONVERTER = TypeConverter.builder(Short.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Short.class))
                 .map(Short::parseShort))
         .register();
 
-    public static final TypeParser<Integer> INTEGER_PARSER = TypeParser.builder(Integer.class)
+    public static final TypeConverter<Integer> INTEGER_CONVERTER = TypeConverter.builder(Integer.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Integer.class))
                 .map(Integer::parseInt))
         .register();
 
-    public static final TypeParser<Long> LONG_PARSER = TypeParser.builder(Long.class)
+    public static final TypeConverter<Long> LONG_CONVERTER = TypeConverter.builder(Long.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Long.class))
                 .map(number -> {
@@ -80,35 +80,35 @@ public final class Parsers
                 }))
         .register();
 
-    public static final TypeParser<Float> FLOAT_PARSER = TypeParser.builder(Float.class)
+    public static final TypeConverter<Float> FLOAT_CONVERTER = TypeConverter.builder(Float.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Float.class))
                 .map(Float::parseFloat))
         .register();
 
-    public static final TypeParser<Double> DOUBLE_PARSER = TypeParser.builder(Double.class)
+    public static final TypeConverter<Double> DOUBLE_CONVERTER = TypeConverter.builder(Double.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Double.class))
                 .map(Double::parseDouble))
         .register();
 
-    public static final TypeParser<Character> CHARACTER_PARSER = TypeParser.builder(Character.class)
+    public static final TypeConverter<Character> CHARACTER_CONVERTER = TypeConverter.builder(Character.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Character.class))
                 .map(in -> in.charAt(0)))
         .register();
 
-    public static final TypeParser<String> STRING_PARSER = TypeParser.builder(String.class)
+    public static final TypeConverter<String> STRING_CONVERTER = TypeConverter.builder(String.class)
         .convert(InvocationContext::getNextSafe)
         .register();
 
-    public static final TypeParser<String> REMAINING_STRINGS_PARSER = TypeParser.builder(String.class)
+    public static final TypeConverter<String> REMAINING_STRINGS_CONVERTER = TypeConverter.builder(String.class)
         .annotation(Remaining.class)
         .priority(Priority.EARLY)
         .convert(ctx -> Exceptional.of(ctx::getRemaining))
         .register();
 
-    public static final TypeParser<Boolean> BOOLEAN_PARSER = TypeParser.builder(Boolean.class)
+    public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Boolean.class))
                 .map(in -> {
@@ -117,13 +117,13 @@ public final class Parsers
                 }))
         .register();
 
-    public static final TypeParser<Enum> ENUM_PARSER = TypeParser.builder(Enum.class)
+    public static final TypeConverter<Enum> ENUM_CONVERTER = TypeConverter.builder(Enum.class)
         .convert(ctx ->
             Exceptional.of(
                 Reflect.parseEnumValue(ctx.getContextState().getClazz(), ctx.getNext())))
         .register();
 
-    public static final TypeParser<Object> OBJECT_PARSER = TypeParser.builder(c -> true)
+    public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(c -> true)
         .convert(ctx -> {
             Class<?> clazz = ctx.getContextState().getClazz();
             String expectedTypeAlias = TokenManager.getTypeAlias(clazz);
@@ -153,11 +153,11 @@ public final class Parsers
             return result;
         }).build();
 
-    public static final TypeParser<Object> CHILDREN_TYPE_PARSER = TypeParser.builder(Objects::nonNull)
+    public static final TypeConverter<Object> CHILDREN_TYPE_CONVERTER = TypeConverter.builder(Objects::nonNull)
         .priority(Priority.LAST)
         .annotation(Children.class)
         .convert(ctx -> {
-            final Exceptional<Object> result = OBJECT_PARSER.getMapper().apply(ctx);
+            final Exceptional<Object> result = OBJECT_CONVERTER.getMapper().apply(ctx);
             if (result.isErrorAbsent())
                 return result;
             return ctx.getAnnotation(Children.class).flatMap(children -> {
@@ -166,7 +166,7 @@ public final class Parsers
 
                 for (Class<?> child : children.value()) {
                     ctx.getContextState().setType(child);
-                    parsed = OBJECT_PARSER.getMapper().apply(ctx);
+                    parsed = OBJECT_CONVERTER.getMapper().apply(ctx);
                     if (parsed.isErrorAbsent()) break;
                 }
                 return parsed;
@@ -175,12 +175,12 @@ public final class Parsers
 
     //endregion
 
-    //region Collection Parsers
+    //region Collection Converters
 
-    public static final TypeParser<List> LIST_PARSER = TypeParser.builder(List.class)
+    public static final TypeConverter<List> LIST_CONVERTER = TypeConverter.builder(List.class)
         .convert(ctx -> {
             Type subType = Reflect.getGenericType(ctx.getContextState().getType());
-            Parser<?> elementParser = HalpbotUtils.context().get(ParserHandler.class)
+            Converter<?> elementConverter = HalpbotUtils.context().get(ConverterHandler.class)
                 .from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
 
             return Exceptional.of(() -> {
@@ -189,7 +189,7 @@ public final class Parsers
                 ctx.getContextState().setType(subType);
 
                 while (!ctx.isNext(']', true)) {
-                    elementParser.getMapper()
+                    elementConverter.getMapper()
                         .apply(ctx)
                         .present(list::add)
                         .rethrow();
@@ -198,28 +198,28 @@ public final class Parsers
             });
         }).register();
 
-    public static final TypeParser<List> IMPLICIT_LIST_PARSER = TypeParser.builder(List.class)
+    public static final TypeConverter<List> IMPLICIT_LIST_CONVERTER = TypeConverter.builder(List.class)
         .annotation(Implicit.class)
         .priority(Priority.LAST)
         .convert(ctx -> {
-            Exceptional<List> listExceptional = LIST_PARSER.getMapper().apply(ctx);
+            Exceptional<List> listExceptional = LIST_CONVERTER.getMapper().apply(ctx);
             if (listExceptional.isErrorAbsent())
                 return listExceptional;
 
             Type subType = Reflect.getGenericType(ctx.getContextState().getType());
-            Parser<?> elementParser = HalpbotUtils.context().get(ParserHandler.class)
+            Converter<?> elementConverter = HalpbotUtils.context().get(ConverterHandler.class)
                 .from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
             ctx.getContextState().setType(subType);
 
             List<Object> list = new ArrayList<>();
 
-            Exceptional<?> element = elementParser.getMapper()
+            Exceptional<?> element = elementConverter.getMapper()
                 .apply(ctx)
                 .present(list::add);
             if (element.absent()) return Exceptional.of(element.error());
 
             while (ctx.hasNext()) {
-                element = elementParser.getMapper()
+                element = elementConverter.getMapper()
                     .apply(ctx);
                 if (element.present()) list.add(element.get());
                 else break;
@@ -229,20 +229,20 @@ public final class Parsers
 
         }).register();
 
-    public static final TypeParser<List> UNMODIFIABLE_LIST_PARSER = TypeParser.builder(List.class)
+    public static final TypeConverter<List> UNMODIFIABLE_LIST_CONVERTER = TypeConverter.builder(List.class)
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
         .convert(ctx ->
-            HalpbotUtils.context().get(ParserHandler.class)
+            HalpbotUtils.context().get(ConverterHandler.class)
                 .from(List.class, ctx)
                 .getMapper()
                 .apply(ctx)
                 .map(Collections::unmodifiableList))
         .register();
 
-    public static final TypeParser<Set> SET_PARSER = TypeParser.builder(Set.class)
+    public static final TypeConverter<Set> SET_CONVERTER = TypeConverter.builder(Set.class)
         .convert(ctx ->
-            HalpbotUtils.context().get(ParserHandler.class)
+            HalpbotUtils.context().get(ConverterHandler.class)
                 .from(List.class, ctx)
                 .getMapper()
                 .apply(ctx)
@@ -250,20 +250,20 @@ public final class Parsers
         .register();
 
 
-    public static final TypeParser<Set> UNMODIFIABLE_SET_PARSER = TypeParser.builder(Set.class)
+    public static final TypeConverter<Set> UNMODIFIABLE_SET_CONVERTER = TypeConverter.builder(Set.class)
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
         .convert(ctx ->
-            HalpbotUtils.context().get(ParserHandler.class)
+            HalpbotUtils.context().get(ConverterHandler.class)
                 .from(Set.class, ctx)
                 .getMapper()
                 .apply(ctx)
                 .map(Collections::unmodifiableSet))
         .register();
 
-    public static final TypeParser<Object> ARRAY_PARSER = TypeParser.builder(Class::isArray)
+    public static final TypeConverter<Object> ARRAY_CONVERTER = TypeConverter.builder(Class::isArray)
         .convert(ctx ->
-            HalpbotUtils.context().get(ParserHandler.class)
+            HalpbotUtils.context().get(ConverterHandler.class)
                 .from(List.class, ctx)
                 .getMapper()
                 .apply(ctx)
@@ -273,27 +273,27 @@ public final class Parsers
 
     //endregion
 
-    //region JDA Parsers
+    //region JDA Converters
 
-    public static final TypeParser<TextChannel> TEXT_CHANNEL_PARSER = TypeParser.builder(TextChannel.class)
+    public static final TypeConverter<TextChannel> TEXT_CHANNEL_CONVERTER = TypeConverter.builder(TextChannel.class)
         .convert(ctx ->
             ctx.getNextSurrounded("<#", ">")
                 .map(ctx.getEvent().getGuild()::getTextChannelById))
         .register();
 
-    public static final TypeParser<Member> MEMBER_PARSER = TypeParser.builder(Member.class)
+    public static final TypeConverter<Member> MEMBER_CONVERTER = TypeConverter.builder(Member.class)
         .convert(ctx ->
             ctx.getNextSurrounded("<@!", ">")
                 .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete()))
         .register();
 
-    public static final TypeParser<User> USER_PARSER = TypeParser.builder(User.class)
+    public static final TypeConverter<User> USER_CONVERTER = TypeConverter.builder(User.class)
         .convert(ctx ->
             ctx.getNextSurrounded("<@!", ">")
                 .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete()))
         .register();
 
-    public static final TypeParser<Long> ID_LONG_PARSER = TypeParser.builder(Long.class)
+    public static final TypeConverter<Long> ID_LONG_CONVERTER = TypeConverter.builder(Long.class)
         .annotation(Id.class)
         .priority(Priority.EARLY)
         .convert(
@@ -305,57 +305,57 @@ public final class Parsers
                     parsedId = ctx.getNextSurrounded("<#", ">").map(MiscUtil::parseSnowflake);
                 else if (Member.class.isAssignableFrom(idType) || User.class.isAssignableFrom(idType))
                     parsedId = ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
-                return parsedId.absent() ? LONG_PARSER.getMapper().apply(ctx) : parsedId;
+                return parsedId.absent() ? LONG_CONVERTER.getMapper().apply(ctx) : parsedId;
             })
         .register();
 
     //endregion
 
-    //region Source Parsers
+    //region Source Converters
 
-    public static final TypeParser<GenericEvent> EVENT_PARSER = TypeParser.builder(GenericEvent.class)
+    public static final TypeConverter<GenericEvent> EVENT_CONVERTER = TypeConverter.builder(GenericEvent.class)
         .convert(ctx -> Exceptional.of(ctx.getEvent()))
         .register();
 
-    public static final TypeParser<AbstractCommandAdapter> COMMAND_ADAPTER_PARSER =
-        TypeParser.builder(AbstractCommandAdapter.class)
+    public static final TypeConverter<AbstractCommandAdapter> COMMAND_ADAPTER_CONVERTER =
+        TypeConverter.builder(AbstractCommandAdapter.class)
             .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
             .register();
 
-    public static final TypeParser<MessageChannel> SOURCE_MESSAGE_CHANNEL_PARSER =
-        TypeParser.builder(MessageChannel.class)
+    public static final TypeConverter<MessageChannel> SOURCE_MESSAGE_CHANNEL_CONVERTER =
+        TypeConverter.builder(MessageChannel.class)
             .annotation(Source.class)
             .priority(Priority.FIRST)
             .convert(ctx -> Exceptional.of(ctx.getEvent().getChannel()))
             .register();
 
-    public static final TypeParser<TextChannel> SOURCE_TEXT_CHANNEL_PARSER =
-        TypeParser.builder(TextChannel.class)
+    public static final TypeConverter<TextChannel> SOURCE_TEXT_CHANNEL_CONVERTER =
+        TypeConverter.builder(TextChannel.class)
             .annotation(Source.class)
             .priority(Priority.FIRST)
             .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getTextChannel()))
             .register();
 
-    public static final TypeParser<PrivateChannel> SOURCE_PRIVATE_CHANNEL_PARSER =
-        TypeParser.builder(PrivateChannel.class)
+    public static final TypeConverter<PrivateChannel> SOURCE_PRIVATE_CHANNEL_CONVERTER =
+        TypeConverter.builder(PrivateChannel.class)
             .annotation(Source.class)
             .priority(Priority.FIRST)
             .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getPrivateChannel()))
             .register();
 
-    public static final TypeParser<User> SOURCE_USER_PARSER = TypeParser.builder(User.class)
+    public static final TypeConverter<User> SOURCE_USER_CONVERTER = TypeConverter.builder(User.class)
         .annotation(Source.class)
         .priority(Priority.FIRST)
         .convert(ctx -> Exceptional.of(ctx.getEvent().getAuthor()))
         .register();
 
-    public static final TypeParser<Guild> SOURCE_GUILD_PARSER = TypeParser.builder(Guild.class)
+    public static final TypeConverter<Guild> SOURCE_GUILD_CONVERTER = TypeConverter.builder(Guild.class)
         .annotation(Source.class)
         .priority(Priority.FIRST)
         .convert(ctx -> Exceptional.of(ctx.getEvent().getGuild()))
         .register();
 
-    public static final TypeParser<ChannelType> SOURCE_CHANNEL_TYPE_PARSER = TypeParser.builder(ChannelType.class)
+    public static final TypeConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = TypeConverter.builder(ChannelType.class)
         .annotation(Source.class)
         .priority(Priority.FIRST)
         .convert(ctx -> Exceptional.of(ctx.getEvent().getChannelType()))

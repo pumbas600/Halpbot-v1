@@ -8,8 +8,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
-import nz.pumbas.halpbot.parsers.Parser;
-import nz.pumbas.halpbot.parsers.TypeParser;
+import nz.pumbas.halpbot.converters.Converter;
+import nz.pumbas.halpbot.converters.TypeConverter;
 
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
@@ -36,10 +36,10 @@ public interface ParsingToken extends Token
     Type getType();
 
     /**
-     * @return The {@link TypeParser} for this token
+     * @return The {@link TypeConverter} for this token
      */
     @NotNull
-    Parser<?> getParser();
+    Converter<?> getConverter();
 
     /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
@@ -70,7 +70,7 @@ public interface ParsingToken extends Token
      *
      * @param ctx
      *     {@link MethodContext} containing the default value to be parsed into an {@link Object} using the token's
-     *     {@link TypeParser}
+     *     {@link TypeConverter}
      *
      * @return The parsed {@link Object default value}
      */
@@ -80,7 +80,7 @@ public interface ParsingToken extends Token
             return null;
         if (String.class.isAssignableFrom(ctx.getContextState().getClazz()))
             return ctx.getOriginal();
-        return this.getParser()
+        return this.getConverter()
             .getMapper()
             .apply(ctx)
             .rethrow()
