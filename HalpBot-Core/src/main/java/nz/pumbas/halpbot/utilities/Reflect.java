@@ -36,7 +36,7 @@ public final class Reflect
     private Reflect() {}
 
     private static final Pattern IntegerPattern = Pattern.compile("[-|+]?\\d+");
-    private static final Pattern DoublePattern = Pattern.compile("[-|+]?\\d+\\.?\\d*");
+    private static final Pattern DecimalNumberPattern = Pattern.compile("[-|+]?\\d+\\.?\\d*");
 
     /**
      * An {@link Map} of the built-in {@link Class classes} and their regex syntax.
@@ -47,8 +47,8 @@ public final class Reflect
         Short.class, IntegerPattern,
         Integer.class, IntegerPattern,
         Long.class, IntegerPattern,
-        Float.class, DoublePattern,
-        Double.class, DoublePattern,
+        Float.class, DecimalNumberPattern,
+        Double.class, DecimalNumberPattern,
         Character.class, Pattern.compile("."),
         Boolean.class, Pattern.compile("true|yes|false|no|t|f|y|n")
     );
@@ -65,6 +65,17 @@ public final class Reflect
         double.class, Double.class,
         char.class, Character.class,
         boolean.class, Boolean.class
+    );
+
+    private static final Map<Class<?>, Object> DefaultValues = Map.of(
+        Byte.class, 0,
+        Short.class, 0,
+        Integer.class, 0,
+        Long.class, 0L,
+        Float.class, 0F,
+        Double.class, 0D,
+        Character.class,'\u0000',
+        Boolean.class, false
     );
 
     /**
@@ -125,6 +136,19 @@ public final class Reflect
      */
     public static Class<?> wrapPrimative(Class<?> type) {
         return PrimativeWrappers.getOrDefault(type, type);
+    }
+
+    /**
+     * Retrieves the default value for the specified {@link Class type}.
+     *
+     * @param type
+     *      The {@link Class} to get the default value for
+     *
+     * @return The types default value
+     */
+    @Nullable
+    public static Object getDefaultValue(Class<?> type) {
+        return DefaultValues.getOrDefault(wrapPrimative(type), null);
     }
 
     /**

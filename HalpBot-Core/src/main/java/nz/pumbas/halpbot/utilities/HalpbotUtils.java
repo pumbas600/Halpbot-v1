@@ -45,14 +45,6 @@ public final class HalpbotUtils
     public static final float halfRotation = 180F;
     public static final float quarterRotation = 90F;
 
-    public static final Map<Class<?>, Function<String, Object>> TypeParsers = Map.of(
-        String.class, s -> s,
-        int.class, Integer::parseInt,
-        float.class, Float::parseFloat,
-        double.class, Double::parseDouble,
-        char.class, s -> s.charAt(0)
-    );
-
     private static final ContextHandler contextHandler = new ContextHandlerImpl();
 
     private HalpbotUtils() {}

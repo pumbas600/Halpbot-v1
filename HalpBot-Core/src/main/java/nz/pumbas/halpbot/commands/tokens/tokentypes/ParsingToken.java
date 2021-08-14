@@ -10,13 +10,13 @@ import java.util.List;
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.TypeConverter;
+import nz.pumbas.halpbot.utilities.Reflect;
 
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
  */
 public interface ParsingToken extends Token
 {
-
     /**
      * @return The {@link Annotation} annotations on this {@link ParsingToken}
      */
@@ -76,8 +76,8 @@ public interface ParsingToken extends Token
      */
     @Nullable
     default Object parseDefaultValue(@NotNull MethodContext ctx) {
-        if ("null".equalsIgnoreCase(ctx.getOriginal()))
-            return null;
+        if ("${Default}".equalsIgnoreCase(ctx.getOriginal()))
+            return Reflect.getDefaultValue(ctx.getContextState().getClazz());
         if (String.class.isAssignableFrom(ctx.getContextState().getClazz()))
             return ctx.getOriginal();
         return this.getConverter()

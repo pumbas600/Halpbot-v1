@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface Unrequired
 {
-    String value() default "null";
+    String value() default "${Default}";
 }
