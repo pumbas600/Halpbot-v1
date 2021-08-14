@@ -303,8 +303,8 @@ public final class TokenManager
 
         for (int i = 0; i < parameters.length; i++) {
             if (!Reflect.hasAnnotation(annotations[i], Source.class) &&
-                !parameters[i].getType().isAssignableFrom(GenericEvent.class) &&
-                !parameters[i].getType().isAssignableFrom(AbstractCommandAdapter.class)) {
+                !GenericEvent.class.isAssignableFrom(parameters[i].getType()) &&
+                !AbstractCommandAdapter.class.isAssignableFrom(parameters[i].getType())) {
 
                 builder.append('<')
                     .append(parameters[i].getName())
