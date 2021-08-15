@@ -2,18 +2,18 @@ package nz.pumbas.halpbot.customparameters.math;
 
 import java.util.Arrays;
 
+import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 
-public class Matrix
+public class Matrix implements DiscordString
 {
     public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);
     public static final Matrix XReflection = new Matrix(2, 2, 1, 0, 0, -1);
     public static final Matrix YReflection = new Matrix(2, 2, -1, 0, 0, 1);
-
 
     private final int rows;
     private final int columns;
@@ -134,8 +134,7 @@ public class Matrix
     public String toString()
     {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("```csharp\n")
-            .append(this.rows)
+        stringBuilder.append(this.rows)
             .append(" x ")
             .append(this.columns)
             .append("\n");
@@ -144,7 +143,6 @@ public class Matrix
         {
             stringBuilder.append(Arrays.toString(row)).append("\n");
         }
-        stringBuilder.append("```");
 
         return stringBuilder.toString();
     }
@@ -181,5 +179,10 @@ public class Matrix
         double sin = Math.sin(radians);
 
         return new Matrix(2, 2, cos, -sin, sin, cos);
+    }
+
+    @Override
+    public String toDiscordString() {
+        return "```csharp\n" + this + "```";
     }
 }

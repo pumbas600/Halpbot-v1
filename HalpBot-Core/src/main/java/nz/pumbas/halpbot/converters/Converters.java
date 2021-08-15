@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.utils.MiscUtil;
 
 import nz.pumbas.halpbot.commands.annotations.Id;
 import nz.pumbas.halpbot.commands.annotations.Source;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
 import nz.pumbas.halpbot.commands.tokens.TokenCommand;
 import nz.pumbas.halpbot.commands.tokens.TokenManager;
@@ -278,19 +278,34 @@ public final class Converters
     public static final TypeConverter<TextChannel> TEXT_CHANNEL_CONVERTER = TypeConverter.builder(TextChannel.class)
         .convert(ctx ->
             ctx.getNextSurrounded("<#", ">")
-                .map(ctx.getEvent().getGuild()::getTextChannelById))
+                .map(ctx.getEvent().getGuild()::getTextChannelById)
+                .orExceptional(
+                    () -> LONG_CONVERTER.getMapper()
+                        .apply(ctx)
+                        .map(id -> ctx.getEvent().getGuild().getTextChannelById(id))
+                ))
         .register();
 
     public static final TypeConverter<Member> MEMBER_CONVERTER = TypeConverter.builder(Member.class)
         .convert(ctx ->
             ctx.getNextSurrounded("<@!", ">")
-                .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete()))
+                .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete())
+                .orExceptional(
+                    () -> LONG_CONVERTER.getMapper()
+                        .apply(ctx)
+                        .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete())
+                ))
         .register();
 
     public static final TypeConverter<User> USER_CONVERTER = TypeConverter.builder(User.class)
         .convert(ctx ->
             ctx.getNextSurrounded("<@!", ">")
-                .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete()))
+                .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
+                .orExceptional(
+                    () -> LONG_CONVERTER.getMapper()
+                        .apply(ctx)
+                        .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
+                ))
         .register();
 
     public static final TypeConverter<Long> ID_LONG_CONVERTER = TypeConverter.builder(Long.class)
@@ -305,7 +320,7 @@ public final class Converters
                     parsedId = ctx.getNextSurrounded("<#", ">").map(MiscUtil::parseSnowflake);
                 else if (Member.class.isAssignableFrom(idType) || User.class.isAssignableFrom(idType))
                     parsedId = ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
-                return parsedId.absent() ? LONG_CONVERTER.getMapper().apply(ctx) : parsedId;
+                return parsedId.orExceptional(() -> LONG_CONVERTER.getMapper().apply(ctx));
             })
         .register();
 
@@ -317,8 +332,8 @@ public final class Converters
         .convert(ctx -> Exceptional.of(ctx.getEvent()))
         .register();
 
-    public static final TypeConverter<AbstractCommandAdapter> COMMAND_ADAPTER_CONVERTER =
-        TypeConverter.builder(AbstractCommandAdapter.class)
+    public static final TypeConverter<CommandAdapter> COMMAND_ADAPTER_CONVERTER =
+        TypeConverter.builder(CommandAdapter.class)
             .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
             .register();
 

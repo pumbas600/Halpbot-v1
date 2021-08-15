@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.commandadapters.TokenCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
@@ -30,7 +30,7 @@ public class HalpBot extends ListenerAdapter
     {
         JDABuilder builder = JDABuilder.createDefault(token)
             .addEventListeners(this);
-        AbstractCommandAdapter commandAdapter = new TokenCommandAdapter(builder, "$")
+        CommandAdapter commandAdapter = new TokenCommandAdapter(builder, "$")
             .registerCommands(
                 new KotlinCommands(),
                 new MatrixCommands(),

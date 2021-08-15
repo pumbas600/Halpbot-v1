@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.commands.CommandMethod;
 import nz.pumbas.halpbot.commands.CommandType;
+import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.ErrorManager;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.OnShutdown;
@@ -40,7 +41,7 @@ import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-public abstract class AbstractCommandAdapter extends ListenerAdapter
+public abstract class CommandAdapter extends ListenerAdapter
 {
     /**
      * A map of the registered {@link String command aliases} and their respective {@link CommandMethod}.
@@ -54,7 +55,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 
     protected final String commandPrefix;
 
-    protected AbstractCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
+    protected CommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
         builder.addEventListeners(this);
         this.commandPrefix = commandPrefix;
         this.registerCommands(new BuiltInCommands());
@@ -66,9 +67,9 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      * @param instances
      *     The {@link Object objects} to check for {@link Command commands}
      *
-     * @return {@link AbstractCommandAdapter Itself}
+     * @return {@link CommandAdapter Itself}
      */
-    public AbstractCommandAdapter registerCommands(@NotNull Object... instances) {
+    public CommandAdapter registerCommands(@NotNull Object... instances) {
         for (Object instance : instances) {
             this.registerCommandMethods(instance, Reflect.getAnnotatedMethods(
                 instance.getClass(), Command.class, false));
@@ -109,7 +110,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     }
 
     /**
-     * Listens to {@link MessageReceivedEvent} and calls {@link AbstractCommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
+     * Listens to {@link MessageReceivedEvent} and calls {@link CommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
      * if the message is the invocation of a registered {@link CommandMethod}.
      *
      * @param event
@@ -145,7 +146,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 
     /**
      * Listens to {@link SlashCommandEvent} and calls
-     * {@link AbstractCommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
+     * {@link CommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
      * if the message is the invocation of a registered {@link CommandMethod}.
      *
      * @param event
@@ -216,16 +217,19 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      *     The {@link Object} that was returned by the {@link CommandMethod}
      */
     protected void displayCommandMethodResult(@NotNull GenericEvent event, @NotNull Object result) {
-        if (event instanceof GenericMessageEvent) {
-            if (result instanceof MessageEmbed)
+        if (result instanceof MessageEmbed) {
+            if (event instanceof GenericMessageEvent)
                 ((GenericMessageEvent) event).getChannel().sendMessageEmbeds((MessageEmbed) result).queue();
-            else
-                ((GenericMessageEvent) event).getChannel().sendMessage(result.toString()).queue();
-        } else if (event instanceof Interaction) {
-            if (result instanceof MessageEmbed)
+            else if (event instanceof Interaction)
                 ((Interaction) event).replyEmbeds((MessageEmbed) result).queue();
-            else
-                ((Interaction) event).reply(result.toString()).queue();
+        }
+        else {
+            String message = result instanceof DiscordString
+                ? ((DiscordString) result).toDiscordString() : result.toString();
+            if (event instanceof GenericMessageEvent)
+                ((GenericMessageEvent) event).getChannel().sendMessage(message).queue();
+            else if (event instanceof Interaction)
+                ((Interaction) event).reply(message).queue();
         }
     }
 

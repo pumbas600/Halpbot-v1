@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.tokens.TokenCommand;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.halpbot.objects.Exceptional;
@@ -20,13 +20,13 @@ import nz.pumbas.halpbot.objects.Exceptional;
 public class MethodContext extends InvocationContext
 {
     private @NotNull ContextState contextState;
-    private @Nullable final AbstractCommandAdapter commandAdapter;
+    private @Nullable final CommandAdapter commandAdapter;
     private @Nullable final MessageReceivedEvent event;
     private @NotNull final Set<Class<?>> reflections;
 
     protected MethodContext(@NotNull String context,
                             @NotNull ContextState contextState,
-                            @Nullable AbstractCommandAdapter commandAdapter,
+                            @Nullable CommandAdapter commandAdapter,
                             @Nullable MessageReceivedEvent event,
                             @NotNull Set<Class<?>> reflections) {
         super(context);
@@ -62,7 +62,7 @@ public class MethodContext extends InvocationContext
         return of("", parsingToken);
     }
 
-    public static MethodContext of(@NotNull String content, @NotNull AbstractCommandAdapter commandAdapter,
+    public static MethodContext of(@NotNull String content, @NotNull CommandAdapter commandAdapter,
                                    @NotNull MessageReceivedEvent event, @NotNull Set<Class<?>> reflections) {
         return new MethodContext(content, ContextState.EMPTY, commandAdapter, event, reflections);
     }
@@ -79,7 +79,7 @@ public class MethodContext extends InvocationContext
         this.contextState = new ContextState(parsingToken.getType(), parsingToken.getAnnotations(), parsingToken.getAnnotationTypes());
     }
 
-    public @Nullable AbstractCommandAdapter getCommandAdapter() {
+    public @Nullable CommandAdapter getCommandAdapter() {
         return this.commandAdapter;
     }
 

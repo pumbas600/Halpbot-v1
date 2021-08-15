@@ -411,6 +411,37 @@ public final class Exceptional<T>
         return this;
     }
 
+
+    /**
+     * Return a {@code Exceptional} instance holding the value if present, otherwise invoke {@code
+     * defaultValue} and return the result of that invocation, combined with a throwable if a
+     * throwable is present. This method is similar to {@link Exceptional#get(Supplier)}, but
+     * the supplier returns an {@code Exceptional}.
+     *
+     * @param defaultValue
+     *     A {@code Supplier} whose result is wrapped if no value is present
+     *
+     * @return The {@code Exceptional}, for chaining
+     * @throws NullPointerException
+     *     If a value is present and {@code defaultValue} is null
+     */
+    public Exceptional<T> orExceptional(Supplier<Exceptional<T>> defaultValue) {
+        if (this.absent()) {
+            try {
+                Exceptional<T> suppliedExceptional = defaultValue.get();
+                if (this.caught()) {
+                    if (suppliedExceptional.present()) return suppliedExceptional;
+                    else return of(defaultValue.get().orNull(), this.throwable);
+                } else {
+                    return suppliedExceptional;
+                }
+            } catch (Exception e) {
+                return of(e);
+            }
+        }
+        return this;
+    }
+
     /**
      * If a value is present, and the value matches the given predicate, return an {@code Exceptional}
      * describing value, otherwise return {@link Exceptional#empty()}.

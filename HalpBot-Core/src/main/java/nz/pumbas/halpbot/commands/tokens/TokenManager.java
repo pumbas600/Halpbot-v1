@@ -9,7 +9,7 @@ import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
@@ -304,7 +304,7 @@ public final class TokenManager
         for (int i = 0; i < parameters.length; i++) {
             if (!Reflect.hasAnnotation(annotations[i], Source.class) &&
                 !GenericEvent.class.isAssignableFrom(parameters[i].getType()) &&
-                !AbstractCommandAdapter.class.isAssignableFrom(parameters[i].getType())) {
+                !CommandAdapter.class.isAssignableFrom(parameters[i].getType())) {
 
                 builder.append('<')
                     .append(parameters[i].getName())

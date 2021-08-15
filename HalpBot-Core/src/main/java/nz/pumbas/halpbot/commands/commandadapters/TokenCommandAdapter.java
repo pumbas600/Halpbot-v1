@@ -17,7 +17,7 @@ import nz.pumbas.halpbot.commands.tokens.TokenManager;
 import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
 import nz.pumbas.halpbot.objects.Exceptional;
 
-public class TokenCommandAdapter extends AbstractCommandAdapter
+public class TokenCommandAdapter extends CommandAdapter
 {
     public TokenCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
         super(builder, commandPrefix);
