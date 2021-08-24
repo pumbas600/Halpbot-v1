@@ -36,7 +36,7 @@ public class SimpleParsingToken implements ParsingToken
         Unrequired unrequired = this.getAnnotation(Unrequired.class);
         this.isOptional = null != unrequired;
 
-        String defaultValue = this.isOptional ? unrequired.value() : "null";
+        String defaultValue = this.isOptional ? unrequired.value() : "${Default}";
         MethodContext ctx = MethodContext.of(defaultValue, this);
 
         this.converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);

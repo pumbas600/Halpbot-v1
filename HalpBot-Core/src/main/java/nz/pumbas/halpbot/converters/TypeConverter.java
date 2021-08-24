@@ -76,7 +76,7 @@ public class TypeConverter<T> implements Converter<T>
         return this.register;
     }
 
-    protected static class TypeConverterBuilder<T>
+    public static class TypeConverterBuilder<T>
     {
 
         private Class<T> type;

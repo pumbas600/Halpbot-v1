@@ -120,7 +120,11 @@ public final class Converters
     public static final TypeConverter<Enum> ENUM_CONVERTER = TypeConverter.builder(Enum.class)
         .convert(ctx ->
             Exceptional.of(
-                Reflect.parseEnumValue(ctx.getContextState().getClazz(), ctx.getNext())))
+                Reflect.parseEnumValue(ctx.getContextState().getClazz(), ctx.getNext()))
+                .orElse(() -> {
+                    throw new IllegalArgumentException(
+                        "That didn't seem to be a valid value for " + ctx.getContextState().getClazz().getSimpleName());
+                }))
         .register();
 
     public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(c -> true)
