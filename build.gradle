@@ -1,8 +1,9 @@
 plugins {
     id 'java'
+    id 'org.cadixdev.licenser' version "0.5.0"
 }
 
-group 'nz.pumbas'
+group 'nz.pumbas.halpbot'
 version '1.0.1'
 
 repositories {
@@ -19,9 +20,16 @@ test {
 
 subprojects { Project subProject ->
     apply plugin: "java"
+    apply plugin: 'org.cadixdev.licenser'
 
-    group 'nz.pumbas'
+    group 'nz.pumbas.halpbot'
     version '1.0.1'
+
+    license {
+        header = rootProject.file("LICENSE")
+        ignoreFailures = true
+        include '**/*.java'
+    }
 
     sourceCompatibility = 11
 
@@ -58,7 +66,6 @@ allprojects {
             testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
         }
-
 
         test {
             useJUnitPlatform()
