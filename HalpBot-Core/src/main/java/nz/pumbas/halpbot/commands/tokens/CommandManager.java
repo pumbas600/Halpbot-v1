@@ -33,12 +33,13 @@ import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
-import nz.pumbas.halpbot.commands.tokens.context.InvocationContext;
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.SimpleParsingToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
@@ -67,27 +68,27 @@ import java.util.stream.Collectors;
 /**
  * A static {@link Token} manager, that handles the parsing of commands into {@link Token command tokens}.
  */
-public final class TokenManager
+public final class CommandManager
 {
 
-    private TokenManager() {}
+    private CommandManager() {}
 
     /**
-     * A {@link Map} which maps custom classes to their parsed {@link Constructor} in an {@link TokenCommand}.
+     * A {@link Map} which maps custom classes to their parsed {@link Constructor} in an {@link SimpleCommand}.
      */
-    private static final Map<Class<?>, List<TokenCommand>> CustomClassConstructors = new HashMap<>();
+    private static final Map<Class<?>, List<SimpleCommand>> CustomClassConstructors = new HashMap<>();
 
     /**
-     * Retrieves the {@link List} of parsed {@link TokenCommand token commands} for the given {@link Class class's} constructors.
-     * If the specified {@link Class} hasn't had their {@link Constructor constructors} parsed, then it calls {@link TokenManager#parseCustomClassConstructors(Class)}
+     * Retrieves the {@link List} of parsed {@link SimpleCommand token commands} for the given {@link Class class's} constructors.
+     * If the specified {@link Class} hasn't had their {@link Constructor constructors} parsed, then it calls {@link CommandManager#parseCustomClassConstructors(Class)}
      * and automatically returns the result.
      *
      * @param customClass
-     *     The {@link Class} to retrieve the parsed {@link TokenCommand token commands} from.
+     *     The {@link Class} to retrieve the parsed {@link SimpleCommand token commands} from.
      *
-     * @return The {@link List} of {@link TokenCommand token commands} for the passed {@link Class}
+     * @return The {@link List} of {@link SimpleCommand token commands} for the passed {@link Class}
      */
-    public static List<TokenCommand> getParsedConstructors(Class<?> customClass) {
+    public static List<SimpleCommand> getParsedConstructors(Class<?> customClass) {
         if (!CustomClassConstructors.containsKey(customClass))
             parseCustomClassConstructors(customClass);
         return CustomClassConstructors.get(customClass);
@@ -95,7 +96,7 @@ public final class TokenManager
 
     /**
      * Generates the {@link Token command tokens} for the {@link Constructor constructors} of the
-     * {@link Class custom class} and adds it to {@link TokenManager#CustomClassConstructors}.
+     * {@link Class custom class} and adds it to {@link CommandManager#CustomClassConstructors}.
      *
      * @param customClass
      *     The {@link Class custom class} to parse the {@link Constructor constructors} for
@@ -119,7 +120,7 @@ public final class TokenManager
         CustomClassConstructors.put(customClass,
             customConstructors
                 .stream()
-                .map(c -> new TokenCommand(null, c, parseConstructor(c))) //For constructors, an instance isn't required to invoke it.
+                .map(c -> new SimpleCommand(null, c, parseConstructor(c))) //For constructors, an instance isn't required to invoke it.
                 .collect(Collectors.toList()));
     }
 
@@ -144,16 +145,16 @@ public final class TokenManager
     }
 
     /**
-     * Generates an {@link TokenCommand} from the passed in {@link Object instance} and {@link Method}.
+     * Generates an {@link SimpleCommand} from the passed in {@link Object instance} and {@link Method}.
      *
      * @param instance
      *     The {@link Object} that the {@link Method} belongs to
      * @param method
      *     The {@link Method} to make the command from
      *
-     * @return A {@link TokenCommand} representing the specified {@link Method}
+     * @return A {@link SimpleCommand} representing the specified {@link Method}
      */
-    public static TokenCommand generateTokenCommand(@NotNull Object instance, @NotNull Method method) {
+    public static SimpleCommand generateCommandMethod(@NotNull Object instance, @NotNull Method method) {
         Set<Class<?>> reflections;
         List<Token> tokens;
 
@@ -169,7 +170,7 @@ public final class TokenManager
             tokens = generateTokens(method);
         }
 
-        return new TokenCommand(instance, method, tokens, reflections);
+        return new SimpleCommand(instance, method, tokens, reflections);
     }
 
     /**
@@ -182,8 +183,9 @@ public final class TokenManager
      *
      * @return The generated {@link ParsingToken}
      */
-    public static ParsingToken generateToken(@NotNull Type type, @NotNull Annotation[] annotations) {
-        return new SimpleParsingToken(type, annotations);
+    public static ParsingToken generateToken(@NotNull Type type, @NotNull Annotation[] annotations,
+                                             @NotNull String parameterName) {
+        return new SimpleParsingToken(type, annotations, parameterName);
     }
 
     /**
@@ -198,10 +200,11 @@ public final class TokenManager
     public static List<Token> generateTokens(@NotNull Executable executable) {
         List<Token> tokens = new ArrayList<>();
         Type[] parameterTypes = executable.getGenericParameterTypes();
+        Parameter[] parameters = executable.getParameters();
         Annotation[][] parameterAnnotations = executable.getParameterAnnotations();
 
         for (int i = 0; i < executable.getParameterCount(); i++) {
-            tokens.add(generateToken(parameterTypes[i], parameterAnnotations[i]));
+            tokens.add(generateToken(parameterTypes[i], parameterAnnotations[i], parameters[i].getName()));
         }
         return tokens;
     }
@@ -220,6 +223,7 @@ public final class TokenManager
         List<String> splitCommand = splitCommand(command);
 
         Class<?>[] parameterClasses = executable.getParameterTypes();
+        Parameter[] parameters = executable.getParameters();
         Type[] parameterTypes = executable.getGenericParameterTypes();
         Annotation[][] parameterAnnotations = executable.getParameterAnnotations();
         int parameterIndex = 0;
@@ -227,7 +231,8 @@ public final class TokenManager
 
         while (itemIndex < splitCommand.size()) {
             ParsingToken currentToken =
-                new SimpleParsingToken(parameterTypes[parameterIndex], parameterAnnotations[parameterIndex]);
+                new SimpleParsingToken(parameterTypes[parameterIndex], parameterAnnotations[parameterIndex],
+                    parameters[parameterIndex].getName());
             String item = splitCommand.get(itemIndex);
 
             if (item.startsWith("<")) {
@@ -290,7 +295,7 @@ public final class TokenManager
     }
 
     /**
-     * Generates a {@link TokenCommand} from the passed in {@link Object instance} and {@link Method} and
+     * Generates a {@link SimpleCommand} from the passed in {@link Object instance} and {@link Method} and
      * {@link Command}.
      *
      * @param instance
@@ -300,9 +305,9 @@ public final class TokenManager
      * @param command
      *     The {@link Command} for this command
      *
-     * @return A {@link TokenCommand} representing the specified {@link Method}
+     * @return A {@link SimpleCommand} representing the specified {@link Method}
      */
-    public static TokenCommand generateTokenCommand(Object instance, Method method, Command command) {
+    public static SimpleCommand generateCommandMethod(Object instance, Method method, Command command) {
         Set<Long> restrictions = getRestrictedToList(command.restrictedTo());
         Set<Class<?>> reflections = new HashSet<>(Arrays.asList(command.reflections()));
 
@@ -314,7 +319,7 @@ public final class TokenManager
         }
         String displayCommand = command.command();
 
-        return new TokenCommand(instance, method,
+        return new SimpleCommand(command.alias(), instance, method,
             displayCommand.isEmpty() ? generateTokens(method) : generateTokens(displayCommand, method),
             displayCommand.isEmpty() ? "Not Defined" : displayCommand,
             command.description(), command.permissions(), restrictions, reflections, generateUsage(method));
@@ -326,9 +331,7 @@ public final class TokenManager
         Annotation[][] annotations = executable.getParameterAnnotations();
 
         for (int i = 0; i < parameters.length; i++) {
-            if (!Reflect.hasAnnotation(annotations[i], Source.class) &&
-                !GenericEvent.class.isAssignableFrom(parameters[i].getType()) &&
-                !CommandAdapter.class.isAssignableFrom(parameters[i].getType())) {
+            if (isCommandParameter(parameters[i].getType(), annotations[i])) {
 
                 builder.append('<')
                     .append(parameters[i].getName())
@@ -345,7 +348,7 @@ public final class TokenManager
     }
 
     /**
-     * Generates an {@link TokenCommand} from the passed in parameters.
+     * Generates an {@link SimpleCommand} from the passed in parameters.
      *
      * @param instance
      *     The {@link Object} that the {@link Method} belongs to
@@ -354,10 +357,10 @@ public final class TokenManager
      * @param reflections
      *     The {@link Class classes} that the command can invoke methods from
      *
-     * @return A {@link TokenCommand} representing the specified {@link Method}
+     * @return A {@link SimpleCommand} representing the specified {@link Method}
      */
-    public static TokenCommand generateTokenCommand(Object instance, Method method, Set<Class<?>> reflections) {
-        return new TokenCommand(instance, method, generateTokens(method), reflections);
+    public static SimpleCommand generateCommandMethod(Object instance, Method method, Set<Class<?>> reflections) {
+        return new SimpleCommand(instance, method, generateTokens(method), reflections);
     }
 
     /**
@@ -392,7 +395,7 @@ public final class TokenManager
 
             Optional<Class<?>> oClass = ctx.getReflections()
                 .stream()
-                .filter(c -> TokenManager.getTypeAlias(c).equalsIgnoreCase(type.get()))
+                .filter(c -> CommandManager.getTypeAlias(c).equalsIgnoreCase(type.get()))
                 .findFirst();
 
             if (oClass.isPresent()) {
@@ -427,20 +430,20 @@ public final class TokenManager
         if (!ctx.isNext('[', true))
             return Exceptional.of(new IllegalFormatException("Expected the character ["));
 
-        List<TokenCommand> tokenCommands =
+        List<SimpleCommand> simpleCommands =
             Reflect.getMethods(reflectionClass, methodName, true)
                 .stream()
                 .filter(m -> ctx.getContextState().getClazz().isAssignableFrom(m.getReturnType()))
                 .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
-                .map(m -> generateTokenCommand(null, m, ctx.getReflections()))
+                .map(m -> generateCommandMethod(null, m, ctx.getReflections()))
                 .collect(Collectors.toList());
 
-        if (tokenCommands.isEmpty())
+        if (simpleCommands.isEmpty())
             return Exceptional.of(() -> new TokenCommandException("There were no methods with the name " + methodName));
 
         Exceptional<Object> result = Exceptional.empty();
-        for (TokenCommand tokenCommand : tokenCommands) {
-            result = tokenCommand.parse(ctx, true);
+        for (SimpleCommand simpleCommand : simpleCommands) {
+            result = simpleCommand.parse(ctx, true);
             if (result.present())
                 break;
         }
@@ -501,5 +504,24 @@ public final class TokenManager
         else defaultAlias = Reflect.wrapPrimative(type).getSimpleName();
 
         return defaultAlias;
+    }
+
+    /**
+     * Returns true if the specified type is a command parameter (Something that can be specified when invoking the
+     * command). This is true if the type does not have the {@link Source} annotation and it isn't assignable from
+     * {@link GenericEvent} and {@link AbstractCommandAdapter}.
+     *
+     * @param type
+     *      The {@link Type} of the parameter
+     * @param annotations
+     *      An array of the {@link Annotation annotations} on the parameter
+     *
+     * @return If its a command parameter.
+     */
+    public static boolean isCommandParameter(Type type, Annotation[] annotations) {
+        Class<?> clazz = Reflect.asClass(type);
+        return !Reflect.hasAnnotation(annotations, Source.class) &&
+               !GenericEvent.class.isAssignableFrom(clazz) &&
+               !AbstractCommandAdapter.class.isAssignableFrom(clazz);
     }
 }

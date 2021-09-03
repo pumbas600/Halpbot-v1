@@ -36,7 +36,10 @@ import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +55,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.commands.CommandMethod;
+import nz.pumbas.halpbot.commands.annotations.Description;
+import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.CommandType;
 import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.ErrorManager;
@@ -62,10 +66,13 @@ import nz.pumbas.halpbot.BuiltInCommands;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCommandException;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
+import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
+import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
+import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-public abstract class CommandAdapter extends ListenerAdapter
+public abstract class AbstractCommandAdapter extends ListenerAdapter
 {
     /**
      * A map of the registered {@link String command aliases} and their respective {@link CommandMethod}.
@@ -79,7 +86,7 @@ public abstract class CommandAdapter extends ListenerAdapter
 
     protected final String commandPrefix;
 
-    protected CommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
+    protected AbstractCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
         builder.addEventListeners(this);
         this.commandPrefix = commandPrefix;
         this.registerCommands(new BuiltInCommands());
@@ -91,9 +98,9 @@ public abstract class CommandAdapter extends ListenerAdapter
      * @param instances
      *     The {@link Object objects} to check for {@link Command commands}
      *
-     * @return {@link CommandAdapter Itself}
+     * @return {@link AbstractCommandAdapter Itself}
      */
-    public CommandAdapter registerCommands(@NotNull Object... instances) {
+    public AbstractCommandAdapter registerCommands(@NotNull Object... instances) {
         for (Object instance : instances) {
             this.registerCommandMethods(instance, Reflect.getAnnotatedMethods(
                 instance.getClass(), Command.class, false));
@@ -109,14 +116,33 @@ public abstract class CommandAdapter extends ListenerAdapter
      *     The {@link JDA}
      */
     public void registerSlashCommands(JDA jda) {
-        jda.upsertCommand("test", "A test slash command")
-            .addOption(OptionType.CHANNEL, "channel", "A test channel")
-            .queue();
-
-        for (String alias : this.registeredSlashCommands.keySet()) {
-            CommandMethod commandMethod = this.registeredCommands.get(alias);
-            jda.upsertCommand(alias, commandMethod.getDescription()).queue();
+        for (CommandMethod commandMethod : this.registeredSlashCommands.values()) {
+            jda.upsertCommand(
+                this.generateSlashCommandData(commandMethod))
+                .queue();
         }
+    }
+
+    public CommandData generateSlashCommandData(CommandMethod commandMethod) {
+        CommandData data = new CommandData(commandMethod.getAlias(), commandMethod.getDescription());
+        for (Token token : commandMethod.getTokens()) {
+            if (token instanceof ParsingToken) {
+                ParsingToken parsingToken = (ParsingToken) token;
+                if (!parsingToken.isCommandParameter()) continue;
+
+                Description description = parsingToken.getAnnotation(Description.class);
+                String optionDescription = null == description ? "N/A" : description.value();
+
+                data.addOption(parsingToken.getConverter().getOptionType(), parsingToken.getParameterName(),
+                    optionDescription, !token.isOptional());
+            }
+            else if (token instanceof PlaceholderToken){
+                PlaceholderToken placeholderToken = (PlaceholderToken) token;
+                data.addOption(OptionType.STRING, placeholderToken.getPlaceHolder(),
+                    placeholderToken.getPlaceHolder(), !token.isOptional());
+            }
+        }
+        return data;
     }
 
     /**
@@ -134,7 +160,8 @@ public abstract class CommandAdapter extends ListenerAdapter
     }
 
     /**
-     * Listens to {@link MessageReceivedEvent} and calls {@link CommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
+     * Listens to {@link MessageReceivedEvent} and calls
+     * {@link AbstractCommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
      * if the message is the invocation of a registered {@link CommandMethod}.
      *
      * @param event
@@ -170,7 +197,7 @@ public abstract class CommandAdapter extends ListenerAdapter
 
     /**
      * Listens to {@link SlashCommandEvent} and calls
-     * {@link CommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
+     * {@link AbstractCommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
      * if the message is the invocation of a registered {@link CommandMethod}.
      *
      * @param event
@@ -178,6 +205,26 @@ public abstract class CommandAdapter extends ListenerAdapter
      */
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
+        if(!this.registeredSlashCommands.containsKey(event.getName())) {
+            this.displayCommandMethodResult(event,
+                "There doesn't appear to be a command method backing this slash command");
+            return;
+        }
+
+        CommandMethod commandMethod = this.registeredSlashCommands.get(event.getName());
+        StringBuilder builder = new StringBuilder();
+        for (OptionMapping option : event.getOptions()) {
+            builder.append(option.getAsString()).append(' ');
+        }
+
+        //TODO: THIS
+//        this.handleCommandMethodCall(event, commandMethod, builder.toString())
+//            .present(value -> this.displayCommandMethodResult(event, value))
+//            .caught(exception -> event.getChannel()
+//                .sendMessageEmbeds(
+//                    buildHelpMessage(event.getName(), commandMethod, exception.getMessage()))
+//                .queue());
+
         this.displayCommandMethodResult(event, event.getOptions());
     }
 

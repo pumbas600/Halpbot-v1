@@ -24,14 +24,16 @@
 
 package nz.pumbas.halpbot.converters;
 
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import nz.pumbas.halpbot.commands.tokens.context.ContextState;
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.ContextState;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.enums.Priority;
@@ -41,11 +43,14 @@ public class TypeConverter<T> implements Converter<T>
     private final Function<MethodContext, Exceptional<T>> converter;
     private final Priority priority;
     private final ConverterRegister register;
+    private final OptionType optionType;
 
-    public TypeConverter(Function<MethodContext, Exceptional<T>> converter, Priority priority, ConverterRegister register) {
+    public TypeConverter(Function<MethodContext, Exceptional<T>> converter, Priority priority,
+                         ConverterRegister register, OptionType optionType) {
         this.converter = converter;
         this.priority = priority;
         this.register = register;
+        this.optionType = optionType;
     }
 
     /**
@@ -100,6 +105,14 @@ public class TypeConverter<T> implements Converter<T>
         return this.register;
     }
 
+    /**
+     * @return The JDA {@link OptionType} for this converter.
+     */
+    @Override
+    public OptionType getOptionType() {
+        return this.optionType;
+    }
+
     public static class TypeConverterBuilder<T>
     {
 
@@ -109,6 +122,7 @@ public class TypeConverter<T> implements Converter<T>
         private Function<MethodContext, Exceptional<T>> converter;
         private Priority priority = Priority.DEFAULT;
         private Class<?> annotation = Void.class;
+        private OptionType optionType = OptionType.STRING;
 
         protected TypeConverterBuilder(@NotNull Class<T> type) {
             this.type = type;
@@ -172,6 +186,20 @@ public class TypeConverter<T> implements Converter<T>
         }
 
         /**
+         * Specifies the JDA {@link OptionType} to map this type to, when building slash commands. If no option type
+         * is specified, then it will default to {@link OptionType#STRING}.
+         *
+         * @param optionType
+         *      The JDA {@link OptionType}
+         *
+         * @return Itself for chaining
+         */
+        public TypeConverterBuilder<T> optionType(OptionType optionType) {
+            this.optionType = optionType;
+            return this;
+        }
+
+        /**
          * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link ConverterHandlerImpl}.
          *
          * @return The built {@link TypeConverter}
@@ -181,7 +209,7 @@ public class TypeConverter<T> implements Converter<T>
                 ? (handler, converter) -> handler.registerConverter(this.filter, this.annotation, converter)
                 : (handler, converter) -> handler.registerConverter(this.type, this.annotation, converter);
 
-            return new TypeConverter<>(this.converter, this.priority, register);
+            return new TypeConverter<>(this.converter, this.priority, register, this.optionType);
         }
 
         /**

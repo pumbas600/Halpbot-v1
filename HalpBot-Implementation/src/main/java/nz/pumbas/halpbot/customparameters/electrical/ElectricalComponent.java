@@ -24,10 +24,6 @@
 
 package nz.pumbas.halpbot.customparameters.electrical;
 
-import nz.pumbas.halpbot.commands.annotations.Children;
-
-@SuppressWarnings("ClassReferencesSubclass")
-@Children({Resistor.class, PowerSupply.class})
 public class ElectricalComponent {
 
     protected double voltageDrop;

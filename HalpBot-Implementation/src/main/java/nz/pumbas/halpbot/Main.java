@@ -26,7 +26,6 @@ package nz.pumbas.halpbot;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.halpbot.commands.annotationprocessors.AutoRegisterAnnotationProcessor;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public final class Main
@@ -35,7 +34,5 @@ public final class Main
 
     public static void main(String[] args) throws LoginException {
         HalpBot halpBot = new HalpBot(HalpbotUtils.getFirstLineFromFile("Token.txt"));
-        AutoRegisterAnnotationProcessor.AnnotatedFullClassNames
-            .forEach(System.out::println);
     }
 }

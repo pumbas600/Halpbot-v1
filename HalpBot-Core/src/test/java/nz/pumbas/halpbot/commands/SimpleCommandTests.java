@@ -33,9 +33,9 @@ import java.util.Arrays;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
-import nz.pumbas.halpbot.commands.tokens.TokenCommand;
-import nz.pumbas.halpbot.commands.tokens.TokenManager;
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
+import nz.pumbas.halpbot.commands.tokens.CommandManager;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.objects.Matrix;
@@ -45,27 +45,27 @@ import nz.pumbas.halpbot.converters.Converters;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-public class TokenCommandTests
+public class SimpleCommandTests
 {
     @Test
     public void tokenCommandMatchesTest() {
-        TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
+        SimpleCommand simpleCommand = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Assertions.assertTrue(tokenCommand.parse(MethodContext.of("1 [2 3 4 1]")).present());
-        Assertions.assertTrue(tokenCommand.parse(MethodContext.of("2")).present());
-        Assertions.assertTrue(tokenCommand.parse(MethodContext.of("2 [1 a 2]")).absent());
-        Assertions.assertTrue(tokenCommand.parse(MethodContext.of("abc [1 3 2]")).absent());
-        Assertions.assertTrue(tokenCommand.parse(MethodContext.of("2 agf")).absent());
+        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("1 [2 3 4 1]")).present());
+        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("2")).present());
+        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("2 [1 a 2]")).absent());
+        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("abc [1 3 2]")).absent());
+        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("2 agf")).absent());
     }
 
     @Test
     public void simpleTokenCommandInvokeTest() {
-        TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
+        SimpleCommand simpleCommand = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Exceptional<Boolean> result1 = tokenCommand.parse(MethodContext.of("1 [2 1 4 3]")).map(o -> (Boolean) o);
-        Exceptional<Boolean> result2 = tokenCommand.parse(MethodContext.of("2 [9 5 4 3]")).map(o -> (Boolean) o);
+        Exceptional<Boolean> result1 = simpleCommand.parse(MethodContext.of("1 [2 1 4 3]")).map(o -> (Boolean) o);
+        Exceptional<Boolean> result2 = simpleCommand.parse(MethodContext.of("2 [9 5 4 3]")).map(o -> (Boolean) o);
         Assertions.assertTrue(result1.present());
         Assertions.assertTrue(result2.present());
         Assertions.assertTrue(result1.get());
@@ -74,10 +74,10 @@ public class TokenCommandTests
 
     @Test
     public void testDefaultValueForLastElementTest() {
-        TokenCommand tokenCommand = TokenManager.generateTokenCommand(this,
+        SimpleCommand simpleCommand = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
-        Exceptional<Boolean> result = tokenCommand.parse(MethodContext.of("1")).map(o -> (Boolean) o);
+        Exceptional<Boolean> result = simpleCommand.parse(MethodContext.of("1")).map(o -> (Boolean) o);
 
         Assertions.assertTrue(result.present());
         Assertions.assertFalse(result.get());
@@ -94,7 +94,7 @@ public class TokenCommandTests
 
     @Test
     public void tokenCommandTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "containedWithinArrayTestMethod"));
 
         Assertions.assertTrue(command.parse(MethodContext.of("2 [1 3 3]")).present());
@@ -111,7 +111,7 @@ public class TokenCommandTests
 
     @Test
     public void customObjectTokenCommandTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
         Assertions.assertEquals(
@@ -135,7 +135,7 @@ public class TokenCommandTests
 
     @Test
     public void implicitArrayTokenTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "implicitArrayTokenMethodTest"));
 
         Assertions.assertTrue(command.parse(MethodContext.of("2 3 2 1 4 Heyo")).present());
@@ -157,7 +157,7 @@ public class TokenCommandTests
 
     @Test
     public void implicitArrayTokenAtEndTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "implicitArrayTokenAtEndMethodTest"));
 
         Exceptional<Object> result1 = command.parse(MethodContext.of(""));
@@ -186,7 +186,7 @@ public class TokenCommandTests
 
     @Test
     public void stringDefaultValueTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "stringDefaultValueMethodTest"));
 
         Assertions.assertTrue(command.parse(MethodContext.of("")).present());
@@ -206,7 +206,7 @@ public class TokenCommandTests
 
     @Test
     public void commandWithMessageReceivedEventParameterTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithMessageReceivedEventParameterMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
@@ -220,7 +220,7 @@ public class TokenCommandTests
 
     @Test
     public void commandWithMultipleAnnotationsTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithMultipleAnnotationsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
@@ -240,7 +240,7 @@ public class TokenCommandTests
 
     @Test
     public void commandWithVarargsTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithVarargsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
@@ -259,7 +259,7 @@ public class TokenCommandTests
 
     @Test
     public void commandStringWithMultipleAnnotationsTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandStringWithMultipleAnnotationsMethodTest"));
 
         Assertions.assertEquals(4, command.getCommandTokens().size());
@@ -281,7 +281,7 @@ public class TokenCommandTests
 
     @Test
     public void commandWithComplexCustomParameterMatchesTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
         Exceptional<Object> result1 = command.parse(MethodContext.of("Matrix[2 2 x 1 0 0 1]"));
@@ -313,7 +313,7 @@ public class TokenCommandTests
 
     @Test
     public void commandWithComplexCustomParameterInvocationTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
         Exceptional<Object> result = command.parse(MethodContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]"));
@@ -324,7 +324,7 @@ public class TokenCommandTests
 
     @Test
     public void commandWith2DArrayTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
         Assertions.assertTrue(command.parse(MethodContext.of("Matrix[]")).present());
@@ -335,7 +335,7 @@ public class TokenCommandTests
 
     @Test
     public void commandMethodMatchesTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
         Exceptional<Object> result = command.parse(MethodContext.of("Matrix.yShear[4", command));
@@ -349,7 +349,7 @@ public class TokenCommandTests
 
     @Test
     public void commandFieldMatchesTest() {
-        TokenCommand command = TokenManager.generateTokenCommand(this,
+        SimpleCommand command = CommandManager.generateCommandMethod(this,
             Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
 
         Assertions.assertTrue(command.parse(MethodContext.of("Matrix.UnitSquare", command)).present());

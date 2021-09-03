@@ -33,8 +33,8 @@ import java.util.Arrays;
 
 import nz.pumbas.halpbot.commands.annotations.Children;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
-import nz.pumbas.halpbot.commands.tokens.context.ContextState;
-import nz.pumbas.halpbot.commands.tokens.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.ContextState;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.objects.Exceptional;
 

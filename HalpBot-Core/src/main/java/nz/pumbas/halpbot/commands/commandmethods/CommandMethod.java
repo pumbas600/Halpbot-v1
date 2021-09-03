@@ -22,22 +22,33 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands;
+package nz.pumbas.halpbot.commands.commandmethods;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
+import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
 
 public interface CommandMethod
 {
+
+    /**
+     * @return The {@link String alias} for this command.
+     */
+    @NotNull
+    String getAlias();
 
     /**
      * @return The {@link String description} if present, otherwise null
@@ -80,6 +91,29 @@ public interface CommandMethod
      */
     @NotNull
     String getUsage();
+
+    /**
+     * @return The {@link Token tokens} making up this command.
+     */
+    @NotNull
+    List<Token> getTokens();
+
+    /**
+     * Returns true if the {@link Member author} has all the necessary permissions to use this command.
+     *
+     * @param author
+     *      The author of the commmand
+     *
+     * @return If the author had permission
+     */
+    default boolean hasPermission(@Nullable Member author) {
+        if (null == author)
+            return this.getRestrictedTo().isEmpty() && 0 == this.getPermissions().length;
+
+        return (this.getRestrictedTo().isEmpty() ||
+               this.getRestrictedTo().contains(author.getIdLong())) &&
+               author.hasPermission(this.getPermissions());
+    }
 
     /**
      * Invokes the {@link Method} for this {@link CommandMethod}.

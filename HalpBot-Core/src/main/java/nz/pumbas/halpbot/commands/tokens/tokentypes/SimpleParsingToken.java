@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.MethodContext;
+import nz.pumbas.halpbot.commands.tokens.CommandManager;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
@@ -49,8 +50,10 @@ public class SimpleParsingToken implements ParsingToken
     private final boolean isOptional;
     private final Converter<?> converter;
     private final Object defaultValue;
+    private final boolean isCommandParameter;
+    private final String parameterName;
 
-    public SimpleParsingToken(Type type, Annotation[] annotations) {
+    public SimpleParsingToken(Type type, Annotation[] annotations, String parameterName) {
         this.type = type;
         this.annotations = annotations;
         this.annotationTypes = Stream.of(annotations)
@@ -65,6 +68,9 @@ public class SimpleParsingToken implements ParsingToken
 
         this.converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
         this.defaultValue = this.parseDefaultValue(ctx);
+
+        this.isCommandParameter = CommandManager.isCommandParameter(type, annotations);
+        this.parameterName = parameterName;
     }
 
     /**
@@ -113,5 +119,22 @@ public class SimpleParsingToken implements ParsingToken
     @Override
     public @Nullable Object getDefaultValue() {
         return this.defaultValue;
+    }
+
+    /**
+     * @return If this {@link ParsingToken} is a command parameter. If not, then it must extract information from the
+     *     source event or command adapter.
+     */
+    @Override
+    public boolean isCommandParameter() {
+        return this.isCommandParameter;
+    }
+
+    /**
+     * @return The parameter name for this {@link ParsingToken}.
+     */
+    @Override
+    public @NotNull String getParameterName() {
+        return this.parameterName;
     }
 }

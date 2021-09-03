@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import nz.pumbas.halpbot.objects.Tuple;
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.context.LateInit;
 

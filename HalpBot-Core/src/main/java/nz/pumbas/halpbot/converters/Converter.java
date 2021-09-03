@@ -24,9 +24,11 @@
 
 package nz.pumbas.halpbot.converters;
 
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
@@ -46,6 +48,8 @@ public interface Converter<T>
      * @return The {@link ConverterRegister} for this converter, describing how to register it to a {@link ConverterHandler}
      */
     ConverterRegister getRegister();
+
+    OptionType getOptionType();
 
     /**
      * Registers itself to the {@link ConverterHandler} using the {@link ConverterRegister}.

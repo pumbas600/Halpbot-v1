@@ -32,12 +32,15 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
-import nz.pumbas.halpbot.commands.commandadapters.TokenCommandAdapter;
+import nz.pumbas.halpbot.commands.NumberSystemConverters;
+import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.KotlinCommands;
@@ -54,13 +57,14 @@ public class HalpBot extends ListenerAdapter
     {
         JDABuilder builder = JDABuilder.createDefault(token)
             .addEventListeners(this);
-        CommandAdapter commandAdapter = new TokenCommandAdapter(builder, "$")
+        AbstractCommandAdapter commandAdapter = new SimpleCommandAdapter(builder, "$")
             .registerCommands(
                 new KotlinCommands(),
                 new MatrixCommands(),
                 new VectorCommands(),
                 new ElectricalCommands(),
-                new HalpBotCommands());
+                new HalpBotCommands(),
+                new NumberSystemConverters());
 
         this.jda = builder.build();
         commandAdapter.registerSlashCommands(this.jda);
@@ -70,7 +74,9 @@ public class HalpBot extends ListenerAdapter
     public void onReady(@NotNull ReadyEvent event)
     {
         this.jda.getPresence().setPresence(Activity.of(ActivityType.WATCHING, "Trying to halp everyone"), false);
-        System.out.printf("The bot is initialised and running in %s servers%n", event.getGuildTotalCount());
+        Logger logger = LogManager.getLogger("Test");
+        logger.info("The bot is initialised and running in {} servers", event.getGuildTotalCount());
+        //System.out.printf("The bot is initialised and running in %s servers%n", event.getGuildTotalCount());
     }
 
     @Override

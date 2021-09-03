@@ -26,7 +26,7 @@ package nz.pumbas.halpbot.commands.tokens.tokentypes;
 
 import org.jetbrains.annotations.NotNull;
 
-import nz.pumbas.halpbot.commands.tokens.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 
 /**
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command:

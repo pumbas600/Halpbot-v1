@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.tokens.context;
+package nz.pumbas.halpbot.commands.context;
 
 import org.jetbrains.annotations.NotNull;
 

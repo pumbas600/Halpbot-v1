@@ -25,6 +25,8 @@
 package nz.pumbas.halpbot.commands.commandadapters;
 
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,18 +34,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
-import nz.pumbas.halpbot.commands.CommandMethod;
+import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
-import nz.pumbas.halpbot.commands.tokens.TokenCommand;
-import nz.pumbas.halpbot.commands.tokens.TokenManager;
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
+import nz.pumbas.halpbot.commands.tokens.CommandManager;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.objects.Exceptional;
 
-public class TokenCommandAdapter extends CommandAdapter
+public class SimpleCommandAdapter extends AbstractCommandAdapter
 {
-    public TokenCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
+    public SimpleCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
         super(builder, commandPrefix);
     }
 
@@ -63,7 +65,7 @@ public class TokenCommandAdapter extends CommandAdapter
     protected CommandMethod createCommandMethod(@NotNull Object instance,
                                                 @NotNull Method method,
                                                 @NotNull Command command) {
-        return TokenManager.generateTokenCommand(instance, method, command);
+        return CommandManager.generateCommandMethod(instance, method, command);
     }
 
     /**
@@ -85,12 +87,12 @@ public class TokenCommandAdapter extends CommandAdapter
                                                           @NotNull CommandMethod commandMethod,
                                                           @NotNull String content) throws OutputException {
         // Sanity check (This shouldn't be an issue)
-        if (!(commandMethod instanceof TokenCommand))
+        if (!(commandMethod instanceof SimpleCommand))
             return Exceptional.of(
                 new TokenCommandException("The command method " + commandMethod.getDisplayCommand()
                     + " cannot be used with the command adapter " + this.getClass().getSimpleName()));
-
-        TokenCommand tokenCommand = (TokenCommand) commandMethod;
+//
+        SimpleCommand tokenCommand = (SimpleCommand) commandMethod;
         //If the command has been restricted and you're not whitelisted
         if (!tokenCommand.getRestrictedTo().isEmpty() &&
             !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()) ||

@@ -31,28 +31,28 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import nz.pumbas.halpbot.commands.annotations.Source;
-import nz.pumbas.halpbot.commands.tokens.TokenManager;
+import nz.pumbas.halpbot.commands.tokens.CommandManager;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-public class TokenManagerTests
+public class CommandManagerTests
 {
     @Test
     public void generateUsageTest() {
-        String usage = TokenManager.generateUsage(Reflect.getMethod(this, "testMethod1"));
+        String usage = CommandManager.generateUsage(Reflect.getMethod(this, "testMethod1"));
 
         Assertions.assertEquals("<first{String}> <second{Integer}>", usage);
     }
 
     @Test
     public void generateUsageExcludeEventTest() {
-        String usage = TokenManager.generateUsage(Reflect.getMethod(this, "testMethod2"));
+        String usage = CommandManager.generateUsage(Reflect.getMethod(this, "testMethod2"));
 
         Assertions.assertEquals("<number{Float}>", usage);
     }
 
     @Test
     public void generateUsageExcludeSourceTest() {
-        String usage = TokenManager.generateUsage(Reflect.getMethod(this, "testMethod3"));
+        String usage = CommandManager.generateUsage(Reflect.getMethod(this, "testMethod3"));
 
         Assertions.assertEquals("", usage);
     }

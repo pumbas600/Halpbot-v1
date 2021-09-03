@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.tokens.context;
+package nz.pumbas.halpbot.commands.context;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -36,21 +36,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
-import nz.pumbas.halpbot.commands.tokens.TokenCommand;
+import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.halpbot.objects.Exceptional;
 
 public class MethodContext extends InvocationContext
 {
     private @NotNull ContextState contextState;
-    private @Nullable final CommandAdapter commandAdapter;
+    private @Nullable final AbstractCommandAdapter commandAdapter;
     private @Nullable final MessageReceivedEvent event;
     private @NotNull final Set<Class<?>> reflections;
 
     protected MethodContext(@NotNull String context,
                             @NotNull ContextState contextState,
-                            @Nullable CommandAdapter commandAdapter,
+                            @Nullable AbstractCommandAdapter commandAdapter,
                             @Nullable MessageReceivedEvent event,
                             @NotNull Set<Class<?>> reflections) {
         super(context);
@@ -86,7 +86,7 @@ public class MethodContext extends InvocationContext
         return of("", parsingToken);
     }
 
-    public static MethodContext of(@NotNull String content, @NotNull CommandAdapter commandAdapter,
+    public static MethodContext of(@NotNull String content, @NotNull AbstractCommandAdapter commandAdapter,
                                    @NotNull MessageReceivedEvent event, @NotNull Set<Class<?>> reflections) {
         return new MethodContext(content, ContextState.EMPTY, commandAdapter, event, reflections);
     }
@@ -95,15 +95,15 @@ public class MethodContext extends InvocationContext
         return new MethodContext(content, ContextState.EMPTY, null, null, Collections.emptySet());
     }
 
-    public static MethodContext of(@NotNull String content, TokenCommand tokenCommand) {
-        return new MethodContext(content, ContextState.EMPTY, null, null, tokenCommand.getReflections());
+    public static MethodContext of(@NotNull String content, SimpleCommand simpleCommand) {
+        return new MethodContext(content, ContextState.EMPTY, null, null, simpleCommand.getReflections());
     }
 
     public void update(@NotNull ParsingToken parsingToken) {
         this.contextState = new ContextState(parsingToken.getType(), parsingToken.getAnnotations(), parsingToken.getAnnotationTypes());
     }
 
-    public @Nullable CommandAdapter getCommandAdapter() {
+    public @Nullable AbstractCommandAdapter getCommandAdapter() {
         return this.commandAdapter;
     }
 

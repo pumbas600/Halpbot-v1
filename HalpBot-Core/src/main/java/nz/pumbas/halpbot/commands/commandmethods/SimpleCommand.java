@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.tokens;
+package nz.pumbas.halpbot.commands.commandmethods;
 
 import net.dv8tion.jda.api.Permission;
 
-import nz.pumbas.halpbot.commands.CommandMethod;
 import nz.pumbas.halpbot.commands.ErrorManager;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.tokens.CommandManager;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
@@ -53,9 +53,10 @@ import java.util.function.Function;
 /**
  * A container for the data of an {@link Token} command.
  */
-public class TokenCommand implements CommandMethod
+public class SimpleCommand implements CommandMethod
 {
 
+    private final @NotNull String alias;
     private final @Nullable Object instance;
     private final @NotNull Executable executable;
     private final @NotNull List<Token> tokens;
@@ -66,21 +67,24 @@ public class TokenCommand implements CommandMethod
     private final @NotNull Set<Class<?>> reflections;
     private final @NotNull String usage;
 
-    public TokenCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<Token> tokens) {
+    public SimpleCommand(@Nullable Object instance, @NotNull Executable executable, @NotNull List<Token> tokens) {
         this(instance, executable, tokens, Collections.emptySet());
     }
 
-    public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
-                        @NotNull List<Token> tokens,
-                        @NotNull Set<Class<?>> reflections) {
-        this(instance, executable, tokens, "N/A", "N/A",
+    public SimpleCommand(@Nullable Object instance, @NotNull Executable executable,
+                         @NotNull List<Token> tokens,
+                         @NotNull Set<Class<?>> reflections)
+    {
+        this("N/A", instance, executable, tokens, "N/A", "N/A",
             Permission.EMPTY_PERMISSIONS, Collections.emptySet(), reflections, "N/A");
     }
 
-    public TokenCommand(@Nullable Object instance, @NotNull Executable executable,
-                        @NotNull List<Token> tokens, @NotNull String displayCommand,
-                        @NotNull String description, @NotNull Permission[] permissions, @NotNull Set<Long> restrictedTo,
-                        @NotNull Set<Class<?>> reflections, @NotNull String usage) {
+    public SimpleCommand(@NotNull String alias, @Nullable Object instance, @NotNull Executable executable,
+                         @NotNull List<Token> tokens, @NotNull String displayCommand,
+                         @NotNull String description, @NotNull Permission[] permissions, @NotNull Set<Long> restrictedTo,
+                         @NotNull Set<Class<?>> reflections, @NotNull String usage)
+    {
+        this.alias = alias;
         this.instance = instance;
         this.executable = executable;
         this.tokens = tokens;
@@ -111,6 +115,14 @@ public class TokenCommand implements CommandMethod
      */
     public @NotNull Class<?>[] getParameterTypes() {
         return this.executable.getParameterTypes();
+    }
+
+    /**
+     * @return The {@link String alias} for this command.
+     */
+    @Override
+    public @NotNull String getAlias() {
+        return this.alias;
     }
 
     /**
@@ -159,6 +171,14 @@ public class TokenCommand implements CommandMethod
     @Override
     public @NotNull String getUsage() {
         return this.usage;
+    }
+
+    /**
+     * @return The {@link Token tokens} making up this command.
+     */
+    @Override
+    public @NotNull List<Token> getTokens() {
+        return this.tokens;
     }
 
     /**
@@ -266,7 +286,7 @@ public class TokenCommand implements CommandMethod
                 ParsingToken parsingToken = (ParsingToken) currentToken;
                 ctx.update(parsingToken);
 
-                Exceptional<Object> result = TokenManager.handleReflectionSyntax(ctx);
+                Exceptional<Object> result = CommandManager.handleReflectionSyntax(ctx);
                 if (result.present()) {
                     parsedTokens[parameterIndex++] = result.get();
                     continue;

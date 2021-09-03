@@ -31,7 +31,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.tokens.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.Reflect;
@@ -70,6 +70,18 @@ public interface ParsingToken extends Token
      */
     @Nullable
     Object getDefaultValue();
+
+    /**
+     * @return If this {@link ParsingToken} is a command parameter. If not, then it must extract information from the
+     * source event or command adapter.
+     */
+    boolean isCommandParameter();
+
+    /**
+     * @return The parameter name for this {@link ParsingToken}.
+     */
+    @NotNull
+    String getParameterName();
 
     /**
      * Retrieves the {@link Annotation} on this {@link ParsingToken} based on the specified {@link Class annotation

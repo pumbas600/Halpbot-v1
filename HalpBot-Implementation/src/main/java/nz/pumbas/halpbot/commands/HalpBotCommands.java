@@ -26,7 +26,6 @@ package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.Permission;
 
-import nz.pumbas.halpbot.commands.annotations.AutoRegister;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.converters.Converters;
@@ -36,7 +35,6 @@ import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.objects.Exceptional;
 
-@AutoRegister
 public class HalpBotCommands
 {
 

@@ -34,7 +34,7 @@ subprojects { Project subProject ->
     sourceCompatibility = 11
 
     // Include HalpBot-Core in all projects that aren't the core project.
-    if (!subProject.name.equals("HalpBot-Core")) {
+    if (subProject.name != "HalpBot-Core") {
         dependencies {
             implementation project(":HalpBot-Core")
         }
@@ -62,6 +62,10 @@ allprojects {
 
         dependencies {
             include "net.dv8tion:JDA:4.3.0_285"
+
+//            compile 'org.apache.logging.log4j:log4j-api:2.14.1'
+//            compile 'org.apache.logging.log4j:log4j-core:2.14.1'
+            compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1'
 
             testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"

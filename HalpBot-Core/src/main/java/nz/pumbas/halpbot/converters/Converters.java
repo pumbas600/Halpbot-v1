@@ -32,15 +32,16 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
 import nz.pumbas.halpbot.commands.annotations.Id;
 import nz.pumbas.halpbot.commands.annotations.Source;
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
+import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
-import nz.pumbas.halpbot.commands.tokens.TokenCommand;
-import nz.pumbas.halpbot.commands.tokens.TokenManager;
-import nz.pumbas.halpbot.commands.tokens.context.InvocationContext;
+import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
+import nz.pumbas.halpbot.commands.tokens.CommandManager;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -80,18 +81,21 @@ public final class Converters
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Byte.class))
                 .map(Byte::parseByte))
+        .optionType(OptionType.INTEGER)
         .register();
 
     public static final TypeConverter<Short> SHORT_CONVERTER = TypeConverter.builder(Short.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Short.class))
                 .map(Short::parseShort))
+        .optionType(OptionType.INTEGER)
         .register();
 
     public static final TypeConverter<Integer> INTEGER_CONVERTER = TypeConverter.builder(Integer.class)
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Integer.class))
                 .map(Integer::parseInt))
+        .optionType(OptionType.INTEGER)
         .register();
 
     public static final TypeConverter<Long> LONG_CONVERTER = TypeConverter.builder(Long.class)
@@ -102,6 +106,7 @@ public final class Converters
                         return Long.parseLong(number);
                     else return Long.parseUnsignedLong(number);
                 }))
+        .optionType(OptionType.INTEGER)
         .register();
 
     public static final TypeConverter<Float> FLOAT_CONVERTER = TypeConverter.builder(Float.class)
@@ -120,10 +125,12 @@ public final class Converters
         .convert(ctx ->
             ctx.getNext(Reflect.getSyntax(Character.class))
                 .map(in -> in.charAt(0)))
+        .optionType(OptionType.STRING)
         .register();
 
     public static final TypeConverter<String> STRING_CONVERTER = TypeConverter.builder(String.class)
         .convert(InvocationContext::getNextSafe)
+        .optionType(OptionType.STRING)
         .register();
 
     public static final TypeConverter<String> REMAINING_STRINGS_CONVERTER = TypeConverter.builder(String.class)
@@ -139,6 +146,7 @@ public final class Converters
                     String lowered = in.toLowerCase(Locale.ROOT);
                     return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered) || "y".equals(lowered);
                 }))
+        .optionType(OptionType.BOOLEAN)
         .register();
 
     public static final TypeConverter<Enum> ENUM_CONVERTER = TypeConverter.builder(Enum.class)
@@ -149,12 +157,13 @@ public final class Converters
                     throw new IllegalArgumentException(
                         "That didn't seem to be a valid value for " + ctx.getContextState().getClazz().getSimpleName());
                 }))
+        .optionType(OptionType.STRING)
         .register();
 
     public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(c -> true)
         .convert(ctx -> {
             Class<?> clazz = ctx.getContextState().getClazz();
-            String expectedTypeAlias = TokenManager.getTypeAlias(clazz);
+            String expectedTypeAlias = CommandManager.getTypeAlias(clazz);
             Exceptional<String> typeAlias = ctx.getNext("[", false);
 
             if (typeAlias.caught())
@@ -169,9 +178,9 @@ public final class Converters
             ctx.assertNext('[');
             int currentIndex = ctx.getCurrentIndex();
             Exceptional<Object> result = Exceptional.empty();
-            for (TokenCommand tokenCommand : TokenManager.getParsedConstructors(clazz)) {
+            for (SimpleCommand simpleCommand : CommandManager.getParsedConstructors(clazz)) {
                 ctx.setCurrentIndex(currentIndex);
-                result = tokenCommand.parse(ctx, true);
+                result = simpleCommand.parse(ctx, true);
                 if (result.present() && ctx.isNext(']', true)) break;
 
                 else if (!result.caught()) result = Exceptional.of(
@@ -312,6 +321,7 @@ public final class Converters
                         .apply(ctx)
                         .map(id -> ctx.getEvent().getGuild().getTextChannelById(id))
                 ))
+        .optionType(OptionType.CHANNEL)
         .register();
 
     public static final TypeConverter<Member> MEMBER_CONVERTER = TypeConverter.builder(Member.class)
@@ -323,6 +333,7 @@ public final class Converters
                         .apply(ctx)
                         .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete())
                 ))
+        .optionType(OptionType.USER)
         .register();
 
     public static final TypeConverter<User> USER_CONVERTER = TypeConverter.builder(User.class)
@@ -334,6 +345,7 @@ public final class Converters
                         .apply(ctx)
                         .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
                 ))
+        .optionType(OptionType.USER)
         .register();
 
     public static final TypeConverter<Long> ID_LONG_CONVERTER = TypeConverter.builder(Long.class)
@@ -350,6 +362,7 @@ public final class Converters
                     parsedId = ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
                 return parsedId.orExceptional(() -> LONG_CONVERTER.getMapper().apply(ctx));
             })
+        .optionType(OptionType.MENTIONABLE)
         .register();
 
     //endregion
@@ -360,8 +373,8 @@ public final class Converters
         .convert(ctx -> Exceptional.of(ctx.getEvent()))
         .register();
 
-    public static final TypeConverter<CommandAdapter> COMMAND_ADAPTER_CONVERTER =
-        TypeConverter.builder(CommandAdapter.class)
+    public static final TypeConverter<AbstractCommandAdapter> COMMAND_ADAPTER_CONVERTER =
+        TypeConverter.builder(AbstractCommandAdapter.class)
             .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
             .register();
 

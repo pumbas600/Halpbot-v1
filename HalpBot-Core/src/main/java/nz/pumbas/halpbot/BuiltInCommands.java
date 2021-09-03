@@ -30,15 +30,15 @@ import java.awt.Color;
 import java.util.Locale;
 import java.util.Optional;
 
-import nz.pumbas.halpbot.commands.CommandMethod;
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
+import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
+import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 
 public class BuiltInCommands
 {
     @Command(alias = "Halp", description = "Displays the help information for the specified command")
-    public Object halp(CommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
+    public Object halp(AbstractCommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
         if (commandAlias.isEmpty()) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Color.ORANGE)
@@ -66,7 +66,7 @@ public class BuiltInCommands
         if (commandMethod.isEmpty())
             return "That doesn't seem to be a registered command :sob:";
 
-        return CommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview");
+        return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview");
     }
 
 }
