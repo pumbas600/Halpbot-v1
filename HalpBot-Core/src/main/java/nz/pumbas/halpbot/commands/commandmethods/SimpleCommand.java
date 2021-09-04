@@ -30,11 +30,11 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.tokens.CommandManager;
+import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
+import nz.pumbas.halpbot.commands.tokens.Token;
+import nz.pumbas.halpbot.commands.tokens.ParsingToken;
+import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.objects.Exceptional;
 
 import org.jetbrains.annotations.NotNull;

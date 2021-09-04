@@ -26,8 +26,6 @@ package nz.pumbas.halpbot.commands.commandmethods;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.GenericEvent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
+import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
 
 public interface CommandMethod

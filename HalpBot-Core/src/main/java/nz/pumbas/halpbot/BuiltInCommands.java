@@ -25,6 +25,7 @@
 package nz.pumbas.halpbot;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 
 import java.awt.Color;
 import java.util.Locale;
@@ -34,6 +35,7 @@ import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class BuiltInCommands
 {
@@ -67,6 +69,24 @@ public class BuiltInCommands
             return "That doesn't seem to be a registered command :sob:";
 
         return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview");
+    }
+
+    @Command(alias = "shutdown", description = "Shuts the bot down. Any existing RestActions will be completed first.",
+             restrictedTo = 260930648330469387L)
+    public void shutdown(JDA jda) {
+        jda.shutdown();
+    }
+
+    @Command(alias = "forceShutdown", description = "Shuts the bot down immediately",
+             restrictedTo = 260930648330469387L)
+    public void forceShutdown(JDA jda) {
+        jda.shutdownNow();
+    }
+    
+    @Command(alias = "status", description = "Retrieves the current status of the bot")
+    public String status(JDA jda) {
+        return String.format("The current status of the bot is: **%s**",
+            HalpbotUtils.capitalise(jda.getStatus().toString()));
     }
 
 }

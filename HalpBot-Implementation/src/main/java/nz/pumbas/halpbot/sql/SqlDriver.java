@@ -3,16 +3,18 @@ package nz.pumbas.halpbot.sql;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import nz.pumbas.halpbot.sql.functionalinterfaces.SQLConsumer;
 
 public interface SqlDriver
 {
     @Nullable
     Connection createConnection();
 
-    @Nullable
-    ResultSet executePreparedStatement(Connection connection, String sql, Object... parameters);
+    PreparedStatement createStatement(Connection connection, String sql, Object... parameters)
+        throws SQLException;
 
-    @Nullable
-    ResultSet executePreparedStatement(String sql, Object... parameters);
+    void registerLoadInitialision(SQLConsumer<Connection> consumer);
 }

@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
@@ -42,14 +41,12 @@ import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.internal.entities.EmoteImpl;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -71,11 +68,10 @@ import nz.pumbas.halpbot.BuiltInCommands;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCommandException;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
+import nz.pumbas.halpbot.commands.tokens.ParsingToken;
+import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter

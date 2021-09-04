@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.tokens;
+package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.GenericEvent;
 
 import org.jetbrains.annotations.NotNull;
@@ -40,10 +41,10 @@ import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.SimpleParsingToken;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
-import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
+import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.commands.tokens.SimpleParsingToken;
+import nz.pumbas.halpbot.commands.tokens.Token;
+import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Modifiers;
@@ -508,20 +509,22 @@ public final class CommandManager
 
     /**
      * Returns true if the specified type is a command parameter (Something that can be specified when invoking the
-     * command). This is true if the type does not have the {@link Source} annotation and it isn't assignable from
-     * {@link GenericEvent} and {@link AbstractCommandAdapter}.
+     * command). This is true if the type does not have the {@link Source} annotation, and it isn't assignable from
+     * {@link GenericEvent}, {@link AbstractCommandAdapter} or {@link JDA}.
      *
      * @param type
      *      The {@link Type} of the parameter
      * @param annotations
      *      An array of the {@link Annotation annotations} on the parameter
      *
-     * @return If its a command parameter.
+     * @return If it's a command parameter.
      */
+    @SuppressWarnings("OverlyComplexBooleanExpression")
     public static boolean isCommandParameter(Type type, Annotation[] annotations) {
         Class<?> clazz = Reflect.asClass(type);
         return !Reflect.hasAnnotation(annotations, Source.class) &&
                !GenericEvent.class.isAssignableFrom(clazz) &&
-               !AbstractCommandAdapter.class.isAssignableFrom(clazz);
+               !AbstractCommandAdapter.class.isAssignableFrom(clazz) &&
+               !JDA.class.isAssignableFrom(clazz);
     }
 }

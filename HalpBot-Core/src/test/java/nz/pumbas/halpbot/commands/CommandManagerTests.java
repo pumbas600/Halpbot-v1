@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import nz.pumbas.halpbot.commands.annotations.Source;
-import nz.pumbas.halpbot.commands.tokens.CommandManager;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public class CommandManagerTests

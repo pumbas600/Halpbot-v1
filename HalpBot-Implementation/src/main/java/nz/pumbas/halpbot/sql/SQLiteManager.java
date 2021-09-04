@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.sql;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class SQLiteManager implements SqlManager
 {
@@ -17,9 +18,14 @@ public class SQLiteManager implements SqlManager
     }
 
     @Override
+    public SqlDriver createDriver(String database, long duration, TimeUnit timeUnit) {
+        return this.drivers.put(database, new SQLiteDriver(database, duration, timeUnit));
+    }
+
+    @Override
     public SqlDriver getDriver(String database) {
         if (!this.hasDriver(database)) {
-            this.drivers.put(database, new SQLiteDriver(database));
+            this.createDriver(database, -1, TimeUnit.MINUTES);
         }
         return this.drivers.get(database);
     }

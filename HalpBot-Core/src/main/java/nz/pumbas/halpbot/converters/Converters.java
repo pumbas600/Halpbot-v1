@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.converters;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,12 +36,13 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
+import nz.pumbas.halpbot.commands.annotations.Explicit;
 import nz.pumbas.halpbot.commands.annotations.Id;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
-import nz.pumbas.halpbot.commands.tokens.CommandManager;
+import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.objects.Exceptional;
@@ -137,6 +139,13 @@ public final class Converters
         .annotation(Remaining.class)
         .priority(Priority.EARLY)
         .convert(ctx -> Exceptional.of(ctx::getRemaining))
+        .register();
+
+    public static final TypeConverter<String> EXPLICIT_STRING_CONVERTER = TypeConverter.builder(String.class)
+        .annotation(Explicit.class)
+        .priority(Priority.EARLY)
+        .convert(ctx -> ctx.getNextSurrounded("\"", "\"")
+            .orExceptional(() -> STRING_CONVERTER.getMapper().apply(ctx)))
         .register();
 
     public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
@@ -346,6 +355,10 @@ public final class Converters
                         .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
                 ))
         .optionType(OptionType.USER)
+        .register();
+
+    public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)
+        .convert(ctx -> Exceptional.of(ctx.getEvent().getJDA()))
         .register();
 
     public static final TypeConverter<Long> ID_LONG_CONVERTER = TypeConverter.builder(Long.class)

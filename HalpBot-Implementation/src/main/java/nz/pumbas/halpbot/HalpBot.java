@@ -73,7 +73,6 @@ public class HalpBot extends ListenerAdapter
 
         this.jda = builder.build();
         commandAdapter.registerSlashCommands(this.jda);
-
         HalpbotUtils.context().bind(SqlManager.class, SQLiteManager.class);
     }
 
