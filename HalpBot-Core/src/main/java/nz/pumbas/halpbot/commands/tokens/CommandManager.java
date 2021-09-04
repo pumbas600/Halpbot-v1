@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 
 import org.jetbrains.annotations.NotNull;
 
-import nz.pumbas.halpbot.commands.ErrorManager;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;

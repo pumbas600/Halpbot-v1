@@ -27,25 +27,29 @@ package nz.pumbas.halpbot.commands.commandadapters;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.entities.EmoteImpl;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,13 +57,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.CommandType;
 import nz.pumbas.halpbot.commands.DiscordString;
-import nz.pumbas.halpbot.commands.ErrorManager;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.OnShutdown;
 import nz.pumbas.halpbot.BuiltInCommands;
@@ -70,19 +75,14 @@ import nz.pumbas.halpbot.commands.tokens.tokentypes.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.PlaceholderToken;
 import nz.pumbas.halpbot.commands.tokens.tokentypes.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter
 {
-    /**
-     * A map of the registered {@link String command aliases} and their respective {@link CommandMethod}.
-     */
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
-
-    /**
-     * A map of the registered command aliases and their respective slash {@link CommandMethod}.
-     */
     protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
+    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks = new HashMap<>();
 
     protected final String commandPrefix;
 
@@ -226,6 +226,31 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 //                .queue());
 
         this.displayCommandMethodResult(event, event.getOptions());
+    }
+
+    @Override
+    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
+        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
+            return;
+
+        Map<String, Consumer<MessageReactionAddEvent>> callbacks = this.reactionCallbacks.get(event.getMessageIdLong());
+        if (!callbacks.containsKey(event.getReactionEmote().getAsReactionCode()))
+            return;
+
+        callbacks.get(event.getReactionEmote().getAsReactionCode())
+            .accept(event);
+    }
+
+    public void addReactionCallback(Message message, String emoji, Consumer<MessageReactionAddEvent> consumer) {
+        if (!this.reactionCallbacks.containsKey(message.getIdLong())) {
+            Map<String, Consumer<MessageReactionAddEvent>> hashmap = new HashMap<>();
+            hashmap.put(emoji, consumer);
+            this.reactionCallbacks.put(message.getIdLong(), hashmap);
+        }
+        else {
+            this.reactionCallbacks.get(message.getIdLong()).put(emoji, consumer);
+        }
+        message.addReaction(emoji).queue();
     }
 
     /**

@@ -27,7 +27,7 @@ package nz.pumbas.halpbot.utilities.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-import nz.pumbas.halpbot.commands.ErrorManager;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 
 public enum StatusCode
 {

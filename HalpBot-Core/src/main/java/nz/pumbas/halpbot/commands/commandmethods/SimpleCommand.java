@@ -26,7 +26,7 @@ package nz.pumbas.halpbot.commands.commandmethods;
 
 import net.dv8tion.jda.api.Permission;
 
-import nz.pumbas.halpbot.commands.ErrorManager;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
 import nz.pumbas.halpbot.commands.annotations.Command;

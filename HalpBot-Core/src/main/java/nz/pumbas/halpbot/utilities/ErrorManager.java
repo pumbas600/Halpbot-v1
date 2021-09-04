@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands;
+package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -37,26 +37,32 @@ public final class ErrorManager
     private ErrorManager() {}
 
     public static void handle(Throwable e) {
-        handle(null, e, null);
-    }
-
-    public static void handle(MessageReceivedEvent event, Throwable e) {
-        handle(event, e, null);
+        HalpbotUtils.logger().error("Caught the error: ", e);
     }
 
     public static void handle(Throwable e, String message) {
-        handle(null, e, message);
+        HalpbotUtils.logger().error(message, e);
+    }
+
+    public static void handle(MessageReceivedEvent event, Throwable e) {
+        handle(event, e, "");
     }
 
     public static void handle(MessageReceivedEvent event, Throwable e, String message) {
-        if (null != message)
-            System.out.println(message);
 
         if (e instanceof UnimplementedFeatureException) {
             unimplementedFeatureEmbed(event, e.getMessage());
-        } else if (e instanceof ErrorMessageException) {
-            event.getChannel().sendMessage(":warning: " + e.getMessage()).queue();
-        } else e.printStackTrace();
+        }
+        else if (e instanceof ErrorMessageException) {
+            String warningMessage = ":warning: " + e.getMessage();
+            HalpbotUtils.logger().warn(warningMessage);
+            event.getChannel().sendMessage(warningMessage).queue();
+        }
+        else if (!message.isEmpty() && null != message)
+            handle(e, message);
+        else {
+            handle(e);
+        }
     }
 
     public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message) {

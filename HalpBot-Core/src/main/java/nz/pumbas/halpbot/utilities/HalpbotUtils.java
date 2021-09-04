@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.utilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -49,10 +51,8 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.commands.ErrorManager;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.context.ContextHandler;
 import nz.pumbas.halpbot.utilities.context.ContextHandlerImpl;
@@ -71,6 +71,7 @@ public final class HalpbotUtils
     public static final float quarterRotation = 90F;
 
     private static final ContextHandler contextHandler = new ContextHandlerImpl();
+    private static final Logger logger = LogManager.getLogger("HalpBot-Core-Bot");
 
     private HalpbotUtils() {}
 
@@ -80,6 +81,10 @@ public final class HalpbotUtils
 
     public static ContextHandler context() {
         return contextHandler;
+    }
+
+    public static Logger logger() {
+        return logger;
     }
 
     /**

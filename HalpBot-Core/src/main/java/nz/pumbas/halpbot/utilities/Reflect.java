@@ -51,7 +51,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.commands.ErrorManager;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.enums.Modifiers;
 
 public final class Reflect
@@ -395,6 +395,26 @@ public final class Reflect
         }
 
         return fields;
+    }
+
+    /**
+     * Retrieves the specified annotation on the {@link Field} if present. If that annotation is not present, then an
+     * {@link Exceptional#empty()} will be returned instead.
+     *
+     * @param field
+     *      The field to check for the annotation
+     * @param annotationType
+     *      The class of the annotation
+     * @param <T>
+     *      The type of the annotation
+     *
+     * @return An exceptional containing the annotation if present
+     */
+    public static <T extends Annotation> Exceptional<T> annotation(Field field, Class<T> annotationType) {
+        if (field.isAnnotationPresent(annotationType)) {
+            return Exceptional.of(field.getAnnotation(annotationType));
+        }
+        return Exceptional.empty();
     }
 
     /**

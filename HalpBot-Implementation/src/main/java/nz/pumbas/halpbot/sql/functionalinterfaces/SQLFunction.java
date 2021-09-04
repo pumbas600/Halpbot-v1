@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.utilities.functionalinterfaces;
+package nz.pumbas.halpbot.sql.functionalinterfaces;
 
 import java.sql.SQLException;
 

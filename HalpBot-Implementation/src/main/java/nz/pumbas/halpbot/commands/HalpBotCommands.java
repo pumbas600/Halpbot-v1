@@ -43,6 +43,11 @@ public class HalpBotCommands
         return "You can see the source code for me here: https://github.com/pumbas600/HalpBot :kissing_heart:";
     }
 
+    @Command(alias = "invite", description = "Retrieves the invite for this discord bot")
+    public String invite() {
+        return "https://discord.com/api/oauth2/authorize?client_id=819840092327772170&permissions=2147544128&scope=bot";
+    }
+
     @Command(alias = "suggestion")
     public String suggestion() {
         return "You can note issues and suggestions for me here: https://github.com/pumbas600/HalpBot/issues";
