@@ -91,10 +91,7 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
                     + " cannot be used with the command adapter " + this.getClass().getSimpleName()));
 //
         SimpleCommand tokenCommand = (SimpleCommand) commandMethod;
-        //If the command has been restricted and you're not whitelisted
-        if (!tokenCommand.getRestrictedTo().isEmpty() &&
-            !tokenCommand.getRestrictedTo().contains(event.getAuthor().getIdLong()) ||
-            !event.getMember().hasPermission(commandMethod.getPermissions()))
+        if (!tokenCommand.hasPermission(event.getAuthor()))
                 return Exceptional.of(new TokenCommandException("You do not have permission to use this command"));
 
         MethodContext ctx = MethodContext.of(content, this, event, tokenCommand.getReflections());

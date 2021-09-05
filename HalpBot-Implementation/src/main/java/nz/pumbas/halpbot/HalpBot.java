@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.halpbot.commands.ChemmatCommands;
+import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
 import nz.pumbas.halpbot.commands.NumberSystemConverters;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
@@ -47,7 +47,7 @@ import nz.pumbas.halpbot.commands.KotlinCommands;
 import nz.pumbas.halpbot.commands.MatrixCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
 import nz.pumbas.halpbot.sql.SQLiteManager;
-import nz.pumbas.halpbot.sql.SqlManager;
+import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class HalpBot extends ListenerAdapter
@@ -62,6 +62,7 @@ public class HalpBot extends ListenerAdapter
             .disableIntents(GatewayIntent.GUILD_PRESENCES)
             .addEventListeners(this);
         AbstractCommandAdapter commandAdapter = new SimpleCommandAdapter(builder, "$")
+            .setOwnerId(CREATOR_ID)
             .registerCommands(
                 new KotlinCommands(),
                 new MatrixCommands(),
@@ -73,7 +74,6 @@ public class HalpBot extends ListenerAdapter
 
         this.jda = builder.build();
         commandAdapter.registerSlashCommands(this.jda);
-        HalpbotUtils.context().bind(SqlManager.class, SQLiteManager.class);
     }
 
     @Override

@@ -62,7 +62,7 @@ public class SimpleCommand implements CommandMethod
     private final @NotNull List<Token> tokens;
     private final @NotNull String displayCommand;
     private final @NotNull String description;
-    private final @NotNull Permission[] permissions;
+    private final @NotNull String[] permissions;
     private final @NotNull Set<Long> restrictedTo;
     private final @NotNull Set<Class<?>> reflections;
     private final @NotNull String usage;
@@ -76,12 +76,12 @@ public class SimpleCommand implements CommandMethod
                          @NotNull Set<Class<?>> reflections)
     {
         this("N/A", instance, executable, tokens, "N/A", "N/A",
-            Permission.EMPTY_PERMISSIONS, Collections.emptySet(), reflections, "N/A");
+            new String[0], Collections.emptySet(), reflections, "N/A");
     }
 
     public SimpleCommand(@NotNull String alias, @Nullable Object instance, @NotNull Executable executable,
                          @NotNull List<Token> tokens, @NotNull String displayCommand,
-                         @NotNull String description, @NotNull Permission[] permissions, @NotNull Set<Long> restrictedTo,
+                         @NotNull String description, @NotNull String[] permissions, @NotNull Set<Long> restrictedTo,
                          @NotNull Set<Class<?>> reflections, @NotNull String usage)
     {
         this.alias = alias;
@@ -145,7 +145,7 @@ public class SimpleCommand implements CommandMethod
      * @return The {@link String permission} for this command. If there is no permission, this will an empty string
      */
     @Override
-    public @NotNull Permission[] getPermissions() {
+    public @NotNull String[] getPermissions() {
         return this.permissions;
     }
 

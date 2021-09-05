@@ -54,6 +54,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -61,10 +63,13 @@ import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.CommandType;
 import nz.pumbas.halpbot.commands.DiscordString;
+import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.commands.permissions.PermissionManager;
+import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.OnShutdown;
-import nz.pumbas.halpbot.BuiltInCommands;
+import nz.pumbas.halpbot.commands.BuiltInCommands;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCommandException;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
@@ -72,15 +77,20 @@ import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public abstract class AbstractCommandAdapter extends ListenerAdapter
 {
+    protected ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
+    protected PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
+
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
     protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
-    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks = new HashMap<>();
+    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks = new ConcurrentHashMap<>();
 
     protected final String commandPrefix;
+    private long ownerId;
 
     protected AbstractCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
         builder.addEventListeners(this);
@@ -119,6 +129,14 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
         }
     }
 
+    /**
+     * Given an {@link CommandMethod}, it generates the slash command {@link CommandData} to be used to register it.
+     *
+     * @param commandMethod
+     *      The {@link CommandMethod} to generate the command data for
+     *
+     * @return The generated {@link CommandData}
+     */
     public CommandData generateSlashCommandData(CommandMethod commandMethod) {
         CommandData data = new CommandData(commandMethod.getAlias(), commandMethod.getDescription());
         for (Token token : commandMethod.getTokens()) {
@@ -224,6 +242,13 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
         this.displayCommandMethodResult(event, event.getOptions());
     }
 
+    /**
+     * Listens to {@link MessageReactionAddEvent} and if there is a callback registered for the message and the
+     * specified reaction, then it will be invoked using the event.
+     *
+     * @param event
+     *      The {@link MessageReactionAddEvent} that's been received
+     */
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
         if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
@@ -237,16 +262,38 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             .accept(event);
     }
 
+    /**
+     * Adds the specified emoji as a reaction to the message and registers the specified {@link Consumer} as a
+     * callback when someone reacts with the specified emoji to the message. Note: The callback is automatically
+     * removed after 10 minutes.
+     *
+     * @param message
+     *      The {@link Message} to add the reaction callback to
+     * @param emoji
+     *      The unicode emoji to listen for
+     * @param consumer
+     *      The {@link Consumer} to call when someone reacts to the message with the emoji
+     */
     public void addReactionCallback(Message message, String emoji, Consumer<MessageReactionAddEvent> consumer) {
-        if (!this.reactionCallbacks.containsKey(message.getIdLong())) {
+        long messageId = message.getIdLong();
+
+        if (!this.reactionCallbacks.containsKey(messageId)) {
             Map<String, Consumer<MessageReactionAddEvent>> hashmap = new HashMap<>();
             hashmap.put(emoji, consumer);
-            this.reactionCallbacks.put(message.getIdLong(), hashmap);
+            this.reactionCallbacks.put(messageId, hashmap);
         }
         else {
-            this.reactionCallbacks.get(message.getIdLong()).put(emoji, consumer);
+            this.reactionCallbacks.get(messageId).put(emoji, consumer);
         }
-        message.addReaction(emoji).queue();
+
+        message.addReaction(emoji).queue(v ->
+            // Schedule to have the callback removed in 10 minutes.
+            this.concurrentManager.schedule(10, TimeUnit.MINUTES, () -> {
+                this.reactionCallbacks.get(messageId).remove(emoji);
+                if (this.reactionCallbacks.get(messageId).isEmpty()) {
+                    this.reactionCallbacks.remove(messageId);
+                }
+            }));
     }
 
     /**
@@ -370,6 +417,30 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      */
     public String getCommandPrefix() {
         return this.commandPrefix;
+    }
+
+    /**
+     * @return The id of the owner for this bot
+     */
+    public long getOwnerId() {
+        return this.ownerId;
+    }
+
+
+    /**
+     * Sets the id of the owner for this bot. This automatically assigns the user the
+     * {@link HalpbotPermissions#OWNER} permission if they don't already have it in the database.
+     *
+     * @param ownerId
+     *      The {@link Long id} of the owner
+     *
+     * @return Itself for chaining
+     */
+    public AbstractCommandAdapter setOwnerId(long ownerId) {
+        this.ownerId = ownerId;
+        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.OWNER))
+            this.permissionManager.givePermission(ownerId, HalpbotPermissions.OWNER);
+        return this;
     }
 
     /**

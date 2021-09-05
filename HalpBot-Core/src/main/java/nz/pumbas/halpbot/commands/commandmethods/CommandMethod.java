@@ -24,8 +24,7 @@
 
 package nz.pumbas.halpbot.commands.commandmethods;
 
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,8 +35,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
+import nz.pumbas.halpbot.commands.permissions.PermissionManager;
 import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public interface CommandMethod
 {
@@ -67,10 +68,10 @@ public interface CommandMethod
     Object getInstance();
 
     /**
-     * @return The {@link String permission} for this command. If there is no permission, this will an empty string
+     * @return The {@link String permissions} for this command. If there is no permission, this will an empty string
      */
     @NotNull
-    Permission[] getPermissions();
+    String[] getPermissions();
 
     /**
      * @return The {@link Set<Long> ids} of who this command is restricted to
@@ -97,20 +98,20 @@ public interface CommandMethod
     List<Token> getTokens();
 
     /**
-     * Returns true if the {@link Member author} has all the necessary permissions to use this command.
+     * Returns true if the {@link User author} has all the necessary permissions to use this command.
      *
      * @param author
      *      The author of the commmand
      *
      * @return If the author had permission
      */
-    default boolean hasPermission(@Nullable Member author) {
+    default boolean hasPermission(User author) {
         if (null == author)
             return this.getRestrictedTo().isEmpty() && 0 == this.getPermissions().length;
 
         return (this.getRestrictedTo().isEmpty() ||
-               this.getRestrictedTo().contains(author.getIdLong())) &&
-               author.hasPermission(this.getPermissions());
+                this.getRestrictedTo().contains(author.getIdLong())) &&
+                HalpbotUtils.context().get(PermissionManager.class).hasPermissions(author, this.getPermissions());
     }
 
     /**

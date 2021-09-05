@@ -357,10 +357,6 @@ public final class Converters
         .optionType(OptionType.USER)
         .register();
 
-    public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)
-        .convert(ctx -> Exceptional.of(ctx.getEvent().getJDA()))
-        .register();
-
     public static final TypeConverter<Long> ID_LONG_CONVERTER = TypeConverter.builder(Long.class)
         .annotation(Id.class)
         .priority(Priority.EARLY)
@@ -390,6 +386,10 @@ public final class Converters
         TypeConverter.builder(AbstractCommandAdapter.class)
             .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
             .register();
+
+    public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)
+        .convert(ctx -> Exceptional.of(ctx.getEvent().getJDA()))
+        .register();
 
     public static final TypeConverter<MessageChannel> SOURCE_MESSAGE_CHANNEL_CONVERTER =
         TypeConverter.builder(MessageChannel.class)

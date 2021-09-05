@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -46,6 +47,7 @@ import nz.pumbas.halpbot.sql.table.column.ColumnIdentifier;
 import nz.pumbas.halpbot.sql.table.exceptions.EmptyEntryException;
 import nz.pumbas.halpbot.sql.table.exceptions.IdentifierMismatchException;
 import nz.pumbas.halpbot.sql.table.exceptions.UnknownIdentifierException;
+import nz.pumbas.halpbot.sql.table.exceptions.ValueMismatchException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.Reflect;
 
@@ -65,13 +67,6 @@ import nz.pumbas.halpbot.utilities.Reflect;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Table {
-
-    private static final Map<Class<?>, SQLBiFunction<ResultSet, String, Object>> getValueMappings
-        = Map.of(
-        Boolean.class, ResultSet::getBoolean,
-        Integer.class,     ResultSet::getInt,
-        Double.class,  ResultSet::getDouble,
-        String.class,  ResultSet::getString);
 
     private final List<TableRow> rows;
     private final ColumnIdentifier<?>[] identifiers;
@@ -161,7 +156,7 @@ public class Table {
     public void addRow(Object object) {
         TableRow row = new TableRow();
 
-        for (Field field : object.getClass().getFields()) {
+        for (Field field : object.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             final Exceptional<Property> annotation = Reflect.annotation(field, Property.class);
             if (!(annotation.present() && annotation.get().ignore())) {
@@ -193,22 +188,6 @@ public class Table {
             throw new UnknownIdentifierException("Missing Columns!");
         }
         this.rows.add(row);
-    }
-
-    public void populateTable(ResultSet resultSet) {
-        try {
-            while (resultSet.next()) {
-                TableRow row = new TableRow();
-                for (int i = 0; i < this.identifiers.length; i++) {
-                    ColumnIdentifier<?> identifier = this.identifiers[i];
-                    Object value = getValueMappings.get(identifier.type()).accept(resultSet, identifier.name());
-                    row.add(identifier, value);
-                }
-                this.addRow(row);
-            }
-        } catch (SQLException | IdentifierMismatchException e) {
-            ErrorManager.handle(e);
-        }
     }
 
     @Nullable
@@ -291,6 +270,139 @@ public class Table {
             }
         }
         return lookupTable;
+    }
+
+
+    /**
+     * Joins the two tables to create a new table, by appending the rows from the other table to this one based on if
+     * they share the same value in the specified column. If there is a value in this table that
+     * doesn't have a matching value in the column of the other table, this will cause a
+     * {@link ValueMismatchException}. These rows can instead be skipped by passing {@code skipMismatched} as true
+     * which will also prevent this error from being thrown.
+     * <p>
+     * This is equivalent to doing the following SQL statement:
+     * <p>
+     * {@code
+     *      SELECT * FROM thisTable INNER JOIN otherTable ON thisTable.column == otherTable.column
+     * }
+     * <p>
+     * Note that the order of the rows in the original tables will be changed, however, nothing else.
+     *
+     * @param otherTable
+     *      The other table to join
+     * @param column
+     *      The column to join both tables on
+     * @param skipMismatched
+     *      If values that don't exist in both tables should be skipped, or if a {@link ValueMismatchException}
+     *      should be thrown instead
+     * @param <T>
+     *      The type of the column values
+     *
+     * @return The new joined table
+     * @throws ValueMismatchException
+     *         If there is a value in this table's column which doesn't exist in the other table's column and they're
+     *         being skipped
+     * @throws IdentifierMismatchException
+     *         If the specified column isn't contained within both tables
+     */
+    public <T extends Comparable<T>> Table joinOn(@NotNull Table otherTable, ColumnIdentifier<T> column,
+                                                  boolean skipMismatched)
+        throws ValueMismatchException, IdentifierMismatchException {
+        return this.joinOn(otherTable, column, column, skipMismatched, false);
+    }
+
+
+    /**
+     * Joins the two tables to create a new table, by appending the rows from the other table to this one based on if
+     * they share the same value in the respective columns for each table. If there is a value in this table that
+     * doesn't have a matching value in the column of the other table, this will cause a
+     * {@link ValueMismatchException}. These rows can instead be skipped by passing {@code skipMismatched} as true
+     * which will also prevent this error from being thrown.
+     * <p>
+     * This is equivalent to doing the following SQL statement:
+     * <p>
+     * {@code
+     *      SELECT * FROM thisTable INNER JOIN otherTable ON thisTable.thisColumn == otherTable.otherColumn
+     * }
+     * <p>
+     * Note that the order of the rows in the original tables will be changed, however, nothing else.
+     *
+     * @param otherTable
+     *      The other table to join
+     * @param thisColumn
+     *      The column to join on for this table
+     * @param otherColumn
+     *      The column to join on for the other table
+     * @param skipMismatched
+     *      If values that don't exist in both tables should be skipped, or if a {@link ValueMismatchException}
+     *      should be thrown instead
+     * @param keepOtherColumn
+     *      Whether the other column should be kept in the new table (The column from this table is kept)
+     * @param <T>
+     *      The type of the column values
+     *
+     * @return The new joined table
+     * @throws ValueMismatchException
+     *         If there is a value in this table's column which doesn't exist in the other table's column and they're
+     *         being skipped
+     * @throws IdentifierMismatchException
+     *         If the specified columns aren't contained within their respective tables
+     */
+    public <T extends Comparable<T>> Table joinOn(@NotNull Table otherTable, ColumnIdentifier<T> thisColumn,
+                                                  ColumnIdentifier<T> otherColumn, boolean skipMismatched,
+                                                  boolean keepOtherColumn)
+        throws ValueMismatchException, IdentifierMismatchException
+    {
+        if (this.hasColumn(thisColumn) && otherTable.hasColumn(otherColumn)) {
+
+            Set<ColumnIdentifier<?>> mergedIdentifiers = new HashSet<>();
+            mergedIdentifiers.addAll(List.of(this.identifiers()));
+            mergedIdentifiers.addAll(List.of(otherTable.identifiers()));
+            mergedIdentifiers.remove(thisColumn);
+            if (!keepOtherColumn)
+                mergedIdentifiers.remove(otherColumn);
+
+            this.orderBy(thisColumn, Order.ASC);
+            otherTable.orderBy(otherColumn, Order.ASC);
+
+            int otherRowIndex = 0;
+            List<TableRow> otherRows = otherTable.rows();
+
+            Table joinedTable = new Table(mergedIdentifiers.toArray(new ColumnIdentifier<?>[0]));
+            for (TableRow row : this.rows())
+            {
+                //Find the matching row. Note: As both tables are sorted based on the same column, if a match is
+                // found, then none of the previous rows will be matches.
+                T thisValue = row.value(thisColumn).orNull();
+                int index;
+                for (index = otherRowIndex; index < otherRows.size(); index++)
+                {
+                    T otherValue = otherRows.get(index).value(otherColumn).orNull();
+                    if (Objects.equals(thisValue, otherValue)) {
+                        otherRowIndex = index;
+                    }
+                }
+                if (otherRowIndex != index) {
+                    if (skipMismatched) continue;
+                    else
+                        throw new ValueMismatchException(
+                            "There was a value in the '" + thisColumn + "' column which weren't in both tables");
+                }
+                TableRow joinedRow = new TableRow();
+                TableRow matchedRow = otherRows.get(index);
+
+                for (ColumnIdentifier<?> mergedIdentifier : mergedIdentifiers) {
+                    row.value(mergedIdentifier)
+                        .present(value -> joinedRow.add(mergedIdentifier, value)
+                    ).absent(
+                        () -> joinedRow.add(mergedIdentifier, matchedRow.value(mergedIdentifier).orNull()));
+                }
+            }
+
+            return joinedTable;
+        }
+        throw new IdentifierMismatchException(
+            "Either column '" + thisColumn + "' or column '" + otherColumn + "' does not exist in their respective tables");
     }
 
     /**

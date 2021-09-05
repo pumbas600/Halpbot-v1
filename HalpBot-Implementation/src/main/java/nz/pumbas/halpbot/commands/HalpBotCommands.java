@@ -59,13 +59,6 @@ public class HalpBotCommands
         return choices[(int)(Math.random() * choices.length)];
     }
 
-    @Command(alias = "permission",
-             description = "Tests command permissions (If you have permission to view audit logs)",
-             permissions = Permission.VIEW_AUDIT_LOGS)
-    public String permission() {
-        return "You have permission to use this command!";
-    }
-
     @Command(alias = "centroid", description = "Finds the centroid defined by the specified shapes")
     public String centroid(@Implicit Shape[] shapes)
     {
