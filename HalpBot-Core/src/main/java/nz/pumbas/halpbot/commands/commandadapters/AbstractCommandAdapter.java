@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -263,6 +264,22 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     }
 
     /**
+     * Listens to the {@link GuildJoinEvent}. When the bot joins a server, it gives the server owner the
+     * {@link HalpbotPermissions#GUILD_OWNER} permission.
+     *
+     * @param event
+     *      The {@link GuildJoinEvent} that's been received
+     */
+    @Override
+    public void onGuildJoin(@NotNull GuildJoinEvent event) {
+        HalpbotUtils.logger().info("Joined the guild: " + event.getGuild().getName());
+        long ownerId = event.getGuild().getOwnerIdLong();
+        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.GUILD_OWNER)) {
+            this.permissionManager.givePermission(ownerId, HalpbotPermissions.GIVE_PERMISSIONS);
+        }
+    }
+
+    /**
      * Adds the specified emoji as a reaction to the message and registers the specified {@link Consumer} as a
      * callback when someone reacts with the specified emoji to the message. Note: The callback is automatically
      * removed after 10 minutes.
@@ -290,6 +307,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             // Schedule to have the callback removed in 10 minutes.
             this.concurrentManager.schedule(10, TimeUnit.MINUTES, () -> {
                 this.reactionCallbacks.get(messageId).remove(emoji);
+                message.clearReactions(emoji).queue();
                 if (this.reactionCallbacks.get(messageId).isEmpty()) {
                     this.reactionCallbacks.remove(messageId);
                 }
@@ -429,7 +447,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 
     /**
      * Sets the id of the owner for this bot. This automatically assigns the user the
-     * {@link HalpbotPermissions#OWNER} permission if they don't already have it in the database.
+     * {@link HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
      *
      * @param ownerId
      *      The {@link Long id} of the owner
@@ -438,8 +456,8 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      */
     public AbstractCommandAdapter setOwnerId(long ownerId) {
         this.ownerId = ownerId;
-        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.OWNER))
-            this.permissionManager.givePermission(ownerId, HalpbotPermissions.OWNER);
+        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.BOT_OWNER))
+            this.permissionManager.givePermission(ownerId, HalpbotPermissions.BOT_OWNER);
         return this;
     }
 

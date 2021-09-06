@@ -27,8 +27,10 @@ package nz.pumbas.halpbot.utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -104,25 +106,6 @@ public final class HalpbotUtils
     }
 
     /**
-     * Maps the values of a list to the passed in objects.
-     *
-     * @param list
-     *     The {@link List} to get the values from
-     * @param objects
-     *     The objects to set the values for
-     * @param <T>
-     *     The type of the elements in the list
-     */
-    @SafeVarargs
-    public static <T> void mapListToObjects(List<T> list, T... objects) {
-        for (int i = 0; i < objects.length; i++) {
-            if (i >= objects.length || i >= list.size()) break;
-
-            objects[i] = list.get(i);
-        }
-    }
-
-    /**
      * Retrieves all the lines from a resource file as a {@link List<String>}.
      *
      * @param filename
@@ -188,6 +171,27 @@ public final class HalpbotUtils
             }
         }
         return defaultValue;
+    }
+
+    /**
+     * Returns the resource {@link File} or null if there is an error while trying to get it.
+     *
+     * @param filename
+     *      The name of the file in the resource folder
+     *
+     * @return The {@link File} for the resource
+     */
+    @Nullable
+    public static File getResourceFile(String filename) {
+        try {
+            return new File(
+                ClassLoader.getSystemClassLoader()
+                    .getResource(filename)
+                    .toURI());
+        } catch (URISyntaxException e) {
+            ErrorManager.handle(e);
+        }
+        return null;
     }
 
     /**
@@ -353,30 +357,6 @@ public final class HalpbotUtils
     public static int argbToInt(int a, int r, int g, int b) {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
-
-//    /**
-//     * Converts an {@link BufferedImage} to an array of bytes.
-//     *
-//     * @param image
-//     *      The {@link BufferedImage} to convert to bytes
-//     * @param imageType
-//     *      The {@link ImageType} of the {@link BufferedImage}
-//     *
-//     * @return An array of bytes
-//     */
-//    public static byte[] toByteArray(BufferedImage image, ImageType imageType)
-//    {
-//        try {
-//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//            ImageIO.write(image, imageType.getType(), outputStream);
-//            return outputStream.toByteArray();
-//
-//        } catch (IOException e) {
-//            ErrorManager.handle(e);
-//        }
-//
-//        return new byte[0];
-//    }
 
     /**
      * Determines if two values are approximately equal, by checking if the difference between them is less than the

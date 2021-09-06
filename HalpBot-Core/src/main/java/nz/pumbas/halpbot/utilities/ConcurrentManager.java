@@ -4,6 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ConcurrentManager
@@ -20,6 +21,11 @@ public class ConcurrentManager
 
     public Future<?> schedule(long delay, TimeUnit timeUnit, Runnable runnable) {
         return this.scheduler.schedule(runnable, delay, timeUnit);
+    }
+
+    public ScheduledFuture<?> scheduleRegularly(long initialDelay, long interval, TimeUnit timeUnit,
+                                                Runnable runnable) {
+        return this.scheduler.scheduleAtFixedRate(runnable, initialDelay, initialDelay, timeUnit);
     }
 
     public void shutdown() {

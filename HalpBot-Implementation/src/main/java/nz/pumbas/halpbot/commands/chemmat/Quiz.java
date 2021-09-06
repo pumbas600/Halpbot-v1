@@ -13,6 +13,7 @@ public class Quiz
     private String optionB;
     private String optionC;
     private String optionD;
+    private String image;
 
     public void shuffleAnswers() {
         List<String> options = this.getOptions();
@@ -61,5 +62,9 @@ public class Quiz
 
     public String getOptionD() {
         return this.optionD;
+    }
+
+    public String getImage() {
+        return this.image;
     }
 }

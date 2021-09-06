@@ -100,7 +100,7 @@ public final class SQLUtils
                     }
 
                     ColumnIdentifier<?> column = identifier(row.columns(), fieldName);
-                    field.set(model, row.value(column).get());
+                    field.set(model, row.value(column).orNull());
                 }
                 catch (IllegalAccessError | IllegalAccessException e) {
                     throw new IllegalArgumentException(e);

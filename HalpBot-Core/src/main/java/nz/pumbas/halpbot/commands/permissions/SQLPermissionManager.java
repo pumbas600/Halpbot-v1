@@ -9,15 +9,14 @@ import java.util.List;
 import java.util.Locale;
 
 import nz.pumbas.halpbot.sql.SQLDriver;
-import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.sql.SQLUtils;
 import nz.pumbas.halpbot.sql.table.Table;
+import nz.pumbas.halpbot.sql.table.TableRow;
 import nz.pumbas.halpbot.sql.table.column.ColumnIdentifier;
 import nz.pumbas.halpbot.sql.table.column.SimpleColumnIdentifier;
 import nz.pumbas.halpbot.sql.table.exceptions.IdentifierMismatchException;
 import nz.pumbas.halpbot.sql.table.exceptions.ValueMismatchException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.context.LateInit;
 
 public class SQLPermissionManager implements PermissionManager, LateInit
@@ -27,28 +26,31 @@ public class SQLPermissionManager implements PermissionManager, LateInit
     private static final ColumnIdentifier<Integer> PERMISSION_ID = new SimpleColumnIdentifier<>("permissionId", Integer.class);
 
     private Table permissions;
-    private Table userPermissions;
+    private Table joinedUserPermissions;
 
     private SQLDriver driver;
-    private int nextPermissionId;
 
     /**
      * A late initialisation function that is called after the object has been first constructed.
      */
     @Override
     public void lateInitialisation() {
-        this.driver = HalpbotUtils.context().get(SQLManager.class)
-            .getDriver("halpbotcore", this::populateDatabaseWithDefaultPermissions);
+        this.driver = SQLDriver.of("halpbotcore", this::populateDatabaseWithDefaultPermissions);
         this.driver.onLoad(this::cacheData);
     }
 
     private void cacheData(Connection connection) throws SQLException {
         ResultSet permissionsRS = this.driver.executeQuery(connection, "SELECT * FROM permissions");
         this.permissions = SQLUtils.asTable(permissionsRS, PERMISSION_ID, PERMISSION);
-        this.nextPermissionId = this.permissions.count() + 1;
 
         ResultSet userPermissionsRS = this.driver.executeQuery(connection, "SELECT * FROM userPermissions");
-        this.userPermissions = SQLUtils.asTable(userPermissionsRS, USER_ID, PERMISSION_ID);
+        Table userPermissions = SQLUtils.asTable(userPermissionsRS, USER_ID, PERMISSION_ID);
+
+        try {
+            this.joinedUserPermissions = userPermissions.joinOn(this.permissions, PERMISSION_ID, false);
+        } catch (IdentifierMismatchException | ValueMismatchException e) {
+            ErrorManager.handle(e);
+        }
     }
 
     private void populateDatabaseWithDefaultPermissions(SQLDriver driver) throws SQLException {
@@ -65,7 +67,8 @@ public class SQLPermissionManager implements PermissionManager, LateInit
 
             this.insertPermissionToDatabase(
                 driver, List.of(
-                    HalpbotPermissions.OWNER,
+                    HalpbotPermissions.BOT_OWNER,
+                    HalpbotPermissions.BOT_OWNER,
                     HalpbotPermissions.ADMIN,
                     HalpbotPermissions.GIVE_PERMISSIONS));
         }
@@ -103,7 +106,6 @@ public class SQLPermissionManager implements PermissionManager, LateInit
             .first().get()
             .value(PERMISSION_ID).get();
 
-        this.userPermissions.addRow(userId, permissionId);
         try (Connection connection = this.driver.createConnection()) {
             this.driver.executeUpdate(connection, "INSERT INTO userPermissions (userId, permissionId) VALUES (?, ?)",
                 userId, permissionId);
@@ -111,10 +113,22 @@ public class SQLPermissionManager implements PermissionManager, LateInit
         catch (SQLException e) {
             ErrorManager.handle(e);
         }
+        TableRow newRow = new TableRow();
+        newRow.add(USER_ID, userId)
+            .add(PERMISSION_ID, permissionId)
+            .add(PERMISSION, permission);
+        try {
+            this.joinedUserPermissions.addRow(newRow);
+        } catch (IdentifierMismatchException e) {
+            ErrorManager.handle(e);
+        }
     }
 
     /**
      * Adds the following permissions to the database.
+     * <p>
+     * Note: The added permission won't be available until the
+     * database refreshes and the newly created permission is cached.
      *
      * @param permissions
      *      The {@link List} of permissions to add to the database
@@ -122,10 +136,6 @@ public class SQLPermissionManager implements PermissionManager, LateInit
     @Override
     public void createPermissions(List<String> permissions) {
         this.insertPermissionToDatabase(this.driver, permissions);
-        for (String permission : permissions) {
-            this.permissions.addRow(this.nextPermissionId, permission.toLowerCase(Locale.ROOT));
-            this.nextPermissionId++;
-        }
     }
 
     private void insertPermissionToDatabase(SQLDriver driver, List<String> permissions) {
@@ -146,7 +156,11 @@ public class SQLPermissionManager implements PermissionManager, LateInit
 
     /**
      * Returns true of the user has all the following permissions. Note: If the user has the
-     * {@link HalpbotPermissions#OWNER} permission, then this will always return true as the owner has all permissions.
+     * {@link HalpbotPermissions#BOT_OWNER} permission, then this will always return true as the owner has all permissions.
+     * If they don't have the exact permission, it will then start looking for permission groups which include the
+     * desired permission. For example, if you're checking if a user has the
+     * {@code halpbot.admin.give.permission} permission and you don't have that exact permission, it will then check
+     * if you have the {@code halpbot.admin.give.*} permission, then {@code halpbot.admin.*}, etc.
      *
      * @param userId
      *      The id of the user to check for the permissions
@@ -158,11 +172,24 @@ public class SQLPermissionManager implements PermissionManager, LateInit
     @Override
     public boolean hasPermissions(long userId, String... permissions) {
         List<String> userPermissions = this.getPermissions(userId);
-        if (userPermissions.contains(HalpbotPermissions.OWNER))
+        if (userPermissions.contains(HalpbotPermissions.BOT_OWNER))
             return true;
+
         for (String permission : permissions) {
-            if (!userPermissions.contains(permission))
-                return false;
+            if (!userPermissions.contains(permission)) {
+                boolean hasPermissionGroup = false;
+                String permissionGroup = permission.substring(0, permission.lastIndexOf(".") + 1) + '*';
+                while (-1 != permissionGroup.lastIndexOf(".", permissionGroup.length() -2))
+                {
+                    if (userPermissions.contains(permissionGroup)) {
+                        hasPermissionGroup = true;
+                        break;
+                    }
+                    permissionGroup = permissionGroup.substring(0,
+                        permissionGroup.lastIndexOf(".", permissionGroup.length() - 3) + 1) + '*';
+                }
+                if (!hasPermissionGroup) return false;
+            }
         }
         return true;
     }
@@ -178,15 +205,12 @@ public class SQLPermissionManager implements PermissionManager, LateInit
     @Override
     public List<String> getPermissions(long userId) {
         List<String> permissions = new ArrayList<>();
-        try {
-            this.userPermissions.joinOn(this.permissions, PERMISSION_ID, false)
-                .where(USER_ID, userId)
-                .forEach(row -> row.value(PERMISSION)
-                    .present(permissions::add));
-        }
-        catch (IdentifierMismatchException | ValueMismatchException e) {
-            ErrorManager.handle(e);
-        }
+
+        this.joinedUserPermissions
+            .where(USER_ID, userId)
+            .forEach(row -> row.value(PERMISSION)
+                .present(permissions::add));
+
         return permissions;
     }
 

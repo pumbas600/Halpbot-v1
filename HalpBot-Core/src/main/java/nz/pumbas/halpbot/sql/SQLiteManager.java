@@ -2,15 +2,35 @@ package nz.pumbas.halpbot.sql;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.sql.functionalinterfaces.SQLConsumer;
+import nz.pumbas.halpbot.utilities.ConcurrentManager;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
+import nz.pumbas.halpbot.utilities.context.LateInit;
 
-public class SQLiteManager implements SQLManager
+public class SQLiteManager implements SQLManager, LateInit
 {
     private final Map<String, SQLDriver> drivers;
+    private int currentSQLDriver;
 
     public SQLiteManager() {
         this.drivers = new HashMap<>();
+    }
+
+    /**
+     * A late initialisation function that is called after the object has been first constructed.
+     */
+    @Override
+    public void lateInitialisation() {
+        HalpbotUtils.context().get(ConcurrentManager.class)
+            .scheduleRegularly(10, 10, TimeUnit.MINUTES, this::reloadNextDriver);
+    }
+
+    private void reloadNextDriver() {
+        SQLDriver[] drivers = HalpbotUtils.toArray(SQLDriver.class, this.drivers.values());
+        drivers[this.currentSQLDriver].reload();
+        this.currentSQLDriver = (this.currentSQLDriver + 1) % drivers.length;
     }
 
     @Override
@@ -26,5 +46,12 @@ public class SQLiteManager implements SQLManager
             driver.lateInitialisation();
         }
         return this.drivers.get(database);
+    }
+
+    @Override
+    public void reloadAllDrivers() {
+        this.drivers.values()
+            .forEach(SQLDriver::reload);
+        HalpbotUtils.logger().info("Reloaded SQL drivers");
     }
 }

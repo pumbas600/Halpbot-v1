@@ -1,9 +1,11 @@
 package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +27,6 @@ import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.sql.SQLDriver;
-import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.sql.SQLUtils;
 import nz.pumbas.halpbot.sql.table.Table;
 import nz.pumbas.halpbot.sql.table.TableRow;
@@ -46,6 +47,7 @@ public class ChemmatCommands implements OnReady
     private static final ColumnIdentifier<String> OPTIONB   = new SimpleColumnIdentifier<>("optionB", String.class);
     private static final ColumnIdentifier<String> OPTIONC   = new SimpleColumnIdentifier<>("optionC", String.class);
     private static final ColumnIdentifier<String> OPTIOND   = new SimpleColumnIdentifier<>("optionD", String.class);
+    private static final ColumnIdentifier<String> IMAGE     = new SimpleColumnIdentifier<>("image", String.class);
 
     private final Random random = new Random();
     private SQLDriver driver;
@@ -61,9 +63,7 @@ public class ChemmatCommands implements OnReady
      */
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        this.driver = HalpbotUtils.context()
-            .get(SQLManager.class)
-            .getDriver("chemmatnotes");
+        this.driver = SQLDriver.of("chemmatnotes");
 
         // Cache the tables
         this.driver.onLoad(this::loadDatabase);
@@ -71,11 +71,11 @@ public class ChemmatCommands implements OnReady
 
     private void loadDatabase(Connection connection) throws SQLException{
         ResultSet resultSet = this.driver.executeQuery(connection,
-            "SELECT topic, question, answer, optionA, optionB, optionC, optionD FROM notes INNER JOIN topics " +
-                "ON notes.topicId = topics.id");
+            "SELECT topic, question, answer, optionA, optionB, optionC, optionD, image FROM notes INNER JOIN " +
+                "topics ON notes.topicId = topics.id");
 
         this.quizNotes = SQLUtils.asTable(resultSet,
-            TOPIC, QUESTION, ANSWER, OPTIONA, OPTIONB, OPTIONC, OPTIOND);
+            TOPIC, QUESTION, ANSWER, OPTIONA, OPTIONB, OPTIONC, OPTIOND, IMAGE);
 
         resultSet = this.driver.executeQuery(connection, "SELECT * FROM topics");
         this.topics = SQLUtils.asTable(resultSet, ID, TOPIC);
@@ -84,9 +84,14 @@ public class ChemmatCommands implements OnReady
     @Command(alias = "quiz", description = "Retrieves a random chemmat quiz on the specified topic")
     public void quiz(AbstractCommandAdapter commandAdapter,
                      @Source MessageChannel channel,
-                     @Remaining String topic)
+                     @Unrequired("") @Remaining String topic)
     {
-        Table table = this.quizNotes.where(TOPIC, topic.toLowerCase(Locale.ROOT));
+        Table table;
+        if (topic.isEmpty())
+            table = this.quizNotes;
+        else
+            table = this.quizNotes.where(TOPIC, topic.toLowerCase(Locale.ROOT));
+
         if (0 == table.count()) {
             channel.sendMessage(String.format("There appears to be no quizzes for the topic '%s'",
                 HalpbotUtils.capitaliseEachWord(topic))).queue();
@@ -95,12 +100,14 @@ public class ChemmatCommands implements OnReady
 
         Quiz quiz = SQLUtils.asModel(Quiz.class, this.getRandomRow(table));
         quiz.shuffleAnswers();
-        String[] emojis = { "\uD83C\uDDE6",  "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
+        String[] emojis = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(HalpbotUtils.capitaliseEachWord(topic));
+        embedBuilder.setTitle(HalpbotUtils.capitaliseEachWord(quiz.getTopic()));
         embedBuilder.setColor(Color.ORANGE);
         embedBuilder.setFooter("Chemmat notes");
+        if (null != quiz.getImage())
+            embedBuilder.setImage(quiz.getImage());
 
         StringBuilder builder = new StringBuilder();
         builder.append(quiz.getQuestion())
@@ -154,7 +161,7 @@ public class ChemmatCommands implements OnReady
     }
 
     @Command(alias = "addQuiz", description = "Adds a new chemmat quiz question to the database")
-    public String addQuiz(@Explicit String topic, @Explicit String question, int answer,
+    public String addQuiz(MessageReceivedEvent event, @Explicit String topic, @Explicit String question, int answer,
                           @Explicit String optionA, @Explicit String optionB,
                           @Explicit @Unrequired String optionC, @Explicit @Unrequired String optionD)
     {
@@ -165,10 +172,16 @@ public class ChemmatCommands implements OnReady
             return "There doesn't seem to be a topic '" + topic + "'. Check your spelling or create your own one " +
                 "using the **addTopic** command";
         }
+        String image = event.getMessage().getAttachments()
+            .stream()
+            .filter(Attachment::isImage)
+            .findFirst()
+            .map(Attachment::getUrl)
+            .orElse(null);
 
         int topicId = topicTable.first().get().value(ID).or(-1);
         this.insertQuizNote(topic, topicId, question, answer, optionA,
-            optionB, optionC, optionD);
+            optionB, optionC, optionD, image);
 
         return "Inserted the quiz question to the '" + topic + "' topic :smiling_face_with_3_hearts:";
     }
@@ -184,10 +197,13 @@ public class ChemmatCommands implements OnReady
 
         if (-1 == this.insertTopic(topic))
             return "There was an error trying to insert the topic :sob:";
-        return "Sucessfully created the topic '" + topic + "' :tada:";
+        return "Sucessfully created the topic '" + topic + "' :tada: *(This won't be available until the database is reloaded though)*";
     }
 
     private void onAnswerReaction(MessageReactionAddEvent event, int answerOption, int correctAnswer) {
+        // Hide the response as quickly as possible to avoid others from seeing it
+        event.getReaction().removeReaction(event.getUser()).queue();
+
         EmbedBuilder builder = new EmbedBuilder();
         if (answerOption == correctAnswer) {
             builder.setTitle("Correct: :white_check_mark:");
@@ -199,8 +215,7 @@ public class ChemmatCommands implements OnReady
         }
         builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
         event.getChannel().sendMessageEmbeds(builder.build())
-            .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS,
-                t -> event.getReaction().removeReaction(event.getUser()).queue()));
+            .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
     }
 
     private TableRow getRandomRow(Table table) {
@@ -214,13 +229,7 @@ public class ChemmatCommands implements OnReady
 
     private int insertTopic(String topic) {
         try (Connection connection = this.driver.createConnection()) {
-            this.driver.executeUpdate(connection,"INSERT INTO topics (topic) VALUES (?)",topic);
-            ResultSet resultSet = this.driver.executeQuery(connection,
-                "SELECT id FROM topics WHERE topic == ?", topic);
-
-            int id = resultSet.getInt("id");
-            this.topics.addRow(id, topic);
-            return id;
+            return this.driver.executeUpdate(connection,"INSERT INTO topics (topic) VALUES (?)",topic);
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }
@@ -228,14 +237,14 @@ public class ChemmatCommands implements OnReady
     }
 
     private void insertQuizNote(String topic, int topicId, String question, int answer, String optionA,
-                                String optionB, String optionC, String optionD) {
+                                String optionB, String optionC, String optionD, String image) {
         try (Connection connection = this.driver.createConnection()) {
-            String sql = "INSERT INTO notes (topicId, question, answer, optionA, optionB, optionC, optionD) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO notes (topicId, question, answer, optionA, optionB, optionC, optionD, image) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             this.driver.executeUpdate(connection, sql, topicId, question, answer,
-                optionA, optionB, optionC, optionD);
-            this.quizNotes.addRow(topic, question, answer, optionA, optionB, optionC, optionD);
+                optionA, optionB, optionC, optionD, image);
+            this.quizNotes.addRow(topic, question, answer, optionA, optionB, optionC, optionD, image);
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }

@@ -8,9 +8,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import nz.pumbas.halpbot.sql.functionalinterfaces.SQLConsumer;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public interface SQLDriver
 {
+    static SQLDriver of(String database) {
+        return HalpbotUtils.context().get(SQLManager.class)
+            .getDriver(database);
+    }
+
+    static SQLDriver of(String database, SQLConsumer<SQLDriver> creationListener) {
+        return HalpbotUtils.context().get(SQLManager.class)
+            .getDriver(database, creationListener);
+    }
+
     @Nullable
     Connection createConnection();
 
@@ -34,4 +45,6 @@ public interface SQLDriver
         statement.closeOnCompletion();
         return resultSet;
     }
+
+    void reload();
 }

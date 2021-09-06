@@ -17,7 +17,7 @@ import nz.pumbas.halpbot.utilities.context.LateInit;
 
 public class SQLiteDriver implements SQLDriver, LateInit
 {
-    private final List<SQLConsumer<Connection>> loadListeners = new ArrayList<>();
+    private final List<SQLConsumer<Connection>> reloadListeners = new ArrayList<>();
     private final SQLConsumer<SQLDriver> creationListener;
     private final String databaseFilename;
 
@@ -71,10 +71,21 @@ public class SQLiteDriver implements SQLDriver, LateInit
 
     @Override
     public void onLoad(SQLConsumer<Connection> consumer) {
-        this.loadListeners.add(consumer);
+        this.reloadListeners.add(consumer);
 
         try (Connection connection = this.createConnection()) {
             consumer.accept(connection);
+        } catch (SQLException e) {
+            ErrorManager.handle(e);
+        }
+    }
+
+    @Override
+    public void reload() {
+        try (Connection connection = this.createConnection()) {
+            for (SQLConsumer<Connection> reloadListener : this.reloadListeners) {
+                reloadListener.accept(connection);
+            }
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }

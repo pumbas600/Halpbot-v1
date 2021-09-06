@@ -48,8 +48,10 @@ public interface PermissionManager
      */
     void createPermissions(List<String> permissions);
 
-    /**
-     * Adds the following permissions to the database.
+    /** Adds the following permissions to the database.
+     * <p>
+     * Note: The added permission won't be available until the
+     * database refreshes and the newly created permission is cached.
      *
      * @param permissions
      *      The permissions to add to the database
@@ -60,7 +62,11 @@ public interface PermissionManager
 
     /**
      * Returns true of the user has all the following permissions. Note: If the user has the
-     * {@link HalpbotPermissions#OWNER} permission, then this will always return true as the owner has all permissions.
+     * {@link HalpbotPermissions#BOT_OWNER} permission, then this will always return true as the owner has all permissions.
+     * If they don't have the exact permission, it will then start looking for permission groups which include the
+     * desired permission. For example, if you're checking if a user has the
+     * {@code halpbot.admin.give.permission} permission and you don't have that exact permission, it will then check
+     * if you have the {@code halpbot.admin.give.*} permission, then {@code halpbot.admin.*}, etc.
      *
      * @param userId
      *      The id of the user to check for the permissions
@@ -73,7 +79,7 @@ public interface PermissionManager
 
     /**
      * Returns true of the user has all the following permissions. Note: If the user has the
-     * {@link HalpbotPermissions#OWNER} permission, then this will always return true as the owner has all permissions.
+     * {@link HalpbotPermissions#BOT_OWNER} permission, then this will always return true as the owner has all permissions.
      *
      * @param user
      *      The {@link User} to check for the permissions

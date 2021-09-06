@@ -11,4 +11,6 @@ public interface SQLManager
     default SQLDriver getDriver(String database) {
         return this.getDriver(database, null);
     }
+
+    void reloadAllDrivers();
 }

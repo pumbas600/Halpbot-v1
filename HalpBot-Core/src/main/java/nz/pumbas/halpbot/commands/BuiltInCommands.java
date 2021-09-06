@@ -34,13 +34,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import nz.pumbas.halpbot.commands.annotations.Id;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.commands.permissions.PermissionManager;
+import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class BuiltInCommands
@@ -80,13 +81,13 @@ public class BuiltInCommands
     }
 
     @Command(alias = "shutdown", description = "Shuts the bot down. Any existing RestActions will be completed first.",
-             restrictedTo = 260930648330469387L)
+             permissions = HalpbotPermissions.BOT_OWNER)
     public void shutdown(JDA jda) {
         jda.shutdown();
     }
 
     @Command(alias = "forceShutdown", description = "Shuts the bot down immediately",
-             restrictedTo = 260930648330469387L)
+             permissions = HalpbotPermissions.BOT_OWNER)
     public void forceShutdown(JDA jda) {
         jda.shutdownNow();
     }
@@ -142,17 +143,30 @@ public class BuiltInCommands
     }
 
     @Command(alias = "givePermission", description = "Gives the user the specified permission",
-             permissions = "halpbot.admin.give.permission")
-    public String givePermission(@Id(User.class) long userId, String permission) {
-        if (this.permissionManager.hasPermissions(userId, permission)) {
+             permissions = HalpbotPermissions.GIVE_PERMISSIONS)
+    public String givePermission(@Source User author, User user, String permission) {
+        permission = permission.toLowerCase(Locale.ROOT);
+
+        if (this.permissionManager.hasPermissions(user, permission)) {
             return "That user already has that permission!";
         }
         if (!this.permissionManager.isPermission(permission)) {
             return "The permission '" + permission + "' doesn't exist";
         }
-        this.permissionManager.givePermission(userId, permission);
+        if (!this.permissionManager.hasPermissions(author, permission)) {
+            return "You must have the permission '" + permission + "' to give it to others";
+        }
+        this.permissionManager.givePermission(user, permission);
         return String.format("Successfully gave the user the permission '%s'", permission);
     }
 
+    @Command(alias = "reloadDatabase", description = "Forces all the SQLDrivers to invoke their reload listeners, " +
+                                                     "refreshing any cached database information",
+             permissions = HalpbotPermissions.BOT_OWNER)
+    public String reloadDatabase() {
+        HalpbotUtils.context().get(SQLManager.class)
+            .reloadAllDrivers();
 
+        return "Reloaded database drivers";
+    }
 }

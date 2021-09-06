@@ -22,24 +22,18 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import nz.pumbas.halpbot.objects.Exceptional;
-import nz.pumbas.halpbot.sql.functionalinterfaces.SQLBiFunction;
-import nz.pumbas.halpbot.sql.functionalinterfaces.SQLTriConsumer;
 import nz.pumbas.halpbot.sql.table.annotations.Property;
 import nz.pumbas.halpbot.sql.table.behavior.Merge;
 import nz.pumbas.halpbot.sql.table.behavior.Order;
@@ -308,7 +302,7 @@ public class Table {
     public <T extends Comparable<T>> Table joinOn(@NotNull Table otherTable, ColumnIdentifier<T> column,
                                                   boolean skipMismatched)
         throws ValueMismatchException, IdentifierMismatchException {
-        return this.joinOn(otherTable, column, column, skipMismatched, false);
+        return this.joinOn(otherTable, column, column, skipMismatched, true);
     }
 
 
@@ -358,7 +352,6 @@ public class Table {
             Set<ColumnIdentifier<?>> mergedIdentifiers = new HashSet<>();
             mergedIdentifiers.addAll(List.of(this.identifiers()));
             mergedIdentifiers.addAll(List.of(otherTable.identifiers()));
-            mergedIdentifiers.remove(thisColumn);
             if (!keepOtherColumn)
                 mergedIdentifiers.remove(otherColumn);
 
@@ -380,6 +373,7 @@ public class Table {
                     T otherValue = otherRows.get(index).value(otherColumn).orNull();
                     if (Objects.equals(thisValue, otherValue)) {
                         otherRowIndex = index;
+                        break;
                     }
                 }
                 if (otherRowIndex != index) {
@@ -397,6 +391,7 @@ public class Table {
                     ).absent(
                         () -> joinedRow.add(mergedIdentifier, matchedRow.value(mergedIdentifier).orNull()));
                 }
+                joinedTable.addRow(joinedRow);
             }
 
             return joinedTable;
