@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.utilities;
 
+import net.dv8tion.jda.api.JDA;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -75,6 +77,8 @@ public final class HalpbotUtils
     private static final ContextHandler contextHandler = new ContextHandlerImpl();
     private static final Logger logger = LogManager.getLogger("HalpBot-Core-Bot");
 
+    private static JDA jda;
+
     private HalpbotUtils() {}
 
     static {
@@ -87,6 +91,14 @@ public final class HalpbotUtils
 
     public static Logger logger() {
         return logger;
+    }
+
+    public static JDA getJDA() {
+        return jda;
+    }
+
+    public static void setJDA(JDA jdaInstance) {
+        jda = jdaInstance;
     }
 
     /**

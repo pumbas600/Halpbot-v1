@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Quiz
 {
+    private int id;
     private String topic;
     private String question;
     private int answer;
@@ -66,5 +67,9 @@ public class Quiz
 
     public String getImage() {
         return this.image;
+    }
+
+    public int getId() {
+        return this.id;
     }
 }

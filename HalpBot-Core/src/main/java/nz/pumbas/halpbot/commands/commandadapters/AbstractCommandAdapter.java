@@ -398,6 +398,8 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      */
     @Override
     public void onReady(@NotNull ReadyEvent event) {
+        HalpbotUtils.setJDA(event.getJDA());
+
         this.getUniqueCommandMethodInstances()
             .stream()
             .filter(o -> o instanceof OnReady)

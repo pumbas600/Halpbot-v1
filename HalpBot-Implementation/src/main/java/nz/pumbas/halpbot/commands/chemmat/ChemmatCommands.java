@@ -71,11 +71,11 @@ public class ChemmatCommands implements OnReady
 
     private void loadDatabase(Connection connection) throws SQLException{
         ResultSet resultSet = this.driver.executeQuery(connection,
-            "SELECT topic, question, answer, optionA, optionB, optionC, optionD, image FROM notes INNER JOIN " +
-                "topics ON notes.topicId = topics.id");
+            "SELECT notes.id, topic, question, answer, optionA, optionB, optionC, optionD, image FROM notes INNER " +
+                "JOIN topics ON notes.topicId = topics.id");
 
         this.quizNotes = SQLUtils.asTable(resultSet,
-            TOPIC, QUESTION, ANSWER, OPTIONA, OPTIONB, OPTIONC, OPTIOND, IMAGE);
+            ID, TOPIC, QUESTION, ANSWER, OPTIONA, OPTIONB, OPTIONC, OPTIOND, IMAGE);
 
         resultSet = this.driver.executeQuery(connection, "SELECT * FROM topics");
         this.topics = SQLUtils.asTable(resultSet, ID, TOPIC);
@@ -105,7 +105,7 @@ public class ChemmatCommands implements OnReady
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(HalpbotUtils.capitaliseEachWord(quiz.getTopic()));
         embedBuilder.setColor(Color.ORANGE);
-        embedBuilder.setFooter("Chemmat notes");
+        embedBuilder.setFooter("Chemmat notes - Question id: " + quiz.getId());
         if (null != quiz.getImage())
             embedBuilder.setImage(quiz.getImage());
 
@@ -244,7 +244,7 @@ public class ChemmatCommands implements OnReady
 
             this.driver.executeUpdate(connection, sql, topicId, question, answer,
                 optionA, optionB, optionC, optionD, image);
-            this.quizNotes.addRow(topic, question, answer, optionA, optionB, optionC, optionD, image);
+            this.quizNotes.addRow(-1, topic, question, answer, optionA, optionB, optionC, optionD, image);
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }
