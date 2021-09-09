@@ -4,11 +4,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.sql.Connection;
@@ -35,6 +37,7 @@ import nz.pumbas.halpbot.sql.table.column.SimpleColumnIdentifier;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
+@SuppressWarnings("ClassWithTooManyFields")
 public class ChemmatCommands implements OnReady
 {
     private static final ColumnIdentifier<Integer> ID       = new SimpleColumnIdentifier<>("id", Integer.class);
@@ -48,6 +51,9 @@ public class ChemmatCommands implements OnReady
     private static final ColumnIdentifier<String> OPTIONC   = new SimpleColumnIdentifier<>("optionC", String.class);
     private static final ColumnIdentifier<String> OPTIOND   = new SimpleColumnIdentifier<>("optionD", String.class);
     private static final ColumnIdentifier<String> IMAGE     = new SimpleColumnIdentifier<>("image", String.class);
+    private static final ColumnIdentifier<String> EXPLANATION = new SimpleColumnIdentifier<>("explanation", String.class);
+
+    private static final Color Blurple = new Color(85, 57, 204);
 
     private final Random random = new Random();
     private SQLDriver driver;
@@ -71,11 +77,11 @@ public class ChemmatCommands implements OnReady
 
     private void loadDatabase(Connection connection) throws SQLException{
         ResultSet resultSet = this.driver.executeQuery(connection,
-            "SELECT notes.id, topic, question, answer, optionA, optionB, optionC, optionD, image FROM notes INNER " +
-                "JOIN topics ON notes.topicId = topics.id");
+            "SELECT notes.id, topic, question, answer, optionA, optionB, optionC, optionD, image, explanation FROM " +
+                "notes INNER JOIN topics ON notes.topicId = topics.id");
 
         this.quizNotes = SQLUtils.asTable(resultSet,
-            ID, TOPIC, QUESTION, ANSWER, OPTIONA, OPTIONB, OPTIONC, OPTIOND, IMAGE);
+            ID, TOPIC, QUESTION, ANSWER, OPTIONA, OPTIONB, OPTIONC, OPTIOND, IMAGE, EXPLANATION);
 
         resultSet = this.driver.executeQuery(connection, "SELECT * FROM topics");
         this.topics = SQLUtils.asTable(resultSet, ID, TOPIC);
@@ -84,6 +90,7 @@ public class ChemmatCommands implements OnReady
     @Command(alias = "quiz", description = "Retrieves a random chemmat quiz on the specified topic")
     public void quiz(AbstractCommandAdapter commandAdapter,
                      @Source MessageChannel channel,
+                     @Unrequired("-1") int quizId,
                      @Unrequired("") @Remaining String topic)
     {
         Table table;
@@ -98,7 +105,11 @@ public class ChemmatCommands implements OnReady
             return;
         }
 
-        Quiz quiz = SQLUtils.asModel(Quiz.class, this.getRandomRow(table));
+        TableRow tableRow = (0 >= quizId || quizId > this.quizNotes.count())
+            ? this.getRandomRow(table)
+            : this.quizNotes.rows().get(quizId - 1);
+
+        Quiz quiz = SQLUtils.asModel(Quiz.class, tableRow);
         quiz.shuffleAnswers();
         String[] emojis = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
 
@@ -136,6 +147,8 @@ public class ChemmatCommands implements OnReady
                         optionIndex++;
                     }
                 }
+                commandAdapter.addReactionCallback(m, "U+2753",
+                    e -> this.onRevealAnswer(e, options.get(answer - 1), quiz));
         });
     }
 
@@ -218,6 +231,23 @@ public class ChemmatCommands implements OnReady
             .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
     }
 
+    private void onRevealAnswer(@NotNull MessageReactionAddEvent event, @NotNull String answer, @NotNull Quiz quiz) {
+        event.getReaction().removeReaction(event.getUser()).queue();
+        User user = event.getUser();
+
+        EmbedBuilder builder = new EmbedBuilder();
+
+        builder.setTitle("Answer - " + answer);
+        builder.setColor(Blurple);
+        builder.setFooter(HalpbotUtils.capitalise(quiz.getTopic()) + " - Question id: " + quiz.getId());
+
+        if (null != quiz.getExplanation()) {
+            builder.setDescription(quiz.getExplanation());
+        }
+        event.getChannel().sendMessageEmbeds(builder.build())
+            .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
+    }
+
     private TableRow getRandomRow(Table table) {
         List<TableRow> rows = table.rows();
         if (rows.isEmpty())
@@ -244,7 +274,7 @@ public class ChemmatCommands implements OnReady
 
             this.driver.executeUpdate(connection, sql, topicId, question, answer,
                 optionA, optionB, optionC, optionD, image);
-            this.quizNotes.addRow(-1, topic, question, answer, optionA, optionB, optionC, optionD, image);
+            this.quizNotes.addRow(-1, topic, question, answer, optionA, optionB, optionC, optionD, image, null);
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }

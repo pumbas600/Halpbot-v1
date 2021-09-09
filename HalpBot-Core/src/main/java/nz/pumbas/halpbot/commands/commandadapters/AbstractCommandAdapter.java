@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
@@ -42,6 +43,7 @@ import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.utils.EncodingUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,7 +90,8 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
     protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
-    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks = new ConcurrentHashMap<>();
+    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks =
+        new ConcurrentHashMap<>();
 
     protected final String commandPrefix;
     private long ownerId;
@@ -255,11 +258,11 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
         if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
             return;
 
-        Map<String, Consumer<MessageReactionAddEvent>> callbacks = this.reactionCallbacks.get(event.getMessageIdLong());
-        if (!callbacks.containsKey(event.getReactionEmote().getAsReactionCode()))
+        var callbacks = this.reactionCallbacks.get(event.getMessageIdLong());
+        if (!callbacks.containsKey(event.getReactionEmote().getAsCodepoints()))
             return;
 
-        callbacks.get(event.getReactionEmote().getAsReactionCode())
+        callbacks.get(event.getReactionEmote().getAsCodepoints())
             .accept(event);
     }
 
@@ -292,22 +295,25 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      *      The {@link Consumer} to call when someone reacts to the message with the emoji
      */
     public void addReactionCallback(Message message, String emoji, Consumer<MessageReactionAddEvent> consumer) {
+        String codePointEmoji = emoji.startsWith("U+")
+            ? emoji : EncodingUtil.encodeCodepoints(emoji);
+        
         long messageId = message.getIdLong();
 
         if (!this.reactionCallbacks.containsKey(messageId)) {
             Map<String, Consumer<MessageReactionAddEvent>> hashmap = new HashMap<>();
-            hashmap.put(emoji, consumer);
+            hashmap.put(codePointEmoji, consumer);
             this.reactionCallbacks.put(messageId, hashmap);
         }
         else {
-            this.reactionCallbacks.get(messageId).put(emoji, consumer);
+            this.reactionCallbacks.get(messageId).put(codePointEmoji, consumer);
         }
 
-        message.addReaction(emoji).queue(v ->
+        message.addReaction(codePointEmoji).queue(v ->
             // Schedule to have the callback removed in 10 minutes.
             this.concurrentManager.schedule(10, TimeUnit.MINUTES, () -> {
-                this.reactionCallbacks.get(messageId).remove(emoji);
-                message.clearReactions(emoji).queue();
+                this.reactionCallbacks.get(messageId).remove(codePointEmoji);
+                message.clearReactions(codePointEmoji).queue();
                 if (this.reactionCallbacks.get(messageId).isEmpty()) {
                     this.reactionCallbacks.remove(messageId);
                 }

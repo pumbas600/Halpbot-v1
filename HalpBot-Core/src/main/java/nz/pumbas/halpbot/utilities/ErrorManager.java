@@ -25,6 +25,7 @@
 package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.Color;
@@ -34,18 +35,25 @@ import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
 public final class ErrorManager
 {
+    private static long loggerUserId = -1;
+
+    public static void setLoggerUserId(long userId) {
+        loggerUserId = userId;
+    }
+
     private ErrorManager() {}
 
     public static void handle(Throwable e) {
-        HalpbotUtils.logger().error("Caught the error: ", e);
+        handle(e, "Caught the error: ");
     }
 
     public static void handle(Throwable e, String message) {
         HalpbotUtils.logger().error(message, e);
+        sendToLoggerUser(null, e, message);
     }
 
     public static void handle(MessageReceivedEvent event, Throwable e) {
-        handle(event, e, "");
+        handle(event, e, "Caught the error: ");
     }
 
     public static void handle(MessageReceivedEvent event, Throwable e, String message) {
@@ -58,10 +66,8 @@ public final class ErrorManager
             HalpbotUtils.logger().warn(warningMessage);
             event.getChannel().sendMessage(warningMessage).queue();
         }
-        else if (!message.isEmpty() && null != message)
-            handle(e, message);
         else {
-            handle(e);
+            sendToLoggerUser(event, e, message);
         }
     }
 
@@ -72,5 +78,22 @@ public final class ErrorManager
                 .addField("This feature is not implemented yet", message, false)
                 .build())
             .queue();
+    }
+
+    private static void sendToLoggerUser(MessageReceivedEvent event, Throwable e, String message) {
+        if (-1 != loggerUserId) {
+            EmbedBuilder error = new EmbedBuilder();
+            error.setTitle(message);
+            error.setColor(Color.red);
+            error.setDescription(e.getMessage());
+            if (null != event) {
+                error.setFooter(event.getGuild().getName(), event.getGuild().getBannerUrl());
+            }
+
+            HalpbotUtils.getJDA().getUserById(loggerUserId)
+                .openPrivateChannel()
+                .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
+                .queue();
+        }
     }
 }

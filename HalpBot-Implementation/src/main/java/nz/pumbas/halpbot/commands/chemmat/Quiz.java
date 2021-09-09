@@ -15,6 +15,7 @@ public class Quiz
     private String optionC;
     private String optionD;
     private String image;
+    private String explanation;
 
     public void shuffleAnswers() {
         List<String> options = this.getOptions();
@@ -37,8 +38,13 @@ public class Quiz
         return options;
     }
 
+
+    public int getId() {
+        return this.id;
+    }
+
     public String getTopic() {
-        return this.topic;
+        return (null == this.topic) ? "Generic" : this.topic;
     }
 
     public String getQuestion() {
@@ -69,7 +75,7 @@ public class Quiz
         return this.image;
     }
 
-    public int getId() {
-        return this.id;
+    public String getExplanation() {
+        return this.explanation;
     }
 }

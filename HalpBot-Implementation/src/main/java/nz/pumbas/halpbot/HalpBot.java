@@ -46,8 +46,7 @@ import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.KotlinCommands;
 import nz.pumbas.halpbot.commands.MatrixCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
-import nz.pumbas.halpbot.sql.SQLiteManager;
-import nz.pumbas.halpbot.sql.SQLManager;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class HalpBot extends ListenerAdapter
@@ -61,6 +60,9 @@ public class HalpBot extends ListenerAdapter
         JDABuilder builder = JDABuilder.createDefault(token)
             .disableIntents(GatewayIntent.GUILD_PRESENCES)
             .addEventListeners(this);
+
+        ErrorManager.setLoggerUserId(CREATOR_ID);
+
         AbstractCommandAdapter commandAdapter = new SimpleCommandAdapter(builder, "$")
             .setOwnerId(CREATOR_ID)
             .registerCommands(
@@ -74,6 +76,7 @@ public class HalpBot extends ListenerAdapter
 
         this.jda = builder.build();
         commandAdapter.registerSlashCommands(this.jda);
+
     }
 
     @Override
