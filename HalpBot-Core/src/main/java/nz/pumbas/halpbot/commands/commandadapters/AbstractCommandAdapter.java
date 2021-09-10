@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
@@ -62,6 +61,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import nz.pumbas.halpbot.commands.exceptions.IllegalPersistantDataConstructor;
+import nz.pumbas.halpbot.commands.persistant.AbstractPersistantUserData;
+import nz.pumbas.halpbot.commands.persistant.PersistantData;
+import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.CommandType;
@@ -91,6 +94,8 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
     protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
     protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks =
+        new ConcurrentHashMap<>();
+    protected final Map<Long, Map<Class<? extends PersistantUserData>, PersistantUserData>> persistantUserData =
         new ConcurrentHashMap<>();
 
     protected final String commandPrefix;
@@ -318,6 +323,67 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
                     this.reactionCallbacks.remove(messageId);
                 }
             }));
+    }
+
+    /**
+     * Removes the {@link PersistantUserData} from this command adapters.
+     *
+     * @param commandData
+     *      The {@link PersistantUserData} to remove
+     */
+    public void removePersistantUserData(PersistantUserData commandData) {
+        long userId  = commandData.getUserId();
+
+        if (this.persistantUserData.containsKey(userId)) {
+            this.persistantUserData.get(userId).remove(commandData.getClass());
+            if (this.persistantUserData.get(userId).isEmpty()) {
+                this.persistantUserData.remove(userId);
+            }
+        }
+    }
+
+    /**
+     * Retrieves the {@link PersistantData} of the specified type for the user. If there is currently no registered
+     * data for that user then a new {@link PersistantData} will be automatically created and returned. If the newly
+     * created persistant data extends {@link AbstractPersistantUserData} then it will also automatically call
+     * {@link AbstractPersistantUserData#setCommandAdapter(AbstractCommandAdapter)} to set itself as the registering
+     * data holder.
+     *
+     * @param type
+     *      The {@link Class} of the persistant data
+     * @param userId
+     *      The id of the user to retrieve the data for
+     * @param <T>
+     *      The type of the persistant data
+     *
+     * @return The persistant user data for the specified user
+     * @throws IllegalPersistantDataConstructor
+     *         If the constructor for the persistant user data type does not accept only a single {@link Long user id}.
+     */
+    @NotNull
+    @SuppressWarnings("unchecked")
+    public <T extends PersistantUserData> T getPersistantUserData(Class<T> type, long userId) {
+        Map<Class<? extends PersistantUserData>, PersistantUserData> mappings;
+        if (!this.persistantUserData.containsKey(userId)) {
+            mappings = new ConcurrentHashMap<>();
+            this.persistantUserData.put(userId, mappings);
+        }
+        else mappings = this.persistantUserData.get(userId);
+
+
+        if (!mappings.containsKey(type)) {
+            T userData = Reflect.createInstance(type, userId);
+            if (null == userData)
+                throw new IllegalPersistantDataConstructor(
+                    "Persistant user data can only have a user id as a parameter for its constructor");
+
+            if (userData instanceof AbstractPersistantUserData)
+                ((AbstractPersistantUserData) userData).setCommandAdapter(this);
+
+            mappings.put(type, userData);
+            return userData;
+        }
+        return (T) mappings.get(type);
     }
 
     /**
