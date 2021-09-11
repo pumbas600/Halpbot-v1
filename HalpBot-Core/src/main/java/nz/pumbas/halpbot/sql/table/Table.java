@@ -42,7 +42,6 @@ import nz.pumbas.halpbot.sql.table.exceptions.EmptyEntryException;
 import nz.pumbas.halpbot.sql.table.exceptions.IdentifierMismatchException;
 import nz.pumbas.halpbot.sql.table.exceptions.UnknownIdentifierException;
 import nz.pumbas.halpbot.sql.table.exceptions.ValueMismatchException;
-import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 /**
@@ -272,7 +271,10 @@ public class Table {
      * they share the same value in the specified column. If there is a value in this table that
      * doesn't have a matching value in the column of the other table, this will cause a
      * {@link ValueMismatchException}. These rows can instead be skipped by passing {@code skipMismatched} as true
-     * which will also prevent this error from being thrown.
+     * which will also prevent this error from being thrown. This is unlike
+     * {@link Table#join(Table, ColumnIdentifier, Merge)} in that it will join based on if the values are equal and
+     * so it's possible for the values in a single row of the other table to be used in multiple rows of the joined
+     * table, whereas {@code join} only joins on the row index.
      * <p>
      * This is equivalent to doing the following SQL statement:
      * <p>
@@ -299,9 +301,11 @@ public class Table {
      * @throws IdentifierMismatchException
      *         If the specified column isn't contained within both tables
      */
-    public <T extends Comparable<T>> Table joinOn(@NotNull Table otherTable, ColumnIdentifier<T> column,
-                                                  boolean skipMismatched)
-        throws ValueMismatchException, IdentifierMismatchException {
+    public <T extends Comparable<T>> Table joinOn(
+        @NotNull final Table otherTable,
+        final ColumnIdentifier<T> column,
+        final boolean skipMismatched
+    ) throws ValueMismatchException, IdentifierMismatchException {
         return this.joinOn(otherTable, column, column, skipMismatched, true);
     }
 
@@ -311,7 +315,10 @@ public class Table {
      * they share the same value in the respective columns for each table. If there is a value in this table that
      * doesn't have a matching value in the column of the other table, this will cause a
      * {@link ValueMismatchException}. These rows can instead be skipped by passing {@code skipMismatched} as true
-     * which will also prevent this error from being thrown.
+     * which will also prevent this error from being thrown. This is unlike
+     * {@link Table#join(Table, ColumnIdentifier, Merge)} in that it will join based on if the values are equal and
+     * so it's possible for the values in a single row of the other table to be used in multiple rows of the joined
+     * table, whereas {@code join} only joins on the row index.
      * <p>
      * This is equivalent to doing the following SQL statement:
      * <p>
@@ -342,11 +349,13 @@ public class Table {
      * @throws IdentifierMismatchException
      *         If the specified columns aren't contained within their respective tables
      */
-    public <T extends Comparable<T>> Table joinOn(@NotNull Table otherTable, ColumnIdentifier<T> thisColumn,
-                                                  ColumnIdentifier<T> otherColumn, boolean skipMismatched,
-                                                  boolean keepOtherColumn)
-        throws ValueMismatchException, IdentifierMismatchException
-    {
+    public <T extends Comparable<T>> Table joinOn(
+            @NotNull final Table otherTable,
+            final ColumnIdentifier<T> thisColumn,
+            final ColumnIdentifier<T> otherColumn,
+            final boolean skipMismatched,
+            final boolean keepOtherColumn
+    ) throws ValueMismatchException, IdentifierMismatchException {
         if (this.hasColumn(thisColumn) && otherTable.hasColumn(otherColumn)) {
 
             Set<ColumnIdentifier<?>> mergedIdentifiers = new HashSet<>();
@@ -387,9 +396,8 @@ public class Table {
 
                 for (ColumnIdentifier<?> mergedIdentifier : mergedIdentifiers) {
                     row.value(mergedIdentifier)
-                        .present(value -> joinedRow.add(mergedIdentifier, value)
-                    ).absent(
-                        () -> joinedRow.add(mergedIdentifier, matchedRow.value(mergedIdentifier).orNull()));
+                        .present(value -> joinedRow.add(mergedIdentifier, value))
+                        .absent(() -> joinedRow.add(mergedIdentifier, matchedRow.value(mergedIdentifier).orNull()));
                 }
                 joinedTable.addRow(joinedRow);
             }

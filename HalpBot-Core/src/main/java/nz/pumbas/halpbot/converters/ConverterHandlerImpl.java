@@ -27,6 +27,7 @@ package nz.pumbas.halpbot.converters;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ public class ConverterHandlerImpl implements ConverterHandler, LateInit
 
     private final Map<Class<?>, List<ConverterContext>> converters = new HashMap<>();
     private final List<Tuple<Predicate<Class<?>>, ConverterContext>> fallbackConverters = new ArrayList<>();
+
+    private List<Class<?>> nonCommandParameterTypes = new ArrayList<>();
 
     /**
      * A late initialisation function that is called after the object has been first constructed.
@@ -169,5 +172,25 @@ public class ConverterHandlerImpl implements ConverterHandler, LateInit
             }
         }
         this.fallbackConverters.add(converterContext);
+    }
+
+    /**
+     * Specifies a type that shouldn't be treated as a command parameter. This means it won't show up in the command
+     * usage or try to be parsed.
+     *
+     * @param type
+     *     The {@link Class} to specify as a non-command parameter type
+     */
+    @Override
+    public void addNonCommandParameterType(Class<?> type) {
+        this.nonCommandParameterTypes.add(type);
+    }
+
+    /**
+     * @return An unmodifiable {@link List} of all the types that have been specified as non-command parameter types.
+     */
+    @Override
+    public List<Class<?>> getNonCommandParameterTypes() {
+        return Collections.unmodifiableList(this.nonCommandParameterTypes);
     }
 }

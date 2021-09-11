@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 
 import org.jetbrains.annotations.NotNull;
 
+import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -46,6 +47,7 @@ import nz.pumbas.halpbot.commands.tokens.SimpleParsingToken;
 import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Modifiers;
 
@@ -509,8 +511,8 @@ public final class CommandManager
 
     /**
      * Returns true if the specified type is a command parameter (Something that can be specified when invoking the
-     * command). This is true if the type does not have the {@link Source} annotation, and it isn't assignable from
-     * {@link GenericEvent}, {@link AbstractCommandAdapter} or {@link JDA}.
+     * command). This is true if the type does not have the {@link Source} annotation, and it isn't specified as a
+     * non-command parameter type in {@link ConverterHandler#getNonCommandParameterTypes()}.
      *
      * @param type
      *      The {@link Type} of the parameter
@@ -519,12 +521,12 @@ public final class CommandManager
      *
      * @return If it's a command parameter.
      */
-    @SuppressWarnings("OverlyComplexBooleanExpression")
-    public static boolean isCommandParameter(Type type, Annotation[] annotations) {
-        Class<?> clazz = Reflect.asClass(type);
+    public static boolean isCommandParameter(final Type type, final Annotation[] annotations) {
+        final Class<?> clazz = Reflect.asClass(type);
         return !Reflect.hasAnnotation(annotations, Source.class) &&
-               !GenericEvent.class.isAssignableFrom(clazz) &&
-               !AbstractCommandAdapter.class.isAssignableFrom(clazz) &&
-               !JDA.class.isAssignableFrom(clazz);
+            HalpbotUtils.context().get(ConverterHandler.class)
+                .getNonCommandParameterTypes()
+                .stream()
+                .noneMatch(c -> c.isAssignableFrom(clazz));
     }
 }

@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.converters;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import nz.pumbas.halpbot.commands.context.MethodContext;
@@ -85,4 +86,19 @@ public interface ConverterHandler
      */
     void registerConverter(@NotNull Predicate<Class<?>> filter, @NotNull Class<?> annotationType,
                            @NotNull Converter<?> converter);
+
+
+    /**
+     * Specifies a type that shouldn't be treated as a command parameter. This means it won't show up in the command
+     * usage or try to be parsed.
+     *
+     * @param type
+     *      The {@link Class} to specify as a non-command parameter type
+     */
+    void addNonCommandParameterType(Class<?> type);
+
+    /**
+     * @return An unmodifiable {@link List} of all the types that have been specified as non-command parameter types.
+     */
+    List<Class<?>> getNonCommandParameterTypes();
 }

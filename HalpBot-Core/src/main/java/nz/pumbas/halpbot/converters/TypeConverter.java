@@ -123,6 +123,7 @@ public class TypeConverter<T> implements Converter<T>
         private Priority priority = Priority.DEFAULT;
         private Class<?> annotation = Void.class;
         private OptionType optionType = OptionType.STRING;
+        private boolean isCommandParameter = true;
 
         protected TypeConverterBuilder(@NotNull Class<T> type) {
             this.type = type;
@@ -200,6 +201,17 @@ public class TypeConverter<T> implements Converter<T>
         }
 
         /**
+         * Specifies that this type, or any which extend it are not parameters that are passed in when someone uses a
+         * command and is instead something that is extracted based on the event, or other information.
+         *
+         * @return Itself for chaining
+         */
+        public TypeConverterBuilder<T> notCommandParameter() {
+            this.isCommandParameter = false;
+            return this;
+        }
+
+        /**
          * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link ConverterHandlerImpl}.
          *
          * @return The built {@link TypeConverter}
@@ -220,12 +232,15 @@ public class TypeConverter<T> implements Converter<T>
          */
         public TypeConverter<T> register() {
             TypeConverter<T> typeParser = this.build();
+            ConverterHandler handler = HalpbotUtils.context().get(ConverterHandler.class);
 
             if (null == this.type)
-                HalpbotUtils.context().get(ConverterHandler.class)
-                    .registerConverter(this.filter, this.annotation, typeParser);
-            else HalpbotUtils.context().get(ConverterHandler.class)
-                    .registerConverter(this.type, this.annotation, typeParser);
+                handler.registerConverter(this.filter, this.annotation, typeParser);
+            else HalpbotUtils.context().get(ConverterHandler.class);
+                handler.registerConverter(this.type, this.annotation, typeParser);
+
+            if (!this.isCommandParameter)
+                handler.addNonCommandParameterType(this.type);
 
             return typeParser;
         }

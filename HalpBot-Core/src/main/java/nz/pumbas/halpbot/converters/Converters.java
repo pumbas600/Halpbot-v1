@@ -45,6 +45,7 @@ import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
@@ -319,6 +320,20 @@ public final class Converters
 
     //endregion
 
+    //region Misc
+
+    public static final TypeConverter<PersistantUserData> PERSISTANT_USER_DATA_CONVERTER =
+        TypeConverter.builder(PersistantUserData.class)
+            .notCommandParameter()
+            .convert(ctx -> Exceptional.of(
+                ctx.getCommandAdapter().getPersistantUserData(
+                    (Class<? extends PersistantUserData>) ctx.getContextState().getClazz(),
+                    ctx.getEvent().getAuthor().getIdLong())
+            ))
+            .register();
+
+    //endregion
+
     //region JDA Converters
 
     public static final TypeConverter<TextChannel> TEXT_CHANNEL_CONVERTER = TypeConverter.builder(TextChannel.class)
@@ -379,15 +394,18 @@ public final class Converters
     //region Source Converters
 
     public static final TypeConverter<GenericEvent> EVENT_CONVERTER = TypeConverter.builder(GenericEvent.class)
+        .notCommandParameter()
         .convert(ctx -> Exceptional.of(ctx.getEvent()))
         .register();
 
     public static final TypeConverter<AbstractCommandAdapter> COMMAND_ADAPTER_CONVERTER =
         TypeConverter.builder(AbstractCommandAdapter.class)
+            .notCommandParameter()
             .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
             .register();
 
     public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)
+        .notCommandParameter()
         .convert(ctx -> Exceptional.of(ctx.getEvent().getJDA()))
         .register();
 
