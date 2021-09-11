@@ -32,13 +32,6 @@ subprojects { Project subProject ->
     }
 
     sourceCompatibility = 11
-
-    // Include HalpBot-Core in all projects that aren't the core project.
-    if (subProject.name != "HalpBot-Core") {
-        dependencies {
-            implementation project(":HalpBot-Core")
-        }
-    }
 }
 
 allprojects {

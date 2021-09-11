@@ -7,4 +7,13 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
     implementation 'org.xerial:sqlite-jdbc:3.34.0'
+    implementation project(':HalpBot-Core')
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'nz.pumbas.halpbot.Main'
+    }
+    // Collect all the dependencies
+    from { configurations.compile.collect {it.isDirectory() ? it : zipTree(it) } }
 }
