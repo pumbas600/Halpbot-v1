@@ -36,6 +36,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -459,5 +461,20 @@ public final class HalpbotUtils
     public static <TV, TC extends Collection<TV>> TC addAll(TC collection, TC toAdd) {
         collection.addAll(toAdd);
         return collection;
+    }
+
+    /**
+     * Converts the {@link Throwable}'s stack trace into a string.
+     *
+     * @param throwable
+     *      The {@link Throwable} to get the stacktrace from
+     *
+     * @return The string representation of the stack trace
+     */
+    public static String getStackTrace(final Throwable throwable) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw, true);
+        throwable.printStackTrace(pw);
+        return sw.getBuffer().toString();
     }
 }

@@ -51,6 +51,7 @@ import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
+import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.sql.SQLDriver;
 import nz.pumbas.halpbot.sql.SQLUtils;
 import nz.pumbas.halpbot.sql.table.Table;
@@ -197,8 +198,8 @@ public class ChemmatCommands implements OnReady
     }
 
     @Command(alias = "addQuiz", description = "Adds a new chemmat quiz question to the database. Note: The correct " +
-        "answer must be the first option")
-    public String addQuiz(MessageReceivedEvent event, @Explicit String topic, @Explicit String question, int answer,
+                                              "answer must be the first option.", permissions = HalpbotPermissions.ADMIN)
+    public String addQuiz(MessageReceivedEvent event, @Explicit String topic, @Explicit String question,
                           @Explicit String optionA, @Explicit String optionB,
                           @Explicit @Unrequired String optionC, @Explicit @Unrequired String optionD)
     {
@@ -217,13 +218,14 @@ public class ChemmatCommands implements OnReady
             .orElse(null);
 
         int topicId = topicTable.first().get().value(ID).or(-1);
-        this.insertQuizNote(topic, topicId, question, answer, optionA,
+        this.insertQuizNote(topic, topicId, question, 1, optionA,
             optionB, optionC, optionD, image);
 
         return "Inserted the quiz question to the '" + topic + "' topic :smiling_face_with_3_hearts:";
     }
 
-    @Command(alias = "addTopic", description = "Adds a new chemmat topic to the database")
+    @Command(alias = "addTopic", description = "Adds a new chemmat topic to the database",
+             permissions = HalpbotPermissions.ADMIN)
     public String addTopic(@Remaining String topic) {
         topic = topic.toLowerCase(Locale.ROOT);
         Table topicTable = this.topics.where(TOPIC, topic);
@@ -235,6 +237,21 @@ public class ChemmatCommands implements OnReady
         if (-1 == this.insertTopic(topic))
             return "There was an error trying to insert the topic :sob:";
         return "Sucessfully created the topic '" + topic + "' :tada: *(This won't be available until the database is reloaded though)*";
+    }
+
+    @Command(alias = "explain", description = "Adds an explanation to the question with the specified id",
+             permissions = HalpbotPermissions.ADMIN)
+    public String explain(int questionId, @Remaining String explanation) {
+        Table filteredTable = this.quizNotes.where(ID, questionId);
+        if (filteredTable.first().isEmpty())
+            return "There doesn't seem to be a question with the id: " + questionId;
+        if (filteredTable.first().get().value(EXPLANATION).present())
+            return "There's already an explanation for that question sorry :cry:";
+        if (!this.updateQuizExplanation(questionId, explanation))
+            return "There seems to have been an error trying to add your explanation to the database";
+        else
+            return "Successfully added your explanation to the database! You'll start seeing it when the database " +
+                "automatically reloads. (Approximately every 10 minutes)";
     }
 
     private void onAnswerReaction(MessageReactionAddEvent event, int answerOption, int correctAnswer) {
@@ -302,5 +319,17 @@ public class ChemmatCommands implements OnReady
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }
+    }
+
+    private boolean updateQuizExplanation(int questionId, String explanation) {
+        try (Connection connection = this.driver.createConnection()) {
+            String sql = "UPDATE notes SET explanation = ? WHERE id = ?";
+            this.driver.executeUpdate(connection, sql, explanation, questionId);
+            return true;
+        }
+        catch (SQLException e) {
+            ErrorManager.handle(e);
+        }
+        return false;
     }
 }

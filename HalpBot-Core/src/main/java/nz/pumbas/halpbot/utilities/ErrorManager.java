@@ -25,6 +25,7 @@
 package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -36,6 +37,7 @@ import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 public final class ErrorManager
 {
     private static long loggerUserId = -1;
+    private static final int MAX_DESCRIPTION_LENGTH = 2048;
 
     public static void setLoggerUserId(long userId) {
         loggerUserId = userId;
@@ -85,13 +87,18 @@ public final class ErrorManager
             EmbedBuilder error = new EmbedBuilder();
             error.setTitle(message);
             error.setColor(Color.red);
-            error.setDescription(e.getMessage());
+
+            String stackTrace = HalpbotUtils.getStackTrace(e.getCause());
+            if (MAX_DESCRIPTION_LENGTH < stackTrace.length())
+                stackTrace = stackTrace.substring(0, MAX_DESCRIPTION_LENGTH - 1);
+            error.setDescription(stackTrace);
+
             if (null != event) {
                 error.setFooter(event.getGuild().getName(), event.getGuild().getBannerUrl());
             }
 
-            HalpbotUtils.getJDA().getUserById(loggerUserId)
-                .openPrivateChannel()
+            HalpbotUtils.getJDA().retrieveUserById(loggerUserId)
+                .flatMap(User::openPrivateChannel)
                 .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
                 .queue();
         }
