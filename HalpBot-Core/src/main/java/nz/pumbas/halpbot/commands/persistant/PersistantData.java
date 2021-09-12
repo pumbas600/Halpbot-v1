@@ -26,5 +26,19 @@ package nz.pumbas.halpbot.commands.persistant;
 
 public interface PersistantData
 {
+    /**
+     * @return If this persistent data already existed when it was retrieved or if it was just created
+     */
+    boolean alreadyExisted();
+
+    /**
+     * Sets that this persistent data already existed when it was retrieved and wasn't just created.
+     */
+    void setAlreadyExisted();
+
+    /**
+     * Destroys this command data. This means if a command with this parameter is called again, a new
+     * {@link PersistantUserData} will be created instead of this one being retrieved again.
+     */
     void destroy();
 }

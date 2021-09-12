@@ -383,7 +383,9 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
             mappings.put(type, userData);
             return userData;
         }
-        return (T) mappings.get(type);
+        T userData = (T) mappings.get(type);
+        userData.setAlreadyExisted();
+        return userData;
     }
 
     /**

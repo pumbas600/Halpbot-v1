@@ -30,6 +30,7 @@ public class AbstractPersistantUserData implements PersistantUserData
 {
     protected long userId;
     protected AbstractCommandAdapter commandAdapter;
+    protected boolean alreadyExisted;
 
     public AbstractPersistantUserData(long userId) {
         this.userId = userId;
@@ -55,7 +56,23 @@ public class AbstractPersistantUserData implements PersistantUserData
     }
 
     /**
-     * Destroys this command data. This means if a command with this command is called again, a new
+     * @return If this persistent data already existed when it was retrieved or if it was just created
+     */
+    @Override
+    public boolean alreadyExisted() {
+        return this.alreadyExisted;
+    }
+
+    /**
+     * Sets that this persistent data already existed when it was retrieved and wasn't just created.
+     */
+    @Override
+    public void setAlreadyExisted() {
+        this.alreadyExisted = true;
+    }
+
+    /**
+     * Destroys this command data. This means if a command with this parameter is called again, a new
      * {@link PersistantUserData} will be created instead of this one being retrieved again.
      */
     @Override
