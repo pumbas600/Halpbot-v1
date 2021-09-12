@@ -231,18 +231,15 @@ public class TypeConverter<T> implements Converter<T>
          * @return The built {@link TypeConverter}
          */
         public TypeConverter<T> register() {
-            TypeConverter<T> typeParser = this.build();
+            TypeConverter<T> converter = this.build();
             ConverterHandler handler = HalpbotUtils.context().get(ConverterHandler.class);
 
-            if (null == this.type)
-                handler.registerConverter(this.filter, this.annotation, typeParser);
-            else HalpbotUtils.context().get(ConverterHandler.class);
-                handler.registerConverter(this.type, this.annotation, typeParser);
+            converter.getRegister().register(handler, converter);
 
-            if (!this.isCommandParameter)
+            if (!this.isCommandParameter && null != this.type)
                 handler.addNonCommandParameterType(this.type);
 
-            return typeParser;
+            return converter;
         }
     }
 }

@@ -33,8 +33,6 @@ public final class Main
     private Main() {}
 
     public static void main(String[] args) throws LoginException {
-        System.out.println("Starting...");
-        HalpbotUtils.logger().info("Starting (Logger)");
         HalpBot halpBot = new HalpBot(HalpbotUtils.getFirstLineFromFile("Token.txt"));
     }
 }

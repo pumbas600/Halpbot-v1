@@ -44,6 +44,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -126,15 +127,10 @@ public final class HalpbotUtils
      * @return A {@link List<String>} with all the lines from the file in it
      */
     public static List<String> getAllLinesFromFile(String filename) {
-        try {
-            return Files.readAllLines(
-                Paths.get(ClassLoader.getSystemClassLoader()
-                    .getResource(filename)
-                    .toURI()));
-        } catch (IOException | URISyntaxException e) {
-            ErrorManager.handle(e);
-            return new ArrayList<>();
-        }
+        return parseFile(
+            filename,
+            br -> br.lines().collect(Collectors.toList()),
+            Collections.emptyList());
     }
 
     /**
