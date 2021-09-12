@@ -19,19 +19,26 @@ test {
 }
 
 subprojects { Project subProject ->
-    apply plugin: "java"
+    apply plugin: 'java'
     apply plugin: 'org.cadixdev.licenser'
 
     group 'nz.pumbas.halpbot'
     version '1.0.1'
 
     license {
-        header = rootProject.file("LICENSE")
+        header = rootProject.file('LICENSE')
         ignoreFailures = true
         include '**/*.java'
+        exclude '**/table/**.java'
     }
 
     sourceCompatibility = 11
+    targetCompatibility = 11
+}
+
+tasks.build {
+    dependsOn tasks.updateLicenses
+    finalizedBy tasks.clean
 }
 
 allprojects {
