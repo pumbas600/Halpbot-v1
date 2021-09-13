@@ -66,6 +66,22 @@ public final class SQLUtils
     private SQLUtils() {}
 
     /**
+     * Retrieves a {@link SQLTriConsumer} that's used to set the value of a {@link ResultSet} based on the type of
+     * the object specified. If the object is null, then it will return {@link PreparedStatement#setObject(int, Object)}.
+     *
+     * @param object
+     *      The object to get the result setter for
+     *
+     * @return The {@link SQLTriConsumer} to set the resultset value with
+     */
+    public static SQLTriConsumer<PreparedStatement, Integer, Object> getResultSetter(@Nullable Object object) {
+        if (null == object)
+            return PreparedStatement::setObject;
+
+        return getResultSetter(object.getClass());
+    }
+
+    /**
      * Retrieves a {@link SQLTriConsumer} that's used to set the value of a {@link ResultSet} based on its type.
      *
      * @param type

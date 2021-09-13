@@ -88,7 +88,9 @@ public final class ErrorManager
             error.setTitle(message);
             error.setColor(Color.red);
 
-            String stackTrace = HalpbotUtils.getStackTrace(e.getCause());
+            Throwable displayThrowable = null == e.getCause() ? e : e.getCause();
+
+            String stackTrace = HalpbotUtils.getStackTrace(displayThrowable);
             if (MAX_DESCRIPTION_LENGTH < stackTrace.length())
                 stackTrace = stackTrace.substring(0, MAX_DESCRIPTION_LENGTH - 1);
             error.setDescription(stackTrace);

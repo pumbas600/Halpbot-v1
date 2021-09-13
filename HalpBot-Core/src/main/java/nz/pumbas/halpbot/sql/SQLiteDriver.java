@@ -87,7 +87,7 @@ public class SQLiteDriver implements SQLDriver, LateInit
         PreparedStatement statement = connection.prepareStatement(sql);
         for (int i = 0; i < parameters.length; i++) {
             Object parameter = parameters[i];
-            SQLUtils.getResultSetter(parameter.getClass())
+            SQLUtils.getResultSetter(parameter)
                 .accept(statement, i + 1, parameter);
         }
         return statement;

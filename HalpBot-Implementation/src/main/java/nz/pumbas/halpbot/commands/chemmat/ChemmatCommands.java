@@ -128,10 +128,14 @@ public class ChemmatCommands implements OnReady
                 HalpbotUtils.capitaliseEachWord(topic))).queue();
             return;
         }
-
-        TableRow tableRow = (0 >= quizId || quizId > this.quizNotes.count())
-            ? this.getRandomRow(table)
-            : this.quizNotes.rows().get(quizId - 1);
+        
+        TableRow tableRow = null;
+        if (0 >= quizId) {
+            tableRow = this.quizNotes.where(ID, quizId).first().orNull();
+        }
+        else if (null == tableRow) {
+            tableRow = this.getRandomRow(table);
+        }
 
         Quiz quiz = SQLUtils.asModel(Quiz.class, tableRow);
         quiz.shuffleAnswers();
@@ -197,6 +201,31 @@ public class ChemmatCommands implements OnReady
         return embedBuilder.build();
     }
 
+    @Command(alias = "questions", description = "Lists all the questions for a particular topic")
+    public MessageEmbed questions(@Remaining String topic) {
+        topic = topic.toLowerCase(Locale.ROOT);
+        EmbedBuilder builder = new EmbedBuilder();
+        StringBuilder questionBuilder = new StringBuilder();
+
+        Table questions = this.quizNotes.where(TOPIC, topic);
+        builder.setTitle(HalpbotUtils.capitaliseEachWord(topic));
+        builder.setColor(Color.ORANGE);
+
+        if (0 == questions.count()) {
+            builder.setDescription("There doesn't seem to be a topic '" + topic + "' or there are no questions" +
+                " for it yet");
+            return builder.build();
+        }
+
+        questions.forEach(
+            row -> questionBuilder
+                .append("- ")
+                .append(row.value(QUESTION).or("UNDEFINED"))
+                .append("\n\n"));
+        builder.setDescription(questionBuilder.toString());
+        return builder.build();
+    }
+
     @Command(alias = "addQuiz", description = "Adds a new chemmat quiz question to the database. Note: The correct " +
                                               "answer must be the first option.", permissions = HalpbotPermissions.ADMIN)
     public String addQuiz(MessageReceivedEvent event, @Explicit String topic, @Explicit String question,
@@ -218,8 +247,9 @@ public class ChemmatCommands implements OnReady
             .orElse(null);
 
         int topicId = topicTable.first().get().value(ID).or(-1);
-        this.insertQuizNote(topic, topicId, question, 1, optionA,
-            optionB, optionC, optionD, image);
+        if (!this.insertQuizNote(topic, topicId, question, 1, optionA,
+            optionB, optionC, optionD, image))
+                return "There was an error trying to add the quiz to the database :cry:";
 
         return "Inserted the quiz question to the '" + topic + "' topic :smiling_face_with_3_hearts:";
     }
@@ -262,12 +292,12 @@ public class ChemmatCommands implements OnReady
         if (answerOption == correctAnswer) {
             builder.setTitle("Correct: :white_check_mark:");
             builder.setColor(Color.GREEN);
+            builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
         }
         else {
             builder.setTitle("Incorrect: :x:");
             builder.setColor(Color.RED);
         }
-        builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
         event.getChannel().sendMessageEmbeds(builder.build())
             .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
     }
@@ -307,7 +337,7 @@ public class ChemmatCommands implements OnReady
         return -1;
     }
 
-    private void insertQuizNote(String topic, int topicId, String question, int answer, String optionA,
+    private boolean insertQuizNote(String topic, int topicId, String question, int answer, String optionA,
                                 String optionB, String optionC, String optionD, String image) {
         try (Connection connection = this.driver.createConnection()) {
             String sql = "INSERT INTO notes (topicId, question, answer, optionA, optionB, optionC, optionD, image) " +
@@ -316,9 +346,11 @@ public class ChemmatCommands implements OnReady
             this.driver.executeUpdate(connection, sql, topicId, question, answer,
                 optionA, optionB, optionC, optionD, image);
             this.quizNotes.addRow(-1, topic, question, answer, optionA, optionB, optionC, optionD, image, null);
+            return true;
         } catch (SQLException e) {
             ErrorManager.handle(e);
         }
+        return false;
     }
 
     private boolean updateQuizExplanation(int questionId, String explanation) {
