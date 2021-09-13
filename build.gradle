@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'nz.pumbas.halpbot'
-version '1.0.1'
+version '1.0.2'
 
 repositories {
     mavenCentral()
@@ -23,7 +23,7 @@ subprojects { Project subProject ->
     apply plugin: 'org.cadixdev.licenser'
 
     group 'nz.pumbas.halpbot'
-    version '1.0.1'
+    version '1.0.2'
 
     license {
         skipExistingHeaders = true

@@ -130,7 +130,7 @@ public class ChemmatCommands implements OnReady
         }
         
         TableRow tableRow = null;
-        if (0 >= quizId) {
+        if (0 <= quizId) {
             tableRow = this.quizNotes.where(ID, quizId).first().orNull();
         }
         else if (null == tableRow) {
