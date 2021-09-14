@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -717,6 +718,14 @@ public class Table {
      */
     public List<TableRow> rows() {
         return Collections.unmodifiableList(this.rows);
+    }
+
+    public void shuffleRows(Random random) {
+       Collections.shuffle(this.rows, random);
+    }
+
+    public void shuffleRows() {
+        Collections.shuffle(this.rows);
     }
 
     public void forEach(Consumer<TableRow> consumer) {

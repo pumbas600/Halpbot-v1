@@ -84,6 +84,7 @@ public class ChemmatCommands implements OnReady
 
     private Table quizNotes;
     private Table topics;
+    private int quizRowIndex;
 
     /**
      * A method that is called once after the bot has been initialised.
@@ -97,6 +98,7 @@ public class ChemmatCommands implements OnReady
 
         // Cache the tables
         this.driver.onLoad(this::loadDatabase);
+        this.shuffleQuizTable();
     }
 
     private void loadDatabase(Connection connection) throws SQLException{
@@ -117,28 +119,26 @@ public class ChemmatCommands implements OnReady
                      @Unrequired("-1") int quizId,
                      @Unrequired("") @Remaining String topic)
     {
-        Table table;
-        if (topic.isEmpty())
-            table = this.quizNotes;
-        else
-            table = this.quizNotes.where(TOPIC, topic.toLowerCase(Locale.ROOT));
 
-        if (0 == table.count()) {
-            channel.sendMessage(String.format("There appears to be no quizzes for the topic '%s'",
-                HalpbotUtils.capitaliseEachWord(topic))).queue();
-            return;
-        }
-        
-        TableRow tableRow = null;
+        TableRow tableRow;
         if (0 <= quizId) {
             tableRow = this.quizNotes.where(ID, quizId).first().orNull();
         }
-        else if (null == tableRow) {
-            tableRow = this.getRandomRow(table);
+        else if (topic.isEmpty()) {
+            tableRow = this.getNextQuizTableRow();
+        }
+        else {
+            Table topicTable = this.quizNotes.where(TOPIC, topic.toLowerCase(Locale.ROOT));
+            if (0 == topicTable.count()) {
+                channel.sendMessage(String.format("There appears to be no quizzes for the topic '%s'",
+                    HalpbotUtils.capitaliseEachWord(topic))).queue();
+                return;
+            }
+            tableRow = this.getRandomRow(topicTable);
         }
 
         Quiz quiz = SQLUtils.asModel(Quiz.class, tableRow);
-        quiz.shuffleAnswers();
+        quiz.shuffleAnswers(this.random);
         String[] emojis = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -326,6 +326,18 @@ public class ChemmatCommands implements OnReady
 
         int randomRow = this.random.nextInt(rows.size());
         return rows.get(randomRow);
+    }
+
+    private TableRow getNextQuizTableRow() {
+        if (this.quizRowIndex >= this.quizNotes.count()) {
+            this.shuffleQuizTable();
+            this.quizRowIndex = 0;
+        }
+        return this.quizNotes.rows().get(this.quizRowIndex++);
+    }
+
+    private void shuffleQuizTable() {
+        this.quizNotes.shuffleRows(this.random);
     }
 
     private int insertTopic(String topic) {

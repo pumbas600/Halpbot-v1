@@ -27,6 +27,7 @@ package nz.pumbas.halpbot.commands.chemmat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class Quiz
 {
@@ -41,10 +42,10 @@ public class Quiz
     private String image;
     private String explanation;
 
-    public void shuffleAnswers() {
+    public void shuffleAnswers(Random random) {
         List<String> options = this.getOptions();
         String correctAnswer = options.get(this.answer - 1);
-        Collections.shuffle(options);
+        Collections.shuffle(options, random);
 
         this.answer = options.indexOf(correctAnswer) + 1;
         this.optionA = options.get(0);
