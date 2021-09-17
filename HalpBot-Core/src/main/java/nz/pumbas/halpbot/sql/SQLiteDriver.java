@@ -81,19 +81,6 @@ public class SQLiteDriver implements SQLDriver, LateInit
     }
 
     @Override
-    public PreparedStatement createStatement(Connection connection, String sql, Object... parameters)
-        throws SQLException {
-
-        PreparedStatement statement = connection.prepareStatement(sql);
-        for (int i = 0; i < parameters.length; i++) {
-            Object parameter = parameters[i];
-            SQLUtils.getResultSetter(parameter)
-                .accept(statement, i + 1, parameter);
-        }
-        return statement;
-    }
-
-    @Override
     public void onLoad(SQLConsumer<Connection> consumer) {
         this.reloadListeners.add(consumer);
 
