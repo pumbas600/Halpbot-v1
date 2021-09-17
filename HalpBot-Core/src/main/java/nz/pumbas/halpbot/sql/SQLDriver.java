@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import nz.pumbas.halpbot.sql.functionalinterfaces.SQLConsumer;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -49,10 +50,34 @@ public interface SQLDriver
     @Nullable
     Connection createConnection();
 
-    PreparedStatement createStatement(Connection connection, String sql, Object... parameters)
-        throws SQLException;
+    default PreparedStatement createStatement(
+            Connection connection,
+            String sql,
+            Object... parameters
+    ) throws SQLException
+    {
+        PreparedStatement statement = connection.prepareStatement(sql);
+        this.populateStatement(statement, parameters);
+        return statement;
+    }
+
+    default void populateStatement(PreparedStatement statement, List<Object> parameters) throws SQLException {
+        for (int i = 0; i < parameters.size(); i++) {
+            Object parameter = parameters.get(i);
+            SQLUtils.getResultSetter(parameter)
+                .accept(statement, i + 1, parameter);
+        }
+    }
+
+    default void populateStatement(PreparedStatement statement, Object... parameters) throws SQLException {
+        this.populateStatement(statement, List.of(parameters));
+    }
+
+
 
     void onLoad(SQLConsumer<Connection> consumer);
+
+    void reload();
 
     default int executeUpdate(Connection connection, String sql, Object... parameters)
         throws SQLException {
@@ -69,6 +94,4 @@ public interface SQLDriver
         statement.closeOnCompletion();
         return resultSet;
     }
-
-    void reload();
 }
