@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 
 import nz.pumbas.halpbot.utilities.Reflect;
 
-public class ContextHandlerImpl implements ContextHandler
+public class ContextManagerImpl implements ContextManager
 {
     Map<Class<?>, Object> instances = new HashMap<>();
     Map<Class<?>, Class<?>> implementations = new HashMap<>();
@@ -81,7 +81,7 @@ public class ContextHandlerImpl implements ContextHandler
     /**
      * Creates an instance of the {@link Class implementation} with the specified parameters. If the {@link Class
      * implementation} is an interface or abstract, then null is returned. If an object is created, you can specify
-     * if you want to cache the instance, which automatically stores it in {@link ContextHandlerImpl#implementations}.
+     * if you want to cache the instance, which automatically stores it in {@link ContextManagerImpl#implementations}.
      *
      * @param contract
      *      The {@link Class} that the implementation is bound to

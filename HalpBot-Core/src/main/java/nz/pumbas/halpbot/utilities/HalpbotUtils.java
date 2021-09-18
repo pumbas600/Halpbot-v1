@@ -41,8 +41,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,8 +59,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.objects.Exceptional;
-import nz.pumbas.halpbot.utilities.context.ContextHandler;
-import nz.pumbas.halpbot.utilities.context.ContextHandlerImpl;
+import nz.pumbas.halpbot.utilities.context.ContextManager;
+import nz.pumbas.halpbot.utilities.context.ContextManagerImpl;
 import nz.pumbas.halpbot.utilities.context.DefaultContext;
 import nz.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
 
@@ -77,7 +75,7 @@ public final class HalpbotUtils
     public static final float halfRotation = 180F;
     public static final float quarterRotation = 90F;
 
-    private static final ContextHandler contextHandler = new ContextHandlerImpl();
+    private static final ContextManager contextManager = new ContextManagerImpl();
     private static final Logger logger = LogManager.getLogger("HalpBot-Core-Bot");
 
     private static JDA jda;
@@ -88,8 +86,8 @@ public final class HalpbotUtils
         DefaultContext.addAll();
     }
 
-    public static ContextHandler context() {
-        return contextHandler;
+    public static ContextManager context() {
+        return contextManager;
     }
 
     public static Logger logger() {
