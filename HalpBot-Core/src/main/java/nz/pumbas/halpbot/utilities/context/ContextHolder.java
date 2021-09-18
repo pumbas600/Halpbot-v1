@@ -26,7 +26,7 @@ package nz.pumbas.halpbot.utilities.context;
 
 import nz.pumbas.halpbot.objects.Exceptional;
 
-public interface ContextHandler
+public interface ContextHolder
 {
     /**
      * Retrieves the instance of the specified {@link Class implementation}. If there isn't already an implementation
@@ -55,14 +55,4 @@ public interface ContextHandler
     default <T> Exceptional<T> getSafely(Class<T> contract) {
         return Exceptional.of(this.get(contract));
     }
-
-    /**
-     * Binds an {@link Class implementation} to the {@link Class contract}.
-     *
-     * @param contract
-     *      The {@link Class contract}
-     * @param implementations
-     *      The {@link Class implementation} of the {@link Class contract}
-     */
-    void bind(Class<?> contract, Class<?> implementations);
 }
