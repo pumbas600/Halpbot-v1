@@ -1,7 +1,10 @@
 package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +18,12 @@ public class ReactionAdapter extends ListenerAdapter implements HalpbotAdapter
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected final Map<Long, Map<String, ReactionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
 
+    @Override
+    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
+        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
+            return;
+    }
+
     public void registerCallback(Message message, ReactionCallback reactionCallback) {
         long messageId = message.getIdLong();
         if (this.reactionCallbacks.containsKey(messageId)) {
@@ -22,14 +31,28 @@ public class ReactionAdapter extends ListenerAdapter implements HalpbotAdapter
             messageCallbacks.put(reactionCallback.getCodepointEmoji(), reactionCallback);
             this.reactionCallbacks.put(messageId, messageCallbacks);
         }
-        else
-            this.reactionCallbacks
+        else this.reactionCallbacks
                 .get(messageId)
                 .put(reactionCallback.getCodepointEmoji(), reactionCallback);
 
         message.addReaction(reactionCallback.getCodepointEmoji())
             .queue(success ->
-                this.concurrentManager.schedule(10));
+                this.concurrentManager.schedule(
+                    reactionCallback.getDeleteAfterDuration(),
+                    reactionCallback.getTimeUnit(),
+                    () -> this.removeReactionCallback(message, reactionCallback)));
+    }
+
+    private void removeReactionCallback(Message message, ReactionCallback reactionCallback) {
+        long messageId = message.getIdLong();
+        this.reactionCallbacks
+            .get(messageId)
+            .remove(reactionCallback.getCodepointEmoji());
+
+        message.clearReactions(reactionCallback.getCodepointEmoji()).queue();
+        if (this.reactionCallbacks.get(messageId).isEmpty()) {
+            this.reactionCallbacks.remove(messageId);
+        }
     }
 
 }
