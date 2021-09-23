@@ -78,6 +78,8 @@ public final class HalpbotUtils
     private static final ContextManager contextManager = new ContextManagerImpl();
     private static final Logger logger = LogManager.getLogger("HalpBot-Core-Bot");
 
+    private static final int MAX_DESCRIPTION_LENGTH = 2048;
+
     private static JDA jda;
 
     private HalpbotUtils() {}
@@ -100,6 +102,24 @@ public final class HalpbotUtils
 
     public static void setJDA(JDA jdaInstance) {
         jda = jdaInstance;
+    }
+
+
+    /**
+     * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than
+     * {@link HalpbotUtils#MAX_DESCRIPTION_LENGTH} it will cause an error to be thrown. This method simply checks if
+     * the description exceeds this limit and if it does, then it creates a substring of the maximum displayable
+     * message.
+     *
+     * @param description
+     *      The description to make sure doesn't exceed the character count
+     *
+     * @return The checked description
+     */
+    public static String checkEmbedDesciptionLength(String description) {
+        if (MAX_DESCRIPTION_LENGTH < description.length())
+            description = description.substring(0, MAX_DESCRIPTION_LENGTH);
+        return description;
     }
 
     /**

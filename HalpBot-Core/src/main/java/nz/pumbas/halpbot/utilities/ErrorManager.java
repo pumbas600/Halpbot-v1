@@ -37,7 +37,6 @@ import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 public final class ErrorManager
 {
     private static long loggerUserId = -1;
-    private static final int MAX_DESCRIPTION_LENGTH = 2048;
 
     public static void setLoggerUserId(long userId) {
         loggerUserId = userId;
@@ -91,9 +90,7 @@ public final class ErrorManager
             Throwable displayThrowable = null == e.getCause() ? e : e.getCause();
 
             String stackTrace = HalpbotUtils.getStackTrace(displayThrowable);
-            if (MAX_DESCRIPTION_LENGTH < stackTrace.length())
-                stackTrace = stackTrace.substring(0, MAX_DESCRIPTION_LENGTH - 1);
-            error.setDescription(stackTrace);
+            error.setDescription(HalpbotUtils.checkEmbedDesciptionLength(stackTrace));
 
             if (null != event) {
                 error.setFooter(event.getGuild().getName(), event.getGuild().getBannerUrl());

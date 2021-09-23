@@ -1,8 +1,9 @@
 package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public interface HalpbotAdapter
+public abstract class HalpbotAdapter extends ListenerAdapter
 {
-    default void accept(JDA jda) { }
+    public void accept(JDA jda) { }
 }
