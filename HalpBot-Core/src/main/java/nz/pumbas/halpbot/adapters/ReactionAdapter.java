@@ -13,7 +13,7 @@ import nz.pumbas.halpbot.reactions.ReactionCallback;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class ReactionAdapter extends ListenerAdapter implements HalpbotAdapter
+public class ReactionAdapter extends HalpbotAdapter
 {
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected final Map<Long, Map<String, ReactionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
@@ -36,11 +36,14 @@ public class ReactionAdapter extends ListenerAdapter implements HalpbotAdapter
                 .put(reactionCallback.getCodepointEmoji(), reactionCallback);
 
         message.addReaction(reactionCallback.getCodepointEmoji())
-            .queue(success ->
-                this.concurrentManager.schedule(
-                    reactionCallback.getDeleteAfterDuration(),
-                    reactionCallback.getTimeUnit(),
-                    () -> this.removeReactionCallback(message, reactionCallback)));
+            .queue(success -> {
+                if (0 < reactionCallback.getCooldownDuration()) {
+                    this.concurrentManager.schedule(
+                        reactionCallback.getDeleteAfterDuration(),
+                        reactionCallback.getDeleteAfterTimeUnit(),
+                        () -> this.removeReactionCallback(message, reactionCallback));
+                }
+            });
     }
 
     private void removeReactionCallback(Message message, ReactionCallback reactionCallback) {

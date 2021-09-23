@@ -2,13 +2,20 @@ package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.Interaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
+import nz.pumbas.halpbot.commands.DiscordString;
+import nz.pumbas.halpbot.configurations.DisplayConfiguration;
+import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.context.ContextHolder;
 
@@ -17,6 +24,7 @@ public class HalpbotCore implements ContextHolder
     private static JDA jda;
     private final JDABuilder jdaBuilder;
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
+    private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
 
     public HalpbotCore(final JDABuilder jdaBuilder) {
         this.jdaBuilder = jdaBuilder;
@@ -42,7 +50,7 @@ public class HalpbotCore implements ContextHolder
      * @return Itself for chaining
      */
     @SafeVarargs
-    public final <T extends ListenerAdapter & HalpbotAdapter> HalpbotCore addAdapters(T... adapters) {
+    public final <T extends HalpbotAdapter> HalpbotCore addAdapters(T... adapters) {
         this.adapters.addAll(List.of(adapters));
         return this;
     }
@@ -57,10 +65,46 @@ public class HalpbotCore implements ContextHolder
         return this;
     }
 
+    /**
+     * Specifies the display configuration that should be used when displaying messages in discord. if no
+     * configuration is specified then {@link nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration} is used.
+     *
+     * @param displayConfiguration
+     *      The display configuration to use
+     *
+     * @return Itself for chaining
+     */
+    public HalpbotCore displayConfiguration(DisplayConfiguration displayConfiguration) {
+        this.displayConfiguration = displayConfiguration;
+        return this;
+    }
+
     public JDA build() throws LoginException {
         jda = this.jdaBuilder.build();
         this.adapters.forEach(adapter -> adapter.accept(jda));
         return jda;
+    }
+
+    public void displayMessage(GenericMessageEvent event, Object message) {
+        if (message instanceof MessageEmbed)
+            this.displayConfiguration.display(event, (MessageEmbed) message);
+        else {
+            String displayMessage = message instanceof DiscordString
+                ? ((DiscordString) message).toDiscordString()
+                : message.toString();
+            this.displayConfiguration.display(event, displayMessage);
+        }
+    }
+
+    public void displayMessage(Interaction interaction, Object message) {
+        if (message instanceof MessageEmbed)
+            this.displayConfiguration.display(interaction, (MessageEmbed) message);
+        else {
+            String displayMessage = message instanceof DiscordString
+                ? ((DiscordString) message).toDiscordString()
+                : message.toString();
+            this.displayConfiguration.display(interaction, displayMessage);
+        }
     }
 
     /**
