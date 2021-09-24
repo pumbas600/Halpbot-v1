@@ -36,6 +36,8 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
+import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Explicit;
 import nz.pumbas.halpbot.commands.annotations.Id;
 import nz.pumbas.halpbot.commands.annotations.Source;
@@ -402,6 +404,18 @@ public final class Converters
         TypeConverter.builder(AbstractCommandAdapter.class)
             .notCommandParameter()
             .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
+            .register();
+
+    public static final TypeConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = TypeConverter.builder(HalpbotCore.class)
+        .notCommandParameter()
+        .convert(ctx -> Exceptional.of(ctx.getHalpbotCore()))
+        .register();
+
+    public static final TypeConverter<HalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
+        TypeConverter.builder(HalpbotAdapter.class)
+            .notCommandParameter()
+            .convert(ctx -> ctx.getHalpbotCore()
+                .getSafely((Class<HalpbotAdapter>) ctx.getContextState().getClazz()))
             .register();
 
     public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)

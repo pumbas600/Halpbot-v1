@@ -27,6 +27,7 @@ package nz.pumbas.halpbot.utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.Color;
@@ -53,11 +54,11 @@ public final class ErrorManager
         sendToLoggerUser(null, e, message);
     }
 
-    public static void handle(MessageReceivedEvent event, Throwable e) {
+    public static void handle(GenericMessageEvent event, Throwable e) {
         handle(event, e, "Caught the error: ");
     }
 
-    public static void handle(MessageReceivedEvent event, Throwable e, String message) {
+    public static void handle(GenericMessageEvent event, Throwable e, String message) {
 
         if (e instanceof UnimplementedFeatureException) {
             unimplementedFeatureEmbed(event, e.getMessage());
@@ -72,7 +73,7 @@ public final class ErrorManager
         }
     }
 
-    public static void unimplementedFeatureEmbed(MessageReceivedEvent event, String message) {
+    public static void unimplementedFeatureEmbed(GenericMessageEvent event, String message) {
         event.getChannel().sendMessageEmbeds(
             new EmbedBuilder().setTitle(":confounded: Sorry...")
                 .setColor(Color.red)
@@ -81,7 +82,7 @@ public final class ErrorManager
             .queue();
     }
 
-    private static void sendToLoggerUser(MessageReceivedEvent event, Throwable e, String message) {
+    private static void sendToLoggerUser(GenericMessageEvent event, Throwable e, String message) {
         if (-1 != loggerUserId) {
             EmbedBuilder error = new EmbedBuilder();
             error.setTitle(message);

@@ -3,27 +3,37 @@ package nz.pumbas.halpbot.adapters;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.halpbot.commands.DiscordString;
+import nz.pumbas.halpbot.commands.cooldowns.Cooldown;
+import nz.pumbas.halpbot.commands.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.utilities.ConcurrentManager;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.context.ContextHolder;
 
 public class HalpbotCore implements ContextHolder
 {
     private static JDA jda;
     private final JDABuilder jdaBuilder;
+
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
+    private final Map<Long, UserCooldowns> userCooldownsMap = new ConcurrentHashMap<>();
+
+    private final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
 
     public HalpbotCore(final JDABuilder jdaBuilder) {
@@ -56,12 +66,16 @@ public class HalpbotCore implements ContextHolder
     }
 
     /**
-     * Registers the {@link HalpbotAdapter} to the {@link JDABuilder}.
+     * Registers the {@link HalpbotAdapter} to the {@link JDABuilder}. Note that this also invokes
+     * {@link HalpbotAdapter#setHalpBotCore(HalpbotCore)}.
      *
      * @return Itself for chaining
      */
     public HalpbotCore registerAdapters() {
-        this.adapters.forEach(this.jdaBuilder::addEventListeners);
+        this.adapters.forEach(adapter -> {
+            adapter.setHalpBotCore(this);
+            this.jdaBuilder.addEventListeners(adapter);
+        });
         return this;
     }
 
@@ -82,9 +96,18 @@ public class HalpbotCore implements ContextHolder
     public JDA build() throws LoginException {
         jda = this.jdaBuilder.build();
         this.adapters.forEach(adapter -> adapter.accept(jda));
+        this.concurrentManager.scheduleRegularly(20, 20, TimeUnit.MINUTES, this::clearEmptyCooldowns);
         return jda;
     }
 
+    /**
+     * Uses the specified {@link DisplayConfiguration} to display the message.
+     *
+     * @param event
+     *      The {@link GenericMessageEvent}
+     * @param message
+     *      The message to display
+     */
     public void displayMessage(GenericMessageEvent event, Object message) {
         if (message instanceof MessageEmbed)
             this.displayConfiguration.display(event, (MessageEmbed) message);
@@ -96,6 +119,14 @@ public class HalpbotCore implements ContextHolder
         }
     }
 
+    /**
+     * Uses the specified {@link DisplayConfiguration} to display the message.
+     *
+     * @param interaction
+     *      The {@link Interaction}
+     * @param message
+     *      The message to display
+     */
     public void displayMessage(Interaction interaction, Object message) {
         if (message instanceof MessageEmbed)
             this.displayConfiguration.display(interaction, (MessageEmbed) message);
@@ -105,6 +136,60 @@ public class HalpbotCore implements ContextHolder
                 : message.toString();
             this.displayConfiguration.display(interaction, displayMessage);
         }
+    }
+
+    public void addCooldown(long userId, long actionId, Cooldown cooldown) {
+       UserCooldowns userCooldowns;
+        if (!this.userCooldownsMap.containsKey(userId)) {
+            userCooldowns = new UserCooldowns();
+            this.userCooldownsMap.put(userId, userCooldowns);
+        }
+        else userCooldowns = this.userCooldownsMap.get(userId);
+
+        userCooldowns.addCooldown(actionId, cooldown);
+    }
+
+    public boolean hasCooldown(long userId, long actionId) {
+        return this.userCooldownsMap.containsKey(userId)
+            && this.userCooldownsMap.get(userId).hasCooldownFor(actionId);
+    }
+
+    /**
+     * Displays a cooldown message telling the user how long they have to wait before they can do the action if they
+     * have a cooldown. Note that this message has a cooldown of 10 seconds. If their 'cooldown message' is cooling
+     * down, then nothing will be displayed to prevent users spamming the cooldown message.
+     *
+     * @param event
+     *      The event to send display the message with
+     * @param userId
+     *      The user id
+     * @param actionId
+     *      The action id
+     *
+     * @return If they have a cooldown.
+     */
+    public boolean hasCooldown(GenericMessageEvent event, long userId, long actionId) {
+        if (this.userCooldownsMap.containsKey(userId)) {
+            UserCooldowns userCooldowns = this.userCooldownsMap.get(userId);
+            if (userCooldowns.hasCooldownFor(actionId)) {
+                if (userCooldowns.canSendCooldownMessage()) {
+                    Cooldown cooldown = userCooldowns.getCooldownFor(actionId);
+                    this.displayMessage(event, cooldown.getRemainingTimeMessage());
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public void displayCooldownMessage(GenericMessageEvent event, long userId, long actionId) {
+
+    }
+
+    public void clearEmptyCooldowns() {
+       this.userCooldownsMap.entrySet()
+           .removeIf(entry -> entry.getValue().isEmpty());
     }
 
     /**
