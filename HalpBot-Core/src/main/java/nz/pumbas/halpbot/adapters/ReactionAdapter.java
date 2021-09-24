@@ -2,7 +2,6 @@ package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import nz.pumbas.halpbot.reactions.ReactionCallback;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ReactionAdapter extends HalpbotAdapter
@@ -20,8 +20,30 @@ public class ReactionAdapter extends HalpbotAdapter
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
-        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
+        long userId = event.getUserIdLong();
+        long messageId = event.getMessageIdLong();
+
+        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(messageId))
             return;
+
+        var callbacks = this.reactionCallbacks.get(messageId);
+        if (!callbacks.containsKey(event.getReactionEmote().getAsCodepoints()))
+            return;
+
+        if (this.halpBotCore.hasCooldown(event, userId, messageId))
+            return;
+
+        ReactionCallback callback = callbacks.get(event.getReactionEmote().getAsCodepoints());
+        callback.invokeCallback(event)
+            .present(value -> this.halpBotCore.displayMessage(event, value))
+            .caught(exception -> ErrorManager.handle(event, exception));
+
+        if (callback.hasCooldown()) {
+            this.halpBotCore.addCooldown(
+                userId,
+                messageId,
+                callback.createCooldown());
+        }
     }
 
     public void registerCallback(Message message, ReactionCallback reactionCallback) {

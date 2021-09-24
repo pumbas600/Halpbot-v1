@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
+import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
@@ -46,6 +47,7 @@ public class MethodContext extends InvocationContext
     private @NotNull ContextState contextState;
     private @Nullable final AbstractCommandAdapter commandAdapter;
     private @Nullable final MessageReceivedEvent event;
+    private @NotNull final HalpbotCore halpbotCore;
     private @NotNull final Set<Class<?>> reflections;
 
     protected MethodContext(@NotNull String context,
@@ -57,6 +59,7 @@ public class MethodContext extends InvocationContext
         this.contextState = contextState;
         this.commandAdapter = commandAdapter;
         this.event = event;
+        this.halpbotCore = null; //TODO: Pass to constructor
         this.reflections = reflections;
     }
 
@@ -117,6 +120,10 @@ public class MethodContext extends InvocationContext
 
     public @NotNull ContextState getContextState() {
         return this.contextState;
+    }
+
+    public @NotNull HalpbotCore getHalpbotCore() {
+        return this.halpbotCore;
     }
 
     public void setContextState(@NotNull ContextState contextState) {

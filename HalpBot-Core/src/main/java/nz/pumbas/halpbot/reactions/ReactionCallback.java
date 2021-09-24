@@ -9,9 +9,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import nz.pumbas.halpbot.commands.cooldowns.CooldownAction;
 import nz.pumbas.halpbot.objects.Exceptional;
 
-public final class ReactionCallback
+public final class ReactionCallback implements CooldownAction
 {
     private final String codepointEmoji;
     private final Function<MessageReactionAddEvent, Object> callback;
@@ -128,7 +129,9 @@ public final class ReactionCallback
         /**
          * Specifies how long a user must wait in between triggering this callback. Any attempts to trigger the
          * callback before the cooldown has finished will be ignored. Specify a negative duration to indicate that
-         * there is no cooldown for this callback. By default, there is no cooldown.
+         * there is no cooldown for this callback. By default, there is no cooldown. Note: That the time unit cannot
+         * be smaller than milliseconds. Trying to specify a time in microseconds or nanoseconds will result in an
+         * error.
          *
          * @param duration
          *      The duration
@@ -136,8 +139,14 @@ public final class ReactionCallback
          *      The time unit that the duration is in
          *
          * @return Itself for chaining
+         * @throws IllegalArgumentException
+         *         If the specified time unit is microseconds or nanoseconds
          */
         public ReactionCallbackBuilder cooldown(long duration, TimeUnit timeUnit) {
+            if (TimeUnit.MICROSECONDS == timeUnit || TimeUnit.NANOSECONDS == timeUnit)
+                throw new IllegalArgumentException(
+                    "The time unit for a cooldown cannot be microseconds or nanoseconds");
+
             this.cooldownDuration = duration;
             this.cooldownTimeUnit = timeUnit;
             return this;

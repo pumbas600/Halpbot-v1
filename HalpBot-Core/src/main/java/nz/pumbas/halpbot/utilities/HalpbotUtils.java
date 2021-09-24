@@ -55,9 +55,11 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import nz.pumbas.halpbot.commands.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.context.ContextManager;
 import nz.pumbas.halpbot.utilities.context.ContextManagerImpl;
@@ -136,6 +138,10 @@ public final class HalpbotUtils
         while (!queue.isEmpty()) {
             consumer.accept(queue.remove());
         }
+    }
+
+    public static <K, V> void filter(Map<K, V> map, BiPredicate<K, V> filter) {
+        map.entrySet().removeIf(entry -> !filter.test(entry.getKey(), entry.getValue()));
     }
 
     /**
