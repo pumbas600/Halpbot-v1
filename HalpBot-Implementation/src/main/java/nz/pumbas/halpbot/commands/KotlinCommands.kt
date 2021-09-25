@@ -8,7 +8,7 @@ import nz.pumbas.halpbot.commands.annotations.Command
 import nz.pumbas.halpbot.commands.annotations.Remaining
 import nz.pumbas.halpbot.commands.annotations.Unrequired
 import nz.pumbas.halpbot.commands.annotations.Implicit
-import nz.pumbas.halpbot.HalpBot
+import nz.pumbas.halpbot.Halpbot
 import nz.pumbas.halpbot.customparameters.Joke
 import nz.pumbas.halpbot.utilities.HalpbotUtils
 import nz.pumbas.halpbot.request.Request
@@ -74,7 +74,7 @@ class KotlinCommands : OnReady {
         else "Sorry, it seems that number isn't in the array. :point_right: :point_left:"
     }
 
-    @Command(alias = "Creator", description = "Creator only command :eyes:", restrictedTo = [HalpBot.CREATOR_ID])
+    @Command(alias = "Creator", description = "Creator only command :eyes:", restrictedTo = [Halpbot.CREATOR_ID])
     fun creator(): String {
         return "Hello there creator :wave:"
     }

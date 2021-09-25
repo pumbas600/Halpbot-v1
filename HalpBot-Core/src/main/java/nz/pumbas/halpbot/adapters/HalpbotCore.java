@@ -18,6 +18,8 @@ import javax.security.auth.login.LoginException;
 import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.cooldowns.Cooldown;
 import nz.pumbas.halpbot.commands.cooldowns.UserCooldowns;
+import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.commands.permissions.PermissionManager;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.objects.Exceptional;
@@ -28,12 +30,14 @@ import nz.pumbas.halpbot.utilities.context.ContextHolder;
 public class HalpbotCore implements ContextHolder
 {
     private static JDA jda;
+    private long ownerId = -1;
     private final JDABuilder jdaBuilder;
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
     private final Map<Long, UserCooldowns> userCooldownsMap = new ConcurrentHashMap<>();
 
     private final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
+    private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
     private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
 
     public HalpbotCore(final JDABuilder jdaBuilder) {
@@ -90,6 +94,22 @@ public class HalpbotCore implements ContextHolder
      */
     public HalpbotCore displayConfiguration(DisplayConfiguration displayConfiguration) {
         this.displayConfiguration = displayConfiguration;
+        return this;
+    }
+
+    /**
+     * Sets the id of the owner for this bot. This automatically assigns the user the
+     * {@link HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
+     *
+     * @param ownerId
+     *      The {@link Long id} of the owner
+     *
+     * @return Itself for chaining
+     */
+    public HalpbotCore setOwner(long ownerId) {
+        this.ownerId = ownerId;
+        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.BOT_OWNER))
+            this.permissionManager.givePermission(ownerId, HalpbotPermissions.BOT_OWNER);
         return this;
     }
 
@@ -155,9 +175,10 @@ public class HalpbotCore implements ContextHolder
     }
 
     /**
-     * Displays a cooldown message telling the user how long they have to wait before they can do the action if they
-     * have a cooldown. Note that this message has a cooldown of 10 seconds. If their 'cooldown message' is cooling
-     * down, then nothing will be displayed to prevent users spamming the cooldown message.
+     * Check if the user has a cooldown for the specified action. If they do, it displays a cooldown message telling
+     * the user how long they have to wait before they can do the action again. This message will automatically
+     * delete after a short period of time. Note that this message has a cooldown too. If their 'cooldown message' is
+     * cooling down, then nothing will be displayed, preventing users from spamming the cooldown message.
      *
      * @param event
      *      The event to send display the message with
@@ -174,7 +195,8 @@ public class HalpbotCore implements ContextHolder
             if (userCooldowns.hasCooldownFor(actionId)) {
                 if (userCooldowns.canSendCooldownMessage()) {
                     Cooldown cooldown = userCooldowns.getCooldownFor(actionId);
-                    this.displayMessage(event, cooldown.getRemainingTimeMessage());
+                    event.getChannel().sendMessageEmbeds(cooldown.getRemainingTimeEmbed())
+                        .queue(m -> m.delete().queueAfter(10, TimeUnit.SECONDS));
                 }
                 return true;
             }
@@ -182,14 +204,16 @@ public class HalpbotCore implements ContextHolder
         return false;
     }
 
-
-    public void displayCooldownMessage(GenericMessageEvent event, long userId, long actionId) {
-
-    }
-
     public void clearEmptyCooldowns() {
        this.userCooldownsMap.entrySet()
            .removeIf(entry -> entry.getValue().isEmpty());
+    }
+
+    /**
+     * @return The id of the owner for this bot, or -1 if no owner has been specified
+     */
+    public long getOwnerId() {
+        return this.ownerId;
     }
 
     /**

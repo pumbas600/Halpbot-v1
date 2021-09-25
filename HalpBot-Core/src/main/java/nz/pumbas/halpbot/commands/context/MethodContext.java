@@ -45,21 +45,19 @@ import nz.pumbas.halpbot.objects.Exceptional;
 public class MethodContext extends InvocationContext
 {
     private @NotNull ContextState contextState;
-    private @Nullable final AbstractCommandAdapter commandAdapter;
     private @Nullable final MessageReceivedEvent event;
     private @NotNull final HalpbotCore halpbotCore;
     private @NotNull final Set<Class<?>> reflections;
 
     protected MethodContext(@NotNull String context,
                             @NotNull ContextState contextState,
-                            @Nullable AbstractCommandAdapter commandAdapter,
+                            @Nullable HalpbotCore halpbotCore,
                             @Nullable MessageReceivedEvent event,
                             @NotNull Set<Class<?>> reflections) {
         super(context);
         this.contextState = contextState;
-        this.commandAdapter = commandAdapter;
         this.event = event;
-        this.halpbotCore = null; //TODO: Pass to constructor
+        this.halpbotCore = halpbotCore;
         this.reflections = reflections;
     }
 
@@ -89,9 +87,9 @@ public class MethodContext extends InvocationContext
         return of("", parsingToken);
     }
 
-    public static MethodContext of(@NotNull String content, @NotNull AbstractCommandAdapter commandAdapter,
+    public static MethodContext of(@NotNull String content, @NotNull HalpbotCore halpbotCore,
                                    @NotNull MessageReceivedEvent event, @NotNull Set<Class<?>> reflections) {
-        return new MethodContext(content, ContextState.EMPTY, commandAdapter, event, reflections);
+        return new MethodContext(content, ContextState.EMPTY, halpbotCore, event, reflections);
     }
 
     public static MethodContext of(@NotNull String content) {
@@ -104,10 +102,6 @@ public class MethodContext extends InvocationContext
 
     public void update(@NotNull ParsingToken parsingToken) {
         this.contextState = new ContextState(parsingToken.getType(), parsingToken.getAnnotations(), parsingToken.getAnnotationTypes());
-    }
-
-    public @Nullable AbstractCommandAdapter getCommandAdapter() {
-        return this.commandAdapter;
     }
 
     public @Nullable MessageReceivedEvent getEvent() {

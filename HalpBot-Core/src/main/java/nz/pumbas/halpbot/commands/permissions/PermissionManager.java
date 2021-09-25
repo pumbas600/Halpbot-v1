@@ -92,6 +92,7 @@ public interface PermissionManager
      * {@code halpbot.admin.give.permission} permission and you don't have that exact permission, it will then check
      * if you have the {@code halpbot.admin.give.*} permission, then {@code halpbot.admin.*}, etc.
      *
+     *
      * @param userId
      *      The id of the user to check for the permissions
      * @param permissions
@@ -99,7 +100,26 @@ public interface PermissionManager
      *
      * @return If the user has the specified permissions
      */
-    boolean hasPermissions(long userId, String... permissions);
+    boolean hasPermissions(long userId, List<String> permissions);
+
+    /**
+     * Returns true of the user has all the following permissions. Note: If the user has the
+     * {@link HalpbotPermissions#BOT_OWNER} permission, then this will always return true as the owner has all permissions.
+     * If they don't have the exact permission, it will then start looking for permission groups which include the
+     * desired permission. For example, if you're checking if a user has the
+     * {@code halpbot.admin.give.permission} permission and you don't have that exact permission, it will then check
+     * if you have the {@code halpbot.admin.give.*} permission, then {@code halpbot.admin.*}, etc.
+     *
+     * @param userId
+     *      The id of the user to check for the permissions
+     * @param permissions
+     *      The permissions to check that the user has
+     *
+     * @return If the user has the specified permissions
+     */
+    default boolean hasPermissions(long userId, String... permissions) {
+        return this.hasPermissions(userId, List.of(permissions));
+    }
 
     /**
      * Returns true of the user has all the following permissions. Note: If the user has the

@@ -1,5 +1,9 @@
 package nz.pumbas.halpbot.commands.cooldowns;
 
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+
+import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 
 public class Cooldown
@@ -20,7 +24,13 @@ public class Cooldown
         return this.durationMs - (System.currentTimeMillis() - this.startTimeMs);
     }
 
-    public String getRemainingTimeMessage() {
-        return this.getRemainingTime() + "ms Remaining";
+    public MessageEmbed getRemainingTimeEmbed() {
+        double remainingTimeSeconds = this.getRemainingTime() / 1000D;
+
+        return new EmbedBuilder()
+            .setTitle("Please wait, you're on cooldown")
+            .setDescription(String.format("%.2fs Remaining", remainingTimeSeconds))
+            .setColor(Color.BLUE)
+            .build();
     }
 }

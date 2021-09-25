@@ -44,14 +44,16 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Explicit;
 import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.reactions.ReactionCallback;
+import nz.pumbas.halpbot.reactions.ReactionCallback.ReactionCallbackBuilder;
 import nz.pumbas.halpbot.sql.SQLDriver;
 import nz.pumbas.halpbot.sql.SQLUtils;
 import nz.pumbas.halpbot.sql.table.Table;
@@ -78,6 +80,12 @@ public class ChemmatCommands implements OnReady
     private static final ColumnIdentifier<String> EXPLANATION = new SimpleColumnIdentifier<>("explanation", String.class);
 
     private static final Color Blurple = new Color(85, 57, 204);
+
+    private final String[] emojis = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
+    private final ReactionCallbackBuilder reactionCallbackBuilder = ReactionCallback.builder()
+        .setDeleteAfter(10, TimeUnit.MINUTES)
+        .setCooldown(10, TimeUnit.SECONDS)
+        .setRemoveReactionIfCoolingDown();
 
     private final Random random = new Random();
     private SQLDriver driver;
@@ -114,7 +122,7 @@ public class ChemmatCommands implements OnReady
     }
 
     @Command(alias = "quiz", description = "Retrieves a random chemmat quiz on the specified topic")
-    public void quiz(AbstractCommandAdapter commandAdapter,
+    public void quiz(ReactionAdapter reactionAdapter,
                      @Source MessageChannel channel,
                      @Unrequired("-1") int quizId,
                      @Unrequired("") @Remaining String topic)
@@ -139,8 +147,33 @@ public class ChemmatCommands implements OnReady
 
         Quiz quiz = SQLUtils.asModel(Quiz.class, tableRow);
         quiz.shuffleAnswers(this.random);
-        String[] emojis = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
+        MessageEmbed quizEmbed = this.buildQuizEmbed(quiz);
+        int answer = quiz.getAnswer();
 
+        channel.sendMessageEmbeds(quizEmbed)
+            .queue(m -> {
+                int optionIndex = 0;
+                List<String> options = quiz.getOptions();
+                for (int i = 0; i <  options.size(); i++) {
+                    if (null != options.get(i)) {
+                        int finalI = i + 1;
+                        reactionAdapter.registerCallback(m,
+                            this.reactionCallbackBuilder
+                                .setEmoji(this.emojis[optionIndex])
+                                .setConsumer(e -> this.onAnswerReaction(e, finalI, answer))
+                                .build());
+                        optionIndex++;
+                    }
+                }
+                reactionAdapter.registerCallback(m,
+                    this.reactionCallbackBuilder
+                        .setEmoji("U+2753")
+                        .setConsumer(e -> this.onRevealAnswer(e, options.get(answer - 1), quiz))
+                        .build());
+        });
+    }
+
+    private MessageEmbed buildQuizEmbed(Quiz quiz) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(HalpbotUtils.capitaliseEachWord(quiz.getTopic()));
         embedBuilder.setColor(Color.ORANGE);
@@ -155,29 +188,13 @@ public class ChemmatCommands implements OnReady
         int index = 0;
         for (String option : quiz.getOptions()) {
             if (null != option) {
-                builder.append(emojis[index]).append(" : ").append(option).append('\n');
+                builder.append(this.emojis[index]).append(" : ").append(option).append('\n');
                 index++;
             }
         }
 
         embedBuilder.setDescription(builder.toString());
-        int answer = quiz.getAnswer();
-
-        channel.sendMessageEmbeds(embedBuilder.build())
-            .queue(m -> {
-                int optionIndex = 0;
-                List<String> options = quiz.getOptions();
-                for (int i = 0; i <  options.size(); i++) {
-                    if (null != options.get(i)) {
-                        int finalI = i + 1;
-                        commandAdapter.addReactionCallback(m, emojis[optionIndex],
-                            e -> this.onAnswerReaction(e, finalI, answer));
-                        optionIndex++;
-                    }
-                }
-                commandAdapter.addReactionCallback(m, "U+2753",
-                    e -> this.onRevealAnswer(e, options.get(answer - 1), quiz));
-        });
+        return embedBuilder.build();
     }
 
     @Command(alias = "topics", description = "Retrieves the different topics available for the chemmat notes")
@@ -222,7 +239,7 @@ public class ChemmatCommands implements OnReady
                 .append("- ")
                 .append(row.value(QUESTION).or("UNDEFINED"))
                 .append("\n\n"));
-        builder.setDescription(questionBuilder.toString());
+        builder.setDescription(HalpbotUtils.checkEmbedDesciptionLength(questionBuilder.toString()));
         return builder.build();
     }
 

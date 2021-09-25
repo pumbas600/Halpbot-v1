@@ -37,25 +37,27 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 
+import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
 import nz.pumbas.halpbot.commands.NumberSystemConverters;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.KotlinCommands;
 import nz.pumbas.halpbot.commands.MatrixCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
+import nz.pumbas.halpbot.configurations.EmbedStringsDisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class HalpBot extends ListenerAdapter
+public class Halpbot extends ListenerAdapter
 {
     public static final long CREATOR_ID = 260930648330469387L;
 
     private final JDA jda;
 
-    public HalpBot(String token) throws LoginException
+    public Halpbot(String token) throws LoginException
     {
         JDABuilder builder = JDABuilder.createDefault(token)
             .disableIntents(GatewayIntent.GUILD_PRESENCES)
@@ -63,20 +65,23 @@ public class HalpBot extends ListenerAdapter
 
         ErrorManager.setLoggerUserId(CREATOR_ID);
 
-        AbstractCommandAdapter commandAdapter = new SimpleCommandAdapter(builder, "$")
-            .setOwnerId(CREATOR_ID)
-            .registerCommands(
-                new KotlinCommands(),
-                new MatrixCommands(),
-                new VectorCommands(),
-                new ElectricalCommands(),
-                new HalpBotCommands(),
-                new NumberSystemConverters(),
-                new ChemmatCommands());
+        HalpbotCore halpBotCore = new HalpbotCore(builder)
+            .setOwner(CREATOR_ID)
+            .addAdapters(
+                new SimpleCommandAdapter("$")
+                    .registerCommands(
+                        new KotlinCommands(),
+                        new MatrixCommands(),
+                        new VectorCommands(),
+                        new ElectricalCommands(),
+                        new HalpBotCommands(),
+                        new NumberSystemConverters(),
+                        new ChemmatCommands()),
+                new ReactionAdapter())
+            .displayConfiguration(new EmbedStringsDisplayConfiguration())
+            .registerAdapters();
 
-        this.jda = builder.build();
-        commandAdapter.registerSlashCommands(this.jda);
-
+        this.jda = halpBotCore.build();
     }
 
     @Override

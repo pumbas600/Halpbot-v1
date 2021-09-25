@@ -24,9 +24,6 @@
 
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.events.GenericEvent;
-
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.halpbot.converters.ConverterHandler;
@@ -35,11 +32,10 @@ import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
-import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
+import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
@@ -407,8 +403,8 @@ public final class CommandManager
                 Exceptional<String> methodName = ctx.getNext("[", false);
 
                 return methodName
-                    .map(name -> handleMethodReflectionSyntax(ctx, name, reflectionClass))
-                    .or(handleFieldReflectionSyntax(ctx, reflectionClass));
+                    .flatMap(name -> handleMethodReflectionSyntax(ctx, name, reflectionClass))
+                    .orElse(() -> handleFieldReflectionSyntax(ctx, reflectionClass));
             }
         }
 
@@ -442,7 +438,7 @@ public final class CommandManager
                 .collect(Collectors.toList());
 
         if (simpleCommands.isEmpty())
-            return Exceptional.of(() -> new TokenCommandException("There were no methods with the name " + methodName));
+            return Exceptional.of(() -> new CommandException("There were no methods with the name " + methodName));
 
         Exceptional<Object> result = Exceptional.empty();
         for (SimpleCommand simpleCommand : simpleCommands) {

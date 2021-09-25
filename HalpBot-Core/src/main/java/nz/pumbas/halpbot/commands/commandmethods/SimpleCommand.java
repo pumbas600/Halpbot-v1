@@ -24,11 +24,9 @@
 
 package nz.pumbas.halpbot.commands.commandmethods;
 
-import net.dv8tion.jda.api.Permission;
-
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
+import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.MethodContext;
@@ -275,7 +273,7 @@ public class SimpleCommand implements CommandMethod
         while (parameterIndex < parsedTokens.length) {
             if (tokenIndex >= this.tokens.size())
                 return firstMismatch.isErrorAbsent()
-                    ? Exceptional.of(new TokenCommandException("There appears to be too many parameters for this command"))
+                    ? Exceptional.of(new CommandException("There appears to be too many parameters for this command"))
                     : firstMismatch;
 
             Token currentToken = this.tokens.get(tokenIndex++);
@@ -319,7 +317,7 @@ public class SimpleCommand implements CommandMethod
                     continue;
                 }
                 mismatchResult = Exceptional.of(
-                    new TokenCommandException("Expected the placeholder " + placeholderToken.getPlaceHolder()));
+                    new CommandException("Expected the placeholder " + placeholderToken.getPlaceHolder()));
             }
 
 
@@ -335,7 +333,7 @@ public class SimpleCommand implements CommandMethod
         if (ctx.hasNext() && !canHaveTokensLeft)
             return firstMismatch.caught()
                 ? firstMismatch : Exceptional.of(
-                new TokenCommandException("There appears to be too many parameters for this command"));
+                new CommandException("There appears to be too many parameters for this command"));
 
         return Exceptional.of(parsedTokens);
     }
