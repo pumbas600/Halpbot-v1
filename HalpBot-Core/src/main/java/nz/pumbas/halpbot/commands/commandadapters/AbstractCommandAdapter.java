@@ -61,6 +61,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPersistantDataConstructor;
 import nz.pumbas.halpbot.commands.persistant.AbstractPersistantUserData;
 import nz.pumbas.halpbot.commands.persistant.PersistantData;
@@ -68,10 +69,8 @@ import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.CommandType;
-import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.commands.permissions.PermissionManager;
-import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.OnShutdown;
@@ -86,23 +85,20 @@ import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-public abstract class AbstractCommandAdapter extends ListenerAdapter
+public abstract class AbstractCommandAdapter extends HalpbotAdapter
 {
-    protected ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
     protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
-    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks =
-        new ConcurrentHashMap<>();
+//    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks =
+//        new ConcurrentHashMap<>();
     protected final Map<Long, Map<Class<? extends PersistantUserData>, PersistantUserData>> persistantUserData =
         new ConcurrentHashMap<>();
 
     protected final String commandPrefix;
-    private long ownerId;
 
-    protected AbstractCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
-        builder.addEventListeners(this);
+    protected AbstractCommandAdapter(String commandPrefix) {
         this.commandPrefix = commandPrefix;
         this.registerCommands(new BuiltInCommands());
     }
@@ -206,7 +202,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 
             try {
                 this.handleCommandMethodCall(event, commandMethod, content)
-                    .present(value -> this.displayCommandMethodResult(event, value))
+                    .present(value -> this.halpBotCore.displayMessage(event, value))
                     .caught(exception -> event.getChannel()
                         .sendMessageEmbeds(
                             buildHelpMessage(commandAlias, commandMethod, exception.getMessage()))
@@ -229,7 +225,7 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
         if(!this.registeredSlashCommands.containsKey(event.getName())) {
-            this.displayCommandMethodResult(event,
+            this.halpBotCore.displayMessage(event,
                 "There doesn't appear to be a command method backing this slash command");
             return;
         }
@@ -247,29 +243,27 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
 //                .sendMessageEmbeds(
 //                    buildHelpMessage(event.getName(), commandMethod, exception.getMessage()))
 //                .queue());
-
-        this.displayCommandMethodResult(event, event.getOptions());
     }
 
-    /**
-     * Listens to {@link MessageReactionAddEvent} and if there is a callback registered for the message and the
-     * specified reaction, then it will be invoked using the event.
-     *
-     * @param event
-     *      The {@link MessageReactionAddEvent} that's been received
-     */
-    @Override
-    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
-        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
-            return;
-
-        var callbacks = this.reactionCallbacks.get(event.getMessageIdLong());
-        if (!callbacks.containsKey(event.getReactionEmote().getAsCodepoints()))
-            return;
-
-        callbacks.get(event.getReactionEmote().getAsCodepoints())
-            .accept(event);
-    }
+//    /**
+//     * Listens to {@link MessageReactionAddEvent} and if there is a callback registered for the message and the
+//     * specified reaction, then it will be invoked using the event.
+//     *
+//     * @param event
+//     *      The {@link MessageReactionAddEvent} that's been received
+//     */
+//    @Override
+//    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
+//        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
+//            return;
+//
+//        var callbacks = this.reactionCallbacks.get(event.getMessageIdLong());
+//        if (!callbacks.containsKey(event.getReactionEmote().getAsCodepoints()))
+//            return;
+//
+//        callbacks.get(event.getReactionEmote().getAsCodepoints())
+//            .accept(event);
+//    }
 
     /**
      * Listens to the {@link GuildJoinEvent}. When the bot joins a server, it gives the server owner the
@@ -287,43 +281,43 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
         }
     }
 
-    /**
-     * Adds the specified emoji as a reaction to the message and registers the specified {@link Consumer} as a
-     * callback when someone reacts with the specified emoji to the message. Note: The callback is automatically
-     * removed after 10 minutes.
-     *
-     * @param message
-     *      The {@link Message} to add the reaction callback to
-     * @param emoji
-     *      The unicode emoji to listen for
-     * @param consumer
-     *      The {@link Consumer} to call when someone reacts to the message with the emoji
-     */
-    public void addReactionCallback(Message message, String emoji, Consumer<MessageReactionAddEvent> consumer) {
-        String codePointEmoji = emoji.startsWith("U+")
-            ? emoji : EncodingUtil.encodeCodepoints(emoji);
-        
-        long messageId = message.getIdLong();
-
-        if (!this.reactionCallbacks.containsKey(messageId)) {
-            Map<String, Consumer<MessageReactionAddEvent>> hashmap = new HashMap<>();
-            hashmap.put(codePointEmoji, consumer);
-            this.reactionCallbacks.put(messageId, hashmap);
-        }
-        else {
-            this.reactionCallbacks.get(messageId).put(codePointEmoji, consumer);
-        }
-
-        message.addReaction(codePointEmoji).queue(v ->
-            // Schedule to have the callback removed in 10 minutes.
-            this.concurrentManager.schedule(10, TimeUnit.MINUTES, () -> {
-                this.reactionCallbacks.get(messageId).remove(codePointEmoji);
-                message.clearReactions(codePointEmoji).queue();
-                if (this.reactionCallbacks.get(messageId).isEmpty()) {
-                    this.reactionCallbacks.remove(messageId);
-                }
-            }));
-    }
+//    /**
+//     * Adds the specified emoji as a reaction to the message and registers the specified {@link Consumer} as a
+//     * callback when someone reacts with the specified emoji to the message. Note: The callback is automatically
+//     * removed after 10 minutes.
+//     *
+//     * @param message
+//     *      The {@link Message} to add the reaction callback to
+//     * @param emoji
+//     *      The unicode emoji to listen for
+//     * @param consumer
+//     *      The {@link Consumer} to call when someone reacts to the message with the emoji
+//     */
+//    public void addReactionCallback(Message message, String emoji, Consumer<MessageReactionAddEvent> consumer) {
+//        String codePointEmoji = emoji.startsWith("U+")
+//            ? emoji : EncodingUtil.encodeCodepoints(emoji);
+//
+//        long messageId = message.getIdLong();
+//
+//        if (!this.reactionCallbacks.containsKey(messageId)) {
+//            Map<String, Consumer<MessageReactionAddEvent>> hashmap = new HashMap<>();
+//            hashmap.put(codePointEmoji, consumer);
+//            this.reactionCallbacks.put(messageId, hashmap);
+//        }
+//        else {
+//            this.reactionCallbacks.get(messageId).put(codePointEmoji, consumer);
+//        }
+//
+//        message.addReaction(codePointEmoji).queue(v ->
+//            // Schedule to have the callback removed in 10 minutes.
+//            this.concurrentManager.schedule(10, TimeUnit.MINUTES, () -> {
+//                this.reactionCallbacks.get(messageId).remove(codePointEmoji);
+//                message.clearReactions(codePointEmoji).queue();
+//                if (this.reactionCallbacks.get(messageId).isEmpty()) {
+//                    this.reactionCallbacks.remove(messageId);
+//                }
+//            }));
+//    }
 
     /**
      * Removes the {@link PersistantUserData} from this command adapters.
@@ -438,31 +432,6 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
         }
     }
 
-    /**
-     * Displays the result of a {@link CommandMethod}. If this is a {@link MessageEmbed}, it will be automatically
-     * cast and sent as such.
-     *
-     * @param event
-     *     The {@link GenericEvent} event that was sent
-     * @param result
-     *     The {@link Object} that was returned by the {@link CommandMethod}
-     */
-    protected void displayCommandMethodResult(@NotNull GenericEvent event, @NotNull Object result) {
-        if (result instanceof MessageEmbed) {
-            if (event instanceof GenericMessageEvent)
-                ((GenericMessageEvent) event).getChannel().sendMessageEmbeds((MessageEmbed) result).queue();
-            else if (event instanceof Interaction)
-                ((Interaction) event).replyEmbeds((MessageEmbed) result).queue();
-        }
-        else {
-            String message = result instanceof DiscordString
-                ? ((DiscordString) result).toDiscordString() : result.toString();
-            if (event instanceof GenericMessageEvent)
-                ((GenericMessageEvent) event).getChannel().sendMessage(message).queue();
-            else if (event instanceof Interaction)
-                ((Interaction) event).reply(message).queue();
-        }
-    }
 
     /**
      * Passes the {@link ReadyEvent} to all the registered instances of {@link OnReady}.
@@ -511,30 +480,6 @@ public abstract class AbstractCommandAdapter extends ListenerAdapter
      */
     public String getCommandPrefix() {
         return this.commandPrefix;
-    }
-
-    /**
-     * @return The id of the owner for this bot
-     */
-    public long getOwnerId() {
-        return this.ownerId;
-    }
-
-
-    /**
-     * Sets the id of the owner for this bot. This automatically assigns the user the
-     * {@link HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
-     *
-     * @param ownerId
-     *      The {@link Long id} of the owner
-     *
-     * @return Itself for chaining
-     */
-    public AbstractCommandAdapter setOwnerId(long ownerId) {
-        this.ownerId = ownerId;
-        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.BOT_OWNER))
-            this.permissionManager.givePermission(ownerId, HalpbotPermissions.BOT_OWNER);
-        return this;
     }
 
     /**

@@ -24,14 +24,14 @@
 
 package nz.pumbas.halpbot.commands.exceptions;
 
-public class TokenCommandException extends RuntimeException
+public class CommandException extends RuntimeException
 {
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public TokenCommandException() {
+    public CommandException() {
     }
 
     /**
@@ -43,7 +43,7 @@ public class TokenCommandException extends RuntimeException
      *     the detail message. The detail message is saved for
      *     later retrieval by the {@link #getMessage()} method.
      */
-    public TokenCommandException(String message) {
+    public CommandException(String message) {
         super(message);
     }
 
@@ -64,7 +64,7 @@ public class TokenCommandException extends RuntimeException
      *
      * @since 1.4
      */
-    public TokenCommandException(String message, Throwable cause) {
+    public CommandException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -83,7 +83,7 @@ public class TokenCommandException extends RuntimeException
      *
      * @since 1.4
      */
-    public TokenCommandException(Throwable cause) {
+    public CommandException(Throwable cause) {
         super(cause);
     }
 }

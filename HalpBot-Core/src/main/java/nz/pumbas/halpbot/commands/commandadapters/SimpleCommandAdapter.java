@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
+import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.MethodContext;
@@ -43,8 +43,8 @@ import nz.pumbas.halpbot.objects.Exceptional;
 
 public class SimpleCommandAdapter extends AbstractCommandAdapter
 {
-    public SimpleCommandAdapter(@Nullable JDABuilder builder, String commandPrefix) {
-        super(builder, commandPrefix);
+    public SimpleCommandAdapter(String commandPrefix) {
+        super(commandPrefix);
     }
 
     /**
@@ -87,14 +87,14 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
         // Sanity check (This shouldn't be an issue)
         if (!(commandMethod instanceof SimpleCommand))
             return Exceptional.of(
-                new TokenCommandException("The command method " + commandMethod.getDisplayCommand()
+                new CommandException("The command method " + commandMethod.getDisplayCommand()
                     + " cannot be used with the command adapter " + this.getClass().getSimpleName()));
-//
-        SimpleCommand tokenCommand = (SimpleCommand) commandMethod;
-        if (!tokenCommand.hasPermission(event.getAuthor()))
-                return Exceptional.of(new TokenCommandException("You do not have permission to use this command"));
 
-        MethodContext ctx = MethodContext.of(content, this, event, tokenCommand.getReflections());
-        return tokenCommand.parse(ctx, false);
+        SimpleCommand simpleCommand = (SimpleCommand) commandMethod;
+        if (!simpleCommand.hasPermission(event.getAuthor()))
+                return Exceptional.of(new CommandException("You do not have permission to use this command"));
+
+        MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, simpleCommand.getReflections());
+        return simpleCommand.parse(ctx, false);
     }
 }

@@ -187,14 +187,14 @@ public class SQLPermissionManager implements PermissionManager, LateInit
      * if you have the {@code halpbot.admin.give.*} permission, then {@code halpbot.admin.*}, etc.
      *
      * @param userId
-     *      The id of the user to check for the permissions
+     *     The id of the user to check for the permissions
      * @param permissions
-     *      The permissions to check that the user has
+     *     The permissions to check that the user has
      *
      * @return If the user has the specified permissions
      */
     @Override
-    public boolean hasPermissions(long userId, String... permissions) {
+    public boolean hasPermissions(long userId, List<String> permissions) {
         List<String> userPermissions = this.getPermissions(userId);
         if (userPermissions.contains(HalpbotPermissions.BOT_OWNER))
             return true;

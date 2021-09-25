@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.adapters;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import nz.pumbas.halpbot.commands.permissions.PermissionManager;
 import nz.pumbas.halpbot.reactions.ReactionCallback;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
@@ -15,6 +17,8 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ReactionAdapter extends HalpbotAdapter
 {
+    private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
+
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected final Map<Long, Map<String, ReactionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
 
@@ -22,18 +26,31 @@ public class ReactionAdapter extends HalpbotAdapter
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
         long userId = event.getUserIdLong();
         long messageId = event.getMessageIdLong();
+        String emoji = event.getReactionEmote().getAsCodepoints();
 
         if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(messageId))
             return;
 
         var callbacks = this.reactionCallbacks.get(messageId);
-        if (!callbacks.containsKey(event.getReactionEmote().getAsCodepoints()))
+        if (!callbacks.containsKey(emoji))
             return;
 
-        if (this.halpBotCore.hasCooldown(event, userId, messageId))
-            return;
+        ReactionCallback callback = callbacks.get(emoji);
+        if (!this.permissionManager.hasPermissions(userId, callback.getPermissions())) {
+            this.halpBotCore.displayMessage(
+                event, "You don't have the required permission to use this reaction callback");
+        }
 
-        ReactionCallback callback = callbacks.get(event.getReactionEmote().getAsCodepoints());
+
+        if (this.halpBotCore.hasCooldown(event, userId, messageId)) {
+            if (callback.removeReactionIfCoolingDown()) {
+                event.retrieveMessage()
+                    .flatMap(m -> m.removeReaction(emoji, event.getUser()))
+                    .queue();
+            }
+            return;
+        }
+
         callback.invokeCallback(event)
             .present(value -> this.halpBotCore.displayMessage(event, value))
             .caught(exception -> ErrorManager.handle(event, exception));
@@ -48,7 +65,7 @@ public class ReactionAdapter extends HalpbotAdapter
 
     public void registerCallback(Message message, ReactionCallback reactionCallback) {
         long messageId = message.getIdLong();
-        if (this.reactionCallbacks.containsKey(messageId)) {
+        if (!this.reactionCallbacks.containsKey(messageId)) {
             Map<String, ReactionCallback> messageCallbacks = new ConcurrentHashMap<>();
             messageCallbacks.put(reactionCallback.getCodepointEmoji(), reactionCallback);
             this.reactionCallbacks.put(messageId, messageCallbacks);

@@ -42,7 +42,7 @@ import nz.pumbas.halpbot.commands.annotations.Explicit;
 import nz.pumbas.halpbot.commands.annotations.Id;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
-import nz.pumbas.halpbot.commands.exceptions.TokenCommandException;
+import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
@@ -181,11 +181,11 @@ public final class Converters
             if (typeAlias.caught())
                 return Exceptional.of(typeAlias.error());
             if (typeAlias.isEmpty())
-                return Exceptional.of(new TokenCommandException("Missing '[' when creating object " + expectedTypeAlias));
+                return Exceptional.of(new CommandException("Missing '[' when creating object " + expectedTypeAlias));
 
             if (!typeAlias.get().equalsIgnoreCase(expectedTypeAlias))
                 return Exceptional.of(
-                    new TokenCommandException("Expected the alias " + expectedTypeAlias + " but got " + typeAlias.get()));
+                    new CommandException("Expected the alias " + expectedTypeAlias + " but got " + typeAlias.get()));
 
             ctx.assertNext('[');
             int currentIndex = ctx.getCurrentIndex();
@@ -196,7 +196,7 @@ public final class Converters
                 if (result.present() && ctx.isNext(']', true)) break;
 
                 else if (!result.caught()) result = Exceptional.of(
-                    new TokenCommandException("There seems to have been an error when constructing the " + expectedTypeAlias));
+                    new CommandException("There seems to have been an error when constructing the " + expectedTypeAlias));
 
             }
             return result;
@@ -328,7 +328,7 @@ public final class Converters
         TypeConverter.builder(PersistantUserData.class)
             .notCommandParameter()
             .convert(ctx -> Exceptional.of(
-                ctx.getCommandAdapter().getPersistantUserData(
+                ctx.getHalpbotCore().get(AbstractCommandAdapter.class).getPersistantUserData(
                     (Class<? extends PersistantUserData>) ctx.getContextState().getClazz(),
                     ctx.getEvent().getAuthor().getIdLong())
             ))
@@ -400,11 +400,11 @@ public final class Converters
         .convert(ctx -> Exceptional.of(ctx.getEvent()))
         .register();
 
-    public static final TypeConverter<AbstractCommandAdapter> COMMAND_ADAPTER_CONVERTER =
-        TypeConverter.builder(AbstractCommandAdapter.class)
-            .notCommandParameter()
-            .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
-            .register();
+//    public static final TypeConverter<AbstractCommandAdapter> COMMAND_ADAPTER_CONVERTER =
+//        TypeConverter.builder(AbstractCommandAdapter.class)
+//            .notCommandParameter()
+//            .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
+//            .register();
 
     public static final TypeConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = TypeConverter.builder(HalpbotCore.class)
         .notCommandParameter()

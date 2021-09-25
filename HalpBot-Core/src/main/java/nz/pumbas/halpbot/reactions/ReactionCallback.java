@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.internal.utils.EncodingUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,12 +22,16 @@ public final class ReactionCallback implements CooldownAction
     private final TimeUnit deleteAfterTimeUnit;
     private final long cooldownDuration;
     private final TimeUnit cooldownTimeUnit;
+    private final boolean removeReactionIfCoolingDown;
+    private final List<String> permissions;
 
     private ReactionCallback(
         String codepointEmoji,
         Function<MessageReactionAddEvent, Object> callback,
         long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
-        long cooldownDuration, TimeUnit cooldownTimeUnit)
+        long cooldownDuration, TimeUnit cooldownTimeUnit,
+        boolean removeReactionIfCoolingDown,
+        List<String> permissions)
     {
         this.codepointEmoji = codepointEmoji;
         this.callback = callback;
@@ -33,6 +39,8 @@ public final class ReactionCallback implements CooldownAction
         this.deleteAfterTimeUnit = deleteAfterTimeUnit;
         this.cooldownDuration = cooldownDuration;
         this.cooldownTimeUnit = cooldownTimeUnit;
+        this.removeReactionIfCoolingDown = removeReactionIfCoolingDown;
+        this.permissions = permissions;
     }
 
     public String getCodepointEmoji() {
@@ -55,6 +63,14 @@ public final class ReactionCallback implements CooldownAction
         return this.cooldownTimeUnit;
     }
 
+    public boolean removeReactionIfCoolingDown() {
+        return this.removeReactionIfCoolingDown;
+    }
+
+    public List<String> getPermissions() {
+        return this.permissions;
+    }
+
     public Exceptional<Object> invokeCallback(MessageReactionAddEvent event) {
         //Use of supplier means that any exception thrown in the callback will be automatically caught.
         return Exceptional.of(() -> this.callback.apply(event));
@@ -72,6 +88,8 @@ public final class ReactionCallback implements CooldownAction
         private TimeUnit deleteAfterTimeUnit = TimeUnit.MINUTES;
         private long cooldownDuration = -1;
         private TimeUnit cooldownTimeUnit = TimeUnit.SECONDS;
+        private boolean removeReactionIfCoolingDown;
+        private List<String> permissions = new ArrayList<>();
 
         /**
          * The emoji to be used for this reaction callback. Note that the emoji should be compatable with
@@ -82,29 +100,29 @@ public final class ReactionCallback implements CooldownAction
          *
          * @return Itself for chaining
          */
-        public ReactionCallbackBuilder emoji(String emoji) {
+        public ReactionCallbackBuilder setEmoji(String emoji) {
             this.codepointEmoji = emoji.startsWith("U+")
                 ? emoji : EncodingUtil.encodeCodepoints(emoji);
 
             return this;
         }
 
-        public ReactionCallbackBuilder callback(Function<MessageReactionAddEvent, Object> callback) {
+        public ReactionCallbackBuilder setFunction(Function<MessageReactionAddEvent, Object> callback) {
             this.callback = callback;
             return this;
         }
 
-        public ReactionCallbackBuilder callback(Runnable callback) {
+        public ReactionCallbackBuilder setRunnable(Runnable callback) {
             this.callback = event -> { callback.run(); return null; };
             return this;
         }
 
-        public ReactionCallbackBuilder callback(Consumer<MessageReactionAddEvent> callback) {
+        public ReactionCallbackBuilder setConsumer(Consumer<MessageReactionAddEvent> callback) {
             this.callback = event -> { callback.accept(event); return null; };
             return this;
         }
 
-        public ReactionCallbackBuilder callback(Supplier<Object> callback) {
+        public ReactionCallbackBuilder setSupplier(Supplier<Object> callback) {
             this.callback = event ->  callback.get() ;
             return this;
         }
@@ -120,9 +138,22 @@ public final class ReactionCallback implements CooldownAction
          *
          * @return Itself for chaining
          */
-        public ReactionCallbackBuilder deleteAfter(long duration, TimeUnit timeUnit) {
+        public ReactionCallbackBuilder setDeleteAfter(long duration, TimeUnit timeUnit) {
             this.deleteAfterDuration = duration;
             this.deleteAfterTimeUnit = timeUnit;
+            return this;
+        }
+
+        /**
+         * Adds the permissions a user must have to use this callback.
+         *
+         * @param permissions
+         *      The permissions that a user requires
+         *
+         * @return Itself for chaining
+         */
+        public ReactionCallbackBuilder addPermissions(String... permissions) {
+            this.permissions.addAll(List.of(permissions));
             return this;
         }
 
@@ -142,13 +173,24 @@ public final class ReactionCallback implements CooldownAction
          * @throws IllegalArgumentException
          *         If the specified time unit is microseconds or nanoseconds
          */
-        public ReactionCallbackBuilder cooldown(long duration, TimeUnit timeUnit) {
+        public ReactionCallbackBuilder setCooldown(long duration, TimeUnit timeUnit) {
             if (TimeUnit.MICROSECONDS == timeUnit || TimeUnit.NANOSECONDS == timeUnit)
                 throw new IllegalArgumentException(
                     "The time unit for a cooldown cannot be microseconds or nanoseconds");
 
             this.cooldownDuration = duration;
             this.cooldownTimeUnit = timeUnit;
+            return this;
+        }
+
+        /**
+         * Sets that the reaction should be removed if added while the callback is still cooling down for that user.
+         * By default, this is false.
+         *
+         * @return Itself for chaining
+         */
+        public ReactionCallbackBuilder setRemoveReactionIfCoolingDown() {
+            this.removeReactionIfCoolingDown = true;
             return this;
         }
 
@@ -167,7 +209,9 @@ public final class ReactionCallback implements CooldownAction
             return new ReactionCallback(
                 this.codepointEmoji, this.callback,
                 this.deleteAfterDuration, this.deleteAfterTimeUnit,
-                this.cooldownDuration, this.cooldownTimeUnit);
+                this.cooldownDuration, this.cooldownTimeUnit,
+                this.removeReactionIfCoolingDown,
+                this.permissions);
         }
     }
 }

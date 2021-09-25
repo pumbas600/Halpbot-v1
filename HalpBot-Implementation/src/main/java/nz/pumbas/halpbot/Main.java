@@ -33,6 +33,6 @@ public final class Main
     private Main() {}
 
     public static void main(String[] args) throws LoginException {
-        HalpBot halpBot = new HalpBot(HalpbotUtils.getFirstLineFromFile("Token.txt"));
+        Halpbot halpBot = new Halpbot(HalpbotUtils.getFirstLineFromFile("Token.txt"));
     }
 }
