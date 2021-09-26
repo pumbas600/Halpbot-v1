@@ -41,6 +41,10 @@ public class QuestionModificationService
         this.questionModificationRepository.deleteById(id);
     }
 
+    public void deleteAll() {
+        this.questionModificationRepository.deleteAll();
+    }
+
     public List<QuestionModification> list() {
         return this.questionModificationRepository.findAll();
     }
