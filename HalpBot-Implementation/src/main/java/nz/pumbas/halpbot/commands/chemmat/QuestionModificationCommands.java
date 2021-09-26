@@ -18,13 +18,17 @@ import java.util.concurrent.TimeUnit;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.hibernate.exceptions.ResourceAlreadyExistsException;
+import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Modification;
 import nz.pumbas.halpbot.hibernate.models.Question;
 import nz.pumbas.halpbot.hibernate.models.QuestionModification;
 import nz.pumbas.halpbot.hibernate.services.QuestionModificationService;
+import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
 import nz.pumbas.halpbot.reactions.ReactionCallback;
 import nz.pumbas.halpbot.reactions.ReactionCallback.ReactionCallbackBuilder;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Component
@@ -33,6 +37,7 @@ public class QuestionModificationCommands
     private static final int MODIFICATION_DISPLAY_AMOUNT = 5;
 
     private final QuestionModificationService questionModificationService;
+    private final QuestionService questionService;
     private final TopicService topicService;
 
     private final ReactionCallbackBuilder callbackBuilder = ReactionCallback.builder()
@@ -41,8 +46,12 @@ public class QuestionModificationCommands
         .setDeleteAfter(-1, TimeUnit.MINUTES);
 
     @Autowired
-    public QuestionModificationCommands(QuestionModificationService questionModificationService, TopicService topicService) {
+    public QuestionModificationCommands(QuestionModificationService questionModificationService,
+                                        QuestionService questionService,
+                                        TopicService topicService)
+    {
         this.questionModificationService = questionModificationService;
+        this.questionService = questionService;
         this.topicService = topicService;
     }
 
@@ -64,23 +73,34 @@ public class QuestionModificationCommands
                 .sendMessageEmbeds(this.createMessageEmbed(question))
                 .queue(m -> {
                     reactionAdapter.registerCallback(m, this.callbackBuilder.setEmoji("U+2705")
-                        .setRunnable(this::acceptModification)
+                        .setRunnable(() -> this.acceptModification(question))
                         .build());
                     reactionAdapter.registerCallback(m, this.callbackBuilder.setEmoji("U+274C")
-                        .setRunnable(this::discardModification)
+                        .setRunnable(() -> this.deleteModification(question.getId()))
                         .build());
         }));
     }
 
-    public void acceptModification() {
-        System.out.println("Accepted!");
-
+    private void acceptModification(QuestionModification question) {
+        try {
+            if (Modification.ADD == question.getModification())
+                this.questionService.save(question.asQuestion());
+            else
+                this.questionService.update(question.asQuestion());
+        }
+        catch (ResourceNotFoundException | ResourceAlreadyExistsException e) {
+            ErrorManager.handle(e);
+        }
+        this.deleteModification(question.getId());
     }
 
-    public void discardModification() {
-        System.out.println("Discarded!");
+    private void deleteModification(Long modificationId) {
+        try {
+            this.questionModificationService.deleteById(modificationId);
+        } catch (ResourceNotFoundException e) {
+            ErrorManager.handle(e);
+        }
     }
-
 
     private MessageEmbed createMessageEmbed(QuestionModification question) {
         EmbedBuilder builder = new EmbedBuilder();
