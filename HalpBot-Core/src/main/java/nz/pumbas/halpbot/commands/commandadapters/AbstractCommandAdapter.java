@@ -91,8 +91,6 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
     protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
-//    protected final Map<Long, Map<String, Consumer<MessageReactionAddEvent>>> reactionCallbacks =
-//        new ConcurrentHashMap<>();
     protected final Map<Long, Map<Class<? extends PersistantUserData>, PersistantUserData>> persistantUserData =
         new ConcurrentHashMap<>();
 
@@ -211,6 +209,10 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             } catch (OutputException e) {
                 ErrorManager.handle(event, e);
             }
+        }
+        else if (commandAlias.startsWith(this.commandPrefix)) {
+            this.halpBotCore.displayMessage(event,
+                "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling");
         }
     }
 
