@@ -2,6 +2,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.21'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.0'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'org.springframework.boot' version '2.5.4'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 dependencies {
@@ -9,6 +11,13 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2'
     implementation 'org.xerial:sqlite-jdbc:3.36.0.2'
     implementation project(':HalpBot-Core')
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.4'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:2.5.4'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.4'
+    implementation 'org.apache.derby:derby:10.15.2.0'
+    implementation 'org.apache.derby:derbyclient:10.15.2.0'
+
 }
 
 tasks.build {

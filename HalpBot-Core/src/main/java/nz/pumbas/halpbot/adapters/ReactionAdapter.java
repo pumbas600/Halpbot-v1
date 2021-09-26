@@ -1,11 +1,11 @@
 package nz.pumbas.halpbot.adapters;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +26,12 @@ public class ReactionAdapter extends HalpbotAdapter
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
         long userId = event.getUserIdLong();
         long messageId = event.getMessageIdLong();
-        String emoji = event.getReactionEmote().getAsCodepoints();
+
+        // Trying to get the codepoint of a custom emoji will cause an error to be thrown
+        if (!event.getReactionEmote().isEmoji())
+            return;
+
+        String emoji = convertCodepointToValidCase(event.getReactionEmote().getAsCodepoints());
 
         if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(messageId))
             return;
@@ -41,7 +46,6 @@ public class ReactionAdapter extends HalpbotAdapter
                 event, "You don't have the required permission to use this reaction callback");
         }
 
-
         if (this.halpBotCore.hasCooldown(event, userId, messageId)) {
             if (callback.removeReactionIfCoolingDown()) {
                 event.retrieveMessage()
@@ -55,12 +59,27 @@ public class ReactionAdapter extends HalpbotAdapter
             .present(value -> this.halpBotCore.displayMessage(event, value))
             .caught(exception -> ErrorManager.handle(event, exception));
 
+        if (callback.isSingleUse()) {
+            event.retrieveMessage()
+                .queue(m -> {
+                    this.reactionCallbacks.get(messageId)
+                        .forEach((registeredEmoji, registeredCallback) ->
+                            m.removeReaction(registeredEmoji, event.getJDA().getSelfUser())
+                                .queue());
+                    this.reactionCallbacks.remove(messageId);
+                });
+        }
+
         if (callback.hasCooldown()) {
             this.halpBotCore.addCooldown(
                 userId,
                 messageId,
                 callback.createCooldown());
         }
+    }
+
+    public static String convertCodepointToValidCase(String codepoint) {
+        return "U+" + codepoint.substring(2).toUpperCase(Locale.ROOT);
     }
 
     public void registerCallback(Message message, ReactionCallback reactionCallback) {
@@ -76,24 +95,32 @@ public class ReactionAdapter extends HalpbotAdapter
 
         message.addReaction(reactionCallback.getCodepointEmoji())
             .queue(success -> {
-                if (0 < reactionCallback.getCooldownDuration()) {
+                if (0 < reactionCallback.getDeleteAfterDuration()) {
                     this.concurrentManager.schedule(
                         reactionCallback.getDeleteAfterDuration(),
                         reactionCallback.getDeleteAfterTimeUnit(),
-                        () -> this.removeReactionCallback(message, reactionCallback));
+                        () -> this.removeReactionCallbackAndEmoji(message, reactionCallback));
                 }
             });
     }
 
-    private void removeReactionCallback(Message message, ReactionCallback reactionCallback) {
-        long messageId = message.getIdLong();
-        this.reactionCallbacks
-            .get(messageId)
-            .remove(reactionCallback.getCodepointEmoji());
+    private boolean removeReactionCallback(long messageId, ReactionCallback callback) {
+        if (this.reactionCallbacks.containsKey(messageId)) {
+            this.reactionCallbacks
+                .get(messageId)
+                .remove(callback.getCodepointEmoji());
+            return true;
+        }
 
-        message.clearReactions(reactionCallback.getCodepointEmoji()).queue();
         if (this.reactionCallbacks.get(messageId).isEmpty()) {
             this.reactionCallbacks.remove(messageId);
+        }
+        return false;
+    }
+
+    private void removeReactionCallbackAndEmoji(Message message, ReactionCallback callback) {
+        if (this.removeReactionCallback(message.getIdLong(), callback)) {
+            message.clearReactions(callback.getCodepointEmoji()).queue();
         }
     }
 
