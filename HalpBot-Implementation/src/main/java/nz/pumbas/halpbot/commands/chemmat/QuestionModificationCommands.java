@@ -65,16 +65,18 @@ public class QuestionModificationCommands
              permissions = HalpbotPermissions.BOT_OWNER)
     public String declineAll() {
         long modificationsCount = this.modificationsCount();
-        this.questionModificationService.deleteAll();
+        if (0 != modificationsCount) {
+            this.questionModificationService.deleteAll();
+        }
         return "Declined all " + modificationsCount + " modicatications";
     }
 
     @Command(alias = "modifications", description = "Lists all the modifications currently waiting for approval",
              permissions = HalpbotPermissions.BOT_OWNER)
-    public void modifications(ReactionAdapter reactionAdapter, MessageReceivedEvent event) {
+    public @Nullable String modifications(ReactionAdapter reactionAdapter, MessageReceivedEvent event) {
         List<QuestionModification> questions = this.questionModificationService.list();
         if (questions.isEmpty())
-            return;
+            return "There are currently no pending modifications :tada:";
 
         questions.forEach(question ->
             event.getChannel()
@@ -87,6 +89,7 @@ public class QuestionModificationCommands
                         .setRunnable(() -> this.deleteModification(question.getId()))
                         .build());
         }));
+        return null;
     }
 
     private void acceptModification(QuestionModification question) {

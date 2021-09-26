@@ -11,7 +11,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class EmbedStringsDisplayConfiguration implements DisplayConfiguration
 {
-    private Color embedColour = Color.YELLOW;
+    private Color embedColour = Color.ORANGE;
 
     public EmbedStringsDisplayConfiguration() { }
 
