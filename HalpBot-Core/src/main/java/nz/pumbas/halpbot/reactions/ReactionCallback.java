@@ -6,11 +6,13 @@ import net.dv8tion.jda.internal.utils.EncodingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.cooldowns.CooldownAction;
 import nz.pumbas.halpbot.objects.Exceptional;
 
@@ -24,6 +26,7 @@ public final class ReactionCallback implements CooldownAction
     private final TimeUnit cooldownTimeUnit;
     private final boolean removeReactionIfCoolingDown;
     private final List<String> permissions;
+    private final boolean singleUse;
 
     private ReactionCallback(
         String codepointEmoji,
@@ -31,7 +34,8 @@ public final class ReactionCallback implements CooldownAction
         long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
         long cooldownDuration, TimeUnit cooldownTimeUnit,
         boolean removeReactionIfCoolingDown,
-        List<String> permissions)
+        List<String> permissions,
+        boolean singleUse)
     {
         this.codepointEmoji = codepointEmoji;
         this.callback = callback;
@@ -41,6 +45,7 @@ public final class ReactionCallback implements CooldownAction
         this.cooldownTimeUnit = cooldownTimeUnit;
         this.removeReactionIfCoolingDown = removeReactionIfCoolingDown;
         this.permissions = permissions;
+        this.singleUse = singleUse;
     }
 
     public String getCodepointEmoji() {
@@ -71,6 +76,10 @@ public final class ReactionCallback implements CooldownAction
         return this.permissions;
     }
 
+    public boolean isSingleUse() {
+        return this.singleUse;
+    }
+
     public Exceptional<Object> invokeCallback(MessageReactionAddEvent event) {
         //Use of supplier means that any exception thrown in the callback will be automatically caught.
         return Exceptional.of(() -> this.callback.apply(event));
@@ -89,7 +98,8 @@ public final class ReactionCallback implements CooldownAction
         private long cooldownDuration = -1;
         private TimeUnit cooldownTimeUnit = TimeUnit.SECONDS;
         private boolean removeReactionIfCoolingDown;
-        private List<String> permissions = new ArrayList<>();
+        private final List<String> permissions = new ArrayList<>();
+        private boolean singleUse;
 
         /**
          * The emoji to be used for this reaction callback. Note that the emoji should be compatable with
@@ -104,6 +114,7 @@ public final class ReactionCallback implements CooldownAction
             this.codepointEmoji = emoji.startsWith("U+")
                 ? emoji : EncodingUtil.encodeCodepoints(emoji);
 
+            this.codepointEmoji = ReactionAdapter.convertCodepointToValidCase(this.codepointEmoji);
             return this;
         }
 
@@ -195,6 +206,17 @@ public final class ReactionCallback implements CooldownAction
         }
 
         /**
+         * Sets that the reaction can only be used once. After that first use, the callback will then be
+         * automatically removed, along with all other callbacks on the same message. By default, this is false.
+         *
+         * @return Itself for chaining
+         */
+        public ReactionCallbackBuilder setSingleUse() {
+            this.singleUse = true;
+            return this;
+        }
+
+        /**
          * Builds the {@link ReactionCallback} from the specified fields.
          *
          * @return The built reaction callback
@@ -211,7 +233,7 @@ public final class ReactionCallback implements CooldownAction
                 this.deleteAfterDuration, this.deleteAfterTimeUnit,
                 this.cooldownDuration, this.cooldownTimeUnit,
                 this.removeReactionIfCoolingDown,
-                this.permissions);
+                this.permissions, this.singleUse);
         }
     }
 }

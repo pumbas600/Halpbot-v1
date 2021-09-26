@@ -24,15 +24,19 @@
 
 package nz.pumbas.halpbot;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+
 import javax.security.auth.login.LoginException;
 
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public final class Main
+@SpringBootApplication
+public class Main
 {
-    private Main() {}
-
     public static void main(String[] args) throws LoginException {
-        Halpbot halpBot = new Halpbot(HalpbotUtils.getFirstLineFromFile("Token.txt"));
+        ApplicationContext context = SpringApplication.run(Main.class, args);
+        Halpbot halpBot = new Halpbot(context, HalpbotUtils.getFirstLineFromFile("Token.txt"));
     }
 }

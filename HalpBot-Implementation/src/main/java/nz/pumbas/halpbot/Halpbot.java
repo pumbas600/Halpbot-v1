@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.ApplicationContext;
 
 import javax.security.auth.login.LoginException;
 
@@ -41,6 +42,7 @@ import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
 import nz.pumbas.halpbot.commands.NumberSystemConverters;
+import nz.pumbas.halpbot.commands.chemmat.QuestionModificationCommands;
 import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
@@ -54,10 +56,9 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 public class Halpbot extends ListenerAdapter
 {
     public static final long CREATOR_ID = 260930648330469387L;
-
     private final JDA jda;
 
-    public Halpbot(String token) throws LoginException
+    public Halpbot(ApplicationContext context, String token) throws LoginException
     {
         JDABuilder builder = JDABuilder.createDefault(token)
             .disableIntents(GatewayIntent.GUILD_PRESENCES)
@@ -76,7 +77,8 @@ public class Halpbot extends ListenerAdapter
                         new ElectricalCommands(),
                         new HalpBotCommands(),
                         new NumberSystemConverters(),
-                        new ChemmatCommands()),
+                        new ChemmatCommands(),
+                        context.getBean(QuestionModificationCommands.class)),
                 new ReactionAdapter())
             .displayConfiguration(new EmbedStringsDisplayConfiguration())
             .registerAdapters();
