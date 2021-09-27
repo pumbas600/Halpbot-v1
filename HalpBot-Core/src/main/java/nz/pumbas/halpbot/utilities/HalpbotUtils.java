@@ -366,7 +366,7 @@ public final class HalpbotUtils
      *
      * @return The capitalised sentence
      */
-    public static String capitaliseEachWord(@NotNull String str) {
+    public static String capitaliseWords(@NotNull String str) {
         String[] words = str.split(" ");
         return Arrays.stream(words)
             .map(HalpbotUtils::capitalise)
