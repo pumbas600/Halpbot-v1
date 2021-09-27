@@ -139,7 +139,7 @@ public class ChemmatCommands implements OnReady
             Table topicTable = this.quizNotes.where(TOPIC, topic.toLowerCase(Locale.ROOT));
             if (0 == topicTable.count()) {
                 channel.sendMessage(String.format("There appears to be no quizzes for the topic '%s'",
-                    HalpbotUtils.capitaliseEachWord(topic))).queue();
+                    HalpbotUtils.capitaliseWords(topic))).queue();
                 return;
             }
             tableRow = this.getRandomRow(topicTable);
@@ -175,7 +175,7 @@ public class ChemmatCommands implements OnReady
 
     private MessageEmbed buildQuizEmbed(Quiz quiz) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(HalpbotUtils.capitaliseEachWord(quiz.getTopic()));
+        embedBuilder.setTitle(HalpbotUtils.capitaliseWords(quiz.getTopic()));
         embedBuilder.setColor(Color.ORANGE);
         embedBuilder.setFooter("Chemmat notes - Question id: " + quiz.getId());
         if (null != quiz.getImage())
@@ -210,7 +210,7 @@ public class ChemmatCommands implements OnReady
             TableRow row = rows.get(i);
             builder.append(i + 1)
                 .append(". ")
-                .append(row.value(TOPIC).map(HalpbotUtils::capitaliseEachWord).or("Generic"))
+                .append(row.value(TOPIC).map(HalpbotUtils::capitaliseWords).or("Generic"))
                 .append('\n');
         }
         embedBuilder.setDescription(builder.toString());
@@ -225,7 +225,7 @@ public class ChemmatCommands implements OnReady
         StringBuilder questionBuilder = new StringBuilder();
 
         Table questions = this.quizNotes.where(TOPIC, topic);
-        builder.setTitle(HalpbotUtils.capitaliseEachWord(topic));
+        builder.setTitle(HalpbotUtils.capitaliseWords(topic));
         builder.setColor(Color.ORANGE);
 
         if (0 == questions.count()) {

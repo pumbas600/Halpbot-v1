@@ -34,8 +34,6 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Component
 public class QuestionModificationCommands
 {
-    private static final int MODIFICATION_DISPLAY_AMOUNT = 5;
-
     private final QuestionModificationService questionModificationService;
     private final QuestionService questionService;
     private final TopicService topicService;
@@ -53,15 +51,23 @@ public class QuestionModificationCommands
         this.questionModificationService = questionModificationService;
         this.questionService = questionService;
         this.topicService = topicService;
+        //this.questionModificationService.addListener(this::newChangeAdded);
     }
 
-    @Command(alias = "modificationsCount", description = "Returns the number of modifications waiting to be approved")
+//    @Command(alias = "changesChannel", description = "Sets the current channel to be the location where new changes " +
+//            "are automatically sent", permissions = HalpbotPermissions.BOT_OWNER)
+//    public String changesChannel(@Source TextChannel textChannel) {
+//        this.displayChangesChannel = textChannel.getIdLong();
+//        return "Set the current channel as the location to automatically display new changes";
+//    }
+
+    @Command(alias = "changesCount", description = "Returns the number of changes waiting to be approved")
     public long modificationsCount() {
         return this.questionModificationService.count();
     }
 
 
-    @Command(alias = "declineAll", description = "Declines all the modifications currently waiting for approval",
+    @Command(alias = "declineAll", description = "Declines all the changes currently waiting for approval",
              permissions = HalpbotPermissions.BOT_OWNER)
     public String declineAll() {
         long modificationsCount = this.modificationsCount();
@@ -71,28 +77,28 @@ public class QuestionModificationCommands
         return "Declined all " + modificationsCount + " modicatications";
     }
 
-    @Command(alias = "modifications", description = "Lists all the modifications currently waiting for approval",
+    @Command(alias = "changes", description = "Lists all the changes currently waiting for approval",
              permissions = HalpbotPermissions.BOT_OWNER)
-    public @Nullable String modifications(ReactionAdapter reactionAdapter, MessageReceivedEvent event) {
+    public @Nullable String changes(ReactionAdapter reactionAdapter, MessageReceivedEvent event) {
         List<QuestionModification> questions = this.questionModificationService.list();
         if (questions.isEmpty())
-            return "There are currently no pending modifications :tada:";
+            return "There are currently no pending changes :tada:";
 
         questions.forEach(question ->
             event.getChannel()
                 .sendMessageEmbeds(this.createMessageEmbed(question))
                 .queue(m -> {
                     reactionAdapter.registerCallback(m, this.callbackBuilder.setEmoji("U+2705")
-                        .setRunnable(() -> this.acceptModification(question))
+                        .setRunnable(() -> this.acceptChange(question))
                         .build());
                     reactionAdapter.registerCallback(m, this.callbackBuilder.setEmoji("U+274C")
-                        .setRunnable(() -> this.deleteModification(question.getId()))
+                        .setRunnable(() -> this.deleteChange(question.getId()))
                         .build());
         }));
         return null;
     }
 
-    private void acceptModification(QuestionModification question) {
+    private void acceptChange(QuestionModification question) {
         try {
             if (Modification.ADD == question.getModification())
                 this.questionService.save(question.asQuestion());
@@ -102,10 +108,10 @@ public class QuestionModificationCommands
         catch (ResourceNotFoundException | ResourceAlreadyExistsException e) {
             ErrorManager.handle(e);
         }
-        this.deleteModification(question.getId());
+        this.deleteChange(question.getId());
     }
 
-    private void deleteModification(Long modificationId) {
+    private void deleteChange(Long modificationId) {
         try {
             this.questionModificationService.deleteById(modificationId);
         } catch (ResourceNotFoundException e) {
@@ -117,7 +123,14 @@ public class QuestionModificationCommands
         EmbedBuilder builder = new EmbedBuilder();
         if (Modification.ADD == question.getModification())
             this.addModificationEmbed(builder, question);
-        else this.editModificationEmbed(builder, question, null);
+        else {
+            try {
+                Question originalQuestion = this.questionService.getById(question.getId());
+                this.editModificationEmbed(builder, question, originalQuestion);
+            } catch (ResourceNotFoundException e) {
+                ErrorManager.handle(e);
+            }
+        }
 
         if (StringUtils.hasLength(question.getImage()))
             builder.setImage(question.getImage());
@@ -127,10 +140,9 @@ public class QuestionModificationCommands
     }
 
     private void addModificationEmbed(EmbedBuilder builder, QuestionModification question) {
-        builder.setTitle(HalpbotUtils.capitaliseEachWord(
-            this.topicService.topicFromId(question.getTopicId())));
         builder.setColor(Color.GREEN);
-
+        builder.setTitle(HalpbotUtils.capitaliseWords(
+            this.topicService.topicFromId(question.getTopicId())));
         builder.setDescription(
             this.buildDescription(question.getQuestion(), question.getAnswer(), question.getOptionB(),
                 question.getOptionC(), question.getOptionD(), question.getExplanation()));
@@ -138,6 +150,19 @@ public class QuestionModificationCommands
 
     private void editModificationEmbed(EmbedBuilder builder, QuestionModification question, Question original) {
         builder.setColor(Color.ORANGE);
+        String editedTopic = HalpbotUtils.capitaliseWords(this.topicService.topicFromId(question.getTopicId()));
+        String originalTopic = HalpbotUtils.capitaliseWords(this.topicService.topicFromId(original.getTopicId()));
+
+        builder.setTitle(this.getEditedString(editedTopic, originalTopic));
+        builder.setDescription(
+            this.buildDescription(
+                this.getEditedString(question.getQuestion(), original.getQuestion()),
+                this.getEditedString(question.getAnswer(), original.getAnswer()),
+                this.getEditedString(question.getOptionB(), original.getOptionB()),
+                this.getEditedString(question.getOptionC(), original.getOptionC()),
+                this.getEditedString(question.getOptionD(), original.getOptionD()),
+                this.getEditedString(question.getExplanation(), original.getExplanation())
+        ));
     }
 
     private String buildDescription(@NotNull String question, @NotNull String answer, @NotNull String optionB,
