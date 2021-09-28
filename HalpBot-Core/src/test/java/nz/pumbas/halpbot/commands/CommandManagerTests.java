@@ -30,7 +30,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+
+import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Source;
+import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public class CommandManagerTests
@@ -61,4 +65,17 @@ public class CommandManagerTests
     private void testMethod2(MessageReceivedEvent event, float number) {}
 
     private void testMethod3(@Source User author) {}
+
+    @Test
+    public void commandUsesMethodNameIfAliasUndefinedTest() {
+        Method method = Reflect.getMethod(this, "add");
+
+        SimpleCommand command = CommandManager.generateCommandMethod(this, method, method.getAnnotation(Command.class));
+        Assertions.assertEquals("add", command.getAlias());
+    }
+
+    @Command(description = "Adds two numbers together")
+    private int add(int a, int b) {
+        return a + b;
+    }
 }
