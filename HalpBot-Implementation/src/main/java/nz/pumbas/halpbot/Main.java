@@ -27,6 +27,11 @@ package nz.pumbas.halpbot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.security.auth.login.LoginException;
 
@@ -35,8 +40,12 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @SpringBootApplication
 public class Main
 {
-    public static void main(String[] args) throws LoginException {
+    public static void main(String[] args) throws LoginException, IOException {
         ApplicationContext context = SpringApplication.run(Main.class, args);
-        Halpbot halpBot = new Halpbot(context, HalpbotUtils.getFirstLineFromFile("Token.txt"));
+        ClassPathResource classPathResource = new ClassPathResource("static/Token.txt");
+        String token = new BufferedReader(new InputStreamReader(classPathResource.getInputStream())).readLine();
+
+        HalpbotUtils.logger().info(token);
+        Halpbot halpBot = new Halpbot(context, token);
     }
 }

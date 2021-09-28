@@ -34,6 +34,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.awt.Color;
 import java.sql.Connection;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.OnReady;
@@ -52,6 +55,9 @@ import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.hibernate.models.Question;
+import nz.pumbas.halpbot.hibernate.models.Status;
+import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.reactions.ReactionCallback;
 import nz.pumbas.halpbot.reactions.ReactionCallback.ReactionCallbackBuilder;
 import nz.pumbas.halpbot.sql.SQLDriver;
@@ -64,6 +70,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @SuppressWarnings("ClassWithTooManyFields")
+@Service
 public class ChemmatCommands implements OnReady
 {
     private static final ColumnIdentifier<Integer> ID       = new SimpleColumnIdentifier<>("id", Integer.class);
@@ -94,6 +101,13 @@ public class ChemmatCommands implements OnReady
     private Table topics;
     private int quizRowIndex;
 
+    private final QuestionService questionService;
+
+    @Autowired
+    public ChemmatCommands(QuestionService questionService) {
+        this.questionService = questionService;
+    }
+
     /**
      * A method that is called once after the bot has been initialised.
      *
@@ -107,6 +121,31 @@ public class ChemmatCommands implements OnReady
         // Cache the tables
         this.driver.onLoad(this::loadDatabase);
         this.shuffleQuizTable();
+    }
+
+    @Command(description = "A temporary command used to migrate the question from the SQL database to the Derby " +
+        "database", permissions = HalpbotPermissions.BOT_OWNER)
+    public String migrateQuestions() {
+        this.questionService.bulkSave(
+            this.quizNotes.rows()
+            .stream()
+            .map(row -> SQLUtils.asModel(Quiz.class, row))
+            .map(
+                q -> {
+                    Question question = new Question();
+                    question.setTopicId((long)this.topics.where(TOPIC, q.getTopic()).first().get().value(ID).get());
+                    question.setQuestion(q.getQuestion());
+                    question.setAnswer(q.getOptions().get(q.getAnswer() - 1));
+                    question.setOptionB(q.getOptions().get((q.getAnswer()) % 4));
+                    question.setOptionC(q.getOptions().get((q.getAnswer() + 1) % 4));
+                    question.setOptionD(q.getOptions().get((q.getAnswer() + 2) % 4));
+                    question.setExplanation(q.getExplanation());
+                    question.setImage(q.getImage());
+                    question.setStatus(Status.CONFIRMED);
+                    return question;
+                })
+            .collect(Collectors.toList()));
+        return "Successfully migrated all the questions";
     }
 
     private void loadDatabase(Connection connection) throws SQLException{
