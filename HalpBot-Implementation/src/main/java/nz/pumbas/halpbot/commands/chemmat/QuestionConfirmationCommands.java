@@ -126,21 +126,19 @@ public class QuestionConfirmationCommands
 
     private void acceptChange(Question question) {
         try {
-            if (Status.ADDED == question.getStatus()) {
-                question.setStatus(Status.CONFIRMED);
-                this.questionService.update(question);
-            }
-            else {
+            if (Status.ADDED != question.getStatus()) {
                 question.setId(question.getEditedId());
                 question.setEditedId(null);
-                question.setStatus(Status.CONFIRMED);
-                this.questionService.update(question);
             }
+            question.setStatus(Status.CONFIRMED);
+            this.questionService.update(question);
+
+            // Only delete the change if it was successfully saved (A.k.a. an error wasn't thrown)
+            this.deleteChange(question.getId());
         }
         catch (ResourceNotFoundException e) {
             ErrorManager.handle(e);
         }
-        this.deleteChange(question.getId());
     }
 
     private void deleteChange(Long id) {

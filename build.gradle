@@ -3,7 +3,7 @@ plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
 }
 
-def halpBotVerson = '1.0.3'
+def halpBotVerson = '1.0.4'
 
 group 'nz.pumbas.halpbot'
 version halpBotVerson
