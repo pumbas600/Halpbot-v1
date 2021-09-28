@@ -49,7 +49,7 @@ public class ConcurrentManager
 
     public ScheduledFuture<?> scheduleRegularly(long initialDelay, long interval, TimeUnit timeUnit,
                                                 Runnable runnable) {
-        return this.scheduler.scheduleAtFixedRate(runnable, initialDelay, initialDelay, timeUnit);
+        return this.scheduler.scheduleAtFixedRate(runnable, initialDelay, interval, timeUnit);
     }
 
     public void shutdown() {

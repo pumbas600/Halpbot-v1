@@ -62,6 +62,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPersistantDataConstructor;
 import nz.pumbas.halpbot.commands.persistant.AbstractPersistantUserData;
 import nz.pumbas.halpbot.commands.persistant.PersistantData;
@@ -420,7 +421,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             method.setAccessible(true);
             Command command = method.getAnnotation(Command.class);
 
-            String commandAlias = this.getCommandPrefix() + command.alias().toLowerCase();
+            String commandAlias = this.getCommandPrefix() + CommandManager.getCommandAlias(command, method);
             if (this.registeredCommands.containsKey(commandAlias))
                 throw new IllegalCommandException(
                     String.format("The alias %s has already been defined and so it can't be used by the method %s",
@@ -433,7 +434,6 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
                 this.registeredSlashCommands.put(commandAlias, commandMethod);
         }
     }
-
 
     /**
      * Passes the {@link ReadyEvent} to all the registered instances of {@link OnReady}.

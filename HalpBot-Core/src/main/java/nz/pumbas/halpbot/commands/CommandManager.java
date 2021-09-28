@@ -59,6 +59,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -141,35 +142,6 @@ public final class CommandManager
             return generateTokens(constructor);
         else
             return generateTokens(constructorCommand, constructor);
-    }
-
-    /**
-     * Generates an {@link SimpleCommand} from the passed in {@link Object instance} and {@link Method}.
-     *
-     * @param instance
-     *     The {@link Object} that the {@link Method} belongs to
-     * @param method
-     *     The {@link Method} to make the command from
-     *
-     * @return A {@link SimpleCommand} representing the specified {@link Method}
-     */
-    public static SimpleCommand generateCommandMethod(@NotNull Object instance, @NotNull Method method) {
-        Set<Class<?>> reflections;
-        List<Token> tokens;
-
-        if (method.isAnnotationPresent(Command.class)) {
-            Command command = method.getAnnotation(Command.class);
-            reflections = Set.of(command.reflections());
-
-            tokens = command.command().isEmpty()
-                ? generateTokens(method)
-                : generateTokens(command.command(), method);
-        } else {
-            reflections = Collections.emptySet();
-            tokens = generateTokens(method);
-        }
-
-        return new SimpleCommand(instance, method, tokens, reflections);
     }
 
     /**
@@ -293,6 +265,11 @@ public final class CommandManager
         return splitCommand;
     }
 
+    public static String getCommandAlias(Command command, Method method) {
+        String alias = command.alias().isBlank() ? method.getName() : command.alias();
+        return alias.toLowerCase(Locale.ROOT);
+    }
+
     /**
      * Generates a {@link SimpleCommand} from the passed in {@link Object instance} and {@link Method} and
      * {@link Command}.
@@ -317,11 +294,58 @@ public final class CommandManager
 
         }
         String displayCommand = command.command();
+        String alias = getCommandAlias(command, method);
 
-        return new SimpleCommand(command.alias(), instance, method,
+        return new SimpleCommand(alias, instance, method,
             displayCommand.isEmpty() ? generateTokens(method) : generateTokens(displayCommand, method),
             displayCommand.isEmpty() ? "Not Defined" : displayCommand,
             command.description(), command.permissions(), restrictions, reflections, generateUsage(method));
+    }
+
+    /**
+     * Generates an {@link SimpleCommand} from the passed in {@link Object instance} and {@link Method}.
+     *
+     * @param instance
+     *     The {@link Object} that the {@link Method} belongs to
+     * @param method
+     *     The {@link Method} to make the command from
+     *
+     * @return A {@link SimpleCommand} representing the specified {@link Method}
+     */
+    public static SimpleCommand generateCommandMethod(@NotNull Object instance, @NotNull Method method) {
+        Set<Class<?>> reflections;
+        List<Token> tokens;
+
+        if (method.isAnnotationPresent(Command.class)) {
+            Command command = method.getAnnotation(Command.class);
+            reflections = Set.of(command.reflections());
+
+            tokens = command.command().isEmpty()
+                ? generateTokens(method)
+                : generateTokens(command.command(), method);
+        } else {
+            reflections = Collections.emptySet();
+            tokens = generateTokens(method);
+        }
+
+        return new SimpleCommand(instance, method, tokens, reflections);
+    }
+
+
+    /**
+     * Generates an {@link SimpleCommand} from the passed in parameters.
+     *
+     * @param instance
+     *     The {@link Object} that the {@link Method} belongs to
+     * @param method
+     *     The {@link Method} to make the command from
+     * @param reflections
+     *     The {@link Class classes} that the command can invoke methods from
+     *
+     * @return A {@link SimpleCommand} representing the specified {@link Method}
+     */
+    public static SimpleCommand generateCommandMethod(Object instance, Method method, Set<Class<?>> reflections) {
+        return new SimpleCommand(instance, method, generateTokens(method), reflections);
     }
 
     public static String generateUsage(Executable executable) {
@@ -344,22 +368,6 @@ public final class CommandManager
             builder.deleteCharAt(builder.length() - 1);
 
         return builder.toString();
-    }
-
-    /**
-     * Generates an {@link SimpleCommand} from the passed in parameters.
-     *
-     * @param instance
-     *     The {@link Object} that the {@link Method} belongs to
-     * @param method
-     *     The {@link Method} to make the command from
-     * @param reflections
-     *     The {@link Class classes} that the command can invoke methods from
-     *
-     * @return A {@link SimpleCommand} representing the specified {@link Method}
-     */
-    public static SimpleCommand generateCommandMethod(Object instance, Method method, Set<Class<?>> reflections) {
-        return new SimpleCommand(instance, method, generateTokens(method), reflections);
     }
 
     /**

@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceAlreadyExistsException;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;
+import nz.pumbas.halpbot.hibernate.models.Status;
 import nz.pumbas.halpbot.hibernate.repositories.QuestionRepository;
 
 @Service
@@ -29,6 +31,28 @@ public class QuestionService
         return this.questionRepository.findAll();
     }
 
+    public List<Question> getAllWaitingConfirmation() {
+        return this.questionRepository.getAllWaitingConfirmation();
+    }
+
+    public List<Long> getAllConfirmedIds() {
+        return this.questionRepository.getAllConfirmedIds();
+    }
+
+    public List<Question> getAllWaitingConfirmationNotIn(Set<Long> ids) {
+        if (ids.isEmpty())
+            return this.getAllWaitingConfirmation();
+        return this.questionRepository.getAllWaitingConfirmationNotIn(ids);
+    }
+
+    public long countWaitingConfirmation() {
+        return this.questionRepository.countWaitingConfirmation();
+    }
+
+    public void deleteAllWaitingConfirmation() {
+        this.questionRepository.deleteAllWaitingConfirmation();
+    }
+
     public Question getById(Long id) throws ResourceNotFoundException {
         Question question = this.questionRepository.findById(id).orElse(null);
         if (null == question) {
@@ -41,13 +65,24 @@ public class QuestionService
         if (this.existsById(question.getId())) {
             throw new ResourceAlreadyExistsException("Question with id: " + question.getId() + " Already exists");
         }
+        question.setStatus(Status.CONFIRMED);
         return this.questionRepository.save(question);
     }
 
     public void update(Question question) throws ResourceNotFoundException {
-        if (!this.existsById(question.getId())) {
+        if (!this.existsById(question.getEditedId())) {
             throw new ResourceNotFoundException("Cannot find Question with the id: " + question.getId());
         }
+        question.setId(question.getEditedId());
+        question.setEditedId(null);
+        question.setStatus(Status.CONFIRMED);
         this.questionRepository.save(question);
+    }
+
+    public void deleteById(@Nullable Long id) throws ResourceNotFoundException {
+        if (!this.existsById(id)) {
+            throw new ResourceNotFoundException("Cannot find a Question with the id: " + id);
+        }
+        this.questionRepository.deleteById(id);
     }
 }

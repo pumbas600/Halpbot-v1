@@ -31,11 +31,6 @@ public class QuestionModification implements Serializable
 
     public QuestionModification() {}
 
-    public Question asQuestion() {
-        return new Question(this.modifiedQuestionId, this.topicId, this.question, this.answer, this.optionB,
-            this.optionC, this.optionD, this.explanation, this.image);
-    }
-
     public Long getId() {
         return this.id;
     }

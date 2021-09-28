@@ -35,6 +35,9 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.LoginException;
 
@@ -42,7 +45,7 @@ import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
 import nz.pumbas.halpbot.commands.NumberSystemConverters;
-import nz.pumbas.halpbot.commands.chemmat.QuestionModificationCommands;
+import nz.pumbas.halpbot.commands.chemmat.QuestionConfirmationCommands;
 import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
@@ -57,6 +60,7 @@ public class Halpbot extends ListenerAdapter
 {
     public static final long CREATOR_ID = 260930648330469387L;
     private final JDA jda;
+    private static HalpbotCore halpbotCore;
 
     public Halpbot(ApplicationContext context, String token) throws LoginException
     {
@@ -66,7 +70,7 @@ public class Halpbot extends ListenerAdapter
 
         ErrorManager.setLoggerUserId(CREATOR_ID);
 
-        HalpbotCore halpBotCore = new HalpbotCore(builder)
+        halpbotCore = new HalpbotCore(builder)
             .setOwner(CREATOR_ID)
             .addAdapters(
                 new SimpleCommandAdapter("$")
@@ -78,12 +82,20 @@ public class Halpbot extends ListenerAdapter
                         new HalpBotCommands(),
                         new NumberSystemConverters(),
                         new ChemmatCommands(),
-                        context.getBean(QuestionModificationCommands.class)),
+                        context.getBean(QuestionConfirmationCommands.class)),
                 new ReactionAdapter())
             .displayConfiguration(new EmbedStringsDisplayConfiguration())
             .registerAdapters();
 
-        this.jda = halpBotCore.build();
+        this.jda = halpbotCore.build();
+    }
+
+    public static HalpbotCore getHalpbotCore() {
+        return halpbotCore;
+    }
+
+    public static ReactionAdapter getReactionAdapter() {
+        return halpbotCore.get(ReactionAdapter.class);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package nz.pumbas.halpbot.hibernate.models;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,22 +22,11 @@ public class Question implements Serializable
     private String optionD;
     private String explanation;
     private String image;
+    private Status status;
+    private Long editedId;
     private final String dType = this.getClass().getSimpleName();
 
-    public Question() {}
-
-    public Question(Long id, Long topicId, String question, String answer, String optionB, String optionC,
-                    String optionD, String explanation, String image) {
-        this.id = id;
-        this.topicId = topicId;
-        this.question = question;
-        this.answer = answer;
-        this.optionB = optionB;
-        this.optionC = optionC;
-        this.optionD = optionD;
-        this.explanation = explanation;
-        this.image = image;
-    }
+    public Question() {  }
 
     public Long getId() {
         return this.id;
@@ -74,6 +62,14 @@ public class Question implements Serializable
 
     public String getImage() {
         return this.image;
+    }
+
+    public Status getStatus() {
+        return this.status;
+    }
+
+    public Long getEditedId() {
+        return this.editedId;
     }
 
     public void setId(Long id) {
@@ -112,25 +108,22 @@ public class Question implements Serializable
         this.image = image;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (null == o || this.getClass() != o.getClass()) return false;
-        Question question1 = (Question) o;
-        return Objects.equals(this.id, question1.id)
-            && Objects.equals(this.topicId, question1.topicId)
-            && Objects.equals(this.question, question1.question)
-            && Objects.equals(this.answer, question1.answer)
-            && Objects.equals(this.optionB, question1.optionB)
-            && Objects.equals(this.optionC, question1.optionC)
-            && Objects.equals(this.optionD, question1.optionD)
-            && Objects.equals(this.explanation, question1.explanation)
-            && Objects.equals(this.image, question1.image);
+    public void setEditedId(Long editedId) {
+        this.editedId = editedId;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.id, this.topicId, this.question, this.answer, this.optionB, this.optionC,
-            this.optionD, this.explanation, this.image);
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public void setEmptyFieldsNull() {
+        if (this.optionC.isEmpty())
+            this.optionC = null;
+        if (this.optionD.isEmpty())
+            this.optionD = null;
+        if (this.explanation.isEmpty())
+            this.explanation = null;
+        if (this.image.isEmpty())
+            this.image = null;
     }
 }
