@@ -27,8 +27,8 @@ class KotlinCommands : OnReady {
      *      The JDA [ReadyEvent].
      */
     override fun onReady(event: ReadyEvent) {
-        comfortingMessages = HalpbotUtils.getAllLinesFromFile("ComfortingMessages.txt")
-        insultJokes = HalpbotUtils.getAllLinesFromFile("InsultJokes.txt")
+        comfortingMessages = HalpbotUtils.getAllLinesFromFile("static/ComfortingMessages.txt")
+        insultJokes = HalpbotUtils.getAllLinesFromFile("static/InsultJokes.txt")
     }
 
     @Command(alias = "Repeat", description = "Repeats back what you said")

@@ -81,7 +81,7 @@ public class Halpbot extends ListenerAdapter
                         new ElectricalCommands(),
                         new HalpBotCommands(),
                         new NumberSystemConverters(),
-                        new ChemmatCommands(),
+                        context.getBean(ChemmatCommands.class),
                         context.getBean(QuestionConfirmationCommands.class)),
                 new ReactionAdapter())
             .displayConfiguration(new EmbedStringsDisplayConfiguration())

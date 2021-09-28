@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceAlreadyExistsException;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
@@ -65,17 +66,20 @@ public class QuestionService
         if (this.existsById(question.getId())) {
             throw new ResourceAlreadyExistsException("Question with id: " + question.getId() + " Already exists");
         }
-        question.setStatus(Status.CONFIRMED);
         return this.questionRepository.save(question);
+    }
+
+    public void bulkSave(List<Question> questions) {
+        List<Question> filteredQuestions = questions.stream()
+            .filter(q -> !this.existsById(q.getId()))
+            .collect(Collectors.toList());
+        this.questionRepository.saveAll(filteredQuestions);
     }
 
     public void update(Question question) throws ResourceNotFoundException {
         if (!this.existsById(question.getEditedId())) {
             throw new ResourceNotFoundException("Cannot find Question with the id: " + question.getId());
         }
-        question.setId(question.getEditedId());
-        question.setEditedId(null);
-        question.setStatus(Status.CONFIRMED);
         this.questionRepository.save(question);
     }
 

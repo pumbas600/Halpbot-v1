@@ -10,10 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +38,7 @@ import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-@Component
+@Service
 public class QuestionConfirmationCommands
 {
     private final Set<Long> waitingConfirmationIds = new HashSet<>();
@@ -126,12 +126,18 @@ public class QuestionConfirmationCommands
 
     private void acceptChange(Question question) {
         try {
-            if (Status.ADDED == question.getStatus())
-                this.questionService.save(question);
-            else
+            if (Status.ADDED == question.getStatus()) {
+                question.setStatus(Status.CONFIRMED);
                 this.questionService.update(question);
+            }
+            else {
+                question.setId(question.getEditedId());
+                question.setEditedId(null);
+                question.setStatus(Status.CONFIRMED);
+                this.questionService.update(question);
+            }
         }
-        catch (ResourceNotFoundException | ResourceAlreadyExistsException e) {
+        catch (ResourceNotFoundException e) {
             ErrorManager.handle(e);
         }
         this.deleteChange(question.getId());
