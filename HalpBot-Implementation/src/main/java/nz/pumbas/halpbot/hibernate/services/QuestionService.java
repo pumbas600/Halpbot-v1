@@ -77,7 +77,7 @@ public class QuestionService
     }
 
     public void update(Question question) throws ResourceNotFoundException {
-        if (!this.existsById(question.getEditedId())) {
+        if (!this.existsById(question.getId())) {
             throw new ResourceNotFoundException("Cannot find Question with the id: " + question.getId());
         }
         this.questionRepository.save(question);
