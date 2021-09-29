@@ -24,10 +24,26 @@
 
 package nz.pumbas.halpbot.hibernate.repositories;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
+import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Topic;
+import nz.pumbas.halpbot.objects.Exceptional;
 
 public interface TopicRepository extends JpaRepository<Topic, Long>
 {
+    @Query("SELECT t.id FROM Topic t WHERE t.topic = ?1")
+    List<Long> getIdFromTopic(String topic, Pageable pageable);
+
+    default Exceptional<Long> getFirstIdFromTopic(String topic) {
+        List<Long> id = this.getIdFromTopic(topic, PageRequest.of(0, 1));
+        if (id.isEmpty())
+            return Exceptional.of(new ResourceNotFoundException("There doesn't appear to be a topic: " + topic));
+        return Exceptional.of(id.get(0));
+    }
 }

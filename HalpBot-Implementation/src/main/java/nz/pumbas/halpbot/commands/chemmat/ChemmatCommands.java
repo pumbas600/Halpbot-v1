@@ -25,87 +25,64 @@
 package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Explicit;
 import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;
-import nz.pumbas.halpbot.hibernate.models.Status;
+import nz.pumbas.halpbot.hibernate.models.Topic;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
+import nz.pumbas.halpbot.hibernate.services.TopicService;
+import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.reactions.ReactionCallback;
 import nz.pumbas.halpbot.reactions.ReactionCallback.ReactionCallbackBuilder;
-import nz.pumbas.halpbot.sql.SQLDriver;
-import nz.pumbas.halpbot.sql.SQLUtils;
-import nz.pumbas.halpbot.sql.table.Table;
-import nz.pumbas.halpbot.sql.table.TableRow;
-import nz.pumbas.halpbot.sql.table.column.ColumnIdentifier;
-import nz.pumbas.halpbot.sql.table.column.SimpleColumnIdentifier;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-@SuppressWarnings("ClassWithTooManyFields")
 @Service
 public class ChemmatCommands implements OnReady
 {
-    private static final ColumnIdentifier<Integer> ID       = new SimpleColumnIdentifier<>("id", Integer.class);
-    private static final ColumnIdentifier<String> TOPIC     = new SimpleColumnIdentifier<>("topic", String.class);
-
-    private static final ColumnIdentifier<Integer> TOPIC_ID = new SimpleColumnIdentifier<>("topicId", Integer.class);
-    private static final ColumnIdentifier<String> QUESTION  = new SimpleColumnIdentifier<>("question", String.class);
-    private static final ColumnIdentifier<Integer> ANSWER   = new SimpleColumnIdentifier<>("answer", Integer.class);
-    private static final ColumnIdentifier<String> OPTIONA   = new SimpleColumnIdentifier<>("optionA", String.class);
-    private static final ColumnIdentifier<String> OPTIONB   = new SimpleColumnIdentifier<>("optionB", String.class);
-    private static final ColumnIdentifier<String> OPTIONC   = new SimpleColumnIdentifier<>("optionC", String.class);
-    private static final ColumnIdentifier<String> OPTIOND   = new SimpleColumnIdentifier<>("optionD", String.class);
-    private static final ColumnIdentifier<String> IMAGE     = new SimpleColumnIdentifier<>("image", String.class);
-    private static final ColumnIdentifier<String> EXPLANATION = new SimpleColumnIdentifier<>("explanation", String.class);
-
     private static final Color Blurple = new Color(85, 57, 204);
 
-    private final String[] emojis = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
+    private final String[] EMOJIS = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
+
     private final ReactionCallbackBuilder reactionCallbackBuilder = ReactionCallback.builder()
         .setDeleteAfter(10, TimeUnit.MINUTES)
-        .setCooldown(10, TimeUnit.SECONDS)
+        .setCooldown(5, TimeUnit.SECONDS)
         .setRemoveReactionIfCoolingDown();
 
     private final Random random = new Random();
-    private SQLDriver driver;
-
-    private Table quizNotes;
-    private Table topics;
-    private int quizRowIndex;
 
     private final QuestionService questionService;
+    private final TopicService topicService;
+    private List<Long> questionIds;
+    private int questionIndex;
 
     @Autowired
-    public ChemmatCommands(QuestionService questionService) {
+    public ChemmatCommands(QuestionService questionService, TopicService topicService) {
         this.questionService = questionService;
+        this.topicService = topicService;
     }
 
     /**
@@ -116,127 +93,120 @@ public class ChemmatCommands implements OnReady
      */
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        this.driver = SQLDriver.of("chemmatnotes");
-
-        // Cache the tables
-        this.driver.onLoad(this::loadDatabase);
-        this.shuffleQuizTable();
+        this.shuffleQuestions();
     }
 
-    @Command(description = "A temporary command used to migrate the question from the SQL database to the Derby " +
-        "database", permissions = HalpbotPermissions.BOT_OWNER)
-    public String migrateQuestions() {
-        this.questionService.bulkSave(
-            this.quizNotes.rows()
-            .stream()
-            .map(row -> SQLUtils.asModel(Quiz.class, row))
-            .map(
-                q -> {
-                    Question question = new Question();
-                    question.setTopicId((long)this.topics.where(TOPIC, q.getTopic()).first().get().value(ID).get());
-                    question.setQuestion(q.getQuestion());
-                    question.setAnswer(q.getOptions().get(q.getAnswer() - 1));
-                    question.setOptionB(q.getOptions().get((q.getAnswer()) % 4));
-                    question.setOptionC(q.getOptions().get((q.getAnswer() + 1) % 4));
-                    question.setOptionD(q.getOptions().get((q.getAnswer() + 2) % 4));
-                    question.setExplanation(q.getExplanation());
-                    question.setImage(q.getImage());
-                    question.setStatus(Status.CONFIRMED);
-                    return question;
-                })
-            .collect(Collectors.toList()));
-        return "Successfully migrated all the questions";
+//    @Command(description = "A temporary command used to migrate the question from the SQL database to the Derby " +
+//        "database", permissions = HalpbotPermissions.BOT_OWNER)
+//    public String migrateQuestions() {
+//        this.questionService.bulkSave(
+//            this.quizNotes.rows()
+//            .stream()
+//            .map(row -> SQLUtils.asModel(Quiz.class, row))
+//            .map(
+//                q -> {
+//                    Question question = new Question();
+//                    question.setTopicId((long)this.topics.where(TOPIC, q.getTopic()).first().get().value(ID).get());
+//                    question.setQuestion(q.getQuestion());
+//                    question.setAnswer(q.getOptions().get(q.getAnswer() - 1));
+//                    question.setOptionB(q.getOptions().get((q.getAnswer()) % 4));
+//                    question.setOptionC(q.getOptions().get((q.getAnswer() + 1) % 4));
+//                    question.setOptionD(q.getOptions().get((q.getAnswer() + 2) % 4));
+//                    question.setExplanation(q.getExplanation());
+//                    question.setImage(q.getImage());
+//                    question.setStatus(Status.CONFIRMED);
+//                    return question;
+//                })
+//            .collect(Collectors.toList()));
+//        return "Successfully migrated all the questions";
+//    }
+
+    @Command(description = "Reloads the questions from the database and reshuffles them at the same time",
+             permissions = HalpbotPermissions.ADMIN)
+    public String reloadQuestions() {
+        this.shuffleQuestions();
+        return "Reloaded the questions";
     }
 
-    private void loadDatabase(Connection connection) throws SQLException{
-        ResultSet resultSet = this.driver.executeQuery(connection,
-            "SELECT notes.id, topic, question, answer, optionA, optionB, optionC, optionD, image, explanation FROM " +
-                "notes INNER JOIN topics ON notes.topicId = topics.id");
-
-        this.quizNotes = SQLUtils.asTable(resultSet,
-            ID, TOPIC, QUESTION, ANSWER, OPTIONA, OPTIONB, OPTIONC, OPTIOND, IMAGE, EXPLANATION);
-
-        resultSet = this.driver.executeQuery(connection, "SELECT * FROM topics");
-        this.topics = SQLUtils.asTable(resultSet, ID, TOPIC);
-    }
-
-    @Command(alias = "quiz", description = "Retrieves a random chemmat quiz on the specified topic")
-    public void quiz(ReactionAdapter reactionAdapter,
-                     @Source MessageChannel channel,
-                     @Unrequired("-1") int quizId,
-                     @Unrequired("") @Remaining String topic)
+    @Command(description = "Retrieves a random chemmat quiz")
+    public @Nullable String quiz(ReactionAdapter reactionAdapter,
+                                 @Source MessageChannel channel,
+                                 @Unrequired("-1") long quizId,
+                                 @Unrequired("") @Remaining String topic)
     {
-
-        TableRow tableRow;
+        Question question;
         if (0 <= quizId) {
-            tableRow = this.quizNotes.where(ID, quizId).first().orNull();
+            try {
+                question = this.questionService.getById(quizId);
+            } catch (ResourceNotFoundException e) {
+                return e.getMessage();
+            }
         }
         else if (topic.isEmpty()) {
-            tableRow = this.getNextQuizTableRow();
+            question = this.getNextQuestion();
         }
         else {
-            Table topicTable = this.quizNotes.where(TOPIC, topic.toLowerCase(Locale.ROOT));
-            if (0 == topicTable.count()) {
-                channel.sendMessage(String.format("There appears to be no quizzes for the topic '%s'",
-                    HalpbotUtils.capitaliseWords(topic))).queue();
-                return;
+            Exceptional<Long> topicId = this.topicService.getIdFromTopic(topic);
+            if (topicId.caught()) {
+                return topicId.error().getMessage();
             }
-            tableRow = this.getRandomRow(topicTable);
+            List<Long> questionIds = this.questionService.getAllConfirmedIdsByTopicId(topicId.get());
+            if (questionIds.isEmpty()) {
+                return String.format("There appears to be no questions for the topic '%s'",
+                    HalpbotUtils.capitaliseWords(topic));
+            }
+            question = this.getRandomQuestion(questionIds);
         }
+        if (null == question)
+            return "There seemed to be an issue retrieving the question";
 
-        Quiz quiz = SQLUtils.asModel(Quiz.class, tableRow);
-        quiz.shuffleAnswers(this.random);
-        MessageEmbed quizEmbed = this.buildQuizEmbed(quiz);
-        int answer = quiz.getAnswer();
+        List<String> shuffledOptions = question.getShuffledOptions(this.random);
 
+        MessageEmbed quizEmbed = this.buildQuestionEmbed(question, shuffledOptions);
         channel.sendMessageEmbeds(quizEmbed)
             .queue(m -> {
-                int optionIndex = 0;
-                List<String> options = quiz.getOptions();
-                for (int i = 0; i <  options.size(); i++) {
-                    if (null != options.get(i)) {
-                        int finalI = i + 1;
-                        reactionAdapter.registerCallback(m,
-                            this.reactionCallbackBuilder
-                                .setEmoji(this.emojis[optionIndex])
-                                .setConsumer(e -> this.onAnswerReaction(e, finalI, answer))
-                                .build());
-                        optionIndex++;
-                    }
+                int index = 0;
+                for (String option : shuffledOptions) {
+                    reactionAdapter.registerCallback(m,
+                        this.reactionCallbackBuilder
+                            .setEmoji(this.EMOJIS[index])
+                            .setConsumer(e -> this.onAnswerReaction(e, question.getAnswer().equals(option)))
+                            .build());
+                    index++;
                 }
+
                 reactionAdapter.registerCallback(m,
                     this.reactionCallbackBuilder
                         .setEmoji("U+2753")
-                        .setConsumer(e -> this.onRevealAnswer(e, options.get(answer - 1), quiz))
+                        .setConsumer(e -> this.onRevealAnswer(e, question))
                         .build());
         });
+        return null;
     }
 
-    private MessageEmbed buildQuizEmbed(Quiz quiz) {
+    private MessageEmbed buildQuestionEmbed(Question question, List<String> shuffledOptions) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(HalpbotUtils.capitaliseWords(quiz.getTopic()));
+        embedBuilder.setTitle(HalpbotUtils.capitaliseWords(this.topicService.topicFromId(question.getTopicId())));
         embedBuilder.setColor(Color.ORANGE);
-        embedBuilder.setFooter("Chemmat notes - Question id: " + quiz.getId());
-        if (null != quiz.getImage())
-            embedBuilder.setImage(quiz.getImage());
+        embedBuilder.setFooter("Chemmat notes - Question id: " + question.getId());
+        if (null != question.getImage())
+            embedBuilder.setImage(question.getImage());
 
         StringBuilder builder = new StringBuilder();
-        builder.append(quiz.getQuestion())
+        builder.append(question.getQuestion())
             .append("\n\n");
 
         int index = 0;
-        for (String option : quiz.getOptions()) {
-            if (null != option) {
-                builder.append(this.emojis[index]).append(" : ").append(option).append('\n');
-                index++;
-            }
+        for (String option : shuffledOptions) {
+            builder.append(this.EMOJIS[index]).append(" : ").append(option).append('\n');
+            index++;
         }
 
         embedBuilder.setDescription(builder.toString());
         return embedBuilder.build();
     }
 
-    @Command(alias = "topics", description = "Retrieves the different topics available for the chemmat notes")
+    @Command(description = "Retrieves the different topics available for the chemmat notes")
     public MessageEmbed topics() {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Chemmat Topics");
@@ -244,108 +214,30 @@ public class ChemmatCommands implements OnReady
         embedBuilder.setFooter("Chemmat notes");
 
         StringBuilder builder = new StringBuilder();
-        List<TableRow> rows = this.topics.rows();
-        for (int i = 0; i < rows.size(); i++) {
-            TableRow row = rows.get(i);
+        List<Topic> topics = this.topicService.list();
+        for (int i = 0; i < topics.size(); i++) {
+            Topic topic = topics.get(i);
             builder.append(i + 1)
                 .append(". ")
-                .append(row.value(TOPIC).map(HalpbotUtils::capitaliseWords).or("Generic"))
+                .append(HalpbotUtils.capitaliseWords(topic.getTopic()))
                 .append('\n');
         }
         embedBuilder.setDescription(builder.toString());
-
         return embedBuilder.build();
     }
 
-    @Command(alias = "questions", description = "Lists all the questions for a particular topic")
-    public MessageEmbed questions(@Remaining String topic) {
-        topic = topic.toLowerCase(Locale.ROOT);
-        EmbedBuilder builder = new EmbedBuilder();
-        StringBuilder questionBuilder = new StringBuilder();
-
-        Table questions = this.quizNotes.where(TOPIC, topic);
-        builder.setTitle(HalpbotUtils.capitaliseWords(topic));
-        builder.setColor(Color.ORANGE);
-
-        if (0 == questions.count()) {
-            builder.setDescription("There doesn't seem to be a topic '" + topic + "' or there are no questions" +
-                " for it yet");
-            return builder.build();
-        }
-
-        questions.forEach(
-            row -> questionBuilder
-                .append("- ")
-                .append(row.value(QUESTION).or("UNDEFINED"))
-                .append("\n\n"));
-        builder.setDescription(HalpbotUtils.checkEmbedDesciptionLength(questionBuilder.toString()));
-        return builder.build();
-    }
-
-    @Command(alias = "addQuiz", description = "Adds a new chemmat quiz question to the database. Note: The correct " +
-                                              "answer must be the first option.", permissions = HalpbotPermissions.ADMIN)
-    public String addQuiz(MessageReceivedEvent event, @Explicit String topic, @Explicit String question,
-                          @Explicit String optionA, @Explicit String optionB,
-                          @Explicit @Unrequired String optionC, @Explicit @Unrequired String optionD)
+    @Command(description = "Returns the link to the halpbot dashboard where you can add questions")
+    public String addQuiz()
     {
-        topic = topic.toLowerCase(Locale.ROOT);
-        Table topicTable = this.topics.where(TOPIC, topic);
-
-        if (0 == topicTable.count()) {
-            return "There doesn't seem to be a topic '" + topic + "'. Check your spelling or create your own one " +
-                "using the **addTopic** command";
-        }
-        String image = event.getMessage().getAttachments()
-            .stream()
-            .filter(Attachment::isImage)
-            .findFirst()
-            .map(Attachment::getUrl)
-            .orElse(null);
-
-        int topicId = topicTable.first().get().value(ID).or(-1);
-        if (!this.insertQuizNote(topic, topicId, question, 1, optionA,
-            optionB, optionC, optionD, image))
-                return "There was an error trying to add the quiz to the database :cry:";
-
-        return "Inserted the quiz question to the '" + topic + "' topic :smiling_face_with_3_hearts:";
+        return "You can add questions using the Halpbot Dashboard here: https://www.pumbas.net/questions";
     }
 
-    @Command(alias = "addTopic", description = "Adds a new chemmat topic to the database",
-             permissions = HalpbotPermissions.ADMIN)
-    public String addTopic(@Remaining String topic) {
-        topic = topic.toLowerCase(Locale.ROOT);
-        Table topicTable = this.topics.where(TOPIC, topic);
-
-        if (0 != topicTable.count()) {
-            return "There already appears to be a '" + topic + "' topic";
-        }
-
-        if (-1 == this.insertTopic(topic))
-            return "There was an error trying to insert the topic :sob:";
-        return "Sucessfully created the topic '" + topic + "' :tada: *(This won't be available until the database is reloaded though)*";
-    }
-
-    @Command(alias = "explain", description = "Adds an explanation to the question with the specified id",
-             permissions = HalpbotPermissions.ADMIN)
-    public String explain(int questionId, @Remaining String explanation) {
-        Table filteredTable = this.quizNotes.where(ID, questionId);
-        if (filteredTable.first().isEmpty())
-            return "There doesn't seem to be a question with the id: " + questionId;
-        if (filteredTable.first().get().value(EXPLANATION).present())
-            return "There's already an explanation for that question sorry :cry:";
-        if (!this.updateQuizExplanation(questionId, explanation))
-            return "There seems to have been an error trying to add your explanation to the database";
-        else
-            return "Successfully added your explanation to the database! You'll start seeing it when the database " +
-                "automatically reloads. (Approximately every 10 minutes)";
-    }
-
-    private void onAnswerReaction(MessageReactionAddEvent event, int answerOption, int correctAnswer) {
+    private void onAnswerReaction(MessageReactionAddEvent event, boolean isCorrect) {
         // Hide the response as quickly as possible to avoid others from seeing it
         event.getReaction().removeReaction(event.getUser()).queue();
 
         EmbedBuilder builder = new EmbedBuilder();
-        if (answerOption == correctAnswer) {
+        if (isCorrect) {
             builder.setTitle("Correct: :white_check_mark:");
             builder.setColor(Color.GREEN);
             builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
@@ -358,78 +250,52 @@ public class ChemmatCommands implements OnReady
             .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
     }
 
-    private void onRevealAnswer(@NotNull MessageReactionAddEvent event, @NotNull String answer, @NotNull Quiz quiz) {
+    private void onRevealAnswer(@NotNull MessageReactionAddEvent event, @NotNull Question question) {
         event.getReaction().removeReaction(event.getUser()).queue();
         User user = event.getUser();
 
         EmbedBuilder builder = new EmbedBuilder();
 
-        builder.setTitle("Answer - " + answer);
+        builder.setTitle("Answer - " + question.getAnswer());
         builder.setColor(Blurple);
-        builder.setFooter(HalpbotUtils.capitalise(quiz.getTopic()) + " - Question id: " + quiz.getId());
+        builder.setFooter(HalpbotUtils.capitalise(this.topicService.topicFromId(question.getTopicId())) + " - " +
+            "Question id: " + question.getId());
 
-        if (null != quiz.getExplanation()) {
-            builder.setDescription(quiz.getExplanation());
+        if (null != question.getExplanation()) {
+            builder.setDescription(question.getExplanation());
         }
         event.getChannel().sendMessageEmbeds(builder.build())
             .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
     }
 
-    private TableRow getRandomRow(Table table) {
-        List<TableRow> rows = table.rows();
-        if (rows.isEmpty())
-            return new TableRow();
-
-        int randomRow = this.random.nextInt(rows.size());
-        return rows.get(randomRow);
-    }
-
-    private TableRow getNextQuizTableRow() {
-        if (this.quizRowIndex >= this.quizNotes.count()) {
-            this.shuffleQuizTable();
-            this.quizRowIndex = 0;
+    private @Nullable Question getRandomQuestion(List<Long> ids) {
+        if (!ids.isEmpty()) {
+            int randomRow = this.random.nextInt(ids.size());
+            try {
+                return this.questionService.getById(ids.get(randomRow));
+            } catch (ResourceNotFoundException e) {
+                ErrorManager.handle(e);
+            }
         }
-        return this.quizNotes.rows().get(this.quizRowIndex++);
+        return null;
     }
 
-    private void shuffleQuizTable() {
-        this.quizNotes.shuffleRows(this.random);
-    }
-
-    private int insertTopic(String topic) {
-        try (Connection connection = this.driver.createConnection()) {
-            return this.driver.executeUpdate(connection,"INSERT INTO topics (topic) VALUES (?)",topic);
-        } catch (SQLException e) {
+    private @Nullable Question getNextQuestion() {
+        if (this.questionIndex >= this.questionIds.size()) {
+            this.shuffleQuestions();
+            this.questionIndex = 0;
+        }
+        try {
+            return this.questionService.getById(this.questionIds.get(this.questionIndex++));
+        } catch (ResourceNotFoundException e) {
             ErrorManager.handle(e);
+            return null;
         }
-        return -1;
     }
 
-    private boolean insertQuizNote(String topic, int topicId, String question, int answer, String optionA,
-                                String optionB, String optionC, String optionD, String image) {
-        try (Connection connection = this.driver.createConnection()) {
-            String sql = "INSERT INTO notes (topicId, question, answer, optionA, optionB, optionC, optionD, image) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-            this.driver.executeUpdate(connection, sql, topicId, question, answer,
-                optionA, optionB, optionC, optionD, image);
-            this.quizNotes.addRow(-1, topic, question, answer, optionA, optionB, optionC, optionD, image, null);
-            return true;
-        } catch (SQLException e) {
-            ErrorManager.handle(e);
-        }
-        return false;
-    }
-
-    private boolean updateQuizExplanation(int questionId, String explanation) {
-        try (Connection connection = this.driver.createConnection()) {
-            String sql = "UPDATE notes SET explanation = ? WHERE id = ?";
-            this.driver.executeUpdate(connection, sql, explanation, questionId);
-            return true;
-        }
-        catch (SQLException e) {
-            ErrorManager.handle(e);
-        }
-        return false;
+    private void shuffleQuestions() {
+        // Updates the ids, so that newly added questions get added
+        this.questionIds = this.questionService.getAllConfirmedIds();
+        Collections.shuffle(this.questionIds, this.random);
     }
 }

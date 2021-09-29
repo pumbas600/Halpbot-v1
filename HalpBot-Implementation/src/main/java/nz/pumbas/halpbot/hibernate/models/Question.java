@@ -1,6 +1,10 @@
 package nz.pumbas.halpbot.hibernate.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -114,6 +118,20 @@ public class Question implements Serializable
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public List<String> getShuffledOptions(Random random) {
+        List<String> options = new ArrayList<>();
+        options.add(this.answer);
+        options.add(this.optionB);
+
+        if (null != this.optionC)
+            options.add(this.optionC);
+        if (null != this.optionD)
+            options.add(this.optionD);
+
+        Collections.shuffle(options, random);
+        return options;
     }
 
     public void setEmptyFieldsNull() {

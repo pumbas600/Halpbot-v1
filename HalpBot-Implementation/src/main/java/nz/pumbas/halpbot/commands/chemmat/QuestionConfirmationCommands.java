@@ -41,6 +41,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 public class QuestionConfirmationCommands
 {
+    private static final int DISPLAY_QUESTION_GROUPING_AMOUNT = 8;
     private final Set<Long> waitingConfirmationIds = new HashSet<>();
     private final QuestionService questionService;
     private final TopicService topicService;
@@ -102,7 +103,7 @@ public class QuestionConfirmationCommands
     @Command(description = "Lists all the changes currently waiting for approval",
              permissions = HalpbotPermissions.BOT_OWNER)
     public @Nullable String changes(MessageReceivedEvent event) {
-        List<Question> questions = this.questionService.getAllWaitingConfirmation();
+        List<Question> questions = this.questionService.getAmountWaitingConfirmation(DISPLAY_QUESTION_GROUPING_AMOUNT);
         if (questions.isEmpty())
             return "There are currently no questions pending approval :tada:";
 
@@ -126,15 +127,15 @@ public class QuestionConfirmationCommands
 
     private void acceptChange(Question question) {
         try {
-            if (Status.ADDED != question.getStatus()) {
+            if (Status.EDITED == question.getStatus()) {
+                // Delete the edit
+                this.deleteChange(question.getId());
+
                 question.setId(question.getEditedId());
                 question.setEditedId(null);
             }
             question.setStatus(Status.CONFIRMED);
             this.questionService.update(question);
-
-            // Only delete the change if it was successfully saved (A.k.a. an error wasn't thrown)
-            this.deleteChange(question.getId());
         }
         catch (ResourceNotFoundException e) {
             ErrorManager.handle(e);
