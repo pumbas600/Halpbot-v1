@@ -45,7 +45,6 @@ public class Main
         ClassPathResource classPathResource = new ClassPathResource("static/Token.txt");
         String token = new BufferedReader(new InputStreamReader(classPathResource.getInputStream())).readLine();
 
-        HalpbotUtils.logger().info(token);
         Halpbot halpBot = new Halpbot(context, token);
     }
 }

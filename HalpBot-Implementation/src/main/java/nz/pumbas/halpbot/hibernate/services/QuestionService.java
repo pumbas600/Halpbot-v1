@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.hibernate.services;
 
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.stream.Collectors;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceAlreadyExistsException;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;
-import nz.pumbas.halpbot.hibernate.models.Status;
 import nz.pumbas.halpbot.hibernate.repositories.QuestionRepository;
 
 @Service
@@ -36,6 +36,10 @@ public class QuestionService
         return this.questionRepository.getAllWaitingConfirmation();
     }
 
+    public List<Question> getAmountWaitingConfirmation(int amount) {
+        return this.questionRepository.getAllWaitingConfirmation(PageRequest.of(0, amount));
+    }
+
     public List<Long> getAllConfirmedIds() {
         return this.questionRepository.getAllConfirmedIds();
     }
@@ -44,6 +48,10 @@ public class QuestionService
         if (ids.isEmpty())
             return this.getAllWaitingConfirmation();
         return this.questionRepository.getAllWaitingConfirmationNotIn(ids);
+    }
+
+    public List<Long> getAllConfirmedIdsByTopicId(Long topicId) {
+        return this.questionRepository.getAllConfirmedIdsByTopicId(topicId);
     }
 
     public long countWaitingConfirmation() {

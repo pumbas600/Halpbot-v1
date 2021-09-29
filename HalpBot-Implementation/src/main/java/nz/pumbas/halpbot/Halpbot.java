@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -61,9 +62,11 @@ public class Halpbot extends ListenerAdapter
     public static final long CREATOR_ID = 260930648330469387L;
     private final JDA jda;
     private static HalpbotCore halpbotCore;
+    private final ApplicationContext context;
 
     public Halpbot(ApplicationContext context, String token) throws LoginException
     {
+        this.context = context;
         JDABuilder builder = JDABuilder.createDefault(token)
             .disableIntents(GatewayIntent.GUILD_PRESENCES)
             .addEventListeners(this);
@@ -109,5 +112,6 @@ public class Halpbot extends ListenerAdapter
     public void onShutdown(@NotNull ShutdownEvent event)
     {
         HalpbotUtils.logger().info("Shutting down the bot!");
+        ((ConfigurableApplicationContext) this.context).close();
     }
 }

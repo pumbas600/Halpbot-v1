@@ -25,14 +25,18 @@
 package nz.pumbas.halpbot.hibernate.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Topic;
-import nz.pumbas.halpbot.hibernate.repositories.TopicRepository;;
+import nz.pumbas.halpbot.hibernate.repositories.TopicRepository;
+import nz.pumbas.halpbot.objects.Exceptional;;
 
 @Service
 public class TopicService
@@ -56,5 +60,9 @@ public class TopicService
 
     public String topicFromId(Long id) {
         return this.topicMappings.getOrDefault(id, "INVALID ID");
+    }
+
+    public Exceptional<Long> getIdFromTopic(String topic) {
+        return this.topicRepository.getFirstIdFromTopic(topic.toLowerCase(Locale.ROOT));
     }
 }

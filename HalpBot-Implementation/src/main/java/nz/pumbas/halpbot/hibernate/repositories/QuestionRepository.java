@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.hibernate.repositories;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -40,6 +41,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long>
     @Query("SELECT q FROM Question q WHERE q.status <> 0")
     List<Question> getAllWaitingConfirmation();
 
+    @Query("SELECT q FROM Question q WHERE q.status <> 0")
+    List<Question> getAllWaitingConfirmation(Pageable pageable);
+
     @Query("SELECT q.id FROM Question q WHERE q.status = 0")
     List<Long> getAllConfirmedIds();
 
@@ -48,6 +52,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long>
 
     @Query("SELECT count(q) FROM Question q WHERE q.status <> 0")
     long countWaitingConfirmation();
+
+    @Query("SELECT q.id FROM Question q WHERE q.status = 0 AND q.topicId = ?1")
+    List<Long> getAllConfirmedIdsByTopicId(Long topicId);
 
     @Modifying
     @Query("DELETE FROM Question q WHERE q.status <> 0")

@@ -47,8 +47,8 @@ public class SQLiteManager implements SQLManager, LateInit
      */
     @Override
     public void lateInitialisation() {
-        HalpbotUtils.context().get(ConcurrentManager.class)
-            .scheduleRegularly(10, 10, TimeUnit.MINUTES, this::reloadAllDrivers);
+//        HalpbotUtils.context().get(ConcurrentManager.class)
+//            .scheduleRegularly(10, 10, TimeUnit.MINUTES, this::reloadAllDrivers);
     }
 
     @Override
