@@ -48,7 +48,7 @@ public class BuiltInCommands
 {
     private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
-    @Command(alias = "Halp", description = "Displays the help information for the specified command")
+    @Command(description = "Displays the help information for the specified command")
     public Object halp(AbstractCommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
         if (commandAlias.isEmpty()) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -80,26 +80,25 @@ public class BuiltInCommands
         return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview");
     }
 
-    @Command(alias = "shutdown", description = "Shuts the bot down. Any existing RestActions will be completed first.",
+    @Command(description = "Shuts the bot down. Any existing RestActions will be completed first.",
              permissions = HalpbotPermissions.BOT_OWNER)
     public void shutdown(JDA jda) {
         jda.shutdown();
     }
 
-    @Command(alias = "forceShutdown", description = "Shuts the bot down immediately",
+    @Command(description = "Shuts the bot down immediately",
              permissions = HalpbotPermissions.BOT_OWNER)
     public void forceShutdown(JDA jda) {
         jda.shutdownNow();
     }
     
-    @Command(alias = "status", description = "Retrieves the current status of the bot")
+    @Command(description = "Retrieves the current status of the bot")
     public String status(JDA jda) {
         return String.format("The current status of the bot is: **%s**",
             HalpbotUtils.capitalise(jda.getStatus().toString()));
     }
 
-    @Command(alias = "permissions", description = "Retrieves the permissions that the specified user has, or the " +
-                                                  "author if no user is specified")
+    @Command(description = "Retrieves the permissions that the specified user has, or the author if no user is specified")
     public MessageEmbed permissions(@Source User author, @Unrequired User user) {
         if (null == user) user = author;
 
@@ -122,7 +121,7 @@ public class BuiltInCommands
         return embedBuilder.build();
     }
 
-    @Command(alias = "allPermissions", description = "Returns all the permissions in the database")
+    @Command(description = "Returns all the permissions in the database")
     public MessageEmbed allPermissions() {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Permissions");
@@ -142,7 +141,7 @@ public class BuiltInCommands
         return embedBuilder.build();
     }
 
-    @Command(alias = "givePermission", description = "Gives the user the specified permission",
+    @Command(description = "Gives the user the specified permission",
              permissions = HalpbotPermissions.GIVE_PERMISSIONS)
     public String givePermission(@Source User author, User user, String permission) {
         permission = permission.toLowerCase(Locale.ROOT);
@@ -160,8 +159,7 @@ public class BuiltInCommands
         return String.format("Successfully gave the user the permission '%s'", permission);
     }
 
-    @Command(alias = "reloadDatabase", description = "Forces all the SQLDrivers to invoke their reload listeners, " +
-                                                     "refreshing any cached database information",
+    @Command(description = "Forces all the SQLDrivers to invoke their reload listeners, refreshing any cached database information",
              permissions = HalpbotPermissions.BOT_OWNER)
     public String reloadDatabase() {
         HalpbotUtils.context().get(SQLManager.class)

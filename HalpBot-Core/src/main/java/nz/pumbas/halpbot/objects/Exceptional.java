@@ -27,6 +27,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import nz.pumbas.halpbot.utilities.functionalinterfaces.CheckedFunction;
+
 /**
  * A container object which may or may not contain a non-null value. If a value is present, {@code
  * present()} will return {@code true} and {@code get()} will return the value. If no value is
@@ -291,7 +293,7 @@ public final class Exceptional<T>
     /**
      * If a value is present, apply the provided {@code Exceptional}-bearing mapping function to it,
      * return that result, otherwise return {@link Exceptional#empty()}. This method is similar to
-     * {@link Exceptional#map(Function)}, but the provided mapper is one whose result is already an
+     * {@link Exceptional#map(CheckedFunction)}, but the provided mapper is one whose result is already an
      * {@code Exceptional}, and if invoked, {@code then} does not wrap it with an additional {@code
      * Exceptional}.
      *
@@ -305,7 +307,7 @@ public final class Exceptional<T>
      * @throws NullPointerException
      *     If the mapping function is null or returns a null result
      */
-    public <U> Exceptional<U> flatMap(Function<? super T, Exceptional<U>> mapper) {
+    public <U> Exceptional<U> flatMap(CheckedFunction<? super T, Exceptional<U>> mapper) {
         Objects.requireNonNull(mapper);
         if (!this.present()) return this.caught() ? of(this.throwable) : empty();
         else {
@@ -357,7 +359,7 @@ public final class Exceptional<T>
      * If a value is present, apply the provided {@code Exceptional}-bearing mapping function to both
      * the value and throwable described by this {@code Exceptional}, return that result, otherwise
      * return {@link Exceptional#empty()}. This method is similar to {@link
-     * Exceptional#flatMap(Function)}, but the provided mapper is one whose input is both a {@code
+     * Exceptional#flatMap(CheckedFunction)}, but the provided mapper is one whose input is both a {@code
      * Throwable} and a value of type {@code T}.
      *
      * @param <U>
@@ -483,7 +485,7 @@ public final class Exceptional<T>
      * @throws NullPointerException
      *     If the mapping function is null
      */
-    public <U> Exceptional<U> map(Function<? super T, ? extends U> mapper) {
+    public <U> Exceptional<U> map(CheckedFunction<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper);
         if (!this.present()) return this.caught() ? of(this.throwable) : empty();
         else {

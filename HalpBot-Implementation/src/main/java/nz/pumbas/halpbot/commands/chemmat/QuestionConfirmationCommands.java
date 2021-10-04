@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -26,7 +25,6 @@ import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.hibernate.exceptions.ResourceAlreadyExistsException;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;
 import nz.pumbas.halpbot.hibernate.models.Status;
