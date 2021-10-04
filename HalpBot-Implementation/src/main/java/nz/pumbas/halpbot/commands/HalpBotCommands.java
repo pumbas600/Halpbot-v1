@@ -24,6 +24,10 @@
 
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.components.Button;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
@@ -111,8 +115,12 @@ public class HalpBotCommands
 
     @SlashCommand
     @Command(description = "Sums two numbers")
-    public int sum(@Description("The first number")  int a,
-                   @Description("The second number") int b) {
-        return a + b;
+    public void sum(Interaction interaction,
+                    @Description("The first number")  int a,
+                    @Description("The second number") int b)
+    {
+        interaction.reply((a + b) + "")
+            .addActionRow(Button.primary("Test", ":fire:"))
+            .queue();
     }
 }

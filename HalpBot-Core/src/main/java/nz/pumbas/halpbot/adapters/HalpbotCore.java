@@ -113,6 +113,20 @@ public class HalpbotCore implements ContextHolder
         return this;
     }
 
+    /**
+     * Registers the objects with each of the adapters by calling their respective
+     * {@link HalpbotAdapter#register(Object...)} methods.
+     *
+     * @param objects
+     *      The objects to register
+     *
+     * @return Itself for chaining
+     */
+    public HalpbotCore register(Object... objects) {
+        this.adapters.forEach(adapter -> adapter.register(objects));
+        return this;
+    }
+
     public JDA build() throws LoginException {
         jda = this.jdaBuilder.build();
         this.adapters.forEach(adapter -> adapter.accept(jda));
