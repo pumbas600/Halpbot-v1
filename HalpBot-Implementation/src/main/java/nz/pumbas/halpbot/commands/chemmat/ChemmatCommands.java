@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -57,8 +58,7 @@ import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
 import nz.pumbas.halpbot.hibernate.services.UserStatisticsService;
 import nz.pumbas.halpbot.objects.Exceptional;
-import nz.pumbas.halpbot.reactions.ReactionCallback;
-import nz.pumbas.halpbot.reactions.ReactionCallback.ReactionCallbackBuilder;
+import nz.pumbas.halpbot.actions.ActionCallbackBuilder;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -67,7 +67,7 @@ public class ChemmatCommands implements OnReady
 {
     private final String[] EMOJIS = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
 
-    private final ReactionCallbackBuilder reactionCallbackBuilder = ReactionCallback.builder()
+    private final ActionCallbackBuilder actionCallbackBuilder = ActionCallback.builder()
         .setDeleteAfter(10, TimeUnit.MINUTES)
         .setCooldown(5, TimeUnit.SECONDS)
         .setRemoveReactionIfCoolingDown();
@@ -166,18 +166,18 @@ public class ChemmatCommands implements OnReady
                 int index = 0;
                 for (String option : shuffledOptions) {
                     reactionAdapter.registerCallback(m,
-                        this.reactionCallbackBuilder
+                        this.actionCallbackBuilder
                             .setEmoji(this.EMOJIS[index])
                             .setConsumer(e -> this.onAnswerReaction(e, question.getAnswer().equals(option)))
-                            .build());
+                            .buildReactionCallback());
                     index++;
                 }
 
                 reactionAdapter.registerCallback(m,
-                    this.reactionCallbackBuilder
+                    this.actionCallbackBuilder
                         .setEmoji("U+2753")
                         .setConsumer(e -> this.onRevealAnswer(e, question))
-                        .build());
+                        .buildReactionCallback());
         });
         return null;
     }

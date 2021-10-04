@@ -8,12 +8,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import nz.pumbas.halpbot.buttons.ButtonAction;
-import nz.pumbas.halpbot.buttons.ButtonCallback;
+import nz.pumbas.halpbot.actions.AbstractActionCallback;
+import nz.pumbas.halpbot.actions.annotations.ButtonAction;
 
 public class ButtonAdapter extends HalpbotAdapter
 {
-    private final Map<String, ButtonCallback> parsedButtonCallbacks = new HashMap<>();
+    private final Map<String, AbstractActionCallback> parsedButtonCallbacks = new HashMap<>();
 
     @Override
     public void register(Object... objects) {
@@ -27,7 +27,7 @@ public class ButtonAdapter extends HalpbotAdapter
         if (!this.parsedButtonCallbacks.containsKey(event.getComponentId())) {
             return;
         }
-
+        event.reply("Test").setEphemeral(true);
     }
 
     private void parseButtonCallbacks(Object object) {

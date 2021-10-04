@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.Halpbot;
+import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -30,8 +31,8 @@ import nz.pumbas.halpbot.hibernate.models.Question;
 import nz.pumbas.halpbot.hibernate.models.Status;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
-import nz.pumbas.halpbot.reactions.ReactionCallback;
-import nz.pumbas.halpbot.reactions.ReactionCallback.ReactionCallbackBuilder;
+import nz.pumbas.halpbot.actions.AbstractActionCallback;
+import nz.pumbas.halpbot.actions.ActionCallbackBuilder;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -45,7 +46,7 @@ public class QuestionConfirmationCommands
     private final TopicService topicService;
     private long displayChangesChannel = -1;
 
-    private final ReactionCallbackBuilder callbackBuilder = ReactionCallback.builder()
+    private final ActionCallbackBuilder callbackBuilder = ActionCallback.builder()
         .addPermissions(HalpbotPermissions.ADMIN)
         .setSingleUse()
         .setDeleteAfter(-1, TimeUnit.MINUTES);
@@ -117,10 +118,10 @@ public class QuestionConfirmationCommands
 
         reactionAdapter.registerCallback(message, this.callbackBuilder.setEmoji("U+2705")
             .setRunnable(() -> this.acceptChange(question))
-            .build());
+            .buildReactionCallback());
         reactionAdapter.registerCallback(message, this.callbackBuilder.setEmoji("U+274C")
             .setRunnable(() -> this.deleteChange(question.getId()))
-            .build());
+            .buildReactionCallback());
     }
 
     private void acceptChange(Question question) {

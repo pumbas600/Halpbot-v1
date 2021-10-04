@@ -9,8 +9,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import nz.pumbas.halpbot.actions.ReactionActionCallback;
+import nz.pumbas.halpbot.commands.events.MessageEvent;
 import nz.pumbas.halpbot.commands.permissions.PermissionManager;
-import nz.pumbas.halpbot.reactions.ReactionCallback;
+import nz.pumbas.halpbot.actions.AbstractActionCallback;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -20,7 +22,7 @@ public class ReactionAdapter extends HalpbotAdapter
     private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
-    protected final Map<Long, Map<String, ReactionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
+    protected final Map<Long, Map<String, ReactionActionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
@@ -40,7 +42,7 @@ public class ReactionAdapter extends HalpbotAdapter
         if (!callbacks.containsKey(emoji))
             return;
 
-        ReactionCallback callback = callbacks.get(emoji);
+        ReactionActionCallback callback = callbacks.get(emoji);
         if (!this.permissionManager.hasPermissions(userId, callback.getPermissions())) {
             this.halpBotCore.displayMessage(
                 event, "You don't have the required permission to use this reaction callback");
@@ -55,7 +57,7 @@ public class ReactionAdapter extends HalpbotAdapter
             return;
         }
 
-        callback.invokeCallback(event)
+        callback.invokeCallback(new MessageEvent(event))
             .present(value -> this.halpBotCore.displayMessage(event, value))
             .caught(exception -> ErrorManager.handle(event, exception));
 
@@ -82,29 +84,29 @@ public class ReactionAdapter extends HalpbotAdapter
         return "U+" + codepoint.substring(2).toUpperCase(Locale.ROOT);
     }
 
-    public void registerCallback(Message message, ReactionCallback reactionCallback) {
+    public void registerCallback(Message message, ReactionActionCallback actionCallback) {
         long messageId = message.getIdLong();
         if (!this.reactionCallbacks.containsKey(messageId)) {
-            Map<String, ReactionCallback> messageCallbacks = new ConcurrentHashMap<>();
-            messageCallbacks.put(reactionCallback.getCodepointEmoji(), reactionCallback);
+            Map<String, ReactionActionCallback> messageCallbacks = new ConcurrentHashMap<>();
+            messageCallbacks.put(actionCallback.getCodepointEmoji(), actionCallback);
             this.reactionCallbacks.put(messageId, messageCallbacks);
         }
         else this.reactionCallbacks
                 .get(messageId)
-                .put(reactionCallback.getCodepointEmoji(), reactionCallback);
+                .put(actionCallback.getCodepointEmoji(), actionCallback);
 
-        message.addReaction(reactionCallback.getCodepointEmoji())
+        message.addReaction(actionCallback.getCodepointEmoji())
             .queue(success -> {
-                if (0 < reactionCallback.getDeleteAfterDuration()) {
+                if (0 < actionCallback.getDeleteAfterDuration()) {
                     this.concurrentManager.schedule(
-                        reactionCallback.getDeleteAfterDuration(),
-                        reactionCallback.getDeleteAfterTimeUnit(),
-                        () -> this.removeReactionCallbackAndEmoji(message, reactionCallback));
+                        actionCallback.getDeleteAfterDuration(),
+                        actionCallback.getDeleteAfterTimeUnit(),
+                        () -> this.removeReactionCallbackAndEmoji(message, actionCallback));
                 }
             });
     }
 
-    private boolean removeReactionCallback(long messageId, ReactionCallback callback) {
+    private boolean removeReactionCallback(long messageId, ReactionActionCallback callback) {
         if (this.reactionCallbacks.containsKey(messageId)) {
             this.reactionCallbacks
                 .get(messageId)
@@ -118,7 +120,7 @@ public class ReactionAdapter extends HalpbotAdapter
         return false;
     }
 
-    private void removeReactionCallbackAndEmoji(Message message, ReactionCallback callback) {
+    private void removeReactionCallbackAndEmoji(Message message, ReactionActionCallback callback) {
         if (this.removeReactionCallback(message.getIdLong(), callback)) {
             message.clearReactions(callback.getCodepointEmoji()).queue();
         }
