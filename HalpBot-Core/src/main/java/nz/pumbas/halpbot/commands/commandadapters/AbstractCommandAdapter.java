@@ -26,26 +26,17 @@ package nz.pumbas.halpbot.commands.commandadapters;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.internal.utils.EncodingUtil;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.lang.reflect.Method;
@@ -57,8 +48,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
@@ -249,10 +238,13 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
         this.handleCommandMethodCall(new InteractionEvent(event), commandMethod, builder.toString())
             .present(value -> this.halpBotCore.displayMessage(event, value))
-            .caught(exception -> event.getChannel()
-                .sendMessageEmbeds(
-                    buildHelpMessage(event.getName(), commandMethod, exception.getMessage()))
-                .queue());
+            .caught(exception -> {
+                ErrorManager.handle(exception);
+                event.getChannel()
+                    .sendMessageEmbeds(
+                        buildHelpMessage(event.getName(), commandMethod, exception.getMessage()))
+                    .queue();
+            });
     }
 
     /**
@@ -370,7 +362,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             method.setAccessible(true);
             Command command = method.getAnnotation(Command.class);
 
-            String commandAlias = this.getCommandPrefix() + CommandManager.getCommandAlias(command, method);
+            String commandAlias = CommandManager.getCommandAlias(command, method);
             if (this.registeredCommands.containsKey(commandAlias))
                 throw new IllegalCommandException(
                     String.format("The alias %s has already been defined and so it can't be used by the method %s",
@@ -381,7 +373,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
                 instance.getClass().isAnnotationPresent(SlashCommand.class))
                     this.registeredSlashCommands.put(commandAlias, commandMethod);
             else
-                this.registeredCommands.put(commandAlias, commandMethod);
+                this.registeredCommands.put(this.getCommandPrefix() + commandAlias, commandMethod);
         }
     }
 
