@@ -36,7 +36,7 @@ public class EmbedStringsDisplayConfiguration implements DisplayConfiguration
 
     @Override
     public void display(Interaction interaction, MessageEmbed embed) {
-        interaction.replyEmbeds(embed);
+        interaction.replyEmbeds(embed).queue();
     }
 
     private MessageEmbed createEmbed(String message) {
