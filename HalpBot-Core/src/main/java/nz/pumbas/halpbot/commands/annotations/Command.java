@@ -46,6 +46,4 @@ public @interface Command
     Class<?>[] reflections() default {};
 
     String[] permissions() default {};
-
-    CommandType commandType() default CommandType.MESSAGE;
 }

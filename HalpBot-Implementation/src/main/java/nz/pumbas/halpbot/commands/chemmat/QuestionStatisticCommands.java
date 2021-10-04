@@ -29,7 +29,7 @@ public class QuestionStatisticCommands
     }
 
     @Command(description = "Returns the top " + TOP_AMOUNT + " users and their stats for a particular column")
-    public MessageEmbed top(JDA jda, @Unrequired("ANSWERED") UserStatColumn column) {
+    public MessageEmbed top(JDA jda, @Unrequired("Answered") UserStatColumn column) {
         List<UserStatistics> topUserStatistics = this.userStatisticsService.getTop(TOP_AMOUNT, column.getColumn());
         StringBuilder stringBuilder = new StringBuilder();
 

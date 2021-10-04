@@ -63,13 +63,16 @@ import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.CommandManager;
+import nz.pumbas.halpbot.commands.annotations.SlashCommand;
+import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.commands.events.InteractionEvent;
+import nz.pumbas.halpbot.commands.events.MessageEvent;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPersistantDataConstructor;
 import nz.pumbas.halpbot.commands.persistant.AbstractPersistantUserData;
 import nz.pumbas.halpbot.commands.persistant.PersistantData;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
-import nz.pumbas.halpbot.commands.CommandType;
 import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.commands.permissions.PermissionManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
@@ -118,6 +121,11 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
         return this;
     }
 
+    @Override
+    public void accept(JDA jda) {
+        this.registerSlashCommands(jda);
+    }
+
     /**
      * Registers all the slash commands. Note: According to JDA documentation, it can take up to an hour for the
      * slash command to show up in the client.
@@ -125,11 +133,11 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      * @param jda
      *     The {@link JDA}
      */
-    public void registerSlashCommands(JDA jda) {
+    private void registerSlashCommands(JDA jda) {
         for (CommandMethod commandMethod : this.registeredSlashCommands.values()) {
-            jda.upsertCommand(
-                this.generateSlashCommandData(commandMethod))
+            jda.upsertCommand(this.generateSlashCommandData(commandMethod))
                 .queue();
+            HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.getAlias());
         }
     }
 
@@ -179,7 +187,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     /**
      * Listens to {@link MessageReceivedEvent} and calls
-     * {@link AbstractCommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
+     * {@link AbstractCommandAdapter#handleCommandMethodCall(HalpbotEvent, CommandMethod, String)}
      * if the message is the invocation of a registered {@link CommandMethod}.
      *
      * @param event
@@ -200,7 +208,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
 
             try {
-                this.handleCommandMethodCall(event, commandMethod, content)
+                this.handleCommandMethodCall(new MessageEvent(event), commandMethod, content)
                     .present(value -> this.halpBotCore.displayMessage(event, value))
                     .caught(exception -> event.getChannel()
                         .sendMessageEmbeds(
@@ -219,7 +227,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     /**
      * Listens to {@link SlashCommandEvent} and calls
-     * {@link AbstractCommandAdapter#handleCommandMethodCall(MessageReceivedEvent, CommandMethod, String)}
+     * {@link AbstractCommandAdapter#handleCommandMethodCall(HalpbotEvent, CommandMethod, String)}
      * if the message is the invocation of a registered {@link CommandMethod}.
      *
      * @param event
@@ -239,34 +247,13 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             builder.append(option.getAsString()).append(' ');
         }
 
-        //TODO: THIS
-//        this.handleCommandMethodCall(event, commandMethod, builder.toString())
-//            .present(value -> this.displayCommandMethodResult(event, value))
-//            .caught(exception -> event.getChannel()
-//                .sendMessageEmbeds(
-//                    buildHelpMessage(event.getName(), commandMethod, exception.getMessage()))
-//                .queue());
+        this.handleCommandMethodCall(new InteractionEvent(event), commandMethod, builder.toString())
+            .present(value -> this.halpBotCore.displayMessage(event, value))
+            .caught(exception -> event.getChannel()
+                .sendMessageEmbeds(
+                    buildHelpMessage(event.getName(), commandMethod, exception.getMessage()))
+                .queue());
     }
-
-//    /**
-//     * Listens to {@link MessageReactionAddEvent} and if there is a callback registered for the message and the
-//     * specified reaction, then it will be invoked using the event.
-//     *
-//     * @param event
-//     *      The {@link MessageReactionAddEvent} that's been received
-//     */
-//    @Override
-//    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
-//        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(event.getMessageIdLong()))
-//            return;
-//
-//        var callbacks = this.reactionCallbacks.get(event.getMessageIdLong());
-//        if (!callbacks.containsKey(event.getReactionEmote().getAsCodepoints()))
-//            return;
-//
-//        callbacks.get(event.getReactionEmote().getAsCodepoints())
-//            .accept(event);
-//    }
 
     /**
      * Listens to the {@link GuildJoinEvent}. When the bot joins a server, it gives the server owner the
@@ -283,44 +270,6 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             this.permissionManager.givePermission(ownerId, HalpbotPermissions.GIVE_PERMISSIONS);
         }
     }
-
-//    /**
-//     * Adds the specified emoji as a reaction to the message and registers the specified {@link Consumer} as a
-//     * callback when someone reacts with the specified emoji to the message. Note: The callback is automatically
-//     * removed after 10 minutes.
-//     *
-//     * @param message
-//     *      The {@link Message} to add the reaction callback to
-//     * @param emoji
-//     *      The unicode emoji to listen for
-//     * @param consumer
-//     *      The {@link Consumer} to call when someone reacts to the message with the emoji
-//     */
-//    public void addReactionCallback(Message message, String emoji, Consumer<MessageReactionAddEvent> consumer) {
-//        String codePointEmoji = emoji.startsWith("U+")
-//            ? emoji : EncodingUtil.encodeCodepoints(emoji);
-//
-//        long messageId = message.getIdLong();
-//
-//        if (!this.reactionCallbacks.containsKey(messageId)) {
-//            Map<String, Consumer<MessageReactionAddEvent>> hashmap = new HashMap<>();
-//            hashmap.put(codePointEmoji, consumer);
-//            this.reactionCallbacks.put(messageId, hashmap);
-//        }
-//        else {
-//            this.reactionCallbacks.get(messageId).put(codePointEmoji, consumer);
-//        }
-//
-//        message.addReaction(codePointEmoji).queue(v ->
-//            // Schedule to have the callback removed in 10 minutes.
-//            this.concurrentManager.schedule(10, TimeUnit.MINUTES, () -> {
-//                this.reactionCallbacks.get(messageId).remove(codePointEmoji);
-//                message.clearReactions(codePointEmoji).queue();
-//                if (this.reactionCallbacks.get(messageId).isEmpty()) {
-//                    this.reactionCallbacks.remove(messageId);
-//                }
-//            }));
-//    }
 
     /**
      * Removes the {@link PersistantUserData} from this command adapters.
@@ -428,10 +377,11 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
                         commandAlias, method.getName()));
 
             CommandMethod commandMethod = this.createCommandMethod(instance, method, command);
-            if (CommandType.MESSAGE == command.commandType())
-                this.registeredCommands.put(commandAlias, commandMethod);
+            if (method.isAnnotationPresent(SlashCommand.class) ||
+                instance.getClass().isAnnotationPresent(SlashCommand.class))
+                    this.registeredSlashCommands.put(commandAlias, commandMethod);
             else
-                this.registeredSlashCommands.put(commandAlias, commandMethod);
+                this.registeredCommands.put(commandAlias, commandMethod);
         }
     }
 
@@ -521,7 +471,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      * @throws OutputException
      *     Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
      */
-    protected abstract Exceptional<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
+    protected abstract Exceptional<Object> handleCommandMethodCall(@NotNull HalpbotEvent event,
                                                                    @NotNull CommandMethod commandMethod,
                                                                    @NotNull String content) throws OutputException;
 }
