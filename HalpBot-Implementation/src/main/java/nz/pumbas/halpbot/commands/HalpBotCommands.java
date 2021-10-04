@@ -24,10 +24,10 @@
 
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.Permission;
-
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.converters.Converters;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.customparameters.Shape;
@@ -107,5 +107,12 @@ public class HalpBotCommands
     @Command(alias = "convert", description = "Converts the number to the specified prefix")
     public Unit convert(Unit unit, Prefix toPrefix) {
         return unit.to(toPrefix);
+    }
+
+    @SlashCommand
+    @Command(description = "Sums two numbers")
+    public int sum(@Description("The first number")  int a,
+                   @Description("The second number") int b) {
+        return a + b;
     }
 }

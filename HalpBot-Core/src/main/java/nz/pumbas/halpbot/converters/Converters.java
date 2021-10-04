@@ -33,6 +33,9 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
@@ -330,7 +333,7 @@ public final class Converters
             .convert(ctx -> Exceptional.of(
                 ctx.getHalpbotCore().get(AbstractCommandAdapter.class).getPersistantUserData(
                     (Class<? extends PersistantUserData>) ctx.getContextState().getClazz(),
-                    ctx.getEvent().getAuthor().getIdLong())
+                    ctx.getEvent().getUser().getIdLong())
             ))
             .register();
 
@@ -397,14 +400,13 @@ public final class Converters
 
     public static final TypeConverter<GenericEvent> EVENT_CONVERTER = TypeConverter.builder(GenericEvent.class)
         .notCommandParameter()
-        .convert(ctx -> Exceptional.of(ctx.getEvent()))
+        .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getEvent(GenericEvent.class)))
         .register();
 
-//    public static final TypeConverter<AbstractCommandAdapter> COMMAND_ADAPTER_CONVERTER =
-//        TypeConverter.builder(AbstractCommandAdapter.class)
-//            .notCommandParameter()
-//            .convert(ctx -> Exceptional.of(ctx.getCommandAdapter()))
-//            .register();
+    public static final TypeConverter<Interaction> INTERACTION_CONVERTER = TypeConverter.builder(Interaction.class)
+        .notCommandParameter()
+        .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getEvent(Interaction.class)))
+        .register();
 
     public static final TypeConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = TypeConverter.builder(HalpbotCore.class)
         .notCommandParameter()
@@ -427,7 +429,7 @@ public final class Converters
         TypeConverter.builder(MessageChannel.class)
             .annotation(Source.class)
             .priority(Priority.FIRST)
-            .convert(ctx -> Exceptional.of(ctx.getEvent().getChannel()))
+            .convert(ctx -> Exceptional.of(ctx.getEvent().getMessageChannel()))
             .register();
 
     public static final TypeConverter<TextChannel> SOURCE_TEXT_CHANNEL_CONVERTER =
@@ -447,7 +449,7 @@ public final class Converters
     public static final TypeConverter<User> SOURCE_USER_CONVERTER = TypeConverter.builder(User.class)
         .annotation(Source.class)
         .priority(Priority.FIRST)
-        .convert(ctx -> Exceptional.of(ctx.getEvent().getAuthor()))
+        .convert(ctx -> Exceptional.of(ctx.getEvent().getUser()))
         .register();
 
     public static final TypeConverter<Guild> SOURCE_GUILD_CONVERTER = TypeConverter.builder(Guild.class)

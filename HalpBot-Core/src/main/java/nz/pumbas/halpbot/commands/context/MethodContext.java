@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.commands.context;
 
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,20 +40,21 @@ import java.util.Set;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
+import nz.pumbas.halpbot.commands.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.objects.Exceptional;
 
 public class MethodContext extends InvocationContext
 {
     private @NotNull ContextState contextState;
-    private @Nullable final MessageReceivedEvent event;
+    private @Nullable final HalpbotEvent event;
     private @NotNull final HalpbotCore halpbotCore;
     private @NotNull final Set<Class<?>> reflections;
 
     protected MethodContext(@NotNull String context,
                             @NotNull ContextState contextState,
                             @Nullable HalpbotCore halpbotCore,
-                            @Nullable MessageReceivedEvent event,
+                            @Nullable HalpbotEvent event,
                             @NotNull Set<Class<?>> reflections) {
         super(context);
         this.contextState = contextState;
@@ -88,7 +90,7 @@ public class MethodContext extends InvocationContext
     }
 
     public static MethodContext of(@NotNull String content, @NotNull HalpbotCore halpbotCore,
-                                   @NotNull MessageReceivedEvent event, @NotNull Set<Class<?>> reflections) {
+                                   @NotNull HalpbotEvent event, @NotNull Set<Class<?>> reflections) {
         return new MethodContext(content, ContextState.EMPTY, halpbotCore, event, reflections);
     }
 
@@ -104,7 +106,7 @@ public class MethodContext extends InvocationContext
         this.contextState = new ContextState(parsingToken.getType(), parsingToken.getAnnotations(), parsingToken.getAnnotationTypes());
     }
 
-    public @Nullable MessageReceivedEvent getEvent() {
+    public @Nullable HalpbotEvent getEvent() {
         return this.event;
     }
 

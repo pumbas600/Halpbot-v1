@@ -24,16 +24,16 @@
 
 package nz.pumbas.halpbot.commands.commandadapters;
 
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.commands.events.MessageEvent;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
@@ -81,7 +81,7 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
      *     Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
      */
     @Override
-    protected Exceptional<Object> handleCommandMethodCall(@NotNull MessageReceivedEvent event,
+    protected Exceptional<Object> handleCommandMethodCall(@NotNull HalpbotEvent event,
                                                           @NotNull CommandMethod commandMethod,
                                                           @NotNull String content) throws OutputException {
         // Sanity check (This shouldn't be an issue)
@@ -91,10 +91,11 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
                     + " cannot be used with the command adapter " + this.getClass().getSimpleName()));
 
         SimpleCommand simpleCommand = (SimpleCommand) commandMethod;
-        if (!simpleCommand.hasPermission(event.getAuthor()))
+        if (!simpleCommand.hasPermission(event.getUser()))
                 return Exceptional.of(new CommandException("You do not have permission to use this command"));
 
         MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, simpleCommand.getReflections());
+
         return simpleCommand.parse(ctx, false);
     }
 }
