@@ -34,6 +34,7 @@ import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.utilities.functionalinterfaces.CheckedFunction;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -248,7 +249,7 @@ public class SimpleCommand implements CommandMethod
     public Exceptional<Object> parse(@NotNull MethodContext ctx, boolean canHaveTokensLeft) {
         int currentIndex = ctx.getCurrentIndex();
         Exceptional<Object> result = this.parseParameters(ctx, canHaveTokensLeft)
-            .flatMap((Function<Object[], Exceptional<Object>>) this::invoke);
+            .flatMap((CheckedFunction<? super Object[], Exceptional<Object>>) this::invoke);
 
         if (result.caught()) ctx.setCurrentIndex(currentIndex);
         return result;

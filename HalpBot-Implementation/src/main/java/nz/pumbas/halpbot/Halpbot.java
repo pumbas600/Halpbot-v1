@@ -47,6 +47,7 @@ import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
 import nz.pumbas.halpbot.commands.NumberSystemConverters;
 import nz.pumbas.halpbot.commands.chemmat.QuestionConfirmationCommands;
+import nz.pumbas.halpbot.commands.chemmat.QuestionStatisticCommands;
 import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
@@ -85,7 +86,8 @@ public class Halpbot extends ListenerAdapter
                         new HalpBotCommands(),
                         new NumberSystemConverters(),
                         context.getBean(ChemmatCommands.class),
-                        context.getBean(QuestionConfirmationCommands.class)),
+                        context.getBean(QuestionConfirmationCommands.class),
+                        context.getBean(QuestionStatisticCommands.class)),
                 new ReactionAdapter())
             .displayConfiguration(new EmbedStringsDisplayConfiguration())
             .registerAdapters();

@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +60,6 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.commands.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.context.ContextManager;
 import nz.pumbas.halpbot.utilities.context.ContextManagerImpl;
@@ -68,7 +68,7 @@ import nz.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
 
 public final class HalpbotUtils
 {
-
+    public static final Color Blurple = new Color(85, 57, 204);
     //A constant 'empty' UUID
     public static final UUID emptyUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 

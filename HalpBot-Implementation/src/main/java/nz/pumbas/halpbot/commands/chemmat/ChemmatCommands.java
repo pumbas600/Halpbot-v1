@@ -52,8 +52,10 @@ import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;
 import nz.pumbas.halpbot.hibernate.models.Topic;
+import nz.pumbas.halpbot.hibernate.models.UserStatistics;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
+import nz.pumbas.halpbot.hibernate.services.UserStatisticsService;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.reactions.ReactionCallback;
 import nz.pumbas.halpbot.reactions.ReactionCallback.ReactionCallbackBuilder;
@@ -63,8 +65,6 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 public class ChemmatCommands implements OnReady
 {
-    private static final Color Blurple = new Color(85, 57, 204);
-
     private final String[] EMOJIS = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
 
     private final ReactionCallbackBuilder reactionCallbackBuilder = ReactionCallback.builder()
@@ -76,13 +76,16 @@ public class ChemmatCommands implements OnReady
 
     private final QuestionService questionService;
     private final TopicService topicService;
+    private final UserStatisticsService userStatisticsService;
+
     private List<Long> questionIds;
     private int questionIndex;
 
     @Autowired
-    public ChemmatCommands(QuestionService questionService, TopicService topicService) {
+    public ChemmatCommands(QuestionService questionService, TopicService topicService, UserStatisticsService userStatisticsService) {
         this.questionService = questionService;
         this.topicService = topicService;
+        this.userStatisticsService = userStatisticsService;
     }
 
     /**
@@ -130,6 +133,7 @@ public class ChemmatCommands implements OnReady
 
     @Command(description = "Retrieves a random chemmat quiz")
     public @Nullable String quiz(ReactionAdapter reactionAdapter,
+                                 @Source User author,
                                  @Source MessageChannel channel,
                                  @Unrequired("-1") long quizId,
                                  @Unrequired("") @Remaining String topic)
@@ -146,20 +150,14 @@ public class ChemmatCommands implements OnReady
             question = this.getNextQuestion();
         }
         else {
-            Exceptional<Long> topicId = this.topicService.getIdFromTopic(topic);
-            if (topicId.caught()) {
-                return topicId.error().getMessage();
-            }
-            List<Long> questionIds = this.questionService.getAllConfirmedIdsByTopicId(topicId.get());
-            if (questionIds.isEmpty()) {
-                return String.format("There appears to be no questions for the topic '%s'",
-                    HalpbotUtils.capitaliseWords(topic));
-            }
-            question = this.getRandomQuestion(questionIds);
+            Exceptional<Question> eQuestion = this.getRandomQuestionByTopic(topic);
+            if (eQuestion.caught()) return eQuestion.error().getMessage();
+            question = eQuestion.orNull();
         }
         if (null == question)
             return "There seemed to be an issue retrieving the question";
 
+        this.userStatisticsService.getByUserId(author.getIdLong()).incrementQuizzesStarted();
         List<String> shuffledOptions = question.getShuffledOptions(this.random);
 
         MessageEmbed quizEmbed = this.buildQuestionEmbed(question, shuffledOptions);
@@ -206,6 +204,19 @@ public class ChemmatCommands implements OnReady
         return embedBuilder.build();
     }
 
+    private Exceptional<Question> getRandomQuestionByTopic(String topic) {
+        return this.topicService.getIdFromTopic(topic)
+            .map(topicId -> {
+                List<Long> questionIds = this.questionService.getAllConfirmedIdsByTopicId(topicId);
+                if (questionIds.isEmpty()) {
+                    throw new ResourceNotFoundException(
+                        String.format("There appears to be no questions for the topic '%s'",
+                            HalpbotUtils.capitaliseWords(topic)));
+                }
+                return this.getRandomQuestion(questionIds);
+            });
+    }
+
     @Command(description = "Retrieves the different topics available for the chemmat notes")
     public MessageEmbed topics() {
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -227,22 +238,28 @@ public class ChemmatCommands implements OnReady
     }
 
     @Command(description = "Returns the link to the halpbot dashboard where you can add questions")
-    public String addQuiz()
-    {
+    public String addQuiz() {
         return "You can add questions using the Halpbot Dashboard here: https://www.pumbas.net/questions";
     }
 
     private void onAnswerReaction(MessageReactionAddEvent event, boolean isCorrect) {
         // Hide the response as quickly as possible to avoid others from seeing it
         event.getReaction().removeReaction(event.getUser()).queue();
+        UserStatistics userStatistics = this.userStatisticsService.getByUserId(event.getUserIdLong());
+        userStatistics.incrementQuestionsAnswered();
 
         EmbedBuilder builder = new EmbedBuilder();
         if (isCorrect) {
+            userStatistics.incrementQuestionsAnsweredCorrectly();
             builder.setTitle("Correct: :white_check_mark:");
             builder.setColor(Color.GREEN);
             builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
+            if (userStatistics.isOnFire()) {
+                builder.setDescription(event.getUser().getName() + " is on **fire!** :fire:");
+            }
         }
         else {
+            userStatistics.resetAnswerStreak();
             builder.setTitle("Incorrect: :x:");
             builder.setColor(Color.RED);
         }
@@ -252,12 +269,10 @@ public class ChemmatCommands implements OnReady
 
     private void onRevealAnswer(@NotNull MessageReactionAddEvent event, @NotNull Question question) {
         event.getReaction().removeReaction(event.getUser()).queue();
-        User user = event.getUser();
-
         EmbedBuilder builder = new EmbedBuilder();
 
         builder.setTitle("Answer - " + question.getAnswer());
-        builder.setColor(Blurple);
+        builder.setColor(HalpbotUtils.Blurple);
         builder.setFooter(HalpbotUtils.capitalise(this.topicService.topicFromId(question.getTopicId())) + " - " +
             "Question id: " + question.getId());
 

@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Topic;
 import nz.pumbas.halpbot.hibernate.repositories.TopicRepository;
 import nz.pumbas.halpbot.objects.Exceptional;;
