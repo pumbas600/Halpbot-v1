@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 
@@ -20,8 +21,9 @@ public class ActionCallbackBuilder {
     private String codepointEmoji;
     private Function<MessageReactionAddEvent, Object> callback;
 
+    private Object instance;
     private Method methodCallback;
-    private ResponseType responseType;
+    private ResponseType responseType = ResponseType.REPLY;
     private boolean isEphemeral;
 
     private long deleteAfterDuration = 10;
@@ -31,14 +33,30 @@ public class ActionCallbackBuilder {
     private boolean removeReactionIfCoolingDown;
     private final List<String> permissions = new ArrayList<>();
     private boolean singleUse;
+    private boolean displayResultTemporarily;
 
-    public ActionCallbackBuilder setButtonAction(Method buttonActionMethod) {
-        ButtonAction buttonAction = buttonActionMethod.getAnnotation(ButtonAction.class);
-        this.methodCallback = buttonActionMethod;
+    public ActionCallbackBuilder setButtonAction(Object instance, Method method) {
+        ButtonAction buttonAction = method.getAnnotation(ButtonAction.class);
+        this.instance = instance;
+        this.methodCallback = method;
         this.responseType = buttonAction.responseType();
         this.isEphemeral = buttonAction.isEphemeral();
 
+        this.setActionFields(method);
+
         return this;
+    }
+
+    private void setActionFields(Method method) {
+        if (method.isAnnotationPresent(Action.class)) {
+            Action action = method.getAnnotation(Action.class);
+
+            this.setDeleteAfter(action.listeningDuration(), action.listeningDurationUnit());
+            this.setCooldown(action.cooldown(), action.cooldownUnit());
+            this.addPermissions(action.permissions());
+            this.singleUse = action.isSingleUse();
+            this.displayResultTemporarily = action.displayResultTemporarily();
+        }
     }
 
     /**
@@ -146,7 +164,7 @@ public class ActionCallbackBuilder {
     }
 
     /**
-     * Sets that the reaction can only be used once. After that first use, the callback will then be
+     * Sets that the action can only be used once. After that first use, the callback will then be
      * automatically removed, along with all other callbacks on the same message. By default, this is false.
      *
      * @return Itself for chaining
@@ -157,7 +175,7 @@ public class ActionCallbackBuilder {
     }
 
     /**
-     * Builds the {@link AbstractActionCallback} from the specified fields.
+     * Builds the {@link ReactionActionCallback} from the specified fields.
      *
      * @return The built reaction callback
      * @throws NullPointerException
@@ -171,6 +189,17 @@ public class ActionCallbackBuilder {
         return new ReactionActionCallback(
             this.codepointEmoji, this.callback,
             this.removeReactionIfCoolingDown,
+            this.deleteAfterDuration, this.deleteAfterTimeUnit,
+            this.cooldownDuration, this.cooldownTimeUnit,
+            this.permissions, this.singleUse);
+    }
+
+    public ButtonActionCallback buildButtonCallback() {
+        if (null == this.methodCallback)
+            throw new NullPointerException("You must specify a method callback for this action");
+        return new ButtonActionCallback(
+            this.responseType, this.isEphemeral,
+            this.methodCallback, this.instance,
             this.deleteAfterDuration, this.deleteAfterTimeUnit,
             this.cooldownDuration, this.cooldownTimeUnit,
             this.permissions, this.singleUse);

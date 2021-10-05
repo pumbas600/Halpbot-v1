@@ -18,8 +18,9 @@ import javax.security.auth.login.LoginException;
 import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.cooldowns.Cooldown;
 import nz.pumbas.halpbot.commands.cooldowns.UserCooldowns;
-import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.commands.permissions.PermissionManager;
+import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.objects.Exceptional;
@@ -134,6 +135,10 @@ public class HalpbotCore implements ContextHolder
         return jda;
     }
 
+    public void displayMessage(HalpbotEvent event, Object message) {
+
+    }
+
     /**
      * Uses the specified {@link DisplayConfiguration} to display the message.
      *
@@ -172,7 +177,7 @@ public class HalpbotCore implements ContextHolder
         }
     }
 
-    public void addCooldown(long userId, long actionId, Cooldown cooldown) {
+    public void addCooldown(long userId, String actionId, Cooldown cooldown) {
        UserCooldowns userCooldowns;
         if (!this.userCooldownsMap.containsKey(userId)) {
             userCooldowns = new UserCooldowns();
@@ -183,7 +188,7 @@ public class HalpbotCore implements ContextHolder
         userCooldowns.addCooldown(actionId, cooldown);
     }
 
-    public boolean hasCooldown(long userId, long actionId) {
+    public boolean hasCooldown(long userId, String actionId) {
         return this.userCooldownsMap.containsKey(userId)
             && this.userCooldownsMap.get(userId).hasCooldownFor(actionId);
     }
@@ -203,14 +208,15 @@ public class HalpbotCore implements ContextHolder
      *
      * @return If they have a cooldown.
      */
-    public boolean hasCooldown(GenericMessageEvent event, long userId, long actionId) {
+    public boolean hasCooldown(HalpbotEvent event, long userId, String actionId) {
         if (this.userCooldownsMap.containsKey(userId)) {
             UserCooldowns userCooldowns = this.userCooldownsMap.get(userId);
             if (userCooldowns.hasCooldownFor(actionId)) {
                 if (userCooldowns.canSendCooldownMessage()) {
-                    Cooldown cooldown = userCooldowns.getCooldownFor(actionId);
-                    event.getChannel().sendMessageEmbeds(cooldown.getRemainingTimeEmbed())
-                        .queue(m -> m.delete().queueAfter(10, TimeUnit.SECONDS));
+                    final Cooldown cooldown = userCooldowns.getCooldownFor(actionId);
+                    event.safelyGetEvent(GenericMessageEvent.class)
+                        .present(e -> this.displayCooldown(e, cooldown))
+                        .absent(() -> this.displayCooldown(event.getEvent(Interaction.class), cooldown));
                 }
                 return true;
             }
@@ -218,9 +224,26 @@ public class HalpbotCore implements ContextHolder
         return false;
     }
 
+    private void displayCooldown(GenericMessageEvent event, Cooldown cooldown) {
+        event.getChannel()
+            .sendMessageEmbeds(cooldown.getRemainingTimeEmbed())
+            .queue(m -> m.delete()
+                .queueAfter(10, TimeUnit.SECONDS));
+    }
+
+    private void displayCooldown(Interaction interaction, Cooldown cooldown) {
+        interaction.replyEmbeds(cooldown.getRemainingTimeEmbed())
+            .setEphemeral(true)
+            .queue();
+    }
+
     public void clearEmptyCooldowns() {
        this.userCooldownsMap.entrySet()
            .removeIf(entry -> entry.getValue().isEmpty());
+    }
+
+    public DisplayConfiguration getDisplayConfiguration() {
+        return this.displayConfiguration;
     }
 
     /**

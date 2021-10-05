@@ -8,12 +8,16 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import nz.pumbas.halpbot.actions.AbstractActionCallback;
+import nz.pumbas.halpbot.actions.ActionCallback;
+import nz.pumbas.halpbot.actions.ActionHandler;
+import nz.pumbas.halpbot.actions.ButtonActionCallback;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
+import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.commands.events.InteractionEvent;
 
-public class ButtonAdapter extends HalpbotAdapter
+public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
 {
-    private final Map<String, AbstractActionCallback> parsedButtonCallbacks = new HashMap<>();
+    private final Map<String, ButtonActionCallback> parsedButtonCallbacks = new HashMap<>();
 
     @Override
     public void register(Object... objects) {
@@ -24,17 +28,35 @@ public class ButtonAdapter extends HalpbotAdapter
 
     @Override
     public void onButtonClick(@NotNull ButtonClickEvent event) {
-        if (!this.parsedButtonCallbacks.containsKey(event.getComponentId())) {
+        if (event.getUser().isBot() || !this.parsedButtonCallbacks.containsKey(event.getComponentId())) {
             return;
         }
-        event.reply("Test").setEphemeral(true);
+
+        ButtonActionCallback actionCallback = this.parsedButtonCallbacks.get(event.getComponentId());
+        this.handle(actionCallback, new InteractionEvent(event));
     }
 
     private void parseButtonCallbacks(Object object) {
         for (Method method : object.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(ButtonAction.class)) {
                 // Generate callback data
+                ButtonActionCallback action = ActionCallback.builder()
+                    .setButtonAction(object, method)
+                    .buildButtonCallback();
+                this.parsedButtonCallbacks.put(method.getName(), action);
             }
         }
+    }
+
+    @Override
+    public String getActionId(HalpbotEvent event) {
+        return event.getEvent(ButtonClickEvent.class).getComponentId();
+    }
+
+    @Override
+    public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
+        ButtonClickEvent event = halpbotEvent.getEvent(ButtonClickEvent.class);
+        this.parsedButtonCallbacks.remove(event.getComponentId());
+        event.editButton(null);
     }
 }

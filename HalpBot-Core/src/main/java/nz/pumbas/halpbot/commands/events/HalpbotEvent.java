@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
+import nz.pumbas.halpbot.objects.Exceptional;
+
 public interface HalpbotEvent
 {
     Object getRawEvent();
@@ -18,6 +20,10 @@ public interface HalpbotEvent
             return (T) this.getRawEvent();
         }
         throw new UnsupportedOperationException("The raw event is not of the specified type: " + type.getSimpleName());
+    }
+
+    default <T> Exceptional<T> safelyGetEvent(Class<T> type) {
+        return Exceptional.of(() -> this.getEvent(type));
     }
 
     MessageChannel getMessageChannel();

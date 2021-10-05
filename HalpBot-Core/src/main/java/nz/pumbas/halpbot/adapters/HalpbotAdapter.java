@@ -11,7 +11,7 @@ public abstract class HalpbotAdapter extends ListenerAdapter
 
     public void register(Object... objects) { }
 
-    public HalpbotCore getHalpBotCore() {
+    public HalpbotCore getHalpbotCore() {
         return this.halpBotCore;
     }
 

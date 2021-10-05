@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractActionCallback implements ActionCallback
 {
-
     protected final long deleteAfterDuration;
     protected final TimeUnit deleteAfterTimeUnit;
     protected final long cooldownDuration;
@@ -55,5 +54,10 @@ public abstract class AbstractActionCallback implements ActionCallback
     @Override
     public boolean isSingleUse() {
         return this.singleUse;
+    }
+
+    @Override
+    public boolean getDisplayResultTemporarily() {
+        return false;
     }
 }

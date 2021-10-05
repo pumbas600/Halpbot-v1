@@ -35,4 +35,15 @@ public @interface Action
      * The time unit for the cooldown.
      */
     TimeUnit cooldownUnit() default TimeUnit.MINUTES;
+
+    /**
+     * Sets that the action can only be used once. After that first use, the callback will then be
+     * automatically removed, along with all other callbacks on the same message. By default, this is false.
+     */
+    boolean isSingleUse() default false;
+
+    /**
+     * Sets that the actions result should only be displayed temporarily or not.
+     */
+    boolean displayResultTemporarily() default false;
 }
