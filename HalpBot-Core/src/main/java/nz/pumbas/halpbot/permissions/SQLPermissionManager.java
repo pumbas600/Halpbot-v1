@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.permissions;
+package nz.pumbas.halpbot.permissions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

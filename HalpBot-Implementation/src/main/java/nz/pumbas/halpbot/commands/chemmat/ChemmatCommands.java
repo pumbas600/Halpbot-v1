@@ -49,7 +49,7 @@ import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
-import nz.pumbas.halpbot.commands.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;
 import nz.pumbas.halpbot.hibernate.models.Topic;

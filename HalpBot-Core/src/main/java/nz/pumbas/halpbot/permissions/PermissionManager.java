@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.permissions;
+package nz.pumbas.halpbot.permissions;
 
 import net.dv8tion.jda.api.entities.User;
 

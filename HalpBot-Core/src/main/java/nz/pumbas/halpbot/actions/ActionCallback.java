@@ -1,21 +1,21 @@
 package nz.pumbas.halpbot.actions;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.commands.cooldowns.CooldownAction;
 import nz.pumbas.halpbot.commands.events.HalpbotEvent;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.permissions.PermissionAction;
 
-public interface ActionCallback extends CooldownAction
+public interface ActionCallback extends CooldownAction, PermissionAction
 {
     long getDeleteAfterDuration();
 
     TimeUnit getDeleteAfterTimeUnit();
 
-    List<String> getPermissions();
-
     boolean isSingleUse();
+
+    boolean getDisplayResultTemporarily();
 
     Exceptional<Object> invokeCallback(HalpbotEvent event);
 

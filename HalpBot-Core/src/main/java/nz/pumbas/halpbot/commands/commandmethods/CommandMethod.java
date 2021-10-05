@@ -35,7 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.commands.permissions.PermissionManager;
+import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;

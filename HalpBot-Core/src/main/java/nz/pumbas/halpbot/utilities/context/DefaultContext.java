@@ -24,8 +24,8 @@
 
 package nz.pumbas.halpbot.utilities.context;
 
-import nz.pumbas.halpbot.commands.permissions.PermissionManager;
-import nz.pumbas.halpbot.commands.permissions.SQLPermissionManager;
+import nz.pumbas.halpbot.permissions.PermissionManager;
+import nz.pumbas.halpbot.permissions.SQLPermissionManager;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.ConverterHandlerImpl;
 import nz.pumbas.halpbot.sql.SQLManager;

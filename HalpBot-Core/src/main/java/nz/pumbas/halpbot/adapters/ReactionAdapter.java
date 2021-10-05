@@ -11,16 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import nz.pumbas.halpbot.actions.ReactionActionCallback;
 import nz.pumbas.halpbot.commands.events.MessageEvent;
-import nz.pumbas.halpbot.commands.permissions.PermissionManager;
-import nz.pumbas.halpbot.actions.AbstractActionCallback;
+import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ReactionAdapter extends HalpbotAdapter
 {
-    private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
-
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected final Map<Long, Map<String, ReactionActionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
 
@@ -29,26 +26,27 @@ public class ReactionAdapter extends HalpbotAdapter
         long userId = event.getUserIdLong();
         long messageId = event.getMessageIdLong();
 
+        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(messageId))
+            return;
+
         // Trying to get the codepoint of a custom emoji will cause an error to be thrown
         if (!event.getReactionEmote().isEmoji())
             return;
 
         String emoji = convertCodepointToValidCase(event.getReactionEmote().getAsCodepoints());
 
-        if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(messageId))
-            return;
-
         var callbacks = this.reactionCallbacks.get(messageId);
         if (!callbacks.containsKey(emoji))
             return;
 
         ReactionActionCallback callback = callbacks.get(emoji);
-        if (!this.permissionManager.hasPermissions(userId, callback.getPermissions())) {
+        if (!callback.hasPermission(userId)) {
             this.halpBotCore.displayMessage(
                 event, "You don't have the required permission to use this reaction callback");
+            return;
         }
 
-        if (this.halpBotCore.hasCooldown(event, userId, messageId)) {
+        if (this.halpBotCore.hasCooldown(new MessageEvent(event), userId, event.getMessageId())) {
             if (callback.removeReactionIfCoolingDown()) {
                 event.retrieveMessage()
                     .flatMap(m -> m.removeReaction(emoji, event.getUser()))
@@ -75,7 +73,7 @@ public class ReactionAdapter extends HalpbotAdapter
         if (callback.hasCooldown()) {
             this.halpBotCore.addCooldown(
                 userId,
-                messageId,
+                event.getMessageId(),
                 callback.createCooldown());
         }
     }

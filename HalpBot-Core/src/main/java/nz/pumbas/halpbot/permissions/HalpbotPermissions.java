@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.permissions;
+package nz.pumbas.halpbot.permissions;
 
 public final class HalpbotPermissions
 {
