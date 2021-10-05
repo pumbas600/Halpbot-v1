@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
+import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 
 public class ActionCallbackBuilder {
@@ -23,7 +24,6 @@ public class ActionCallbackBuilder {
 
     private Object instance;
     private Method methodCallback;
-    private ResponseType responseType = ResponseType.REPLY;
     private boolean isEphemeral;
 
     private long deleteAfterDuration = 10;
@@ -33,14 +33,13 @@ public class ActionCallbackBuilder {
     private boolean removeReactionIfCoolingDown;
     private final List<String> permissions = new ArrayList<>();
     private boolean singleUse;
-    private boolean displayResultTemporarily;
+    private long displayDuration;
 
     public ActionCallbackBuilder setButtonAction(Object instance, Method method) {
         ButtonAction buttonAction = method.getAnnotation(ButtonAction.class);
+        this.isEphemeral = buttonAction.isEphemeral();
         this.instance = instance;
         this.methodCallback = method;
-        this.responseType = buttonAction.responseType();
-        this.isEphemeral = buttonAction.isEphemeral();
 
         this.setActionFields(method);
 
@@ -52,10 +51,13 @@ public class ActionCallbackBuilder {
             Action action = method.getAnnotation(Action.class);
 
             this.setDeleteAfter(action.listeningDuration(), action.listeningDurationUnit());
-            this.setCooldown(action.cooldown(), action.cooldownUnit());
             this.addPermissions(action.permissions());
             this.singleUse = action.isSingleUse();
-            this.displayResultTemporarily = action.displayResultTemporarily();
+            this.displayDuration = action.displayDuration();
+        }
+        if (method.isAnnotationPresent(Cooldown.class)) {
+            Cooldown cooldown = method.getAnnotation(Cooldown.class);
+            this.setCooldown(cooldown.duration(), cooldown.unit());
         }
     }
 
@@ -191,17 +193,19 @@ public class ActionCallbackBuilder {
             this.removeReactionIfCoolingDown,
             this.deleteAfterDuration, this.deleteAfterTimeUnit,
             this.cooldownDuration, this.cooldownTimeUnit,
-            this.permissions, this.singleUse);
+            this.permissions, this.singleUse,
+            this.displayDuration);
     }
 
     public ButtonActionCallback buildButtonCallback() {
         if (null == this.methodCallback)
             throw new NullPointerException("You must specify a method callback for this action");
         return new ButtonActionCallback(
-            this.responseType, this.isEphemeral,
             this.methodCallback, this.instance,
+            this.isEphemeral,
             this.deleteAfterDuration, this.deleteAfterTimeUnit,
             this.cooldownDuration, this.cooldownTimeUnit,
-            this.permissions, this.singleUse);
+            this.permissions, this.singleUse,
+            this.displayDuration);
     }
 }

@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import nz.pumbas.halpbot.actions.ActionCallback;
@@ -28,11 +29,11 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
 
     @Override
     public void onButtonClick(@NotNull ButtonClickEvent event) {
-        if (event.getUser().isBot() || !this.parsedButtonCallbacks.containsKey(event.getComponentId())) {
+        if (event.getUser().isBot() || !this.parsedButtonCallbacks.containsKey(event.getComponentId().toLowerCase(Locale.ROOT))) {
             return;
         }
 
-        ButtonActionCallback actionCallback = this.parsedButtonCallbacks.get(event.getComponentId());
+        ButtonActionCallback actionCallback = this.parsedButtonCallbacks.get(event.getComponentId().toLowerCase(Locale.ROOT));
         this.handle(actionCallback, new InteractionEvent(event));
     }
 
@@ -43,7 +44,7 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
                 ButtonActionCallback action = ActionCallback.builder()
                     .setButtonAction(object, method)
                     .buildButtonCallback();
-                this.parsedButtonCallbacks.put(method.getName(), action);
+                this.parsedButtonCallbacks.put(method.getName().toLowerCase(Locale.ROOT), action);
             }
         }
     }
@@ -56,7 +57,14 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
     @Override
     public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
         ButtonClickEvent event = halpbotEvent.getEvent(ButtonClickEvent.class);
-        this.parsedButtonCallbacks.remove(event.getComponentId());
+        this.parsedButtonCallbacks.remove(event.getComponentId().toLowerCase(Locale.ROOT));
         event.editButton(null);
+    }
+
+    @Override
+    public boolean displayTemporarily(ActionCallback actionCallback) {
+        return actionCallback.displayTemporarily() ||
+            actionCallback instanceof ButtonActionCallback &&
+            ((ButtonActionCallback) actionCallback).isEphemeral();
     }
 }

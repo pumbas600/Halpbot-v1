@@ -135,48 +135,6 @@ public class HalpbotCore implements ContextHolder
         return jda;
     }
 
-    public void displayMessage(HalpbotEvent event, Object message) {
-
-    }
-
-    /**
-     * Uses the specified {@link DisplayConfiguration} to display the message.
-     *
-     * @param event
-     *      The {@link GenericMessageEvent}
-     * @param message
-     *      The message to display
-     */
-    public void displayMessage(GenericMessageEvent event, Object message) {
-        if (message instanceof MessageEmbed)
-            this.displayConfiguration.display(event, (MessageEmbed) message);
-        else {
-            String displayMessage = message instanceof DiscordString
-                ? ((DiscordString) message).toDiscordString()
-                : message.toString();
-            this.displayConfiguration.display(event, displayMessage);
-        }
-    }
-
-    /**
-     * Uses the specified {@link DisplayConfiguration} to display the message.
-     *
-     * @param interaction
-     *      The {@link Interaction}
-     * @param message
-     *      The message to display
-     */
-    public void displayMessage(Interaction interaction, Object message) {
-        if (message instanceof MessageEmbed)
-            this.displayConfiguration.display(interaction, (MessageEmbed) message);
-        else {
-            String displayMessage = message instanceof DiscordString
-                ? ((DiscordString) message).toDiscordString()
-                : message.toString();
-            this.displayConfiguration.display(interaction, displayMessage);
-        }
-    }
-
     public void addCooldown(long userId, String actionId, Cooldown cooldown) {
        UserCooldowns userCooldowns;
         if (!this.userCooldownsMap.containsKey(userId)) {
@@ -282,7 +240,7 @@ public class HalpbotCore implements ContextHolder
         return Exceptional.of(
             this.adapters
             .stream()
-            .filter(adapter -> adapter.getClass().isAssignableFrom(contract))
+            .filter(adapter -> contract.isAssignableFrom(adapter.getClass()))
             .findFirst()
             .map(adapter -> (T)adapter));
     }

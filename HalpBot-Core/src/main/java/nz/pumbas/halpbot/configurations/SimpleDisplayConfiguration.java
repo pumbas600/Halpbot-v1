@@ -1,28 +1,28 @@
 package nz.pumbas.halpbot.configurations;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.GenericMessageEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
+
+import nz.pumbas.halpbot.commands.events.HalpbotEvent;
 
 public class SimpleDisplayConfiguration implements DisplayConfiguration
 {
     @Override
-    public void display(GenericMessageEvent event, String message) {
-        event.getChannel().sendMessage(message).queue();
+    public void display(HalpbotEvent event, String message) {
+        event.reply(message);
     }
 
     @Override
-    public void display(GenericMessageEvent event, MessageEmbed embed) {
-        event.getChannel().sendMessageEmbeds(embed).queue();
+    public void display(HalpbotEvent event, MessageEmbed embed) {
+        event.reply(embed);
     }
 
     @Override
-    public void display(Interaction interaction, String message) {
-        interaction.reply(message).queue();
+    public void displayTemporary(HalpbotEvent event, String message, long seconds) {
+        event.replyTemporarily(message, seconds);
     }
 
     @Override
-    public void display(Interaction interaction, MessageEmbed embed) {
-        interaction.replyEmbeds(embed).queue();
+    public void displayTemporary(HalpbotEvent event, MessageEmbed embed, long seconds) {
+        event.replyTemporarily(embed, seconds);
     }
 }

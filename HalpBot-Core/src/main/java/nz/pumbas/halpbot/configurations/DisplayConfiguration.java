@@ -4,19 +4,40 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 
+import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.events.HalpbotEvent;
 
 public interface DisplayConfiguration
 {
-    void display(GenericMessageEvent event, String message);
+    void display(HalpbotEvent event, String message);
 
-    void display(GenericMessageEvent event, MessageEmbed embed);
+    void display(HalpbotEvent event, MessageEmbed embed);
 
-    void display(Interaction interaction, String message);
+    default void display(HalpbotEvent event, Object object) {
+        if (object instanceof MessageEmbed) {
+            this.display(event, (MessageEmbed) object);
+        }
+        else {
+            String message = object instanceof DiscordString
+                ? ((DiscordString) object).toDiscordString()
+                : object.toString();
+            this.display(event, message);
+        }
+    }
 
-    void display(Interaction interaction, MessageEmbed embed);
+    void displayTemporary(HalpbotEvent event, String message, long seconds);
 
-    void display(HalpbotEvent event, Object message);
+    void displayTemporary(HalpbotEvent event, MessageEmbed embed, long seconds);
 
-    void displayTemporary(HalpbotEvent event, Object message);
+    default void displayTemporary(HalpbotEvent event, Object object, long seconds) {
+        if (object instanceof MessageEmbed) {
+            this.displayTemporary(event, (MessageEmbed) object, seconds);
+        }
+        else {
+            String message = object instanceof DiscordString
+                ? ((DiscordString) object).toDiscordString()
+                : object.toString();
+            this.displayTemporary(event, message, seconds);
+        }
+    }
 }

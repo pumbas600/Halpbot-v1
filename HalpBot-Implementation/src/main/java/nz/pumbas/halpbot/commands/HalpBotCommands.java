@@ -24,10 +24,12 @@
 
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 
+import nz.pumbas.halpbot.actions.annotations.Action;
+import nz.pumbas.halpbot.actions.annotations.ButtonAction;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
@@ -122,5 +124,28 @@ public class HalpBotCommands
         interaction.reply((a + b) + "")
             .addActionRow(Button.primary("Test", ":fire:"))
             .queue();
+    }
+
+    @SlashCommand
+    @Command(description = "Tests static button callbacks")
+    public void test(Interaction interaction) {
+        interaction.reply("This is a button test :)")
+            .addActionRow(
+                Button.primary("primaryButton", "Hi"),
+                Button.secondary("secondaryButton", ":fire:"))
+            .queue();
+    }
+
+
+    @ButtonAction
+    @Action(displayDuration = 10)
+    public String primaryButton(ButtonClickEvent event) {
+        return "Hey there! o/";
+    }
+
+    @ButtonAction(isEphemeral = true)
+    @Action
+    public String secondaryButton(ButtonClickEvent event) {
+        return "So you choose fire... :eyes:";
     }
 }
