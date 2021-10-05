@@ -24,12 +24,17 @@
 
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 
+import java.util.concurrent.TimeUnit;
+
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
+import nz.pumbas.halpbot.actions.annotations.Cooldown;
+import nz.pumbas.halpbot.adapters.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
@@ -117,13 +122,23 @@ public class HalpBotCommands
 
     @SlashCommand
     @Command(description = "Sums two numbers")
-    public void sum(Interaction interaction,
+    public void sum(ButtonAdapter buttonAdapter,
+                    Interaction interaction,
                     @Description("The first number")  int a,
                     @Description("The second number") int b)
     {
-        interaction.reply((a + b) + "")
-            .addActionRow(Button.primary("Test", ":fire:"))
+        String equation = String.format("%d + %d = %d", a, b, a + b);
+        interaction.reply(equation)
+            .addActionRow(
+                buttonAdapter.register(Button.primary("dynamicCallback", Emoji.fromMarkdown("U+2753")), equation))
             .queue();
+    }
+
+    @ButtonAction
+    @Cooldown
+    @Action(listeningDuration = 10, displayDuration=30)
+    public String dynamicCallback(ButtonClickEvent event, String equation) {
+        return "I was passed the variable: " + equation + "!";
     }
 
     @SlashCommand

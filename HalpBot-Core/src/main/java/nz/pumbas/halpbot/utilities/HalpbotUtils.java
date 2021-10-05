@@ -501,4 +501,25 @@ public final class HalpbotUtils
         throwable.printStackTrace(pw);
         return sw.getBuffer().toString();
     }
+
+    /**
+     * Creates an array containing both elements, with a being first, then b. If a is empty b is returned and if b
+     * is empty then a is returned. Otherwise, a new array of length {@code a.length + b.length} is created.
+     *
+     * @param a
+     *      The first array
+     * @param b
+     *      The second array
+     *
+     * @return The combined array
+     */
+    public static Object[] combine(Object[] a, Object... b) {
+        if (0 == b.length) return a;
+        if (0 == a.length) return b;
+
+        Object[] combinedArray = new Object[a.length + b.length];
+        System.arraycopy(a, 0, combinedArray, 0, a.length);
+        System.arraycopy(b, 0, combinedArray, a.length, b.length);
+        return combinedArray;
+    }
 }

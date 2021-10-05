@@ -25,6 +25,7 @@ public class ActionCallbackBuilder {
     private Object instance;
     private Method methodCallback;
     private boolean isEphemeral;
+    private Object[] parameters = new Object[0];
 
     private long deleteAfterDuration = 10;
     private TimeUnit deleteAfterTimeUnit = TimeUnit.MINUTES;
@@ -59,6 +60,19 @@ public class ActionCallbackBuilder {
             Cooldown cooldown = method.getAnnotation(Cooldown.class);
             this.setCooldown(cooldown.duration(), cooldown.unit());
         }
+    }
+
+    /**
+     * Sets the parameters which should be passed to the action callback when invoked.
+     *
+     * @param parameters
+     *      The parameters to pass
+     *
+     * @return Itself for chaining
+     */
+    public ActionCallbackBuilder setParameters(Object... parameters) {
+        this.parameters = parameters;
+        return this;
     }
 
     /**
@@ -202,7 +216,7 @@ public class ActionCallbackBuilder {
             throw new NullPointerException("You must specify a method callback for this action");
         return new ButtonActionCallback(
             this.methodCallback, this.instance,
-            this.isEphemeral,
+            this.isEphemeral, this.parameters,
             this.deleteAfterDuration, this.deleteAfterTimeUnit,
             this.cooldownDuration, this.cooldownTimeUnit,
             this.permissions, this.singleUse,
