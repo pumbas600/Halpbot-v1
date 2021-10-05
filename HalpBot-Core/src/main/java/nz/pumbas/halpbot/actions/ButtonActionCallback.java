@@ -10,16 +10,18 @@ import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.commands.events.HalpbotEvent;
 import nz.pumbas.halpbot.objects.Exceptional;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class ButtonActionCallback extends AbstractActionCallback implements MethodCallback
+public class ButtonActionCallback extends AbstractActionCallback implements MethodCallback, Copyable
 {
     private final Method callback;
     private final Object instance;
     private final boolean isEphemeral;
+    private final Object[] parameters;
 
     protected ButtonActionCallback(
         Method callback, Object instance,
-        boolean isEphemeral,
+        boolean isEphemeral, Object[] parameters,
         long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
         long cooldownDuration, TimeUnit cooldownTimeUnit,
         List<String> permissions, boolean singleUse,
@@ -36,11 +38,15 @@ public class ButtonActionCallback extends AbstractActionCallback implements Meth
         this.callback = callback;
         this.instance = instance;
         this.isEphemeral = isEphemeral;
+        this.parameters = parameters;
     }
 
     @Override
     public Exceptional<Object> invokeCallback(HalpbotEvent event) {
-        return this.invoke(event.getEvent(ButtonClickEvent.class));
+        return this.invoke(
+            HalpbotUtils.combine(
+                new Object[]{ event.getEvent(ButtonClickEvent.class) },
+                this.parameters));
     }
 
     @Override
@@ -55,5 +61,12 @@ public class ButtonActionCallback extends AbstractActionCallback implements Meth
 
     public boolean isEphemeral() {
         return this.isEphemeral;
+    }
+
+    @Override
+    public ActionCallbackBuilder copy() {
+        return new ActionCallbackBuilder()
+            .setButtonAction(this.instance, this.callback)
+            .setParameters(this.parameters);
     }
 }

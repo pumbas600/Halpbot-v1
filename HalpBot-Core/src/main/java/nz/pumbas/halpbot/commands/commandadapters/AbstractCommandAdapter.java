@@ -116,7 +116,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
     }
 
     @Override
-    public void register(Object... objects) {
+    public void registerObjects(Object... objects) {
         this.registerCommands(objects);
     }
 

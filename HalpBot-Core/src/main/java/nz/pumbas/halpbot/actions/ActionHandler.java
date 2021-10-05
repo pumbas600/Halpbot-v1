@@ -16,29 +16,28 @@ public interface ActionHandler
             return;
         }
 
-        if (this.getHalpbotCore().hasCooldown(event, userId, this.getActionId(event))) {
-            return;
-        }
+        if (!this.getHalpbotCore().hasCooldown(event, userId, this.getActionId(event))) {
 
-        actionCallback.invokeCallback(event)
-            .present(value ->
-                {
-                    DisplayConfiguration displayConfiguration = this.getHalpbotCore().getDisplayConfiguration();
+            actionCallback.invokeCallback(event)
+                .present(value ->
+                    {
+                        DisplayConfiguration displayConfiguration = this.getHalpbotCore().getDisplayConfiguration();
 
-                    if (this.displayTemporarily(actionCallback))
-                            displayConfiguration.displayTemporary(event, value, actionCallback.getDisplayDuration());
-                    else displayConfiguration.display(event, value);
-                })
-            .caught(ErrorManager::handle);
+                        if (this.displayTemporarily(actionCallback))
+                                displayConfiguration.displayTemporary(event, value, actionCallback.getDisplayDuration());
+                        else displayConfiguration.display(event, value);
+                    })
+                .caught(ErrorManager::handle);
 
-        if (actionCallback.isSingleUse()) {
-            this.removeActionCallbacks(event);
-            return;
-        }
+            if (actionCallback.isSingleUse()) {
+                this.removeActionCallbacks(event);
+                return;
+            }
 
-        if (actionCallback.hasCooldown()) {
-            this.getHalpbotCore()
-                .addCooldown(userId, this.getActionId(event), actionCallback.createCooldown());
+            if (actionCallback.hasCooldown()) {
+                this.getHalpbotCore()
+                    .addCooldown(userId, this.getActionId(event), actionCallback.createCooldown());
+            }
         }
     }
 
