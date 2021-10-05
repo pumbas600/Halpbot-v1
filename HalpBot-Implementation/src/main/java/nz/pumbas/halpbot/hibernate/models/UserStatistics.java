@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import nz.pumbas.halpbot.commands.DiscordString;
 
@@ -21,9 +20,7 @@ public class UserStatistics implements DiscordString, Serializable
     private Long questionsAnswered;
     private Long questionsAnsweredCorrectly;
     private Long bestAnswerStreak;
-
-    @Transient
-    private long currentAnswerStreak;
+    private Long currentAnswerStreak;
 
     public UserStatistics() {
     }
@@ -34,6 +31,7 @@ public class UserStatistics implements DiscordString, Serializable
         this.questionsAnswered = 0L;
         this.questionsAnsweredCorrectly = 0L;
         this.bestAnswerStreak = 0L;
+        this.currentAnswerStreak = 0L;
     }
 
     public Long getUserId() {
@@ -80,16 +78,16 @@ public class UserStatistics implements DiscordString, Serializable
         this.bestAnswerStreak = bestAnswerStreak;
     }
 
-    public long getCurrentAnswerStreak() {
+    public Long getCurrentAnswerStreak() {
         return this.currentAnswerStreak;
     }
 
-    public void setCurrentAnswerStreak(long currentAnswerStreak) {
+    public void setCurrentAnswerStreak(Long currentAnswerStreak) {
         this.currentAnswerStreak = currentAnswerStreak;
     }
 
     public void resetAnswerStreak() {
-        this.currentAnswerStreak = 0;
+        this.currentAnswerStreak = 0L;
     }
 
     public void incrementQuizzesStarted() {
