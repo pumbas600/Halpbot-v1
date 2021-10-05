@@ -11,12 +11,13 @@ public abstract class AbstractActionCallback implements ActionCallback
     protected final TimeUnit cooldownTimeUnit;
     protected final List<String> permissions;
     protected final boolean singleUse;
+    protected final long displayDuration;
 
     protected AbstractActionCallback(
         long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
         long cooldownDuration, TimeUnit cooldownTimeUnit,
-        List<String> permissions,
-        boolean singleUse)
+        List<String> permissions, boolean singleUse,
+        long displayDuration)
     {
         this.deleteAfterDuration = deleteAfterDuration;
         this.deleteAfterTimeUnit = deleteAfterTimeUnit;
@@ -24,6 +25,7 @@ public abstract class AbstractActionCallback implements ActionCallback
         this.cooldownTimeUnit = cooldownTimeUnit;
         this.permissions = permissions;
         this.singleUse = singleUse;
+        this.displayDuration = displayDuration;
     }
 
     @Override
@@ -57,7 +59,7 @@ public abstract class AbstractActionCallback implements ActionCallback
     }
 
     @Override
-    public boolean getDisplayResultTemporarily() {
-        return false;
+    public long getDisplayDuration() {
+        return this.displayDuration;
     }
 }

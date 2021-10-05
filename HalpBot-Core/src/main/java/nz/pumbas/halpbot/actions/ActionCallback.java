@@ -15,11 +15,15 @@ public interface ActionCallback extends CooldownAction, PermissionAction
 
     boolean isSingleUse();
 
-    boolean getDisplayResultTemporarily();
+    long getDisplayDuration();
 
     Exceptional<Object> invokeCallback(HalpbotEvent event);
 
     static ActionCallbackBuilder builder() {
         return new ActionCallbackBuilder();
+    }
+
+    default boolean displayTemporarily() {
+        return 0 < this.getDisplayDuration();
     }
 }

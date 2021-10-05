@@ -9,21 +9,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import nz.pumbas.halpbot.actions.ActionHandler;
 import nz.pumbas.halpbot.actions.ReactionActionCallback;
+import nz.pumbas.halpbot.commands.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.events.MessageEvent;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class ReactionAdapter extends HalpbotAdapter
+public class ReactionAdapter extends HalpbotAdapter implements ActionHandler
 {
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected final Map<Long, Map<String, ReactionActionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
-        long userId = event.getUserIdLong();
         long messageId = event.getMessageIdLong();
 
         if (event.getUser().isBot() || !this.reactionCallbacks.containsKey(messageId))
@@ -39,43 +40,8 @@ public class ReactionAdapter extends HalpbotAdapter
         if (!callbacks.containsKey(emoji))
             return;
 
-        ReactionActionCallback callback = callbacks.get(emoji);
-        if (!callback.hasPermission(userId)) {
-            this.halpBotCore.displayMessage(
-                event, "You don't have the required permission to use this reaction callback");
-            return;
-        }
-
-        if (this.halpBotCore.hasCooldown(new MessageEvent(event), userId, event.getMessageId())) {
-            if (callback.removeReactionIfCoolingDown()) {
-                event.retrieveMessage()
-                    .flatMap(m -> m.removeReaction(emoji, event.getUser()))
-                    .queue();
-            }
-            return;
-        }
-
-        callback.invokeCallback(new MessageEvent(event))
-            .present(value -> this.halpBotCore.displayMessage(event, value))
-            .caught(exception -> ErrorManager.handle(event, exception));
-
-        if (callback.isSingleUse()) {
-            event.retrieveMessage()
-                .queue(m -> {
-                    this.reactionCallbacks.get(messageId)
-                        .forEach((registeredEmoji, registeredCallback) ->
-                            m.removeReaction(registeredEmoji, event.getJDA().getSelfUser())
-                                .queue());
-                    this.reactionCallbacks.remove(messageId);
-                });
-        }
-
-        if (callback.hasCooldown()) {
-            this.halpBotCore.addCooldown(
-                userId,
-                event.getMessageId(),
-                callback.createCooldown());
-        }
+        ReactionActionCallback actionCallback = callbacks.get(emoji);
+        this.handle(actionCallback, new MessageEvent(event));
     }
 
     public static String convertCodepointToValidCase(String codepoint) {
@@ -124,4 +90,23 @@ public class ReactionAdapter extends HalpbotAdapter
         }
     }
 
+    @Override
+    public String getActionId(HalpbotEvent event) {
+        return event.getEvent(MessageReactionAddEvent.class).getMessageId();
+    }
+
+    @Override
+    public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
+        MessageReactionAddEvent event = halpbotEvent.getEvent(MessageReactionAddEvent.class);
+        long messageId = event.getMessageIdLong();
+
+        event.retrieveMessage()
+            .queue(m -> {
+                this.reactionCallbacks.get(messageId)
+                    .forEach((registeredEmoji, registeredCallback) ->
+                        m.removeReaction(registeredEmoji, event.getJDA().getSelfUser())
+                            .queue());
+                this.reactionCallbacks.remove(messageId);
+            });
+    }
 }

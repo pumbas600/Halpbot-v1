@@ -19,14 +19,18 @@ public class ReactionActionCallback extends AbstractActionCallback
         String codepointEmoji,
         Function<MessageReactionAddEvent, Object> callback,
         boolean removeReactionIfCoolingDown,
-        long deleteAfterDuration,
-        TimeUnit deleteAfterTimeUnit,
-        long cooldownDuration,
-        TimeUnit cooldownTimeUnit,
-        List<String> permissions,
-        boolean singleUse)
+        long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
+        long cooldownDuration, TimeUnit cooldownTimeUnit,
+        List<String> permissions, boolean singleUse,
+        long displayDuration)
     {
-        super(deleteAfterDuration, deleteAfterTimeUnit, cooldownDuration, cooldownTimeUnit, permissions, singleUse);
+        super(deleteAfterDuration,
+            deleteAfterTimeUnit,
+            cooldownDuration,
+            cooldownTimeUnit,
+            permissions,
+            singleUse,
+            displayDuration);
         this.codepointEmoji = codepointEmoji;
         this.callback = callback;
         this.removeReactionIfCoolingDown = removeReactionIfCoolingDown;

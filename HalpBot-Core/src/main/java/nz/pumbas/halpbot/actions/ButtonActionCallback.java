@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.actions;
 
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -11,36 +13,34 @@ import nz.pumbas.halpbot.objects.Exceptional;
 
 public class ButtonActionCallback extends AbstractActionCallback implements MethodCallback
 {
-    private final ResponseType responseType;
-    private final boolean isEphemeral;
     private final Method callback;
     private final Object instance;
+    private final boolean isEphemeral;
 
     protected ButtonActionCallback(
-        ResponseType responseType,
+        Method callback, Object instance,
         boolean isEphemeral,
-        Method callback,
-        Object instance,
-        long deleteAfterDuration,
-        TimeUnit deleteAfterTimeUnit,
-        long cooldownDuration,
-        TimeUnit cooldownTimeUnit, List<String> permissions, boolean singleUse)
+        long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
+        long cooldownDuration, TimeUnit cooldownTimeUnit,
+        List<String> permissions, boolean singleUse,
+        long displayDuration)
     {
         super(deleteAfterDuration,
             deleteAfterTimeUnit,
             cooldownDuration,
             cooldownTimeUnit,
             permissions,
-            singleUse);
-        this.responseType = responseType;
-        this.isEphemeral = isEphemeral;
+            singleUse,
+            displayDuration);
+
         this.callback = callback;
         this.instance = instance;
+        this.isEphemeral = isEphemeral;
     }
 
     @Override
     public Exceptional<Object> invokeCallback(HalpbotEvent event) {
-        return null;
+        return this.invoke(event.getEvent(ButtonClickEvent.class));
     }
 
     @Override
@@ -51,10 +51,6 @@ public class ButtonActionCallback extends AbstractActionCallback implements Meth
     @Override
     public @Nullable Object getInstance() {
         return this.instance;
-    }
-
-    public ResponseType getResponseType() {
-        return this.responseType;
     }
 
     public boolean isEphemeral() {

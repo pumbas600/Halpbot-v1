@@ -112,7 +112,12 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     @Override
     public void accept(JDA jda) {
-        this.registerSlashCommands(jda);
+        //this.registerSlashCommands(jda);
+    }
+
+    @Override
+    public void register(Object... objects) {
+        this.registerCommands(objects);
     }
 
     /**
@@ -193,12 +198,14 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
         String commandAlias = splitText[0].toLowerCase();
         String content = 2 == splitText.length ? splitText[1] : "";
 
+        HalpbotEvent halpbotEvent = new MessageEvent(event);
+
         if (this.registeredCommands.containsKey(commandAlias)) {
             CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
 
             try {
-                this.handleCommandMethodCall(new MessageEvent(event), commandMethod, content)
-                    .present(value -> this.halpBotCore.displayMessage(event, value))
+                this.handleCommandMethodCall(halpbotEvent, commandMethod, content)
+                    .present(value -> this.halpBotCore.getDisplayConfiguration().display(halpbotEvent, value))
                     .caught(exception -> event.getChannel()
                         .sendMessageEmbeds(
                             buildHelpMessage(commandAlias, commandMethod, exception.getMessage()))
@@ -209,8 +216,11 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             }
         }
         else if (commandAlias.startsWith(this.commandPrefix)) {
-            this.halpBotCore.displayMessage(event,
-                "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling");
+            this.halpBotCore.getDisplayConfiguration()
+                .displayTemporary(
+                    halpbotEvent,
+                    "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling",
+                    30);
         }
     }
 
@@ -224,9 +234,14 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      */
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
+        HalpbotEvent halpbotEvent = new InteractionEvent(event);
+
         if(!this.registeredSlashCommands.containsKey(event.getName())) {
-            this.halpBotCore.displayMessage(event,
-                "There doesn't appear to be a command method backing this slash command");
+            this.halpBotCore.getDisplayConfiguration()
+                .displayTemporary(
+                    halpbotEvent,
+                    "There doesn't appear to be a command method backing this slash command",
+                    30);
             return;
         }
 
@@ -237,7 +252,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
         }
 
         this.handleCommandMethodCall(new InteractionEvent(event), commandMethod, builder.toString())
-            .present(value -> this.halpBotCore.displayMessage(event, value))
+            .present(value -> this.halpBotCore.getDisplayConfiguration().display(halpbotEvent, value))
             .caught(exception -> {
                 ErrorManager.handle(exception);
                 event.getChannel()

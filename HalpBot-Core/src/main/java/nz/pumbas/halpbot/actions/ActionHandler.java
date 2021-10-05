@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.actions;
 
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 
 public interface ActionHandler
@@ -11,7 +12,7 @@ public interface ActionHandler
 
         if (!actionCallback.hasPermission(event.getUser())) {
             this.getHalpbotCore().getDisplayConfiguration()
-                .displayTemporary(event, "You don't have permission to use this acrion");
+                .displayTemporary(event, "You don't have permission to use this action", 30);
             return;
         }
 
@@ -22,9 +23,11 @@ public interface ActionHandler
         actionCallback.invokeCallback(event)
             .present(value ->
                 {
-                    if (actionCallback.getDisplayResultTemporarily())
-                        this.getHalpbotCore().getDisplayConfiguration().displayTemporary(event, value);
-                    else this.getHalpbotCore().getDisplayConfiguration().display(event, value);
+                    DisplayConfiguration displayConfiguration = this.getHalpbotCore().getDisplayConfiguration();
+
+                    if (this.displayTemporarily(actionCallback))
+                            displayConfiguration.displayTemporary(event, value, actionCallback.getDisplayDuration());
+                    else displayConfiguration.display(event, value);
                 })
             .caught(ErrorManager::handle);
 
@@ -37,6 +40,10 @@ public interface ActionHandler
             this.getHalpbotCore()
                 .addCooldown(userId, this.getActionId(event), actionCallback.createCooldown());
         }
+    }
+
+    default boolean displayTemporarily(ActionCallback actionCallback) {
+        return actionCallback.displayTemporarily();
     }
 
     HalpbotCore getHalpbotCore();

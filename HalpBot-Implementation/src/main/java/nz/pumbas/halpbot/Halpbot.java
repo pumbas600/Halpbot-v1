@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.LoginException;
 
+import nz.pumbas.halpbot.adapters.ButtonAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
@@ -77,19 +78,20 @@ public class Halpbot extends ListenerAdapter
         halpbotCore = new HalpbotCore(builder)
             .setOwner(CREATOR_ID)
             .addAdapters(
-                new SimpleCommandAdapter("$")
-                    .registerCommands(
-                        new KotlinCommands(),
-                        new MatrixCommands(),
-                        new VectorCommands(),
-                        new ElectricalCommands(),
-                        new HalpBotCommands(),
-                        new NumberSystemConverters(),
-                        context.getBean(ChemmatCommands.class),
-                        context.getBean(QuestionConfirmationCommands.class),
-                        context.getBean(QuestionStatisticCommands.class)),
-                new ReactionAdapter())
+                new SimpleCommandAdapter("$"),
+                new ReactionAdapter(),
+                new ButtonAdapter())
             .displayConfiguration(new EmbedStringsDisplayConfiguration())
+            .register(
+                new KotlinCommands(),
+                new MatrixCommands(),
+                new VectorCommands(),
+                new ElectricalCommands(),
+                new HalpBotCommands(),
+                new NumberSystemConverters(),
+                context.getBean(ChemmatCommands.class),
+                context.getBean(QuestionConfirmationCommands.class),
+                context.getBean(QuestionStatisticCommands.class))
             .registerAdapters();
 
         this.jda = halpbotCore.build();
