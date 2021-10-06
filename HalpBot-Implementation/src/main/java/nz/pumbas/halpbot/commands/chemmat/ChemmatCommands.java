@@ -50,14 +50,12 @@ import java.util.concurrent.TimeUnit;
 import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
+import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.adapters.ButtonAdapter;
-import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Description;
-import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
-import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
@@ -68,7 +66,6 @@ import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
 import nz.pumbas.halpbot.hibernate.services.UserStatisticsService;
 import nz.pumbas.halpbot.objects.Exceptional;
-import nz.pumbas.halpbot.actions.ActionCallbackBuilder;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -81,13 +78,8 @@ public class ChemmatCommands implements OnReady
         Emoji.fromMarkdown("\uD83C\uDDE8"),
         Emoji.fromMarkdown("\uD83C\uDDE9")
     };
+
     private static final Emoji QUESTION_MARK = Emoji.fromMarkdown("U+2754");
-
-    private final ActionCallbackBuilder actionCallbackBuilder = ActionCallback.builder()
-        .setDeleteAfter(10, TimeUnit.MINUTES)
-        .setCooldown(5, TimeUnit.SECONDS)
-        .setRemoveReactionIfCoolingDown();
-
     private final Random random = new Random();
 
     private final QuestionService questionService;
@@ -180,10 +172,11 @@ public class ChemmatCommands implements OnReady
         for (String option : shuffledOptions) {
             boolean isCorrect = question.getAnswer().equals(option);
             buttons.add(buttonAdapter.register(
-                Button.primary("answeredQuestion", EMOJIS[index++]),
+                Button.primary("answeredQuestion", ((char)('A' + index++)) + ""),
                 isCorrect));
+
         }
-        buttons.add(buttonAdapter.register(Button.danger("", QUESTION_MARK), question));
+        buttons.add(buttonAdapter.register(Button.danger("revealAnswer", QUESTION_MARK), question));
 
         MessageEmbed quizEmbed = this.buildQuestionEmbed(question, shuffledOptions);
         interaction.replyEmbeds(quizEmbed)
@@ -192,8 +185,9 @@ public class ChemmatCommands implements OnReady
         return null;
     }
 
+    @Cooldown
     @ButtonAction
-    @Action(listeningDuration = 15, displayDuration = 30)
+    @Action(listeningDuration = 15, displayDuration = 25)
     private MessageEmbed answeredQuestion(ButtonClickEvent event, boolean isCorrect) {
         UserStatistics userStatistics = this.userStatisticsService.getByUserId(event.getUser().getIdLong());
         userStatistics.incrementQuestionsAnswered();
@@ -216,6 +210,7 @@ public class ChemmatCommands implements OnReady
         return builder.build();
     }
 
+    @Cooldown
     @ButtonAction(isEphemeral = true)
     @Action(listeningDuration = 15)
     private MessageEmbed revealAnswer(ButtonClickEvent event, Question question) {
@@ -246,7 +241,7 @@ public class ChemmatCommands implements OnReady
 
         int index = 0;
         for (String option : shuffledOptions) {
-            builder.append(EMOJIS[index]).append(" : ").append(option).append('\n');
+            builder.append(EMOJIS[index].getName()).append(" : ").append(option).append('\n');
             index++;
         }
 

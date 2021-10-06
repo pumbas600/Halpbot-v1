@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.hibernate.models.UserStatistics;
 import nz.pumbas.halpbot.hibernate.repositories.UserStatisticsRepository;
@@ -42,6 +43,10 @@ public class UserStatisticsService
     }
 
     public void saveModifiedStatistics() {
-        this.userStatisticsRepository.saveAll(this.userStatistics.values());
+        this.userStatisticsRepository.saveAll(
+            this.userStatistics.values()
+                .stream()
+                .filter(userStatistic -> !userStatistic.isEmpty())
+                .collect(Collectors.toList()));
     }
 }

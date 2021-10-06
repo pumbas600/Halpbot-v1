@@ -106,6 +106,11 @@ public class UserStatistics implements DiscordString, Serializable
         return IS_ON_FIRE_THRESHOLD <= this.currentAnswerStreak;
     }
 
+    public boolean isEmpty() {
+        return 0 == this.getQuizzesStarted()
+            && 0 == this.getQuestionsAnswered(); // Note that the others will also be 0 if these are both 0.
+    }
+
     @Override
     public String toDiscordString() {
         return "**Quizzes Started** - " + this.getQuizzesStarted()

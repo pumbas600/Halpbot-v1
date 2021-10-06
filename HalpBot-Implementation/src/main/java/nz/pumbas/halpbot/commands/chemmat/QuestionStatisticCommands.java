@@ -30,6 +30,7 @@ public class QuestionStatisticCommands
 
     @Command(description = "Returns the top " + TOP_AMOUNT + " users and their stats for a particular column")
     public MessageEmbed top(JDA jda, @Unrequired("Answered") UserStatColumn column) {
+        this.userStatisticsService.saveModifiedStatistics();
         List<UserStatistics> topUserStatistics = this.userStatisticsService.getTop(TOP_AMOUNT, column.getColumn());
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -48,12 +49,15 @@ public class QuestionStatisticCommands
     }
 
     @Command(description = "Returns the question statistics for a particular user")
-    public MessageEmbed stats(@Source User author) {
-        UserStatistics userStatistics = this.userStatisticsService.getByUserId(author.getIdLong());
+    public MessageEmbed stats(@Source User author, @Unrequired User user) {
+        return this.buildUserStatisticsEmbed(null == user ? author : user);
+    }
 
+    private MessageEmbed buildUserStatisticsEmbed(User user) {
+        UserStatistics userStatistics = this.userStatisticsService.getByUserId(user.getIdLong());
         return new EmbedBuilder()
-            .setTitle(author.getName())
-            .setThumbnail(author.getEffectiveAvatarUrl())
+            .setTitle(user.getName())
+            .setThumbnail(user.getEffectiveAvatarUrl())
             .setDescription(userStatistics.toDiscordString())
             .setColor(HalpbotUtils.Blurple)
             .build();

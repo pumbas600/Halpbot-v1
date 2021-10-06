@@ -40,6 +40,7 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
             event.editButton(event.getButton().asDisabled());
             this.halpBotCore.getDisplayConfiguration()
                 .displayTemporary(halpbotEvent, "This button is no longer being used to save resources sorry :)", -1);
+            return;
         }
 
         ButtonActionCallback actionCallback = this.parsedButtonCallbacks.get(event.getComponentId());
@@ -51,6 +52,7 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
     private void parseButtonCallbacks(Object object) {
         for (Method method : object.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(ButtonAction.class)) {
+                method.setAccessible(true);
                 // Generate callback data
                 ButtonActionCallback actionCallback = ActionCallback.builder()
                     .setButtonAction(object, method)

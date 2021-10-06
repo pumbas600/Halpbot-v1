@@ -29,8 +29,6 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 
-import java.util.concurrent.TimeUnit;
-
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
 import nz.pumbas.halpbot.actions.annotations.Cooldown;

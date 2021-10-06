@@ -175,7 +175,8 @@ public class QuestionConfirmationCommands
             this.topicService.topicFromId(question.getTopicId())));
         builder.setDescription(
             this.buildDescription(question.getQuestion(), question.getAnswer(), question.getOptionB(),
-                question.getOptionC(), question.getOptionD(), question.getExplanation()));
+                question.getOptionC(), question.getOptionD(), question.getExplanation(),
+                question.getImage()));
     }
 
     private void editQuestionEmbed(EmbedBuilder builder, Question question, Question original) {
@@ -185,19 +186,21 @@ public class QuestionConfirmationCommands
 
         builder.setTitle(this.getEditedString(editedTopic, originalTopic));
         builder.setDescription(
-            "**EDITING QUESTION ID: " + question.getEditedId() + "**" +
+            "**EDITING QUESTION ID: " + question.getEditedId() + "**\n" +
             this.buildDescription(
                 this.getEditedString(question.getQuestion(), original.getQuestion()),
                 this.getEditedString(question.getAnswer(), original.getAnswer()),
                 this.getEditedString(question.getOptionB(), original.getOptionB()),
                 this.getEditedString(question.getOptionC(), original.getOptionC()),
                 this.getEditedString(question.getOptionD(), original.getOptionD()),
-                this.getEditedString(question.getExplanation(), original.getExplanation())
+                this.getEditedString(question.getExplanation(), original.getExplanation()),
+                this.getEditedString(question.getImage(), original.getImage())
         ));
     }
 
     private String buildDescription(@NotNull String question, @NotNull String answer, @NotNull String optionB,
-                                    @Nullable String optionC, @Nullable String optionD, @Nullable String explanation)
+                                    @Nullable String optionC, @Nullable String optionD, @Nullable String explanation,
+                                    @Nullable String image)
     {
         StringBuilder builder = new StringBuilder()
             .append(question).append("\n\n")
@@ -208,7 +211,9 @@ public class QuestionConfirmationCommands
         if (StringUtils.hasLength(optionD))
             builder.append(":regional_indicator_d: : ").append(optionD).append("\n");
         if (StringUtils.hasLength(explanation))
-            builder.append("\n**Explanation:**\n").append(explanation);
+            builder.append("\n**Explanation:**\n").append(explanation).append("\n");
+        if (StringUtils.hasLength(image))
+            builder.append("\n**Image:**\n").append(image);
         return builder.toString();
     }
 
