@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
@@ -66,6 +67,12 @@ public interface CommandMethod
      */
     @Nullable
     Object getInstance();
+
+    /**
+     * @return The {@link Executable} that's invoked by this command
+     */
+    @NotNull
+    Executable getExecutable();
 
     /**
      * @return The {@link String permissions} for this command. If there is no permission, this will an empty string

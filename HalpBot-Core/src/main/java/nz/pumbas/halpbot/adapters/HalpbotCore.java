@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
@@ -167,30 +168,23 @@ public class HalpbotCore implements ContextHolder
     public boolean hasCooldown(HalpbotEvent event, long userId, String actionId) {
         if (this.userCooldownsMap.containsKey(userId)) {
             UserCooldowns userCooldowns = this.userCooldownsMap.get(userId);
-            if (userCooldowns.hasCooldownFor(actionId)) {
-                if (userCooldowns.canSendCooldownMessage()) {
-                    final Cooldown cooldown = userCooldowns.getCooldownFor(actionId);
-                    event.safelyGetEvent(GenericMessageEvent.class)
-                        .present(e -> this.displayCooldown(e, cooldown))
-                        .absent(() -> this.displayCooldown(event.getEvent(Interaction.class), cooldown));
-                }
+            if (userCooldowns.hasCooldownFor(actionId))
+            {
+                final MessageEmbed remainingTimeEmbed = userCooldowns.getCooldownFor(actionId)
+                    .getRemainingTimeEmbed();
+
+                event.safelyGetEvent(Interaction.class)
+                    .present(interaction ->
+                        this.getDisplayConfiguration().displayTemporary(event, remainingTimeEmbed, -1))
+                    .absent(() -> {
+                        if (userCooldowns.canSendCooldownMessage()) {
+                            this.getDisplayConfiguration().displayTemporary(event, remainingTimeEmbed, 10);
+                        }
+                    });
                 return true;
             }
         }
         return false;
-    }
-
-    private void displayCooldown(GenericMessageEvent event, Cooldown cooldown) {
-        event.getChannel()
-            .sendMessageEmbeds(cooldown.getRemainingTimeEmbed())
-            .queue(m -> m.delete()
-                .queueAfter(10, TimeUnit.SECONDS));
-    }
-
-    private void displayCooldown(Interaction interaction, Cooldown cooldown) {
-        interaction.replyEmbeds(cooldown.getRemainingTimeEmbed())
-            .setEphemeral(true)
-            .queue();
     }
 
     public void clearEmptyCooldowns() {
