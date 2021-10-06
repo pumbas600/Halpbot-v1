@@ -25,11 +25,15 @@
 package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,16 +41,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.actions.ActionCallback;
+import nz.pumbas.halpbot.actions.annotations.Action;
+import nz.pumbas.halpbot.actions.annotations.ButtonAction;
+import nz.pumbas.halpbot.adapters.ButtonAdapter;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.annotations.Remaining;
+import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
@@ -65,7 +75,13 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 public class ChemmatCommands implements OnReady
 {
-    private final String[] EMOJIS = { "\uD83C\uDDE6", "\uD83C\uDDE7", "\uD83C\uDDE8", "\uD83C\uDDE9" };
+    private static final Emoji[] EMOJIS = {
+        Emoji.fromMarkdown("\uD83C\uDDE6"),
+        Emoji.fromMarkdown("\uD83C\uDDE7"),
+        Emoji.fromMarkdown("\uD83C\uDDE8"),
+        Emoji.fromMarkdown("\uD83C\uDDE9")
+    };
+    private static final Emoji QUESTION_MARK = Emoji.fromMarkdown("U+2754");
 
     private final ActionCallbackBuilder actionCallbackBuilder = ActionCallback.builder()
         .setDeleteAfter(10, TimeUnit.MINUTES)
@@ -131,12 +147,11 @@ public class ChemmatCommands implements OnReady
         return "Reloaded the questions";
     }
 
+    @SlashCommand
     @Command(description = "Retrieves a random chemmat quiz")
-    public @Nullable String quiz(ReactionAdapter reactionAdapter,
-                                 @Source User author,
-                                 @Source MessageChannel channel,
-                                 @Unrequired("-1") long quizId,
-                                 @Unrequired("") @Remaining String topic)
+    public @Nullable String quiz(ButtonAdapter buttonAdapter, Interaction interaction,
+                                 @Description("The id of the quiz") @Unrequired("-1") long quizId,
+                                 @Description("The chemmat topic to get quizzed on") @Unrequired("") String topic)
     {
         Question question;
         if (0 <= quizId) {
@@ -157,29 +172,64 @@ public class ChemmatCommands implements OnReady
         if (null == question)
             return "There seemed to be an issue retrieving the question";
 
-        this.userStatisticsService.getByUserId(author.getIdLong()).incrementQuizzesStarted();
+        this.userStatisticsService.getByUserId(interaction.getUser().getIdLong()).incrementQuizzesStarted();
         List<String> shuffledOptions = question.getShuffledOptions(this.random);
+        List<Button> buttons = new ArrayList<>();
+
+        int index = 0;
+        for (String option : shuffledOptions) {
+            boolean isCorrect = question.getAnswer().equals(option);
+            buttons.add(buttonAdapter.register(
+                Button.primary("answeredQuestion", EMOJIS[index++]),
+                isCorrect));
+        }
+        buttons.add(buttonAdapter.register(Button.danger("", QUESTION_MARK), question));
 
         MessageEmbed quizEmbed = this.buildQuestionEmbed(question, shuffledOptions);
-        channel.sendMessageEmbeds(quizEmbed)
-            .queue(m -> {
-                int index = 0;
-                for (String option : shuffledOptions) {
-                    reactionAdapter.registerCallback(m,
-                        this.actionCallbackBuilder
-                            .setEmoji(this.EMOJIS[index])
-                            .setConsumer(e -> this.onAnswerReaction(e, question.getAnswer().equals(option)))
-                            .buildReactionCallback());
-                    index++;
-                }
-
-                reactionAdapter.registerCallback(m,
-                    this.actionCallbackBuilder
-                        .setEmoji("U+2753")
-                        .setConsumer(e -> this.onRevealAnswer(e, question))
-                        .buildReactionCallback());
-        });
+        interaction.replyEmbeds(quizEmbed)
+            .addActionRow(buttons)
+            .queue();
         return null;
+    }
+
+    @ButtonAction
+    @Action(listeningDuration = 15, displayDuration = 30)
+    private MessageEmbed answeredQuestion(ButtonClickEvent event, boolean isCorrect) {
+        UserStatistics userStatistics = this.userStatisticsService.getByUserId(event.getUser().getIdLong());
+        userStatistics.incrementQuestionsAnswered();
+
+        EmbedBuilder builder = new EmbedBuilder();
+        if (isCorrect) {
+            userStatistics.incrementQuestionsAnsweredCorrectly();
+            builder.setTitle("Correct: :white_check_mark:");
+            builder.setColor(Color.GREEN);
+            builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
+            if (userStatistics.isOnFire()) {
+                builder.setDescription(event.getUser().getName() + " is on **fire!** :fire:");
+            }
+        }
+        else {
+            userStatistics.resetAnswerStreak();
+            builder.setTitle("Incorrect: :x:");
+            builder.setColor(Color.RED);
+        }
+        return builder.build();
+    }
+
+    @ButtonAction(isEphemeral = true)
+    @Action(listeningDuration = 15)
+    private MessageEmbed revealAnswer(ButtonClickEvent event, Question question) {
+        EmbedBuilder builder = new EmbedBuilder();
+
+        builder.setTitle("Answer - " + question.getAnswer());
+        builder.setColor(HalpbotUtils.Blurple);
+        builder.setFooter(HalpbotUtils.capitalise(this.topicService.topicFromId(question.getTopicId())) + " - " +
+            "Question id: " + question.getId());
+
+        if (null != question.getExplanation()) {
+            builder.setDescription(question.getExplanation());
+        }
+        return builder.build();
     }
 
     private MessageEmbed buildQuestionEmbed(Question question, List<String> shuffledOptions) {
@@ -196,7 +246,7 @@ public class ChemmatCommands implements OnReady
 
         int index = 0;
         for (String option : shuffledOptions) {
-            builder.append(this.EMOJIS[index]).append(" : ").append(option).append('\n');
+            builder.append(EMOJIS[index]).append(" : ").append(option).append('\n');
             index++;
         }
 
@@ -240,47 +290,6 @@ public class ChemmatCommands implements OnReady
     @Command(description = "Returns the link to the halpbot dashboard where you can add questions")
     public String addQuiz() {
         return "You can add questions using the Halpbot Dashboard here: https://www.pumbas.net/questions";
-    }
-
-    private void onAnswerReaction(MessageReactionAddEvent event, boolean isCorrect) {
-        // Hide the response as quickly as possible to avoid others from seeing it
-        event.getReaction().removeReaction(event.getUser()).queue();
-        UserStatistics userStatistics = this.userStatisticsService.getByUserId(event.getUserIdLong());
-        userStatistics.incrementQuestionsAnswered();
-
-        EmbedBuilder builder = new EmbedBuilder();
-        if (isCorrect) {
-            userStatistics.incrementQuestionsAnsweredCorrectly();
-            builder.setTitle("Correct: :white_check_mark:");
-            builder.setColor(Color.GREEN);
-            builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
-            if (userStatistics.isOnFire()) {
-                builder.setDescription(event.getUser().getName() + " is on **fire!** :fire:");
-            }
-        }
-        else {
-            userStatistics.resetAnswerStreak();
-            builder.setTitle("Incorrect: :x:");
-            builder.setColor(Color.RED);
-        }
-        event.getChannel().sendMessageEmbeds(builder.build())
-            .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
-    }
-
-    private void onRevealAnswer(@NotNull MessageReactionAddEvent event, @NotNull Question question) {
-        event.getReaction().removeReaction(event.getUser()).queue();
-        EmbedBuilder builder = new EmbedBuilder();
-
-        builder.setTitle("Answer - " + question.getAnswer());
-        builder.setColor(HalpbotUtils.Blurple);
-        builder.setFooter(HalpbotUtils.capitalise(this.topicService.topicFromId(question.getTopicId())) + " - " +
-            "Question id: " + question.getId());
-
-        if (null != question.getExplanation()) {
-            builder.setDescription(question.getExplanation());
-        }
-        event.getChannel().sendMessageEmbeds(builder.build())
-            .queue(m -> m.delete().queueAfter(30L, TimeUnit.SECONDS));
     }
 
     private @Nullable Question getRandomQuestion(List<Long> ids) {

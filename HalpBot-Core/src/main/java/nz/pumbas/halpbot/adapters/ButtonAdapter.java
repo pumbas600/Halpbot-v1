@@ -35,12 +35,15 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
             return;
         }
 
+        HalpbotEvent halpbotEvent = new InteractionEvent(event);
         if (!this.parsedButtonCallbacks.containsKey(event.getComponentId())) {
-            event.editButton(null);
+            event.editButton(event.getButton().asDisabled());
+            this.halpBotCore.getDisplayConfiguration()
+                .displayTemporary(halpbotEvent, "This button is no longer being used to save resources sorry :)", -1);
         }
 
         ButtonActionCallback actionCallback = this.parsedButtonCallbacks.get(event.getComponentId());
-        this.handle(actionCallback, new InteractionEvent(event));
+        this.handle(actionCallback, halpbotEvent);
         if (!event.isAcknowledged())
             event.deferEdit().queue();
     }

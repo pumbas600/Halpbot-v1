@@ -43,11 +43,13 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
@@ -112,7 +114,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     @Override
     public void accept(JDA jda) {
-        //this.registerSlashCommands(jda);
+        this.registerSlashCommands(jda);
     }
 
     @Override
@@ -129,9 +131,11 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      */
     private void registerSlashCommands(JDA jda) {
         for (CommandMethod commandMethod : this.registeredSlashCommands.values()) {
-            jda.upsertCommand(this.generateSlashCommandData(commandMethod))
-                .queue();
-            HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.getAlias());
+            if (commandMethod.getExecutable().getAnnotation(SlashCommand.class).register()) {
+                jda.upsertCommand(this.generateSlashCommandData(commandMethod))
+                    .queue();
+                HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.getAlias());
+            }
         }
     }
 
@@ -144,7 +148,10 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      * @return The generated {@link CommandData}
      */
     public CommandData generateSlashCommandData(CommandMethod commandMethod) {
-        CommandData data = new CommandData(commandMethod.getAlias(), commandMethod.getDescription());
+        CommandData data = new CommandData(
+            this.formatSlashCommandIdentifiers(commandMethod.getAlias()),
+            commandMethod.getDescription());
+
         for (Token token : commandMethod.getTokens()) {
             if (token instanceof ParsingToken) {
                 ParsingToken parsingToken = (ParsingToken) token;
@@ -152,8 +159,9 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
                 Description description = parsingToken.getAnnotation(Description.class);
                 String optionDescription = null == description ? "N/A" : description.value();
+                String name = this.formatSlashCommandIdentifiers(parsingToken.getParameterName());
 
-                data.addOption(parsingToken.getConverter().getOptionType(), parsingToken.getParameterName(),
+                data.addOption(parsingToken.getConverter().getOptionType(), name,
                     optionDescription, !token.isOptional());
             }
             else if (token instanceof PlaceholderToken){
@@ -163,6 +171,11 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             }
         }
         return data;
+    }
+
+    private String formatSlashCommandIdentifiers(String name) {
+        return name.replaceAll("([a-z])([A-Z])", "$1-$2")
+            .toLowerCase(Locale.ROOT);
     }
 
     /**

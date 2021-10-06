@@ -56,7 +56,7 @@ public class HalpBotCommands
 
     @Command(alias = "invite", description = "Retrieves the invite for this discord bot")
     public String invite() {
-        return "https://discord.com/api/oauth2/authorize?client_id=819840092327772170&permissions=2147544128&scope=bot";
+        return "https://canary.discord.com/api/oauth2/authorize?client_id=819840092327772170&permissions=2147544128&scope=bot%20applications.commands";
     }
 
     @Command(alias = "suggestion")
@@ -66,7 +66,7 @@ public class HalpBotCommands
 
     @Command(alias = "choose", description = "Randomly chooses one of the items")
     public String choose(@Implicit String[] choices) {
-        // Use of @Implicit means that its not necessary to surround the choices with [...]
+        // Use of @Implicit means that it's not necessary to surround the choices with [...]
         return choices[(int)(Math.random() * choices.length)];
     }
 
@@ -127,18 +127,20 @@ public class HalpBotCommands
                     @Description("The first number")  int a,
                     @Description("The second number") int b)
     {
-        String equation = String.format("%d + %d = %d", a, b, a + b);
-        interaction.reply(equation)
+        int sum = a + b;
+        String message = String.format("The sum is %d :tada:", sum);
+        interaction.reply(message)
             .addActionRow(
-                buttonAdapter.register(Button.primary("dynamicCallback", Emoji.fromMarkdown("U+2753")), equation))
+                buttonAdapter.register(Button.primary("add", "+1"), sum, 1),
+                buttonAdapter.register(Button.danger("add", "-1"), sum, -1))
             .queue();
     }
 
     @ButtonAction
     @Cooldown
     @Action(listeningDuration = 10, displayDuration=30)
-    public String dynamicCallback(ButtonClickEvent event, String equation) {
-        return "I was passed the variable: " + equation + "!";
+    public String add(ButtonClickEvent event, int sum, int amount) {
+        return String.format("%d + %d is %d!", sum, amount, sum + amount);
     }
 
     @SlashCommand

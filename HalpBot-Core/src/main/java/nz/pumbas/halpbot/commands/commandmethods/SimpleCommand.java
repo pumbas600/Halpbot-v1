@@ -98,6 +98,7 @@ public class SimpleCommand implements CommandMethod
     /**
      * @return The {@link Executable} for this {@link Command}
      */
+    @Override
     public @NotNull Executable getExecutable() {
         return this.executable;
     }
@@ -187,6 +188,8 @@ public class SimpleCommand implements CommandMethod
     public @Nullable Object getInstance() {
         return this.instance;
     }
+
+
 
     /**
      * Invokes the {@link Executable} for this {@link Command} with the specified arguments.

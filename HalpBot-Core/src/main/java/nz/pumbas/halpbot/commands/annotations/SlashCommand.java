@@ -9,4 +9,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface SlashCommand
 {
+    /**
+     * This should only be set to true if you've edited or just created the slash command so that its registered.
+     * If you've not made any changes, turning this off means that you'll instantly be able to use your slash
+     * commands when you start up your bot.
+     */
+    boolean register() default false;
 }
