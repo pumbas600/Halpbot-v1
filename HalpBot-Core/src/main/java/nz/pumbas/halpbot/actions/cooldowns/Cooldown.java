@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.cooldowns;
+package nz.pumbas.halpbot.actions.cooldowns;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;

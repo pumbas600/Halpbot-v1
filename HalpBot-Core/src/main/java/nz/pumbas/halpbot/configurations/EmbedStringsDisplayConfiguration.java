@@ -2,12 +2,10 @@ package nz.pumbas.halpbot.configurations;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.GenericMessageEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
 
 import java.awt.Color;
 
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class EmbedStringsDisplayConfiguration implements DisplayConfiguration

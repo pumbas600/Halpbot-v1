@@ -24,9 +24,6 @@
 
 package nz.pumbas.halpbot.commands.context;
 
-import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,9 +35,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import nz.pumbas.halpbot.adapters.HalpbotCore;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.objects.Exceptional;
 

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.objects;
+package nz.pumbas.halpbot.commands.objects;
 
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;

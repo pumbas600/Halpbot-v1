@@ -11,11 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import nz.pumbas.halpbot.actions.ActionHandler;
 import nz.pumbas.halpbot.actions.ReactionActionCallback;
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
-import nz.pumbas.halpbot.commands.events.MessageEvent;
-import nz.pumbas.halpbot.permissions.PermissionManager;
+import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
-import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ReactionAdapter extends HalpbotAdapter implements ActionHandler

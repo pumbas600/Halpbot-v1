@@ -32,8 +32,7 @@ import java.lang.reflect.Method;
 
 import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
-import nz.pumbas.halpbot.commands.events.MessageEvent;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;

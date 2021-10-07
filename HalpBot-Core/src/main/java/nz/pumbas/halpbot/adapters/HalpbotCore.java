@@ -3,7 +3,6 @@ package nz.pumbas.halpbot.adapters;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 
@@ -15,9 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.halpbot.commands.cooldowns.Cooldown;
-import nz.pumbas.halpbot.commands.cooldowns.UserCooldowns;
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.UserCooldowns;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;

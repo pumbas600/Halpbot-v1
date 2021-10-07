@@ -3,6 +3,7 @@ package nz.pumbas.halpbot.objects.expiringmap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -123,9 +124,26 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
 
     @Override
     public V putIfAbsent(K key, V value) {
-        if (!this.contains(key)) {
+        if (!this.containsKey(key)) {
             return this.put(key, value);
         }
         return this.get(key);
+    }
+
+    @Override
+    public V remove(@NotNull Object key) {
+        if (this.containsKey(key)) {
+            this.expirationKeys.remove(key);
+        }
+        return super.remove(key);
+    }
+
+    @Override
+    public boolean remove(Object key, Object value) {
+        if(this.containsKey(key) && Objects.equals(this.get(key), value)) {
+            this.remove(key);
+            return true;
+        }
+        return false;
     }
 }
