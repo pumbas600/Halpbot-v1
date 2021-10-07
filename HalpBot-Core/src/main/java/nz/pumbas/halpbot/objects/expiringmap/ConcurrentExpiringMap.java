@@ -16,7 +16,9 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
     private final BiConsumer<K, V> removalCallback;
 
     /**
-     * Creates a concurrent expiring map where the elements expire after the specified expiration duration.
+     * Creates a concurrent expiring map where the elements expire after the specified expiration duration. Due to how
+     * this has been implemented, the key won't be removed before the expiration duration, however, it may take up to
+     * 1.5 * the expiration duration for it to be actually removed due to extreme looping.
      * <p>
      * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an
      * {@link IllegalArgumentException} will be thrown.
@@ -34,9 +36,11 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
     }
 
     /**
-     * Creates a concurrent expiring map where the elements expire after the specified expiration duration. Before
-     * the expired entries are removed from the map, the removal callback is invoked on them. Note that this could be
-     * on another thread.
+     * Creates a concurrent expiring map where the elements expire after the specified expiration duration. Just
+     * after the expired entries are removed from the map, the removal callback is invoked on them. Note that this
+     * could be on another thread. Due to how this has been implemented, the key won't be removed before the expiration
+     * duration, however, it may take up to 1.5 * the expiration duration for it to be actually removed due to
+     * extreme looping.
      * <p>
      * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an
      * {@link IllegalArgumentException} will be thrown.
@@ -71,7 +75,7 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
     }
 
     // Its Scheduled twice every expiration period to reduce the chance of extrememe looping (An element just doesn't
-    // expire on the loop, meaning it essentially stays in the map for twice the expiration duration)
+    // expire on the first loop, meaning it essentially stays in the map for twice the expected expiration duration)
     private void initialiseCleaner() {
         Executors.newSingleThreadScheduledExecutor()
             .scheduleAtFixedRate(
@@ -84,9 +88,9 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
     private void clean() {
         for (Entry<K, Long> entry : this.expirationKeys.entrySet()) {
             if (this.hasExpired(entry.getValue())) {
-                this.removalCallback.accept(entry.getKey(), this.get(entry.getKey()));
                 this.remove(entry.getKey());
                 this.expirationKeys.remove(entry.getKey());
+                this.removalCallback.accept(entry.getKey(), this.get(entry.getKey()));
             }
         }
     }
