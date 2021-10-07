@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.objects;
+package nz.pumbas.halpbot.commands.objects;
 
 public class Vector
 {

@@ -1,11 +1,9 @@
 package nz.pumbas.halpbot.configurations;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.GenericMessageEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
 
 import nz.pumbas.halpbot.commands.DiscordString;
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 
 public interface DisplayConfiguration
 {

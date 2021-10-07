@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.cooldowns;
+package nz.pumbas.halpbot.actions.cooldowns;
 
 import java.util.concurrent.TimeUnit;
 

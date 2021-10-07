@@ -26,12 +26,9 @@ package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 
@@ -45,9 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
 import nz.pumbas.halpbot.actions.annotations.Cooldown;

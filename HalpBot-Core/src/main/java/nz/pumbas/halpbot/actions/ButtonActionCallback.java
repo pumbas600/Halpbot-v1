@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 

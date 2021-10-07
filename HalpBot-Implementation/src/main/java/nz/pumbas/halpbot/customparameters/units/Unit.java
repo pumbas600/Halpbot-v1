@@ -26,10 +26,6 @@ package nz.pumbas.halpbot.customparameters.units;
 
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.converters.Converters;
-import nz.pumbas.halpbot.converters.TypeConverter;
-import nz.pumbas.halpbot.objects.Exceptional;
-
 public class Unit
 {
     static {

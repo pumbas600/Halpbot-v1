@@ -13,8 +13,8 @@ import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.actions.ActionHandler;
 import nz.pumbas.halpbot.actions.ButtonActionCallback;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
-import nz.pumbas.halpbot.commands.events.InteractionEvent;
+import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.InteractionEvent;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 
 public class ButtonAdapter extends HalpbotAdapter implements ActionHandler

@@ -2,7 +2,7 @@ package nz.pumbas.halpbot.configurations;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-import nz.pumbas.halpbot.commands.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 
 public class SimpleDisplayConfiguration implements DisplayConfiguration
 {

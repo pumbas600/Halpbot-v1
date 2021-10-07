@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.events;
+package nz.pumbas.halpbot.events;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.ChannelType;
