@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.objects.expiringmap;
+package nz.pumbas.halpbot.objects.expiring;
 
 import java.util.Map;
 

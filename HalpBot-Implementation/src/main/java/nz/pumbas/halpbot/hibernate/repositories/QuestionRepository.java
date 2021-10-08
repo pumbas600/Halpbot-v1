@@ -53,6 +53,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long>
     @Query("SELECT count(q) FROM Question q WHERE q.status <> 0")
     long countWaitingConfirmation();
 
+    @Query("SELECT q.id FROM Question q WHERE q.status = 0 AND q.topicId in ?1")
+    List<Long> getAllConfirmedIdsInTopicIds(Set<Long> topicIds);
+
     @Query("SELECT q.id FROM Question q WHERE q.status = 0 AND q.topicId = ?1")
     List<Long> getAllConfirmedIdsByTopicId(Long topicId);
 

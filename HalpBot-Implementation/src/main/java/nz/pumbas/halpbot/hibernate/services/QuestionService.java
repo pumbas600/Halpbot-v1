@@ -44,6 +44,10 @@ public class QuestionService
         return this.questionRepository.getAllConfirmedIds();
     }
 
+    public List<Long> getAllConfirmedIdsInTopicIds(Set<Long> topicIds) {
+        return this.questionRepository.getAllConfirmedIdsInTopicIds(topicIds);
+    }
+
     public List<Question> getAllWaitingConfirmationNotIn(Set<Long> ids) {
         if (ids.isEmpty())
             return this.getAllWaitingConfirmation();

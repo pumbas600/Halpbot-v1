@@ -27,21 +27,27 @@ package nz.pumbas.halpbot.commands.chemmat;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
@@ -50,8 +56,11 @@ import nz.pumbas.halpbot.adapters.ButtonAdapter;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Description;
+import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
+import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.objects.expiring.ExpiringHashSet;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;
@@ -65,7 +74,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
-public class ChemmatCommands implements OnReady
+public class ChemmatCommands
 {
     private static final Emoji[] EMOJIS = {
         Emoji.fromMarkdown("\uD83C\uDDE6"),
@@ -73,33 +82,25 @@ public class ChemmatCommands implements OnReady
         Emoji.fromMarkdown("\uD83C\uDDE8"),
         Emoji.fromMarkdown("\uD83C\uDDE9")
     };
-
     private static final Emoji QUESTION_MARK = Emoji.fromMarkdown("U+2754");
+    private static final long LISTENING_DURATION = 15;
+
+    private final Set<String> clickedButtons = new ExpiringHashSet<>(LISTENING_DURATION, TimeUnit.MINUTES);
     private final Random random = new Random();
 
     private final QuestionService questionService;
     private final TopicService topicService;
     private final UserStatisticsService userStatisticsService;
 
-    private List<Long> questionIds;
-    private int questionIndex;
+    private final QuestionHandler defaultQuestionHandler;
+    private final Map<Long, QuestionHandler> questionHandlers = new HashMap<>();
 
     @Autowired
     public ChemmatCommands(QuestionService questionService, TopicService topicService, UserStatisticsService userStatisticsService) {
         this.questionService = questionService;
         this.topicService = topicService;
         this.userStatisticsService = userStatisticsService;
-    }
-
-    /**
-     * A method that is called once after the bot has been initialised.
-     *
-     * @param event
-     *     The JDA {@link ReadyEvent}.
-     */
-    @Override
-    public void onReady(@NotNull ReadyEvent event) {
-        this.shuffleQuestions();
+        this.defaultQuestionHandler = new QuestionHandler(this.questionService, this.random);
     }
 
 //    @Command(description = "A temporary command used to migrate the question from the SQL database to the Derby " +
@@ -127,10 +128,30 @@ public class ChemmatCommands implements OnReady
 //        return "Successfully migrated all the questions";
 //    }
 
+    @Command(description = "Configuration the current channel with the topics to be quizzed on",
+             permissions = HalpbotPermissions.ADMIN)
+    public String configure(@Source TextChannel textChannel, @Remaining String topicInput) {
+        String[] topics = topicInput.toLowerCase(Locale.ROOT).split(", ");
+        Set<Long> topicIds = Arrays.stream(topics)
+            .map(this.topicService::getIdFromTopic)
+            .filter(Exceptional::present)
+            .map(Exceptional::get)
+            .collect(Collectors.toSet());
+
+        if (topicIds.isEmpty())
+            return "None of those topics seemed valid sorry :(";
+
+        this.questionHandlers.put(
+            textChannel.getIdLong(), new QuestionHandler(this.questionService, this.random, topicIds));
+        return "Created a new configuration for this channel!";
+    }
+
+
     @Command(description = "Reloads the questions from the database and reshuffles them at the same time",
              permissions = HalpbotPermissions.ADMIN)
     public String reloadQuestions() {
-        this.shuffleQuestions();
+        this.defaultQuestionHandler.shuffleQuestions();
+        this.questionHandlers.values().forEach(QuestionHandler::shuffleQuestions);
         return "Reloaded the questions";
     }
 
@@ -140,25 +161,23 @@ public class ChemmatCommands implements OnReady
                                  @Description("The id of the quiz") @Unrequired("-1") long quizId,
                                  @Description("The chemmat topic to get quizzed on") @Unrequired("") String topic)
     {
-        Question question;
+        Exceptional<Question> eQuestion;
         if (0 <= quizId) {
-            try {
-                question = this.questionService.getById(quizId);
-            } catch (ResourceNotFoundException e) {
-                return e.getMessage();
-            }
+            eQuestion = Exceptional.of(() -> this.questionService.getById(quizId));
         }
         else if (topic.isEmpty()) {
-            question = this.getNextQuestion();
+            eQuestion = this.questionHandlers
+                .getOrDefault(interaction.getChannel().getIdLong(), this.defaultQuestionHandler)
+                .getNextQuestion();
         }
         else {
-            Exceptional<Question> eQuestion = this.getRandomQuestionByTopic(topic);
-            if (eQuestion.caught()) return eQuestion.error().getMessage();
-            question = eQuestion.orNull();
+            eQuestion = this.getRandomQuestionByTopic(topic);
         }
-        if (null == question)
+        eQuestion.caught(ErrorManager::handle);
+        if (eQuestion.absent())
             return "There seemed to be an issue retrieving the question";
 
+        Question question = eQuestion.get();
         this.userStatisticsService.getByUserId(interaction.getUser().getIdLong()).incrementQuizzesStarted();
         List<String> shuffledOptions = question.getShuffledOptions(this.random);
         List<Button> buttons = new ArrayList<>();
@@ -182,14 +201,24 @@ public class ChemmatCommands implements OnReady
 
     @Cooldown
     @ButtonAction
-    @Action(listeningDuration = 15, displayDuration = 25)
+    @Action(listeningDuration = LISTENING_DURATION, displayDuration = 25)
     private MessageEmbed answeredQuestion(ButtonClickEvent event, boolean isCorrect) {
-        UserStatistics userStatistics = this.userStatisticsService.getByUserId(event.getUser().getIdLong());
-        userStatistics.incrementQuestionsAnswered();
+        User user = event.getUser();
+        //Combines the user id with the button id to get a unique id describing the button this user clicked
+        String clickId = user.getId() + event.getComponentId();
 
         EmbedBuilder builder = new EmbedBuilder();
+        UserStatistics userStatistics = this.userStatisticsService.getByUserId(user.getIdLong());
+        if (!this.clickedButtons.contains(clickId)) {
+            this.clickedButtons.add(clickId);
+
+            userStatistics.incrementQuestionsAnswered();
+            if (isCorrect)
+                userStatistics.incrementQuestionsAnsweredCorrectly();
+            else userStatistics.resetAnswerStreak();
+        }
+
         if (isCorrect) {
-            userStatistics.incrementQuestionsAnsweredCorrectly();
             builder.setTitle("Correct: :white_check_mark:");
             builder.setColor(Color.GREEN);
             builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
@@ -198,7 +227,6 @@ public class ChemmatCommands implements OnReady
             }
         }
         else {
-            userStatistics.resetAnswerStreak();
             builder.setTitle("Incorrect: :x:");
             builder.setColor(Color.RED);
         }
@@ -207,7 +235,7 @@ public class ChemmatCommands implements OnReady
 
     @Cooldown
     @ButtonAction(isEphemeral = true)
-    @Action(listeningDuration = 15)
+    @Action(listeningDuration = LISTENING_DURATION)
     private MessageEmbed revealAnswer(ButtonClickEvent event, Question question) {
         EmbedBuilder builder = new EmbedBuilder();
 
@@ -292,24 +320,5 @@ public class ChemmatCommands implements OnReady
             }
         }
         return null;
-    }
-
-    private @Nullable Question getNextQuestion() {
-        if (this.questionIndex >= this.questionIds.size()) {
-            this.shuffleQuestions();
-            this.questionIndex = 0;
-        }
-        try {
-            return this.questionService.getById(this.questionIds.get(this.questionIndex++));
-        } catch (ResourceNotFoundException e) {
-            ErrorManager.handle(e);
-            return null;
-        }
-    }
-
-    private void shuffleQuestions() {
-        // Updates the ids, so that newly added questions get added
-        this.questionIds = this.questionService.getAllConfirmedIds();
-        Collections.shuffle(this.questionIds, this.random);
     }
 }

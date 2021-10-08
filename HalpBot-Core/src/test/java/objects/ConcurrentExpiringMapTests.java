@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.objects.expiringmap.ConcurrentExpiringMap;
-import nz.pumbas.halpbot.objects.expiringmap.ExpiringMap;
+import nz.pumbas.halpbot.objects.expiring.ConcurrentExpiringMap;
+import nz.pumbas.halpbot.objects.expiring.ExpiringMap;
 
 public class ConcurrentExpiringMapTests
 {
