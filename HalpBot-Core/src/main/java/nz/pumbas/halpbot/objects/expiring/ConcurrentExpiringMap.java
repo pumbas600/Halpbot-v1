@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.objects.expiringmap;
+package nz.pumbas.halpbot.objects.expiring;
 
 import org.jetbrains.annotations.NotNull;
 

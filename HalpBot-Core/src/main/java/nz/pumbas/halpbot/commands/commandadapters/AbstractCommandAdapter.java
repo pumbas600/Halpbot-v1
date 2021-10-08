@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.commands.commandadapters;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
@@ -130,12 +131,29 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      */
     private void registerSlashCommands(JDA jda) {
         for (CommandMethod commandMethod : this.registeredSlashCommands.values()) {
-            if (commandMethod.getExecutable().getAnnotation(SlashCommand.class).register()) {
+            SlashCommand slashCommand = commandMethod.getExecutable().getAnnotation(SlashCommand.class);
+            if (slashCommand.remove()) {
+                this.deleteSlashCommandById(jda, this.formatSlashCommandIdentifiers(commandMethod.getAlias()));
+            }
+            else if (slashCommand.register()) {
                 jda.upsertCommand(this.generateSlashCommandData(commandMethod))
                     .queue();
                 HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.getAlias());
             }
         }
+    }
+
+    private void deleteSlashCommandById(JDA jda, String name) {
+        jda.retrieveCommands().queue(commands ->
+            commands.stream()
+                .filter(command -> command.getName().equals(name))
+                .findFirst()
+                .map(ISnowflake::getId)
+                .ifPresent(id ->
+                    jda.deleteCommandById(id).queue(success ->
+                        HalpbotUtils.logger().info("Successfully deleted slash command: " + name))
+                )
+        );
     }
 
     /**
