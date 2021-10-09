@@ -53,7 +53,6 @@ import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.actions.annotations.ButtonAction;
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.adapters.ButtonAdapter;
-import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Description;
 import nz.pumbas.halpbot.commands.annotations.Remaining;
@@ -85,6 +84,13 @@ public class ChemmatCommands
     private static final Emoji QUESTION_MARK = Emoji.fromMarkdown("U+2754");
     private static final long LISTENING_DURATION = 15;
 
+    private static final String[] STREAK_MESSAGES = {
+        "{NAME} is on **fire!** :fire:", "Someone call the firefighters, {NAME} is **blazing!**",
+        "Everyone stand back, :fire: **{NAME}** :fire: is here!", "{NAME} is an **inferno!** :fire:",
+        "Can **{NAME}** even be stopped??", "I think **{NAME}** actually knows ALL these questions :exploding_head:",
+        "What is this...? {NAME} is **transcending!** These questions are just too easy!" };
+
+
     private final Set<String> clickedButtons = new ExpiringHashSet<>(LISTENING_DURATION, TimeUnit.MINUTES);
     private final Random random = new Random();
 
@@ -102,31 +108,6 @@ public class ChemmatCommands
         this.userStatisticsService = userStatisticsService;
         this.defaultQuestionHandler = new QuestionHandler(this.questionService, this.random);
     }
-
-//    @Command(description = "A temporary command used to migrate the question from the SQL database to the Derby " +
-//        "database", permissions = HalpbotPermissions.BOT_OWNER)
-//    public String migrateQuestions() {
-//        this.questionService.bulkSave(
-//            this.quizNotes.rows()
-//            .stream()
-//            .map(row -> SQLUtils.asModel(Quiz.class, row))
-//            .map(
-//                q -> {
-//                    Question question = new Question();
-//                    question.setTopicId((long)this.topics.where(TOPIC, q.getTopic()).first().get().value(ID).get());
-//                    question.setQuestion(q.getQuestion());
-//                    question.setAnswer(q.getOptions().get(q.getAnswer() - 1));
-//                    question.setOptionB(q.getOptions().get((q.getAnswer()) % 4));
-//                    question.setOptionC(q.getOptions().get((q.getAnswer() + 1) % 4));
-//                    question.setOptionD(q.getOptions().get((q.getAnswer() + 2) % 4));
-//                    question.setExplanation(q.getExplanation());
-//                    question.setImage(q.getImage());
-//                    question.setStatus(Status.CONFIRMED);
-//                    return question;
-//                })
-//            .collect(Collectors.toList()));
-//        return "Successfully migrated all the questions";
-//    }
 
     @Command(description = "Configuration the current channel with the topics to be quizzed on",
              permissions = HalpbotPermissions.ADMIN)
@@ -223,7 +204,10 @@ public class ChemmatCommands
             builder.setColor(Color.GREEN);
             builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
             if (userStatistics.isOnFire()) {
-                builder.setDescription(event.getUser().getName() + " is on **fire!** :fire:");
+                int response = Math.min(STREAK_MESSAGES.length - 1,
+                    (int)(userStatistics.getCurrentAnswerStreak() / UserStatistics.IS_ON_FIRE_THRESHOLD) - 1);
+
+                builder.setDescription(STREAK_MESSAGES[response].replace("{NAME}", event.getUser().getName()));
             }
         }
         else {

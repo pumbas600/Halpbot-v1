@@ -155,7 +155,7 @@ public class QuestionConfirmationCommands
             this.addQuestionEmbed(builder, question);
         else {
             try {
-                Question originalQuestion = this.questionService.getById(question.getId());
+                Question originalQuestion = this.questionService.getById(question.getEditedId());
                 this.editQuestionEmbed(builder, question, originalQuestion);
             } catch (ResourceNotFoundException e) {
                 ErrorManager.handle(e);

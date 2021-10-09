@@ -140,10 +140,6 @@ public final class HalpbotUtils
         }
     }
 
-    public static <K, V> void filter(Map<K, V> map, BiPredicate<K, V> filter) {
-        map.entrySet().removeIf(entry -> !filter.test(entry.getKey(), entry.getValue()));
-    }
-
     /**
      * Retrieves all the lines from a resource file as a {@link List<String>}.
      *
@@ -152,9 +148,9 @@ public final class HalpbotUtils
      *
      * @return A {@link List<String>} with all the lines from the file in it
      */
-    public static List<String> getAllLinesFromFile(String filename) {
+    public static List<String> getAllLinesFromFile(InputStream inputStream) {
         return parseFile(
-            filename,
+            inputStream,
             br -> br.lines().collect(Collectors.toList()),
             Collections.emptyList());
     }
@@ -167,8 +163,8 @@ public final class HalpbotUtils
      *
      * @return The first line, or an empty {@link String} if there was an error reading the line
      */
-    public static String getFirstLineFromFile(String filename) {
-        return parseFile(filename, BufferedReader::readLine, "");
+    public static String getFirstLine(InputStream inputStream) {
+        return parseFile(inputStream, BufferedReader::readLine, "");
     }
 
     /**
@@ -185,26 +181,18 @@ public final class HalpbotUtils
      *
      * @return The parsed file
      */
-    public static <T> T parseFile(String filename, IOFunction<BufferedReader, T> fileParser, T defaultValue) {
+    public static <T> T parseFile(InputStream inputStream, IOFunction<BufferedReader, T> fileParser, T defaultValue) {
+        try (InputStreamReader inputReader = new InputStreamReader(inputStream)) {
+            BufferedReader reader = new BufferedReader(inputReader);
+            T parsedFile = fileParser.apply(reader);
+            reader.close();
 
-        Optional<InputStream> oIn = retrieveReader(filename);
+            return parsedFile;
 
-        if (oIn.isPresent()) {
-            InputStream in = oIn.get();
-            try (InputStreamReader inputReader = new InputStreamReader(in)) {
-
-                BufferedReader reader = new BufferedReader(inputReader);
-                T parsedFile = fileParser.apply(reader);
-                reader.close();
-
-                return parsedFile;
-
-            } catch (IOException e) {
-                System.out.printf("There was an error trying to access the file %s%n", filename);
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            ErrorManager.handle(e);
+            return defaultValue;
         }
-        return defaultValue;
     }
 
     /**
@@ -300,22 +288,22 @@ public final class HalpbotUtils
      *
      * @return A {@link List} of split rows.
      */
-    public static List<String[]> parseCSVFile(String filename) {
-        if (!filename.endsWith(".csv"))
-            throw new IllegalArgumentException(
-                String.format("The filename, %s does not end with .csv", filename));
-
-        return parseFile(filename, bufferedReader -> {
-            List<String[]> lines = new ArrayList<>();
-
-            String line;
-            while (null != (line = bufferedReader.readLine())) {
-                lines.add(line.split(","));
-            }
-            return lines;
-
-        }, new ArrayList<>());
-    }
+//    public static List<String[]> parseCSVFile(String filename) {
+//        if (!filename.endsWith(".csv"))
+//            throw new IllegalArgumentException(
+//                String.format("The filename, %s does not end with .csv", filename));
+//
+//        return parseFile(filename, bufferedReader -> {
+//            List<String[]> lines = new ArrayList<>();
+//
+//            String line;
+//            while (null != (line = bufferedReader.readLine())) {
+//                lines.add(line.split(","));
+//            }
+//            return lines;
+//
+//        }, new ArrayList<>());
+//    }
 
     /**
      * Replaces the first occurance of the target in the passed str with the replacement without using regex.
@@ -521,5 +509,32 @@ public final class HalpbotUtils
         System.arraycopy(a, 0, combinedArray, 0, a.length);
         System.arraycopy(b, 0, combinedArray, a.length, b.length);
         return combinedArray;
+    }
+
+    public static int longestLength(String... strings) {
+        return longestLength(List.of(strings));
+    }
+
+    /**
+     * Returns the length of the longest string in the strings passed in. If no strings are passed, then it will
+     * return 0.
+     *
+     * @param strings
+     *      The strings to find the longest length from
+     *
+     * @return The length of the longest string
+     */
+    public static int longestLength(List<String> strings) {
+        if (strings.isEmpty())
+            return 0;
+
+        int longest = strings.get(0).length();
+        for (int i = 1; i < strings.size(); i++) {
+            int length = strings.get(i).length();
+            if (length > longest) {
+                longest = length;
+            }
+        }
+        return longest;
     }
 }

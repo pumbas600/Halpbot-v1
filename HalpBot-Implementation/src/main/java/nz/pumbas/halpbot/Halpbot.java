@@ -36,9 +36,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.LoginException;
 
@@ -95,10 +92,6 @@ public class Halpbot extends ListenerAdapter
             .registerAdapters();
 
         this.jda = halpbotCore.build();
-    }
-
-    public static HalpbotCore getHalpbotCore() {
-        return halpbotCore;
     }
 
     public static ReactionAdapter getReactionAdapter() {
