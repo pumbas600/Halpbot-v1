@@ -82,7 +82,7 @@ public class ChemmatCommands
         Emoji.fromMarkdown("\uD83C\uDDE9")
     };
     private static final Emoji QUESTION_MARK = Emoji.fromMarkdown("U+2754");
-    private static final long LISTENING_DURATION = 2;
+    private static final long LISTENING_DURATION = 20;
 
     private static final String[] STREAK_MESSAGES = {
         "{NAME} is on **fire!** :fire:", "Someone call the firefighters, {NAME} is **blazing!**",
