@@ -82,13 +82,14 @@ public class ChemmatCommands
         Emoji.fromMarkdown("\uD83C\uDDE9")
     };
     private static final Emoji QUESTION_MARK = Emoji.fromMarkdown("U+2754");
-    private static final long LISTENING_DURATION = 15;
+    private static final long LISTENING_DURATION = 2;
 
     private static final String[] STREAK_MESSAGES = {
         "{NAME} is on **fire!** :fire:", "Someone call the firefighters, {NAME} is **blazing!**",
         "Everyone stand back, :fire: **{NAME}** :fire: is here!", "{NAME} is an **inferno!** :fire:",
         "Can **{NAME}** even be stopped??", "I think **{NAME}** actually knows ALL these questions :exploding_head:",
-        "What is this...? {NAME} is **transcending!** These questions are just too easy!" };
+        "**{NAME}** is a chemmat legend!", "Clearly these questions are just too easy for {NAME} :fire:",
+        "What is this...? {NAME} is **transcending!**" };
 
 
     private final Set<String> clickedButtons = new ExpiringHashSet<>(LISTENING_DURATION, TimeUnit.MINUTES);

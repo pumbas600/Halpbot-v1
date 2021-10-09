@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.actions.ActionHandler;
@@ -20,6 +24,7 @@ import nz.pumbas.halpbot.utilities.ConcurrentManager;
 public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
 {
     private final ConcurrentManager concurrentManager = new ConcurrentManager();
+    private final Queue<String> expiredButtonCallbacks = new ConcurrentLinkedQueue<>();
     private final Map<String, ButtonActionCallback> parsedButtonCallbacks = new HashMap<>();
 
     @Override
@@ -36,10 +41,20 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
         }
 
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
-        if (!this.parsedButtonCallbacks.containsKey(event.getComponentId())) {
+        if (this.expiredButtonCallbacks.contains(event.getComponentId())) {
             this.halpBotCore.getDisplayConfiguration()
                 .displayTemporary(halpbotEvent, "This button is no longer being used to save resources sorry :)", -1);
-            event.editButton(event.getButton().asDisabled()).queue();
+            event.getMessage()
+                .editMessageComponents(ActionRow.of(
+                    event.getMessage()
+                        .getButtons()
+                        .stream()
+                        .map(Button::asDisabled)
+                        .collect(Collectors.toList())))
+                .queue(success -> {
+                    this.expiredButtonCallbacks.remove(event.getComponentId());
+                    this.parsedButtonCallbacks.remove(event.getComponentId());
+                });
             return;
         }
 
@@ -90,7 +105,7 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
             this.concurrentManager.schedule(
                 copiedActionCallback.getDeleteAfterDuration(),
                 copiedActionCallback.getDeleteAfterTimeUnit(),
-                () -> this.parsedButtonCallbacks.remove(modifiedId));
+                () -> this.expiredButtonCallbacks.add(modifiedId));
         }
         return modifiedButton;
     }
@@ -104,7 +119,7 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
     public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
         ButtonClickEvent event = halpbotEvent.getEvent(ButtonClickEvent.class);
         this.parsedButtonCallbacks.remove(event.getComponentId());
-        event.editButton(null);
+        event.editButton(event.getButton().asDisabled()).queue();
     }
 
     @Override
