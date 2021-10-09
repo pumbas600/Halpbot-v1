@@ -37,9 +37,9 @@ public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
 
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
         if (!this.parsedButtonCallbacks.containsKey(event.getComponentId())) {
-            event.editButton(event.getButton().asDisabled());
             this.halpBotCore.getDisplayConfiguration()
                 .displayTemporary(halpbotEvent, "This button is no longer being used to save resources sorry :)", -1);
+            event.editButton(event.getButton().asDisabled()).queue();
             return;
         }
 

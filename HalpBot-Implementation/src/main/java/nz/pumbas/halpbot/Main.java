@@ -29,9 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import javax.security.auth.login.LoginException;
 
@@ -42,8 +40,7 @@ public class Main
 {
     public static void main(String[] args) throws LoginException, IOException {
         ApplicationContext context = SpringApplication.run(Main.class, args);
-        ClassPathResource classPathResource = new ClassPathResource("static/Token.txt");
-        String token = new BufferedReader(new InputStreamReader(classPathResource.getInputStream())).readLine();
+        String token = HalpbotUtils.getFirstLine(new ClassPathResource("static/Token.txt").getInputStream());
 
         Halpbot halpBot = new Halpbot(context, token);
     }

@@ -2,13 +2,17 @@ package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -29,23 +33,44 @@ public class QuestionStatisticCommands
     }
 
     @Command(description = "Returns the top " + TOP_AMOUNT + " users and their stats for a particular column")
-    public MessageEmbed top(JDA jda, @Unrequired("Answered") UserStatColumn column) {
+    public @Nullable String top(@Source MessageChannel channel, JDA jda, @Unrequired("Answered") UserStatColumn column) {
         this.userStatisticsService.saveModifiedStatistics();
         List<UserStatistics> topUserStatistics = this.userStatisticsService.getTop(TOP_AMOUNT, column.getColumn());
-        StringBuilder stringBuilder = new StringBuilder();
 
-        for (int i = 0; i < topUserStatistics.size(); i++) {
-            UserStatistics userStatistic = topUserStatistics.get(i);
-            stringBuilder.append("**").append(i + 1).append(".** ")
-                .append(jda.retrieveUserById(userStatistic.getUserId()).complete().getName())
-                .append(" - **").append(column.getValueGetter().apply(userStatistic))
-                .append("**\n");
+        if (topUserStatistics.isEmpty())
+            return "There was an error retrieving the user statistics :sob:";
+
+        RestAction<List<String>> restAction = jda.retrieveUserById(topUserStatistics.get(0).getUserId())
+            .map(user -> {
+                List<String> usernames = new ArrayList<>();
+                usernames.add(user.getName());
+                return usernames;
+            });
+
+        for (int i = 1; i < topUserStatistics.size(); i++) {
+            restAction = restAction.and(jda.retrieveUserById(topUserStatistics.get(i).getUserId()),
+                (usernames, newUser) -> { usernames.add(newUser.getName()); return usernames; });
         }
-        return new EmbedBuilder()
-            .setTitle("Top " + TOP_AMOUNT + " by " + column.getDisplayName())
-            .setColor(HalpbotUtils.Blurple)
-            .setDescription(stringBuilder.toString())
-            .build();
+        restAction.queue(usernames -> {
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setTitle("Top " + TOP_AMOUNT + " by " + column.getDisplayName())
+                .setColor(HalpbotUtils.Blurple);
+
+            for (int i = 0; i < topUserStatistics.size(); i++) {
+                UserStatistics userStatistic = topUserStatistics.get(i);
+
+                if (0 == i)
+                    embedBuilder.appendDescription(":crown: ");
+                else
+                    embedBuilder.appendDescription("** ").appendDescription("" + (i + 1)).appendDescription(".  **");
+
+                embedBuilder.appendDescription(usernames.get(i))
+                    .appendDescription(" - **").appendDescription("" + column.getValueGetter().apply(userStatistic))
+                    .appendDescription("**\n");
+            }
+            channel.sendMessageEmbeds(embedBuilder.build()).queue();
+        });
+        return null;
     }
 
     @Command(description = "Returns the question statistics for a particular user")

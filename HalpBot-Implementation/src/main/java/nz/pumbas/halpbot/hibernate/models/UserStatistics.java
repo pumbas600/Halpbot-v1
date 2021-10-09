@@ -12,7 +12,7 @@ import nz.pumbas.halpbot.commands.DiscordString;
 @Table(name = "USER_STATISTICS")
 public class UserStatistics implements DiscordString, Serializable
 {
-    private final static int IS_ON_FIRE_THRESHOLD = 5;
+    public final static int IS_ON_FIRE_THRESHOLD = 5;
 
     @Id
     private Long userId;
@@ -113,10 +113,10 @@ public class UserStatistics implements DiscordString, Serializable
 
     @Override
     public String toDiscordString() {
-        return "**Quizzes Started** - " + this.getQuizzesStarted()
-            + "\n**Questions Answered** - " + this.getQuestionsAnswered()
-            + "\n**Questions Answered Correctly** - " + this.getQuestionsAnsweredCorrectly()
-            + "\n**Best Answer Streak** - " + this.getBestAnswerStreak()
-            + "\n**Current Answer Streak** - " + this.getCurrentAnswerStreak() + (this.isOnFire() ? " :fire:" : "");
+        return "**" + this.getQuizzesStarted() + "** - Quizzes Started"
+            + "\n**" + this.getQuestionsAnswered() + "** - Questions Answered"
+            + "\n**" + this.getQuestionsAnsweredCorrectly() + "** - Questions Answered Correctly"
+            + "\n**" + this.getBestAnswerStreak() + "** - Best Answer Streak"
+            + "\n**" + this.getCurrentAnswerStreak() + "** - Current Answer Streak" + (this.isOnFire() ? " :fire:" : "");
     }
 }
