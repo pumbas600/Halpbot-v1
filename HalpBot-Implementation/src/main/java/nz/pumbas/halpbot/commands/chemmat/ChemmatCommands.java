@@ -89,8 +89,15 @@ public class ChemmatCommands
         "Everyone stand back, :fire: **{NAME}** :fire: is here!", "{NAME} is an **inferno!** :fire:",
         "Can **{NAME}** even be stopped??", "I think **{NAME}** actually knows ALL these questions :exploding_head:",
         "**{NAME}** is a chemmat legend!", "Clearly these questions are just too easy for {NAME} :fire:",
-        "What is this...? {NAME} is **transcending!**" };
-
+        "**{NAME}** is an overlord!", "These questions are just another thing for {NAME} to **dominate!**",
+        "{NAME} has a **hooouuuge** streak!", "I think {NAME} just qualified for part 2 chemmat!",
+        "What is this...? {NAME} is **transcending!**", "What is **{NAME}** becoming...",
+        "My lord... What has {NAME} achieved... :face_with_spiral_eyes:", "{NAME} has evolved into a chemmat captain!",
+        "Did that feel a little anticlimactic {NAME}?", "I'm not sure if I should be impressed or terrified that " +
+        "{NAME} has reached this streak", "How did we get here {NAME}? :flushed:",
+        "At this point {NAME} must have done all the possible questions!??", "Does this qualify {NAME} to be a chemmat lecturer? :thinking:",
+        "{NAME} has become a **EUTECOID BEAST KING** :crown:", "The lohonators welcome you {NAME} :pray:",
+    };
 
     private final Set<String> clickedButtons = new ExpiringHashSet<>(LISTENING_DURATION, TimeUnit.MINUTES);
     private final Random random = new Random();
@@ -155,7 +162,8 @@ public class ChemmatCommands
         else {
             eQuestion = this.getRandomQuestionByTopic(topic);
         }
-        eQuestion.caught(ErrorManager::handle);
+        if (eQuestion.caught())
+            return eQuestion.error().getMessage();
         if (eQuestion.absent())
             return "There seemed to be an issue retrieving the question";
 
@@ -223,11 +231,18 @@ public class ChemmatCommands
     @Action(listeningDuration = LISTENING_DURATION)
     private MessageEmbed revealAnswer(ButtonClickEvent event, Question question) {
         EmbedBuilder builder = new EmbedBuilder();
+        String userId = event.getUser().getId();
+
+        event.getMessage()
+            .getButtons()
+            .forEach(button -> {
+                String clickId = userId + button.getId();
+                this.clickedButtons.add(clickId);
+            });
 
         builder.setTitle("Answer - " + question.getAnswer());
         builder.setColor(HalpbotUtils.Blurple);
-        builder.setFooter(HalpbotUtils.capitalise(this.topicService.topicFromId(question.getTopicId())) + " - " +
-            "Question id: " + question.getId());
+        builder.setFooter("Question id: " + question.getId() + " - Note: you won't get any stats for this question now");
 
         if (null != question.getExplanation()) {
             builder.setDescription(question.getExplanation());
