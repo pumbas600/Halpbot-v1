@@ -47,6 +47,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long>
     @Query("SELECT q.id FROM Question q WHERE q.status = 0")
     List<Long> getAllConfirmedIds();
 
+    @Query("SELECT q FROM Question q WHERE q.status = 0")
+    List<Question> getAllConfirmedQuestions();
+
     @Query("SELECT q FROM Question q WHERE q.status <> 0 AND q.id NOT IN ?1")
     List<Question> getAllWaitingConfirmationNotIn(Set<Long> ids);
 

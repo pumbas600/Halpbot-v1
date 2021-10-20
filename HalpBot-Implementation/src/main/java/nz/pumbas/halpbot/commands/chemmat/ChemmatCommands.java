@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -117,8 +118,18 @@ public class ChemmatCommands
         this.defaultQuestionHandler = new QuestionHandler(this.questionService, this.random);
     }
 
-    @Command(description = "Configuration the current channel with the topics to be quizzed on",
+    @Command(description = "Checks all the confirmed questions for any image links that are invalid",
              permissions = HalpbotPermissions.ADMIN)
+    public List<Long> checkLinks() {
+        return this.questionService
+            .getAllConfirmedQuestions()
+            .stream()
+            .filter(q -> Objects.nonNull(q.getImage()) && !EmbedBuilder.URL_PATTERN.matcher(q.getImage()).matches())
+            .map(Question::getId)
+            .collect(Collectors.toList());
+    }
+
+    @Command(description = "Configuration the current channel with the topics to be quizzed on")
     public String configure(@Source TextChannel textChannel, @Remaining String topicInput) {
         String[] topics = topicInput.toLowerCase(Locale.ROOT).split(", ");
         Set<Long> topicIds = Arrays.stream(topics)

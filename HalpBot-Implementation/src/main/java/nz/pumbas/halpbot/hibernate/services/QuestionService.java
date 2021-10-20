@@ -44,6 +44,10 @@ public class QuestionService
         return this.questionRepository.getAllConfirmedIds();
     }
 
+    public List<Question> getAllConfirmedQuestions() {
+        return this.questionRepository.getAllConfirmedQuestions();
+    }
+
     public List<Long> getAllConfirmedIdsInTopicIds(Set<Long> topicIds) {
         return this.questionRepository.getAllConfirmedIdsInTopicIds(topicIds);
     }
