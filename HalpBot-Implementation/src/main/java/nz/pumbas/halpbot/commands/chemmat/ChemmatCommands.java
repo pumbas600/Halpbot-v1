@@ -161,6 +161,10 @@ public class ChemmatCommands
                                  @Description("The id of the quiz") @Unrequired("-1") long quizId,
                                  @Description("The chemmat topic to get quizzed on") @Unrequired("") String topic)
     {
+        // If the command is called from a thread, the channel will be null
+        if (null == interaction.getChannel())
+            return "Sorry, this command can't be used from a thread :pensive:";
+
         Exceptional<Question> eQuestion;
         if (0 <= quizId) {
             eQuestion = Exceptional.of(() -> this.questionService.getById(quizId));
