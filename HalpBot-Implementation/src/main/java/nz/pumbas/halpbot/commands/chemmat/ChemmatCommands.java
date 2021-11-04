@@ -25,7 +25,9 @@
 package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -127,6 +129,28 @@ public class ChemmatCommands
             .filter(q -> Objects.nonNull(q.getImage()) && !EmbedBuilder.URL_PATTERN.matcher(q.getImage()).matches())
             .map(Question::getId)
             .collect(Collectors.toList());
+    }
+
+    @Command(description = "Thank everyone who used Halpbot", permissions = HalpbotPermissions.BOT_OWNER)
+    public String thankYou(JDA jda) {
+        final long part1EngineeringId = 813905691713994802L;
+        Guild guild = jda.getGuildById(part1EngineeringId);
+        if (null == guild)
+            return "There was an error retrieving the guild";
+
+        TextChannel channel = guild.getTextChannelById(814269336990253057L);
+        if (null == channel)
+            return "There was an error retrieving the channel";
+
+
+        final String message = "Thank you for using Halpbot everyone, I hope I was able to halp!\n\n" +
+            "Goodluck with your future studies.";
+
+        channel.sendMessage(message).queue();
+
+        return "Message sent";
+
+
     }
 
     @Command(description = "Configuration the current channel with the topics to be quizzed on")

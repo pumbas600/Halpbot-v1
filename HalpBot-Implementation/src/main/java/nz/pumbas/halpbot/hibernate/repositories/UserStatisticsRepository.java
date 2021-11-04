@@ -25,9 +25,20 @@
 package nz.pumbas.halpbot.hibernate.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import nz.pumbas.halpbot.hibernate.models.UserStatistics;
 
 public interface UserStatisticsRepository extends JpaRepository<UserStatistics, Long>
 {
+    @Query(value = "SELECT rownum FROM ( " +
+        "    SELECT USERID, ROW_NUMBER() OVER () as rownum " +
+        "    FROM ( " +
+        "    SELECT USERID " +
+        "        FROM USER_STATISTICS " +
+        "        ORDER BY QUESTIONSANSWERED DESC " +
+        "    ) as ORDERED_DATA " +
+        ") as TMP " +
+        "WHERE USERID = ?1", nativeQuery = true)
+    Long getPosition(Long userId, String column);
 }

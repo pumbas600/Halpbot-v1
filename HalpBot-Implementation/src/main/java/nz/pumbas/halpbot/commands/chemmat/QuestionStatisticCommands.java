@@ -2,15 +2,13 @@ package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.internal.JDAImpl;
 
 import org.springframework.stereotype.Service;
 
+import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -74,6 +72,33 @@ public class QuestionStatisticCommands
         return embedBuilder.build();
     }
 
+    @Command(description = "Returns the cumulative stats for quizzes started, questions answered and questions " +
+                           "answered correctly")
+    public MessageEmbed cumulativeStats() {
+        List<UserStatistics> userStatistics = this.userStatisticsService.list();
+        int uniqueUsers = userStatistics.size();
+
+        int quizzesStarted = 0;
+        int questionsAnswered = 0;
+        int questionsAnsweredCorrectly = 0;
+
+        for (UserStatistics statistic : userStatistics) {
+            quizzesStarted += statistic.getQuizzesStarted();
+            questionsAnswered += statistic.getQuestionsAnswered();
+            questionsAnsweredCorrectly += statistic.getQuestionsAnsweredCorrectly();
+        }
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Cumulative Statistics");
+        builder.setColor(Color.ORANGE);
+        builder.appendDescription("Unique users: ").appendDescription("**" + uniqueUsers).appendDescription("**\n")
+            .appendDescription("Quizzes started: ").appendDescription("**" + quizzesStarted).appendDescription("**\n")
+            .appendDescription("Questions answered: ").appendDescription("**" + questionsAnswered).appendDescription("**\n")
+            .appendDescription("Questions answered correctly: ").appendDescription("**" + questionsAnsweredCorrectly).appendDescription("**");
+
+        return builder.build();
+    }
+
     @Command(description = "Returns the question statistics for a particular user")
     public MessageEmbed stats(@Source User author, @Unrequired User user) {
         return this.buildUserStatisticsEmbed(null == user ? author : user);
@@ -87,6 +112,11 @@ public class QuestionStatisticCommands
             .setDescription(userStatistics.toDiscordString())
             .setColor(HalpbotUtils.Blurple)
             .build();
+    }
+
+    @Command
+    public Long position(@Source User author) {
+        return this.userStatisticsService.getPosition(author.getIdLong());
     }
 
     @PreDestroy

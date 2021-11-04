@@ -44,6 +44,14 @@ public class UserStatisticsService
         return this.userStatisticsRepository.findAll(pageRequest).getContent();
     }
 
+    public List<UserStatistics> list() {
+        return this.userStatisticsRepository.findAll();
+    }
+
+    public Long getPosition(@NotNull Long userId) {
+        return this.userStatisticsRepository.getPosition(userId, "QUESTIONSANSWERED");
+    }
+
     private void saveModifiedStatistic(Long userId, UserStatistics userStatistic) {
         if (!userStatistic.isEmpty()) {
             this.userStatisticsRepository.save(userStatistic);
