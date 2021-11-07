@@ -111,12 +111,18 @@ public class UserStatistics implements DiscordString, Serializable
             && 0 == this.getQuestionsAnswered(); // Note that the others will also be 0 if these are both 0.
     }
 
+    public double getCorrectAnswerPercentage() {
+        if (0 == this.getQuestionsAnswered()) return 0;
+        return 100 * ((double)this.getQuestionsAnsweredCorrectly() / this.getQuestionsAnswered());
+    }
+
     @Override
     public String toDiscordString() {
         return "**" + this.getQuizzesStarted() + "** - Quizzes Started"
             + "\n**" + this.getQuestionsAnswered() + "** - Questions Answered"
             + "\n**" + this.getQuestionsAnsweredCorrectly() + "** - Questions Answered Correctly"
             + "\n**" + this.getBestAnswerStreak() + "** - Best Answer Streak"
-            + "\n**" + this.getCurrentAnswerStreak() + "** - Current Answer Streak" + (this.isOnFire() ? " :fire:" : "");
+            + "\n**" + this.getCurrentAnswerStreak() + "** - Current Answer Streak" + (this.isOnFire() ? " :fire:" : "")
+            + String.format("\n**%.2f%%** - Correct Answer Rate", this.getCorrectAnswerPercentage());
     }
 }
