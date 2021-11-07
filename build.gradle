@@ -3,7 +3,7 @@ plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
 }
 
-def halpBotVerson = '2.0.3'
+def halpBotVerson = '2.0.4'
 
 group 'nz.pumbas.halpbot'
 version halpBotVerson
@@ -34,8 +34,8 @@ subprojects { Project subProject ->
         include '**/*.java'
     }
 
-    sourceCompatibility = 11
-    targetCompatibility = 11
+    sourceCompatibility = 16
+    targetCompatibility = 16
 }
 
 tasks.build {

@@ -42,6 +42,8 @@ import javax.security.auth.login.LoginException;
 import nz.pumbas.halpbot.adapters.ButtonAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
+import nz.pumbas.halpbot.commands.MatrixCommands;
+import nz.pumbas.halpbot.commands.SimpleCommands;
 import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
 import nz.pumbas.halpbot.commands.NumberSystemConverters;
 import nz.pumbas.halpbot.commands.chemmat.QuestionConfirmationCommands;
@@ -49,8 +51,6 @@ import nz.pumbas.halpbot.commands.chemmat.QuestionStatisticCommands;
 import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
-import nz.pumbas.halpbot.commands.KotlinCommands;
-import nz.pumbas.halpbot.commands.MatrixCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
 import nz.pumbas.halpbot.configurations.EmbedStringsDisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
@@ -80,7 +80,7 @@ public class Halpbot extends ListenerAdapter
                 new ButtonAdapter())
             .displayConfiguration(new EmbedStringsDisplayConfiguration())
             .register(
-                new KotlinCommands(),
+                new SimpleCommands(),
                 new MatrixCommands(),
                 new VectorCommands(),
                 new ElectricalCommands(),

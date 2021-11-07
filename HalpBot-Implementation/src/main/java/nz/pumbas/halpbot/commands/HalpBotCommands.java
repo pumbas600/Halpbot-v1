@@ -51,7 +51,7 @@ public class HalpBotCommands
         return "You can note issues and suggestions for me here: https://github.com/pumbas600/HalpBot/issues";
     }
 
-    @Command(alias = "choose", description = "Randomly chooses one of the items")
+    @Command(description = "Randomly chooses one of the items")
     public String choose(@Implicit String[] choices) {
         // Use of @Implicit means that it's not necessary to surround the choices with [...]
         return choices[(int)(Math.random() * choices.length)];
