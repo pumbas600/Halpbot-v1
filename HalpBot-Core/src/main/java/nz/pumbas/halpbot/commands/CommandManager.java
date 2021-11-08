@@ -266,7 +266,7 @@ public final class CommandManager
     }
 
     public static String getCommandAlias(Command command, Method method) {
-        String alias = command.alias().isBlank() ? method.getName() : command.alias();
+        String alias = 0 == command.alias().length ? method.getName() : command.alias()[0];
         return alias.toLowerCase(Locale.ROOT);
     }
 

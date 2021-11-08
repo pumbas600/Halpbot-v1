@@ -37,6 +37,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -51,6 +53,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.CommandManager;
@@ -80,8 +84,12 @@ import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
+@Service
 public abstract class AbstractCommandAdapter extends HalpbotAdapter
 {
+    @Inject
+    private ApplicationContext applicationContext;
+
     protected PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
     protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();

@@ -33,8 +33,10 @@ import java.io.IOException;
 
 import javax.security.auth.login.LoginException;
 
+import nz.pumbas.halpbot.common.annotations.Bot;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
+@Bot(prefix = "$")
 @SpringBootApplication
 public class Main
 {

@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'org.cadixdev.licenser' version '0.6.1'
+    id 'io.freefair.lombok' version '6.2.0'
 }
 
 def halpBotVerson = '2.0.4'
@@ -23,6 +24,7 @@ test {
 subprojects { Project subProject ->
     apply plugin: 'java'
     apply plugin: 'org.cadixdev.licenser'
+    apply plugin: 'io.freefair.lombok'
 
     group 'nz.pumbas.halpbot'
     version halpBotVerson
@@ -64,7 +66,7 @@ allprojects {
         dependencies {
             include 'net.dv8tion:JDA:4.3.0_333'
             implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.14.1'
-            implementation 'org.dockbox.hartshorn:hartshorn-core:4.2.3'
+            implementation fileTree(dir: 'libs', include: '*.jar')
 
             testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -74,4 +76,8 @@ allprojects {
             useJUnitPlatform()
         }
     }
+}
+
+dependencies {
+    implementation 'javax.inject:javax.inject:1'
 }
