@@ -8,16 +8,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.tokens.Token;
-
 public record HalpbotCommandContext(@NotNull List<String> aliases,
                                     @NotNull String description,
                                     @NotNull String usage,
                                     @Nullable Object instance,
                                     @NotNull ExecutableElementContext<?> executable,
                                     @NotNull List<String> permissions,
-                                    @NotNull Set<TypeContext<?>> reflections,
-                                    @NotNull List<Token> tokens)
+                                    @NotNull Set<TypeContext<?>> reflections)
     implements CommandContext
 {
 

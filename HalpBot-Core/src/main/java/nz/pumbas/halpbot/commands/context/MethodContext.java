@@ -77,7 +77,7 @@ public class MethodContext extends InvocationContext
 
     public static MethodContext of(@NotNull String context, @NotNull ParsingToken parsingToken) {
         return new MethodContext(
-            context, new ContextState(parsingToken.getType(), parsingToken.annotations(), parsingToken.annotationTypes()),
+            context, new ContextState(parsingToken.type(), parsingToken.annotations(), parsingToken.annotationTypes()),
             null, null, Collections.emptySet());
     }
 
@@ -99,7 +99,7 @@ public class MethodContext extends InvocationContext
     }
 
     public void update(@NotNull ParsingToken parsingToken) {
-        this.contextState = new ContextState(parsingToken.getType(), parsingToken.annotations(), parsingToken.annotationTypes());
+        this.contextState = new ContextState(parsingToken.type(), parsingToken.annotations(), parsingToken.annotationTypes());
     }
 
     public @Nullable HalpbotEvent getEvent() {

@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.actions.methods.Invokable;
+
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
@@ -34,22 +34,22 @@ import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.common.annotations.Bot;
 
-@Getter
 @Service
 @Binds(CommandAdapter.class)
-public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAdapter, ContextCarrier
+public class HalpbotCommandAdapter extends HalpbotAdapter implements CommandAdapter, ContextCarrier
 {
+
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
 
-    private String prefix;
-    private UsageBuilder usageBuilder;
+    @Getter private String prefix;
+    @Getter private UsageBuilder usageBuilder;
 
     @Inject
-    private ApplicationContext applicationContext;
+    @Getter private ApplicationContext applicationContext;
 
 
     @Listener
-    public void on(EngineChangedState<Started> event) throws UndefinedActivatorException, IllegalPrefixException {
+    public void on(@NotNull EngineChangedState<Started> event) throws UndefinedActivatorException, IllegalPrefixException {
         if (!this.applicationContext.hasActivator(Bot.class))
             throw new UndefinedActivatorException("The @Bot activator must be present on the main class");
 
@@ -81,19 +81,16 @@ public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAd
         T instance = this.applicationContext.get(typeContext);
         this.registerCommandContext(
             instance,
-            typeContext,
             typeContext.methods(Command.class));
     }
 
     @Override
     @Nullable
-    public CommandContext commandContext(String alias) {
+    public CommandContext commandContext(@NotNull String alias) {
         return this.registeredCommands.get(alias);
     }
 
-    private <T> void registerCommandContext(Object instance,
-                                            TypeContext<T> instanceType,
-                                            List<MethodContext<?, T>> annotatedMethods)
+    private <T> void registerCommandContext(@NotNull T instance, @NotNull List<MethodContext<?, T>> annotatedMethods)
     {
         for (MethodContext<?, T> methodContext : annotatedMethods) {
             if (!methodContext.isPublic()) {
@@ -103,12 +100,23 @@ public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAd
             }
             Command command = methodContext.annotation(Command.class).get();
             List<String> aliases = this.aliases(command, methodContext);
-            //TODO: Finish registering commands
+            CommandContext commandContext = this.createCommand(aliases, instance, command, methodContext);
 
+            for (String alias : aliases) {
+                if (this.registeredCommands.containsKey(alias)) {
+                    this.applicationContext.log().warn(
+                        "The alias %s is already being used by the command [%s]. The command [%s] will not be registered under this alias"
+                                .formatted(alias, this.registeredCommands.get(alias).usage(), commandContext.usage()));
+                    continue;
+                }
+
+                this.registeredCommands.put(alias, commandContext);
+            }
         }
     }
 
-    private List<String> aliases(Command command, MethodContext<?, ?> methodContext) {
+    @NotNull
+    private List<String> aliases(@NotNull Command command, @NotNull MethodContext<?, ?> methodContext) {
         List<String> aliases = HartshornUtils.asList(command.alias())
             .stream()
             .map(alias -> alias.toLowerCase(Locale.ROOT))
@@ -120,16 +128,18 @@ public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAd
         return aliases;
     }
 
-    private String usage(Command command, MethodContext<?, ?> methodContext) {
+    @NotNull
+    private String usage(@NotNull Command command, @NotNull MethodContext<?, ?> methodContext) {
         if (!command.usage().isBlank())
             return command.usage();
         else return this.usageBuilder.buildUsage(this.applicationContext, methodContext);
     }
 
-    private <T> CommandContext createCommand(List<String> aliases,
-                                             T instance,
-                                             Command command,
-                                             MethodContext<?, T> methodContext)
+    @NotNull
+    private <T> CommandContext createCommand(@NotNull List<String> aliases,
+                                             @NotNull T instance,
+                                             @NotNull Command command,
+                                             @NotNull MethodContext<?, T> methodContext)
     {
         return new HalpbotCommandContext(
             aliases,
@@ -138,7 +148,12 @@ public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAd
             instance,
             methodContext,
             List.of(command.permissions()),
-            Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
-            Invokable.tokens(this.applicationContext, methodContext));
+            Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()), );
+    }
+
+    @Override
+    @NotNull
+    public Map<String, CommandContext> registeredCommands() {
+        return HartshornUtils.asUnmodifiableMap(this.registeredCommands);
     }
 }

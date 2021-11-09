@@ -289,7 +289,7 @@ public class SimpleCommand
                 else {
                     ctx.setCurrentIndex(currentIndex);
 
-                    result = parsingToken.getConverter()
+                    result = parsingToken.converter()
                         .getMapper()
                         .apply(ctx)
                         .map(o -> o);
@@ -322,7 +322,7 @@ public class SimpleCommand
 
             if (currentToken.isOptional()) {
                 if (currentToken instanceof ParsingToken)
-                    parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).getDefaultValue();
+                    parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
             } else return firstMismatch;
         }
 

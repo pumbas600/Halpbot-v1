@@ -24,14 +24,10 @@
 
 package nz.pumbas.halpbot.commands.tokens;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.List;
 
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.Converter;
@@ -45,65 +41,28 @@ import nz.pumbas.halpbot.utilities.Reflect;
 public interface ParsingToken extends Token
 {
     /**
-     * @return The {@link Annotation} annotations on this {@link ParsingToken}
+     * @return The required {@link TypeContext} of this {@link ParsingToken}
      */
     @NotNull
-    Annotation[] annotations();
-
-    /**
-     * @return An {@link List} of the {@link Class types} of the annotations on this {@link ParsingToken}
-     */
-    @NotNull
-    List<Class<? extends Annotation>> annotationTypes();
-
-    /**
-     * @return The required {@link Type} of this {@link ParsingToken}
-     */
-    @NotNull
-    Type getType();
+    ParameterContext<?> parameterContext();
 
     /**
      * @return The {@link TypeConverter} for this token
      */
     @NotNull
-    Converter<?> getConverter();
+    Converter<?> converter();
 
     /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Nullable
-    Object getDefaultValue();
+    Object defaultValue();
 
     /**
      * @return If this {@link ParsingToken} is a command parameter. If not, then it must extract information from the
      * source event or command adapter.
      */
     boolean isCommandParameter();
-
-    //TODO: Remove this - May not be applicable depending on the gradle settings
-    /**
-     * @return The parameter name for this {@link ParsingToken}.
-     */
-    @NotNull
-    String getParameterName();
-
-    /**
-     * Retrieves the {@link Annotation} on this {@link ParsingToken} based on the specified {@link Class annotation
-     * type}.
-     *
-     * @param annotationType
-     *     The {@link Class annotation type}
-     *
-     * @return The {@link Annotation} with the matching {@link Class annotation type}
-     */
-    @Nullable
-    @SuppressWarnings("unchecked")
-    default <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-        int index = this.annotationTypes().indexOf(annotationType);
-        if (-1 == index)
-            return null;
-        return (T) this.annotations()[index];
-    }
 
     /**
      * Parses the {@link MethodContext} of the default value.
@@ -115,22 +74,15 @@ public interface ParsingToken extends Token
      * @return The parsed {@link Object default value}
      */
     @Nullable
-    default Object parseDefaultValue(@NotNull MethodContext ctx) {
+    static Object parseDefaultValue(@NotNull Converter<?> converter, @NotNull MethodContext ctx) {
+        //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
         if ("${Default}".equalsIgnoreCase(ctx.getOriginal()))
             return Reflect.getDefaultValue(ctx.getContextState().getClazz());
         if (String.class.isAssignableFrom(ctx.getContextState().getClazz()))
             return ctx.getOriginal();
-        return this.getConverter()
-            .getMapper()
-            .apply(ctx)
+        return converter.apply(ctx)
             .rethrow()
             .get();
 
-    }
-
-    static ParsingToken of(ApplicationContext context,
-                           TypeContext<?> typeContext,
-                           List<Annotation> annotations) {
-        return context.get(ParsingToken.class, typeContext, annotations);
     }
 }

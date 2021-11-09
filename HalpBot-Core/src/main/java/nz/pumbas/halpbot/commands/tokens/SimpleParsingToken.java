@@ -60,7 +60,7 @@ public class SimpleParsingToken implements ParsingToken
             .map(Annotation::annotationType)
             .collect(Collectors.toUnmodifiableList());
 
-        Unrequired unrequired = this.getAnnotation(Unrequired.class);
+        Unrequired unrequired = this.annotation(Unrequired.class);
         this.isOptional = null != unrequired;
 
         String defaultValue = this.isOptional ? unrequired.value() : "${Default}";
@@ -101,7 +101,7 @@ public class SimpleParsingToken implements ParsingToken
      * @return The required {@link Type} of this {@link ParsingToken}
      */
     @Override
-    public @NotNull Type getType() {
+    public @NotNull Type type() {
         return this.type;
     }
 
@@ -109,7 +109,7 @@ public class SimpleParsingToken implements ParsingToken
      * @return The {@link TypeConverter} for this token
      */
     @Override
-    public @NotNull Converter<?> getConverter() {
+    public @NotNull Converter<?> converter() {
         return this.converter;
     }
 
@@ -117,7 +117,7 @@ public class SimpleParsingToken implements ParsingToken
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
      */
     @Override
-    public @Nullable Object getDefaultValue() {
+    public @Nullable Object defaultValue() {
         return this.defaultValue;
     }
 

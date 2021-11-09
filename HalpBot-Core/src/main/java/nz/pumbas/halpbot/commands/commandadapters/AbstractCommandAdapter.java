@@ -182,11 +182,11 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
                 ParsingToken parsingToken = (ParsingToken) token;
                 if (!parsingToken.isCommandParameter()) continue;
 
-                Description description = parsingToken.getAnnotation(Description.class);
+                Description description = parsingToken.annotation(Description.class);
                 String optionDescription = null == description ? "N/A" : description.value();
                 String name = this.formatSlashCommandIdentifiers(parsingToken.getParameterName());
 
-                data.addOption(parsingToken.getConverter().getOptionType(), name,
+                data.addOption(parsingToken.converter().getOptionType(), name,
                     optionDescription, !token.isOptional());
             }
             else if (token instanceof PlaceholderToken){

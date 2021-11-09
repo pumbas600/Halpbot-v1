@@ -6,6 +6,8 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 
 @Service
@@ -15,10 +17,13 @@ public interface CommandAdapter
 
     <T> void registerCommands(@NotNull TypeContext<T> typeContext);
 
-    default Exceptional<CommandContext> commandContextSafely(String alias) {
+    default Exceptional<CommandContext> commandContextSafely(@NotNull String alias) {
         return Exceptional.of(this.commandContext(alias));
     }
 
     @Nullable
-    CommandContext commandContext(String alias);
+    CommandContext commandContext(@NotNull String alias);
+
+    @NotNull
+    Map<String, CommandContext> registeredCommands();
 }

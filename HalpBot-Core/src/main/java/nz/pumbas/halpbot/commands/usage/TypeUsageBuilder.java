@@ -22,7 +22,7 @@ public class TypeUsageBuilder implements UsageBuilder
 
             if (token instanceof ParsingToken parsingToken && parsingToken.isCommandParameter())
                 stringBuilder.append(
-                    HalpbotUtils.variableNameToSplitLowercase(parsingToken.getType().getTypeName()));
+                    HalpbotUtils.variableNameToSplitLowercase(parsingToken.type().getTypeName()));
 
             else if (token instanceof PlaceholderToken placeholderToken)
                 stringBuilder.append(placeholderToken.getPlaceHolder());

@@ -114,7 +114,7 @@ public class SimpleCommandTests
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
         Assertions.assertEquals(
-            Converters.OBJECT_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).getConverter());
+            Converters.OBJECT_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
 
         Assertions.assertTrue(command.parse(MethodContext.of("Vector3[1 2 3]")).present());
         Assertions.assertTrue(command.parse(MethodContext.of("Vector3[3 1]")).present());
@@ -243,7 +243,7 @@ public class SimpleCommandTests
             Reflect.getMethod(this, "commandWithVarargsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
-        Assertions.assertEquals(Converters.ARRAY_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).getConverter());
+        Assertions.assertEquals(Converters.ARRAY_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
 
         Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3]")).errorAbsent());
         Assertions.assertTrue(command.parse(MethodContext.of("")).caught());

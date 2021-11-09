@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
@@ -512,6 +513,11 @@ public final class CommandManager
 
         return defaultAlias;
     }
+
+    public static boolean isCommandParameter(@NotNull ParameterContext<?> parameterContext) {
+        return true; //TODO: Add support for determining if its a command parameter from a parameter context
+    }
+
 
     /**
      * Returns true if the specified type is a command parameter (Something that can be specified when invoking the

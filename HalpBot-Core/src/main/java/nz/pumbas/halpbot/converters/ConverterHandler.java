@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.converters;
 
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -47,6 +48,11 @@ public interface ConverterHandler
     @SuppressWarnings("unchecked")
     default <T> Converter<T> from(@NotNull MethodContext ctx) {
         return (Converter<T>) this.from(ctx.getContextState().getClazz(), ctx);
+    }
+
+    default <T> Converter<T> from(ParameterContext<T> parameterContext) {
+        // TODO: Add support for ParameterContext
+        return null;
     }
 
     /**

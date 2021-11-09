@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.actions.methods.Invokable;
-import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.permissions.Permissive;
 
 public interface CommandContext extends Invokable, Permissive
@@ -58,10 +57,4 @@ public interface CommandContext extends Invokable, Permissive
      */
     @NotNull
     Set<TypeContext<?>> reflections();
-
-    /**
-     * @return The {@link Token tokens} making up this command.
-     */
-    @NotNull
-    List<Token> tokens();
 }

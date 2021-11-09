@@ -12,9 +12,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
+import nz.pumbas.halpbot.commands.tokens.HalpbotParsingToken;
 import nz.pumbas.halpbot.commands.tokens.Token;
 
 @SuppressWarnings("ConstantDeclaredInInterface")
@@ -22,17 +23,16 @@ public interface Invokable
 {
     Map<ExecutableElementContext<?>, List<Token>> CACHE = HartshornUtils.emptyMap();
 
-    static List<Token> tokens(ApplicationContext applicationContext, ExecutableElementContext<?> executable) {
+    static List<Token> tokens(@NotNull ApplicationContext applicationContext,
+                              @NotNull ExecutableElementContext<?> executable) {
         if (CACHE.containsKey(executable))
             return CACHE.get(executable);
 
-        List<Token> tokens = HartshornUtils.emptyList();
-        for (ParameterContext<?> parameterContext : executable.parameters()) {
-            tokens.add(
-                ParsingToken.of(applicationContext,
-                    parameterContext.type(),
-                    parameterContext.annotations()));
-        }
+        List<Token> tokens = executable.parameters()
+            .stream()
+            .map(parameterContext -> HalpbotParsingToken.of(applicationContext, parameterContext))
+            .collect(Collectors.toList());
+
         CACHE.put(executable, tokens);
         return tokens;
     }
@@ -43,14 +43,20 @@ public interface Invokable
     @Nullable
     Object instance();
 
-    default Object[] parseParameters(InvocationContext invocationContext) {
+    @NotNull
+    default List<Token> tokens(@NotNull ApplicationContext applicationContext) {
+        return tokens(applicationContext, this.executable());
+    }
+
+    @NotNull
+    default Object[] parseParameters(@NotNull InvocationContext invocationContext) {
         final List<Token> tokens = tokens(invocationContext.applicationContext(), this.executable());
         return new Object[] { };
         //TODO: parse parameters
     }
 
     @SuppressWarnings("unchecked")
-    default <R, P> Exceptional<R> invoke(InvocationContext invocationContext) {
+    default <R, P> Exceptional<R> invoke(@NotNull InvocationContext invocationContext) {
         final ExecutableElementContext<?> executable = this.executable();
         final Object[] parameters = this.parseParameters(invocationContext);
 
