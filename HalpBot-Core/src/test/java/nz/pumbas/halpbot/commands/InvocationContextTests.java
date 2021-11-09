@@ -36,7 +36,6 @@ import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public class InvocationContextTests
 {

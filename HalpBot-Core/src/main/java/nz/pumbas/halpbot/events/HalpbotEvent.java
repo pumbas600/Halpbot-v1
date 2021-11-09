@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
-import nz.pumbas.halpbot.objects.Exceptional;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 
 public interface HalpbotEvent
 {

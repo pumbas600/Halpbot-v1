@@ -67,7 +67,7 @@ import nz.pumbas.halpbot.commands.persistant.AbstractPersistantUserData;
 import nz.pumbas.halpbot.commands.persistant.PersistantData;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.commands.annotations.Description;
-import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
+import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
@@ -80,7 +80,6 @@ import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.commands.tokens.Token;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
@@ -92,8 +91,8 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     protected PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
-    protected final Map<String, CommandMethod> registeredCommands = new HashMap<>();
-    protected final Map<String, CommandMethod> registeredSlashCommands = new HashMap<>();
+    protected final Map<String, CommandContext> registeredCommands = new HashMap<>();
+    protected final Map<String, CommandContext> registeredSlashCommands = new HashMap<>();
     protected final Map<Long, Map<Class<? extends PersistantUserData>, PersistantUserData>> persistantUserData =
         new ConcurrentHashMap<>();
 
@@ -105,7 +104,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
     }
 
     /**
-     * Registers the {@link CommandMethod command methods} contained within the specified {@link Object instances}.
+     * Registers the {@link CommandContext command methods} contained within the specified {@link Object instances}.
      *
      * @param instances
      *     The {@link Object objects} to check for {@link Command commands}
@@ -138,15 +137,15 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      *     The {@link JDA}
      */
     private void registerSlashCommands(JDA jda) {
-        for (CommandMethod commandMethod : this.registeredSlashCommands.values()) {
-            SlashCommand slashCommand = commandMethod.getExecutable().getAnnotation(SlashCommand.class);
+        for (CommandContext commandMethod : this.registeredSlashCommands.values()) {
+            SlashCommand slashCommand = commandMethod.executable().annotation(SlashCommand.class).get();
             if (slashCommand.remove()) {
-                this.deleteSlashCommandById(jda, this.formatSlashCommandIdentifiers(commandMethod.getAlias()));
+                this.deleteSlashCommandById(jda, this.formatSlashCommandIdentifiers(commandMethod.alias()));
             }
             else if (slashCommand.register()) {
                 jda.upsertCommand(this.generateSlashCommandData(commandMethod))
                     .queue();
-                HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.getAlias());
+                HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.alias());
             }
         }
     }
@@ -165,19 +164,19 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
     }
 
     /**
-     * Given an {@link CommandMethod}, it generates the slash command {@link CommandData} to be used to register it.
+     * Given an {@link CommandContext}, it generates the slash command {@link CommandData} to be used to register it.
      *
      * @param commandMethod
-     *      The {@link CommandMethod} to generate the command data for
+     *      The {@link CommandContext} to generate the command data for
      *
      * @return The generated {@link CommandData}
      */
-    public CommandData generateSlashCommandData(CommandMethod commandMethod) {
+    public CommandData generateSlashCommandData(CommandContext commandMethod) {
         CommandData data = new CommandData(
-            this.formatSlashCommandIdentifiers(commandMethod.getAlias()),
-            commandMethod.getDescription());
+            this.formatSlashCommandIdentifiers(commandMethod.alias()),
+            commandMethod.description());
 
-        for (Token token : commandMethod.getTokens()) {
+        for (Token token : commandMethod.tokens()) {
             if (token instanceof ParsingToken) {
                 ParsingToken parsingToken = (ParsingToken) token;
                 if (!parsingToken.isCommandParameter()) continue;
@@ -204,14 +203,14 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
     }
 
     /**
-     * Retrieves the {@link CommandMethod} that matches the specified command alias.
+     * Retrieves the {@link CommandContext} that matches the specified command alias.
      *
      * @param commandAlias
-     *     The {@link String} command alias of the {@link CommandMethod}
+     *     The {@link String} command alias of the {@link CommandContext}
      *
-     * @return An {@link Optional} containing the {@link CommandMethod} if present
+     * @return An {@link Optional} containing the {@link CommandContext} if present
      */
-    public Optional<CommandMethod> getCommandMethod(@NotNull String commandAlias) {
+    public Optional<CommandContext> getCommandMethod(@NotNull String commandAlias) {
         if (!this.registeredCommands.containsKey(commandAlias))
             return Optional.empty();
         return Optional.of(this.registeredCommands.get(commandAlias));
@@ -219,8 +218,8 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     /**
      * Listens to {@link MessageReceivedEvent} and calls
-     * {@link AbstractCommandAdapter#handleCommandMethodCall(HalpbotEvent, CommandMethod, String)}
-     * if the message is the invocation of a registered {@link CommandMethod}.
+     * {@link AbstractCommandAdapter#handleCommandMethodCall(HalpbotEvent, CommandContext, String)}
+     * if the message is the invocation of a registered {@link CommandContext}.
      *
      * @param event
      *     The {@link MessageReceivedEvent} that's been received
@@ -239,7 +238,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
         HalpbotEvent halpbotEvent = new MessageEvent(event);
 
         if (this.registeredCommands.containsKey(commandAlias)) {
-            CommandMethod commandMethod = this.registeredCommands.get(commandAlias);
+            CommandContext commandMethod = this.registeredCommands.get(commandAlias);
 
             try {
                 this.handleCommandMethodCall(halpbotEvent, commandMethod, content)
@@ -264,8 +263,8 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
 
     /**
      * Listens to {@link SlashCommandEvent} and calls
-     * {@link AbstractCommandAdapter#handleCommandMethodCall(HalpbotEvent, CommandMethod, String)}
-     * if the message is the invocation of a registered {@link CommandMethod}.
+     * {@link AbstractCommandAdapter#handleCommandMethodCall(HalpbotEvent, CommandContext, String)}
+     * if the message is the invocation of a registered {@link CommandContext}.
      *
      * @param event
      *     The {@link SlashCommandEvent} that's been received
@@ -283,7 +282,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             return;
         }
 
-        CommandMethod commandMethod = this.registeredSlashCommands.get(event.getName());
+        CommandContext commandMethod = this.registeredSlashCommands.get(event.getName());
         StringBuilder builder = new StringBuilder();
         for (OptionMapping option : event.getOptions()) {
             builder.append(option.getAsString()).append(' ');
@@ -380,30 +379,30 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
     }
 
     /**
-     * Builds the help {@link MessageEmbed} describing the {@link CommandMethod}.
+     * Builds the help {@link MessageEmbed} describing the {@link CommandContext}.
      *
      * @param commandAlias
      *     The {@link String} alias for this command
      * @param commandMethod
-     *     The {@link CommandMethod} which correlates to this command
+     *     The {@link CommandContext} which correlates to this command
      * @param message
      *     Any message that you want to be included in the help embed
      *
      * @return The {@link MessageEmbed} for the help message
      */
-    public static MessageEmbed buildHelpMessage(@NotNull String commandAlias, @NotNull CommandMethod commandMethod,
+    public static MessageEmbed buildHelpMessage(@NotNull String commandAlias, @NotNull CommandContext commandMethod,
                                                 @NotNull String message) {
         return new EmbedBuilder()
             .setColor(Color.cyan)
             .setTitle("HALP")
             .addField(commandAlias, message, false)
-            .addField("Usage", commandAlias + " " + commandMethod.getUsage(), true)
-            .addField("Description", commandMethod.getDescription(), true)
+            .addField("Usage", commandAlias + " " + commandMethod.usage(), true)
+            .addField("Description", commandMethod.description(), true)
             .build();
     }
 
     /**
-     * Registers the {@link Method methods} and generates {@link CommandMethod command methods} for each one.
+     * Registers the {@link Method methods} and generates {@link CommandContext command methods} for each one.
      *
      * @param instance
      *     The {@link Object instance} that the {@link Method methods} belong to
@@ -421,12 +420,12 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
                     String.format("The alias %s has already been defined and so it can't be used by the method %s",
                         commandAlias, method.getName()));
 
-            CommandMethod commandMethod = this.createCommandMethod(instance, method, command);
+            CommandContext commandContext = this.createCommandMethod(instance, method, command);
             if (method.isAnnotationPresent(SlashCommand.class) ||
                 instance.getClass().isAnnotationPresent(SlashCommand.class))
-                    this.registeredSlashCommands.put(commandAlias, commandMethod);
+                    this.registeredSlashCommands.put(commandAlias, commandContext);
             else
-                this.registeredCommands.put(this.getCommandPrefix() + commandAlias, commandMethod);
+                this.registeredCommands.put(this.getCommandPrefix() + commandAlias, commandContext);
         }
     }
 
@@ -461,13 +460,13 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
     }
 
     /**
-     * @return A {@link Set} containing the unique {@link Object instances} for the registered {@link CommandMethod
+     * @return A {@link Set} containing the unique {@link Object instances} for the registered {@link CommandContext
      *     command methods}
      */
     private Set<Object> getUniqueCommandMethodInstances() {
         return this.registeredCommands.values()
             .stream()
-            .map(CommandMethod::getInstance)
+            .map(CommandContext::instance)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
     }
@@ -480,43 +479,43 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
     }
 
     /**
-     * @return The registered {@link CommandMethod command methods} in an unmodifiable {@link Map}
+     * @return The registered {@link CommandContext command methods} in an unmodifiable {@link Map}
      */
-    public Map<String, CommandMethod> getRegisteredCommands() {
+    public Map<String, CommandContext> getRegisteredCommands() {
         return Collections.unmodifiableMap(this.registeredCommands);
     }
 
     /**
-     * Creates a {@link CommandMethod} from the specified information.
+     * Creates a {@link CommandContext} from the specified information.
      *
      * @param instance
      *     The {@link Object} that the {@link Method} belongs to
      * @param method
-     *     The {@link Method} for this {@link CommandMethod}
+     *     The {@link Method} for this {@link CommandContext}
      * @param command
      *     The {@link Command} which annotates the {@link Method}
      *
-     * @return The created {@link CommandMethod}
+     * @return The created {@link CommandContext}
      */
-    protected abstract CommandMethod createCommandMethod(@NotNull Object instance,
-                                                         @NotNull Method method,
-                                                         @NotNull Command command);
+    protected abstract CommandContext createCommandMethod(@NotNull Object instance,
+                                                          @NotNull Method method,
+                                                          @NotNull Command command);
 
     /**
-     * Handles the invocation, matching and parsing of a {@link CommandMethod} with the given {@link String content}.
+     * Handles the invocation, matching and parsing of a {@link CommandContext} with the given {@link String content}.
      *
      * @param event
-     *     The {@link MessageReceivedEvent} which invoked the {@link CommandMethod}
-     * @param commandMethod
-     *     The {@link CommandMethod} which matches to the command alias that was invoked
+     *     The {@link MessageReceivedEvent} which invoked the {@link CommandContext}
+     * @param commandContext
+     *     The {@link CommandContext} which matches to the command alias that was invoked
      * @param content
      *     The rest of the {@link String} after the {@link String command alias} or null if there was nothing else
      *
      * @return The parsed method call as an {@link Exceptional}
      * @throws OutputException
-     *     Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
+     *     Any {@link OutputException} thrown by the {@link CommandContext} when it was invoked
      */
     protected abstract Exceptional<Object> handleCommandMethodCall(@NotNull HalpbotEvent event,
-                                                                   @NotNull CommandMethod commandMethod,
+                                                                   @NotNull CommandContext commandContext,
                                                                    @NotNull String content) throws OutputException;
 }

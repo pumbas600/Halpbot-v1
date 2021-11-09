@@ -37,6 +37,8 @@ import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
+
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Explicit;
@@ -49,7 +51,6 @@ import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Priority;
@@ -149,7 +150,8 @@ public final class Converters
         .annotation(Explicit.class)
         .priority(Priority.EARLY)
         .convert(ctx -> ctx.getNextSurrounded("\"", "\"")
-            .orExceptional(() -> STRING_CONVERTER.getMapper().apply(ctx)))
+            //TODO: Check if this works - Had to change it from .orExceptional
+            .orElse(() -> STRING_CONVERTER.getMapper().apply(ctx).get()))
         .register();
 
     public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
@@ -181,7 +183,7 @@ public final class Converters
 
             if (typeAlias.caught())
                 return Exceptional.of(typeAlias.error());
-            if (typeAlias.isEmpty())
+            if (typeAlias.absent())
                 return Exceptional.of(new CommandException("Missing '[' when creating object " + expectedTypeAlias));
 
             if (!typeAlias.get().equalsIgnoreCase(expectedTypeAlias))
@@ -208,7 +210,7 @@ public final class Converters
         .annotation(Children.class)
         .convert(ctx -> {
             final Exceptional<Object> result = OBJECT_CONVERTER.getMapper().apply(ctx);
-            if (result.isErrorAbsent())
+            if (!result.caught())
                 return result;
             return ctx.getAnnotation(Children.class).flatMap(children -> {
                 // If there are no children then it will return the error in 'result'
@@ -217,7 +219,7 @@ public final class Converters
                 for (Class<?> child : children.value()) {
                     ctx.getContextState().setType(child);
                     parsed = OBJECT_CONVERTER.getMapper().apply(ctx);
-                    if (parsed.isErrorAbsent()) break;
+                    if (!parsed.caught()) break;
                 }
                 return parsed;
             });
@@ -253,7 +255,7 @@ public final class Converters
         .priority(Priority.LAST)
         .convert(ctx -> {
             Exceptional<List> listExceptional = LIST_CONVERTER.getMapper().apply(ctx);
-            if (listExceptional.isErrorAbsent())
+            if (listExceptional.errorAbsent())
                 return listExceptional;
 
             Type subType = Reflect.getGenericType(ctx.getContextState().getType());

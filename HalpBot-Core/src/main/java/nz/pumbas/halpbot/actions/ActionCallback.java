@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.actions.cooldowns.CooldownAction;
 import nz.pumbas.halpbot.events.HalpbotEvent;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.permissions.PermissionAction;
 
 public interface ActionCallback extends CooldownAction, PermissionAction

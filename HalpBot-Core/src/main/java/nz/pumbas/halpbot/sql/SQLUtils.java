@@ -34,7 +34,6 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.sql.functionalinterfaces.SQLBiFunction;
 import nz.pumbas.halpbot.sql.functionalinterfaces.SQLTriConsumer;
 import nz.pumbas.halpbot.sql.table.Table;

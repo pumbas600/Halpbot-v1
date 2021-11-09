@@ -33,9 +33,9 @@ import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.functionalinterfaces.CheckedFunction;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,7 @@ import java.util.Set;
 /**
  * A container for the data of an {@link Token} command.
  */
-public class SimpleCommand implements CommandMethod
+public class SimpleCommand
 {
 
     private final @NotNull String alias;
@@ -97,8 +97,7 @@ public class SimpleCommand implements CommandMethod
     /**
      * @return The {@link Executable} for this {@link Command}
      */
-    @Override
-    public @NotNull Executable getExecutable() {
+    public @NotNull Executable executable() {
         return this.executable;
     }
 
@@ -119,72 +118,66 @@ public class SimpleCommand implements CommandMethod
     /**
      * @return The {@link String alias} for this command.
      */
-    @Override
-    public @NotNull String getAlias() {
+
+    public @NotNull String alias() {
         return this.alias;
     }
 
     /**
      * @return The {@link String description}. Note if there is no description this will be empty
      */
-    @Override
-    public @NotNull String getDescription() {
+    public @NotNull String description() {
         return this.description;
     }
 
     /**
      * @return The {@link String} representation of the command
      */
-    @Override
-    public @NotNull String getDisplayCommand() {
+
+    public @NotNull String displayCommand() {
         return this.displayCommand;
     }
 
     /**
      * @return The {@link String permission} for this command. If there is no permission, this will an empty string
      */
-    @Override
-    public @NotNull String[] getPermissions() {
+
+    public @NotNull String[] permissions() {
         return this.permissions;
     }
 
     /**
      * @return @return The {@link Set<Long> ids} of who this command is restricted to
      */
-    @Override
-    public @NotNull Set<Long> getRestrictedTo() {
+    public @NotNull Set<Long> restrictedTo() {
         return this.restrictedTo;
     }
 
     /**
      * @return The {@link Class classes} that can have static methods invoked from
      */
-    @Override
-    public @NotNull Set<Class<?>> getReflections() {
+    public @NotNull Set<Class<?>> reflections() {
         return this.reflections;
     }
 
     /**
      * @return The {@link String usage} for this command
      */
-    @Override
-    public @NotNull String getUsage() {
+    public @NotNull String usage() {
         return this.usage;
     }
 
     /**
      * @return The {@link Token tokens} making up this command.
      */
-    @Override
-    public @NotNull List<Token> getTokens() {
+    public @NotNull List<Token> tokens() {
         return this.tokens;
     }
 
     /**
-     * @return The {@link Object} instance for this {@link CommandMethod}
+     * @return The {@link Object} instance for this {@link CommandContext}
      */
-    @Override
-    public @Nullable Object getInstance() {
+    public @Nullable Object instance() {
         return this.instance;
     }
 
@@ -275,7 +268,7 @@ public class SimpleCommand implements CommandMethod
 
         while (parameterIndex < parsedTokens.length) {
             if (tokenIndex >= this.tokens.size())
-                return firstMismatch.isErrorAbsent()
+                return firstMismatch.errorAbsent()
                     ? Exceptional.of(new CommandException("There appears to be too many parameters for this command"))
                     : firstMismatch;
 

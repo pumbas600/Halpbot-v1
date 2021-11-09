@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.converters;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -34,7 +35,6 @@ import java.util.function.Predicate;
 
 import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 

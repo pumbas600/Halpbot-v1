@@ -10,9 +10,11 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.events.EngineChangedState;
 import org.dockbox.hartshorn.events.annotations.Listener;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -20,7 +22,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
+import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
 import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.common.annotations.Bot;
@@ -29,12 +31,14 @@ import nz.pumbas.halpbot.common.annotations.Bot;
 @Binds(CommandAdapter.class)
 public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAdapter
 {
+    private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
+
     @Getter
     private String prefix;
 
     @Inject
     private ApplicationContext context;
-    
+
 
     @Listener
     public void on(EngineChangedState<Started> event) throws UndefinedActivatorException, IllegalPrefixException {
@@ -56,8 +60,9 @@ public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAd
     }
 
     @Override
-    public CommandMethod commandMethod(String alias) {
-        return null;
+    @Nullable
+    public CommandContext commandContext(String alias) {
+        return this.registeredCommands.get(alias);
     }
 
     private <T> void registerCommandMethods(Object instance,
@@ -71,6 +76,8 @@ public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAd
                 continue;
             }
             Command command = methodContext.annotation(Command.class).get();
+            List<String> aliases = this.aliases(command, methodContext);
+
 
         }
     }
@@ -87,5 +94,7 @@ public class HartshornCommandAdapter extends HalpbotAdapter implements CommandAd
         return aliases;
     }
 
+    private <T> CommandContext createCommand(T instance, Command command, MethodContext<?, T> methodContext) {
 
+    }
 }

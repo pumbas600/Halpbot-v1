@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.halpbot.converters.ConverterHandler;
@@ -42,7 +43,6 @@ import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.commands.tokens.SimpleParsingToken;
 import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Modifiers;
@@ -214,7 +214,7 @@ public final class CommandManager
                 if (alias.equalsIgnoreCase(getTypeAlias(parameterClasses[parameterIndex]))) {
                     tokens.add(currentToken);
                     itemIndex++;
-                } else if (currentToken.getAnnotationTypes().contains(Source.class)) {
+                } else if (currentToken.annotationTypes().contains(Source.class)) {
                     tokens.add(currentToken);
                 } else throw new IllegalFormatException(
                     "The alias '" + alias + "', doesn't match the expected " + getTypeAlias(parameterClasses[parameterIndex]));

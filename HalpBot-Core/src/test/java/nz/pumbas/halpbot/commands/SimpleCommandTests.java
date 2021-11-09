@@ -41,7 +41,6 @@ import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.commands.objects.Shape;
 import nz.pumbas.halpbot.converters.Converters;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public class SimpleCommandTests
@@ -223,7 +222,7 @@ public class SimpleCommandTests
             Reflect.getMethod(this, "commandWithMultipleAnnotationsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
-        Assertions.assertEquals(2, ((ParsingToken) command.getCommandTokens().get(0)).getAnnotations().length);
+        Assertions.assertEquals(2, ((ParsingToken) command.getCommandTokens().get(0)).annotations().length);
 
         Assertions.assertTrue(command.parse(MethodContext.of("")).present());
         Assertions.assertTrue(command.parse(MethodContext.of("1 2 3")).present());

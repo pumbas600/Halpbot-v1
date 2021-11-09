@@ -31,7 +31,6 @@ import java.util.Set;
 
 import nz.pumbas.halpbot.hibernate.models.Question;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public class QuestionHandler
 {

@@ -31,7 +31,6 @@ import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public class HalpBotCommands
 {

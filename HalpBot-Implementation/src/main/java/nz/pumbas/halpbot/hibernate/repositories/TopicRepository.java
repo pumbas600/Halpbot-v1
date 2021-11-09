@@ -33,7 +33,6 @@ import java.util.List;
 
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Topic;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public interface TopicRepository extends JpaRepository<Topic, Long>
 {

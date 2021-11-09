@@ -26,10 +26,11 @@ package nz.pumbas.halpbot.converters;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
+
 import java.util.function.Function;
 
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 public interface Converter<T>

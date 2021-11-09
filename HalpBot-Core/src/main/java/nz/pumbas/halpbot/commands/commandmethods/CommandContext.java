@@ -26,6 +26,9 @@ package nz.pumbas.halpbot.commands.commandmethods;
 
 import net.dv8tion.jda.api.entities.User;
 
+import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,71 +41,57 @@ import java.util.Set;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.commands.tokens.Token;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public interface CommandMethod
+public interface CommandContext
 {
-
     /**
      * @return The {@link String alias} for this command.
      */
     @NotNull
-    String getAlias();
+    String alias();
 
     /**
      * @return The {@link String description} if present, otherwise null
      */
     @NotNull
-    String getDescription();
-
-    /**
-     * @return The {@link String} representation of the command
-     */
-    @NotNull
-    String getDisplayCommand();
-
-    /**
-     * @return The {@link Object} instance for this {@link CommandMethod}. Note for static methods this will be null
-     */
-    @Nullable
-    Object getInstance();
-
-    /**
-     * @return The {@link Executable} that's invoked by this command
-     */
-    @NotNull
-    Executable getExecutable();
-
-    /**
-     * @return The {@link String permissions} for this command. If there is no permission, this will an empty string
-     */
-    @NotNull
-    String[] getPermissions();
-
-    /**
-     * @return The {@link Set<Long> ids} of who this command is restricted to
-     */
-    @NotNull
-    Set<Long> getRestrictedTo();
-
-    /**
-     * @return The {@link Class classes} that can have static methods invoked from
-     */
-    @NotNull
-    Set<Class<?>> getReflections();
+    String description();
 
     /**
      * @return The {@link String usage} for this command
      */
     @NotNull
-    String getUsage();
+    String usage();
+
+    /**
+     * @return The {@link Object} instance for this {@link CommandContext}. Note for static methods this will be null
+     */
+    @Nullable
+    Object instance();
+
+    /**
+     * @return The {@link Executable} that's invoked by this command
+     */
+    @NotNull
+    ExecutableElementContext<?> executable();
+
+    /**
+     * @return The {@link String permissions} for this command. If there is no permission, this will an empty string
+     */
+    @NotNull
+    List<String> permissions();
+
+    /**
+     * @return The {@link Class classes} that can have static methods invoked from
+     */
+    @NotNull
+    Set<TypeContext<?>> reflections();
 
     /**
      * @return The {@link Token tokens} making up this command.
      */
     @NotNull
-    List<Token> getTokens();
+    List<Token> tokens();
 
     /**
      * Returns true if the {@link User author} has all the necessary permissions to use this command.
@@ -113,16 +102,11 @@ public interface CommandMethod
      * @return If the author had permission
      */
     default boolean hasPermission(User author) {
-        if (null == author)
-            return this.getRestrictedTo().isEmpty() && 0 == this.getPermissions().length;
-
-        return (this.getRestrictedTo().isEmpty() ||
-                this.getRestrictedTo().contains(author.getIdLong())) &&
-                HalpbotUtils.context().get(PermissionManager.class).hasPermissions(author, this.getPermissions());
+        return HalpbotUtils.context().get(PermissionManager.class).hasPermissions(author, this.permissions());
     }
 
     /**
-     * Invokes the {@link Method} for this {@link CommandMethod}.
+     * Invokes the {@link Method} for this {@link CommandContext}.
      *
      * @param args
      *     The {@link Object} arguments to be used when invoking this command

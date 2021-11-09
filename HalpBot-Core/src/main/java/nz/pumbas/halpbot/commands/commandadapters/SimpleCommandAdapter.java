@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
+import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
@@ -38,7 +38,6 @@ import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public class SimpleCommandAdapter extends AbstractCommandAdapter
 {
@@ -47,53 +46,53 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
     }
 
     /**
-     * Creates a {@link CommandMethod} from the specified information.
+     * Creates a {@link CommandContext} from the specified information.
      *
      * @param instance
      *     The {@link Object} that the {@link Method} belongs to
      * @param method
-     *     The {@link Method} for this {@link CommandMethod}
+     *     The {@link Method} for this {@link CommandContext}
      * @param command
      *     The {@link Command} which annotates the {@link Method}
      *
-     * @return The created {@link CommandMethod}
+     * @return The created {@link CommandContext}
      */
     @Override
-    protected CommandMethod createCommandMethod(@NotNull Object instance,
-                                                @NotNull Method method,
-                                                @NotNull Command command) {
+    protected CommandContext createCommandMethod(@NotNull Object instance,
+                                                 @NotNull Method method,
+                                                 @NotNull Command command) {
         return CommandManager.generateCommandMethod(instance, method, command);
     }
 
     /**
-     * Handles the invocation, matching and parsing of a {@link CommandMethod} with the given {@link String content}.
+     * Handles the invocation, matching and parsing of a {@link CommandContext} with the given {@link String content}.
      *
      * @param event
-     *     The {@link MessageReceivedEvent} which invoked the {@link CommandMethod}
+     *     The {@link MessageReceivedEvent} which invoked the {@link CommandContext}
      * @param commandMethod
-     *     The {@link CommandMethod} which matches to the command alias that was invoked
+     *     The {@link CommandContext} which matches to the command alias that was invoked
      * @param content
      *     The rest of the {@link String} after the {@link String command alias} or null if there was nothing else
      *
-     * @return If the {@link String content} matched this {@link CommandMethod} and it was invoked
+     * @return If the {@link String content} matched this {@link CommandContext} and it was invoked
      * @throws OutputException
-     *     Any {@link OutputException} thrown by the {@link CommandMethod} when it was invoked
+     *     Any {@link OutputException} thrown by the {@link CommandContext} when it was invoked
      */
     @Override
     protected Exceptional<Object> handleCommandMethodCall(@NotNull HalpbotEvent event,
-                                                          @NotNull CommandMethod commandMethod,
+                                                          @NotNull CommandContext commandMethod,
                                                           @NotNull String content) throws OutputException {
         // Sanity check (This shouldn't be an issue)
         if (!(commandMethod instanceof SimpleCommand))
             return Exceptional.of(
-                new CommandException("The command method " + commandMethod.getDisplayCommand()
+                new CommandException("The command method " + commandMethod.displayCommand()
                     + " cannot be used with the command adapter " + this.getClass().getSimpleName()));
 
         SimpleCommand simpleCommand = (SimpleCommand) commandMethod;
         if (!simpleCommand.hasPermission(event.getUser()))
                 return Exceptional.of(new CommandException("You do not have permission to use this command"));
 
-        MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, simpleCommand.getReflections());
+        MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, simpleCommand.reflections());
 
         return simpleCommand.parse(ctx, false);
     }

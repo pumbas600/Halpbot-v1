@@ -1,10 +1,9 @@
-package nz.pumbas.halpbot.actions;
+package nz.pumbas.halpbot.actions.methods;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public interface MethodCallback
 {

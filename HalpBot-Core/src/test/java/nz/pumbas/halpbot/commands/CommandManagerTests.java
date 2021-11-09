@@ -71,7 +71,7 @@ public class CommandManagerTests
         Method method = Reflect.getMethod(this, "add");
 
         SimpleCommand command = CommandManager.generateCommandMethod(this, method, method.getAnnotation(Command.class));
-        Assertions.assertEquals("add", command.getAlias());
+        Assertions.assertEquals("add", command.alias());
     }
 
     @Command(description = "Adds two numbers together")

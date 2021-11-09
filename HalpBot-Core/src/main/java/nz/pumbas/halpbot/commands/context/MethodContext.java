@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.commands.context;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +39,6 @@ import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public class MethodContext extends InvocationContext
 {
@@ -77,7 +77,7 @@ public class MethodContext extends InvocationContext
 
     public static MethodContext of(@NotNull String context, @NotNull ParsingToken parsingToken) {
         return new MethodContext(
-            context, new ContextState(parsingToken.getType(), parsingToken.getAnnotations(), parsingToken.getAnnotationTypes()),
+            context, new ContextState(parsingToken.getType(), parsingToken.annotations(), parsingToken.annotationTypes()),
             null, null, Collections.emptySet());
     }
 
@@ -95,11 +95,11 @@ public class MethodContext extends InvocationContext
     }
 
     public static MethodContext of(@NotNull String content, SimpleCommand simpleCommand) {
-        return new MethodContext(content, ContextState.EMPTY, null, null, simpleCommand.getReflections());
+        return new MethodContext(content, ContextState.EMPTY, null, null, simpleCommand.reflections());
     }
 
     public void update(@NotNull ParsingToken parsingToken) {
-        this.contextState = new ContextState(parsingToken.getType(), parsingToken.getAnnotations(), parsingToken.getAnnotationTypes());
+        this.contextState = new ContextState(parsingToken.getType(), parsingToken.annotations(), parsingToken.annotationTypes());
     }
 
     public @Nullable HalpbotEvent getEvent() {

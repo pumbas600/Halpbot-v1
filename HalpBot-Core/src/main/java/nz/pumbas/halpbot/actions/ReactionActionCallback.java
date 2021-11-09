@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import nz.pumbas.halpbot.events.HalpbotEvent;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public class ReactionActionCallback extends AbstractActionCallback
 {

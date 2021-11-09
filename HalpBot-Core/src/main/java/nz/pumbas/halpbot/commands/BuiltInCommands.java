@@ -35,7 +35,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import nz.pumbas.halpbot.commands.annotations.Source;
-import nz.pumbas.halpbot.commands.commandmethods.CommandMethod;
+import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
@@ -59,9 +59,9 @@ public class BuiltInCommands
             for (var command : registeredCommands.entrySet()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("\n**Usage**\n")
-                    .append(command.getKey()).append(" ").append(command.getValue().getUsage())
+                    .append(command.getKey()).append(" ").append(command.getValue().usage())
                     .append("\n**Description**\n")
-                    .append(command.getValue().getDescription());
+                    .append(command.getValue().description());
 
                 embedBuilder.addField(command.getKey(), stringBuilder.toString(), true);
             }
@@ -73,7 +73,7 @@ public class BuiltInCommands
         if (!alias.startsWith(commandAdapter.getCommandPrefix()))
             alias = commandAdapter.getCommandPrefix() + alias;
 
-        Optional<CommandMethod> commandMethod = commandAdapter.getCommandMethod(alias);
+        Optional<CommandContext> commandMethod = commandAdapter.getCommandMethod(alias);
         if (commandMethod.isEmpty())
             return "That doesn't seem to be a registered command :sob:";
 

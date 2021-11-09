@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.commands.tokens;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +38,7 @@ import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.Reflect;
 
+//TODO: @Bind implementation and convert to HH syntax
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
  */
@@ -45,13 +48,13 @@ public interface ParsingToken extends Token
      * @return The {@link Annotation} annotations on this {@link ParsingToken}
      */
     @NotNull
-    Annotation[] getAnnotations();
+    Annotation[] annotations();
 
     /**
      * @return An {@link List} of the {@link Class types} of the annotations on this {@link ParsingToken}
      */
     @NotNull
-    List<Class<? extends Annotation>> getAnnotationTypes();
+    List<Class<? extends Annotation>> annotationTypes();
 
     /**
      * @return The required {@link Type} of this {@link ParsingToken}
@@ -95,10 +98,10 @@ public interface ParsingToken extends Token
     @Nullable
     @SuppressWarnings("unchecked")
     default <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-        int index = this.getAnnotationTypes().indexOf(annotationType);
+        int index = this.annotationTypes().indexOf(annotationType);
         if (-1 == index)
             return null;
-        return (T) this.getAnnotations()[index];
+        return (T) this.annotations()[index];
     }
 
     /**
@@ -122,5 +125,11 @@ public interface ParsingToken extends Token
             .rethrow()
             .get();
 
+    }
+
+    static ParsingToken of(ApplicationContext context,
+                           TypeContext<?> typeContext,
+                           List<Annotation> annotations) {
+        return context.get(ParsingToken.class, typeContext, annotations);
     }
 }

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.sql.table.column.ColumnIdentifier;
 
 public class TableRow {

@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.objects;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

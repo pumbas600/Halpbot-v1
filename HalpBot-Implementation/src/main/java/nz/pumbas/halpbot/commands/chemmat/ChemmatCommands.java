@@ -71,7 +71,6 @@ import nz.pumbas.halpbot.hibernate.models.UserStatistics;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
 import nz.pumbas.halpbot.hibernate.services.UserStatisticsService;
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 

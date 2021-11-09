@@ -85,7 +85,7 @@ public class SimpleParsingToken implements ParsingToken
      * @return The {@link Annotation} annotations on this {@link ParsingToken}
      */
     @Override
-    public @NotNull Annotation[] getAnnotations() {
+    public @NotNull Annotation[] annotations() {
         return this.annotations;
     }
 
@@ -93,7 +93,7 @@ public class SimpleParsingToken implements ParsingToken
      * @return A copy of the {@link List} of the {@link Class types} of the annotations on this {@link ParsingToken}
      */
     @Override
-    public @NotNull List<Class<? extends Annotation>> getAnnotationTypes() {
+    public @NotNull List<Class<? extends Annotation>> annotationTypes() {
         return new ArrayList<>(this.annotationTypes);
     }
 

@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.commands.context;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -31,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
-import nz.pumbas.halpbot.objects.Exceptional;
 
 public class InvocationContext
 {

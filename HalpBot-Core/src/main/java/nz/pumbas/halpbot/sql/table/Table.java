@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.sql.table.annotations.Property;
 import nz.pumbas.halpbot.sql.table.behavior.Merge;
 import nz.pumbas.halpbot.sql.table.behavior.Order;

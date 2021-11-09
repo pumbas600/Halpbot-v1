@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.objects.Exceptional;
 import nz.pumbas.halpbot.sql.SQLDriver;
 import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.sql.SQLUtils;

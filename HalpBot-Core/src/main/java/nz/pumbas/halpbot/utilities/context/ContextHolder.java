@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.utilities.context;
 
-import nz.pumbas.halpbot.objects.Exceptional;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 
 public interface ContextHolder
 {
