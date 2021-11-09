@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -140,12 +141,12 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
         for (CommandContext commandMethod : this.registeredSlashCommands.values()) {
             SlashCommand slashCommand = commandMethod.executable().annotation(SlashCommand.class).get();
             if (slashCommand.remove()) {
-                this.deleteSlashCommandById(jda, this.formatSlashCommandIdentifiers(commandMethod.alias()));
+                this.deleteSlashCommandById(jda, this.formatSlashCommandIdentifiers(commandMethod.aliases()));
             }
             else if (slashCommand.register()) {
                 jda.upsertCommand(this.generateSlashCommandData(commandMethod))
                     .queue();
-                HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.alias());
+                HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.aliases());
             }
         }
     }
@@ -173,7 +174,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      */
     public CommandData generateSlashCommandData(CommandContext commandMethod) {
         CommandData data = new CommandData(
-            this.formatSlashCommandIdentifiers(commandMethod.alias()),
+            this.formatSlashCommandIdentifiers(commandMethod.aliases()),
             commandMethod.description());
 
         for (Token token : commandMethod.tokens()) {

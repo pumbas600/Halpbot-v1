@@ -61,4 +61,8 @@ public interface Converter<T>
     default void register(ConverterHandler handler) {
         this.getRegister().register(handler, this);
     }
+
+    default Exceptional<T> apply(MethodContext methodContext) {
+        return this.getMapper().apply(methodContext);
+    }
 }

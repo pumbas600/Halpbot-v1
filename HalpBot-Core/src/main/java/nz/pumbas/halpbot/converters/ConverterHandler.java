@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 
 import nz.pumbas.halpbot.commands.context.MethodContext;
 
+//TODO: Refactor to support HH
 public interface ConverterHandler
 {
     /**

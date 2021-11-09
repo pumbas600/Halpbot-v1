@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.actions;
 
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;

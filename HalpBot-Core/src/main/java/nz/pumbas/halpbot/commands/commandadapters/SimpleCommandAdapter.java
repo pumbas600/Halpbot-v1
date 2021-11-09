@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.commands.commandadapters;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -69,7 +70,7 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
      *
      * @param event
      *     The {@link MessageReceivedEvent} which invoked the {@link CommandContext}
-     * @param commandMethod
+     * @param commandContext
      *     The {@link CommandContext} which matches to the command alias that was invoked
      * @param content
      *     The rest of the {@link String} after the {@link String command alias} or null if there was nothing else
@@ -80,20 +81,13 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
      */
     @Override
     protected Exceptional<Object> handleCommandMethodCall(@NotNull HalpbotEvent event,
-                                                          @NotNull CommandContext commandMethod,
+                                                          @NotNull CommandContext commandContext,
                                                           @NotNull String content) throws OutputException {
-        // Sanity check (This shouldn't be an issue)
-        if (!(commandMethod instanceof SimpleCommand))
-            return Exceptional.of(
-                new CommandException("The command method " + commandMethod.displayCommand()
-                    + " cannot be used with the command adapter " + this.getClass().getSimpleName()));
-
-        SimpleCommand simpleCommand = (SimpleCommand) commandMethod;
-        if (!simpleCommand.hasPermission(event.getUser()))
+        if (!commandContext.hasPermission(event.getUser()))
                 return Exceptional.of(new CommandException("You do not have permission to use this command"));
 
-        MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, simpleCommand.reflections());
+        MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, commandContext.reflections());
 
-        return simpleCommand.parse(ctx, false);
+        return commandContext.parse(ctx, false);
     }
 }

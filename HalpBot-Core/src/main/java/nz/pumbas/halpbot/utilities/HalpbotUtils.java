@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.JDA;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -140,9 +142,6 @@ public final class HalpbotUtils
     /**
      * Retrieves all the lines from a resource file as a {@link List<String>}.
      *
-     * @param filename
-     *     The {@link String name} of the resource file
-     *
      * @return A {@link List<String>} with all the lines from the file in it
      */
     public static List<String> getAllLinesFromFile(InputStream inputStream) {
@@ -155,9 +154,6 @@ public final class HalpbotUtils
     /**
      * Retrieves the first line from a file.
      *
-     * @param filename
-     *     The name of the file to open
-     *
      * @return The first line, or an empty {@link String} if there was an error reading the line
      */
     public static String getFirstLine(InputStream inputStream) {
@@ -167,8 +163,6 @@ public final class HalpbotUtils
     /**
      * Parses a file using the {@link IOFunction fileParser} provided.
      *
-     * @param filename
-     *     The name of the file to open
      * @param fileParser
      *     The {@link IOFunction} to parse the file
      * @param defaultValue
@@ -533,5 +527,18 @@ public final class HalpbotUtils
             }
         }
         return longest;
+    }
+
+    /**
+     * Converts camelCase and PascalCase to split lowercase. For example camelCase would become 'camel case'.
+     *
+     * @param text
+     *      The camelCase or PascalCase text to convert
+     *
+     * @return the converted text
+     */
+    public static String variableNameToSplitLowercase(String text) {
+        return text.replaceAll("([a-z][A-Z])", "$1 $2")
+            .toLowerCase(Locale.ROOT);
     }
 }

@@ -364,7 +364,7 @@ public final class CommandManager
             }
         }
         // Removes the ending space.
-        if (0 < builder.length())
+        if (!builder.isEmpty())
             builder.deleteCharAt(builder.length() - 1);
 
         return builder.toString();

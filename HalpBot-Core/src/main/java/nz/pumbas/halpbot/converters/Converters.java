@@ -37,6 +37,7 @@ import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
@@ -68,6 +69,7 @@ import java.util.Set;
 import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Unmodifiable;
 
+@Service
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
 public final class Converters
 {
@@ -150,8 +152,7 @@ public final class Converters
         .annotation(Explicit.class)
         .priority(Priority.EARLY)
         .convert(ctx -> ctx.getNextSurrounded("\"", "\"")
-            //TODO: Check if this works - Had to change it from .orExceptional
-            .orElse(() -> STRING_CONVERTER.getMapper().apply(ctx).get()))
+            .orElse(() -> STRING_CONVERTER.apply(ctx).orNull()))
         .register();
 
     public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
@@ -209,7 +210,7 @@ public final class Converters
         .priority(Priority.LAST)
         .annotation(Children.class)
         .convert(ctx -> {
-            final Exceptional<Object> result = OBJECT_CONVERTER.getMapper().apply(ctx);
+            final Exceptional<Object> result = OBJECT_CONVERTER.apply(ctx);
             if (!result.caught())
                 return result;
             return ctx.getAnnotation(Children.class).flatMap(children -> {
@@ -218,7 +219,7 @@ public final class Converters
 
                 for (Class<?> child : children.value()) {
                     ctx.getContextState().setType(child);
-                    parsed = OBJECT_CONVERTER.getMapper().apply(ctx);
+                    parsed = OBJECT_CONVERTER.apply(ctx);
                     if (!parsed.caught()) break;
                 }
                 return parsed;
@@ -345,10 +346,10 @@ public final class Converters
         .convert(ctx ->
             ctx.getNextSurrounded("<#", ">")
                 .map(ctx.getEvent().getGuild()::getTextChannelById)
-                .orExceptional(
-                    () -> LONG_CONVERTER.getMapper()
-                        .apply(ctx)
+                .orElse(
+                    () -> LONG_CONVERTER.apply(ctx)
                         .map(id -> ctx.getEvent().getGuild().getTextChannelById(id))
+                        .orNull()
                 ))
         .optionType(OptionType.CHANNEL)
         .register();
@@ -357,10 +358,10 @@ public final class Converters
         .convert(ctx ->
             ctx.getNextSurrounded("<@!", ">")
                 .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete())
-                .orExceptional(
-                    () -> LONG_CONVERTER.getMapper()
-                        .apply(ctx)
+                .orElse(
+                    () -> LONG_CONVERTER.apply(ctx)
                         .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete())
+                        .orNull()
                 ))
         .optionType(OptionType.USER)
         .register();
@@ -369,10 +370,10 @@ public final class Converters
         .convert(ctx ->
             ctx.getNextSurrounded("<@!", ">")
                 .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
-                .orExceptional(
-                    () -> LONG_CONVERTER.getMapper()
-                        .apply(ctx)
+                .orElse(
+                    () -> LONG_CONVERTER.apply(ctx)
                         .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
+                        .orNull()
                 ))
         .optionType(OptionType.USER)
         .register();
@@ -389,7 +390,7 @@ public final class Converters
                     parsedId = ctx.getNextSurrounded("<#", ">").map(MiscUtil::parseSnowflake);
                 else if (Member.class.isAssignableFrom(idType) || User.class.isAssignableFrom(idType))
                     parsedId = ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
-                return parsedId.orExceptional(() -> LONG_CONVERTER.getMapper().apply(ctx));
+                return parsedId.orElse(() -> LONG_CONVERTER.apply(ctx).orNull());
             })
         .optionType(OptionType.MENTIONABLE)
         .register();

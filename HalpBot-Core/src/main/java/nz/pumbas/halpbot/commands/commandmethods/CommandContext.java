@@ -24,32 +24,22 @@
 
 package nz.pumbas.halpbot.commands.commandmethods;
 
-import net.dv8tion.jda.api.entities.User;
-
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.permissions.PermissionManager;
+import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.commands.tokens.Token;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
+import nz.pumbas.halpbot.permissions.Permissive;
 
-public interface CommandContext
+public interface CommandContext extends Invokable, Permissive
 {
     /**
      * @return The {@link String alias} for this command.
      */
     @NotNull
-    String alias();
+    List<String> aliases();
 
     /**
      * @return The {@link String description} if present, otherwise null
@@ -64,24 +54,6 @@ public interface CommandContext
     String usage();
 
     /**
-     * @return The {@link Object} instance for this {@link CommandContext}. Note for static methods this will be null
-     */
-    @Nullable
-    Object instance();
-
-    /**
-     * @return The {@link Executable} that's invoked by this command
-     */
-    @NotNull
-    ExecutableElementContext<?> executable();
-
-    /**
-     * @return The {@link String permissions} for this command. If there is no permission, this will an empty string
-     */
-    @NotNull
-    List<String> permissions();
-
-    /**
      * @return The {@link Class classes} that can have static methods invoked from
      */
     @NotNull
@@ -92,28 +64,4 @@ public interface CommandContext
      */
     @NotNull
     List<Token> tokens();
-
-    /**
-     * Returns true if the {@link User author} has all the necessary permissions to use this command.
-     *
-     * @param author
-     *      The author of the commmand
-     *
-     * @return If the author had permission
-     */
-    default boolean hasPermission(User author) {
-        return HalpbotUtils.context().get(PermissionManager.class).hasPermissions(author, this.permissions());
-    }
-
-    /**
-     * Invokes the {@link Method} for this {@link CommandContext}.
-     *
-     * @param args
-     *     The {@link Object} arguments to be used when invoking this command
-     *
-     * @return An {@link Optional} containing the output of the {@link Method}
-     * @throws OutputException
-     *     Any {@link OutputException} thrown during the invocation of the method
-     */
-    Exceptional<Object> invoke(Object... args) throws OutputException;
 }

@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.utilities;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 

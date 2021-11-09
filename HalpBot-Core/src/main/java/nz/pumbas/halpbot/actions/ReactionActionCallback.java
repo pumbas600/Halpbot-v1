@@ -2,6 +2,8 @@ package nz.pumbas.halpbot.actions;
 
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;

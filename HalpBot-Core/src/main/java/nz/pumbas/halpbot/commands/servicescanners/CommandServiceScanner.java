@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands;
+package nz.pumbas.halpbot.commands.servicescanners;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;

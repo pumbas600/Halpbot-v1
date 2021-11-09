@@ -49,7 +49,7 @@ public abstract class AbstractActionCallback implements ActionCallback
     }
 
     @Override
-    public List<String> getPermissions() {
+    public List<String> permissions() {
         return this.permissions;
     }
 

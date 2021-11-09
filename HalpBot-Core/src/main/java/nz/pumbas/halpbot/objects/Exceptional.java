@@ -26,8 +26,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import nz.pumbas.halpbot.utilities.functionalinterfaces.CheckedFunction;
-
 /**
  * A container object which may or may not contain a non-null value. If a value is present, {@code
  * present()} will return {@code true} and {@code get()} will return the value. If no value is

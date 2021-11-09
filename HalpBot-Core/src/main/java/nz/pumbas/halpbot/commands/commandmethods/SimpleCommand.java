@@ -33,9 +33,9 @@ import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.Token;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
-import nz.pumbas.halpbot.utilities.functionalinterfaces.CheckedFunction;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.function.CheckedFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -297,7 +297,7 @@ public class SimpleCommand
                     if (result.caught())
                         mismatchResult = result.map(o -> new Object[0]);
                     else {
-                        if (!firstMismatch.isEmpty())
+                        if (firstMismatch.present() || firstMismatch.caught())
                             firstMismatch = Exceptional.empty();
 
                         parsedTokens[parameterIndex++] = result.orNull();
@@ -308,7 +308,7 @@ public class SimpleCommand
                 PlaceholderToken placeholderToken = (PlaceholderToken) currentToken;
 
                 if (placeholderToken.matches(ctx)) {
-                    if (!firstMismatch.isEmpty())
+                    if (firstMismatch.present() || firstMismatch.caught())
                         firstMismatch = Exceptional.empty();
                     continue;
                 }
@@ -317,7 +317,7 @@ public class SimpleCommand
             }
 
 
-            if (firstMismatch.isEmpty())
+            if (firstMismatch.absent() && firstMismatch.errorAbsent())
                 firstMismatch = mismatchResult;
 
             if (currentToken.isOptional()) {

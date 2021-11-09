@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -244,7 +245,7 @@ public class SimpleCommandTests
         Assertions.assertEquals(1, command.getCommandTokens().size());
         Assertions.assertEquals(Converters.ARRAY_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).getConverter());
 
-        Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3]")).isErrorAbsent());
+        Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3]")).errorAbsent());
         Assertions.assertTrue(command.parse(MethodContext.of("")).caught());
         Assertions.assertTrue(command.parse(MethodContext.of("1 2 3")).caught());
         Assertions.assertTrue(command.parse(MethodContext.of("1.0 2 3")).caught());

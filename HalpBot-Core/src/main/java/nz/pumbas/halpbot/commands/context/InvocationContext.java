@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.commands.context;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,10 +35,11 @@ import java.util.regex.Pattern;
 
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 
-public class InvocationContext
+public class InvocationContext implements ContextCarrier
 {
     protected final String original;
     protected int currentIndex;
+    private ApplicationContext applicationContext; //TODO: Pass ApplicationContext to this
 
     protected InvocationContext(@NotNull String context) {
         this.original = context;
@@ -350,5 +353,10 @@ public class InvocationContext
     public void assertNext(char character) {
         if (!this.isNext(character, true))
             throw new IllegalFormatException("Expected the character '" + character + "'");
+    }
+
+    @NotNull
+    public ApplicationContext applicationContext() {
+        return this.applicationContext;
     }
 }
