@@ -24,8 +24,10 @@
 
 package nz.pumbas.halpbot.utilities;
 
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -672,25 +674,26 @@ public final class Reflect
 
     /**
      * Returns if the passed in {@link String value} is a valid value of the {@link Enum}.
-     * Note: This method is case sensitive.
+     * Note: This method is case-insensitive.
      *
-     * @param enumClass
-     *     The {@link Class} of the {@link Enum}
+     * @param enumType
+     *     The {@link TypeContext} of the {@link Enum}
      * @param value
      *     The {@link String value} to test
      *
      * @return if the {@link String value} is a valid value of the {@link Enum}
      */
-    @SuppressWarnings("rawtypes")
-    public static Optional<Enum> parseEnumValue(Class<?> enumClass, @NonNls String value) { //TODO: Accept TypeContext
-        if (!enumClass.isEnum())
-            throw new IllegalArgumentException(
-                String.format("The type %s must be an enum.", enumClass.getSimpleName()));
-
-        return Arrays.stream(enumClass.getEnumConstants())
-            .map(Enum.class::cast)
-            .filter(e -> e.name().equalsIgnoreCase(value))
-            .findFirst();
+    public static Exceptional<Enum<?>> parseEnumValue(@NotNull TypeContext<Enum<?>> enumType,
+                                                      @NotNull String value)
+    {
+        return Exceptional.of(
+            enumType.enumConstants().stream()
+                .filter(e -> e.name().equalsIgnoreCase(value))
+                .findFirst())
+            .orElse(() -> {
+                throw new IllegalArgumentException(
+                    "%s doesn't seem to be a valid value for the enum %s".formatted(value, enumType.name()));
+            });
     }
 
     /**

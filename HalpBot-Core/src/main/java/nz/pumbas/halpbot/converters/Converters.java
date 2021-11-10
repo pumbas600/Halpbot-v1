@@ -168,12 +168,10 @@ public final class Converters
 
     public static final TypeConverter<Enum> ENUM_CONVERTER = TypeConverter.builder(Enum.class)
         .convert(invocationContext ->
-            Exceptional.of(
-                Reflect.parseEnumValue(invocationContext.currentParameter().type(), invocationContext.next()))
-                .orElse(() -> {
-                    throw new IllegalArgumentException(
-                        "That didn't seem to be a valid value for " + invocationContext.currentParameter().type().name());
-                }))
+            Reflect.parseEnumValue(
+                (TypeContext<Enum<?>>) invocationContext.currentParameter().type(),
+                invocationContext.next())
+                .map(Enum.class::cast))
         .optionType(OptionType.STRING)
         .build();
 

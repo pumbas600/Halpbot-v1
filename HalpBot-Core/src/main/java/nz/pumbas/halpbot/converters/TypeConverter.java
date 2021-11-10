@@ -44,8 +44,8 @@ import nz.pumbas.halpbot.utilities.enums.Priority;
 
 public record TypeConverter<T>(Function<InvocationContext, Exceptional<T>> mapper,
                                Priority priority,
-                                ConverterRegister register,
-                                OptionType optionType)
+                               ConverterRegister register,
+                               OptionType optionType)
     implements Converter<T>
 {
     /**

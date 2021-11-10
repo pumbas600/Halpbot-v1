@@ -89,7 +89,7 @@ public class HalpBotCommands
 
     public static final TypeConverter<Prefix> PREFIX_CONVERTER = TypeConverter.builder(Prefix.class)
         .convert(ctx ->
-            Converters.ENUM_CONVERTER.mapper().apply(ctx)
+            Converters.ENUM_CONVERTER.apply(ctx)
                 .map(prefix -> (Prefix) prefix)
                 .orExceptional(() ->
                     Converters.CHARACTER_CONVERTER.mapper().apply(ctx)
