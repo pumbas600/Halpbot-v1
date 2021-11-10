@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.servicescanners;
+package nz.pumbas.halpbot.converters;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.FieldContext;
@@ -7,11 +7,10 @@ import org.dockbox.hartshorn.core.services.ServiceOrder;
 import org.dockbox.hartshorn.core.services.ServiceProcessor;
 
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.converters.Converter;
-import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
 
 public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
@@ -40,8 +39,14 @@ public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
 
         type.annotation(NonCommandParameters.class)
             .present(nonCommandParameters -> {
-                handler.addNonCommandParameters(Set.of(nonCommandParameters.types()));
-                handler.addNonCammandAnnotations(Set.of(nonCommandParameters.annotations()));
+                handler.addNonCommandTypes(
+                    Stream.of(nonCommandParameters.types())
+                        .map(TypeContext::of)
+                        .collect(Collectors.toSet()));
+                handler.addNonCammandAnnotations(
+                    Stream.of(nonCommandParameters.annotations())
+                        .map(TypeContext::of)
+                        .collect(Collectors.toSet()));
             });
 
         List<FieldContext<Converter>> converters = type.fieldsOf(Converter.class);
@@ -50,10 +55,8 @@ public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
             if (!fieldContext.isStatic() || !fieldContext.isPublic() || !fieldContext.isFinal())
                 context.log().warn("The converter %s in %s needs to be static, public and final"
                     .formatted(fieldContext.name(), type.qualifiedName()));
-            else {
-                fieldContext.get(instance)
-                    .present(converter -> converter.register(handler));
-            }
+
+            else fieldContext.get(instance).present(handler::registerConverter);
         }
     }
 }

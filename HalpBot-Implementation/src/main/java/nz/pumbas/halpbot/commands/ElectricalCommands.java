@@ -26,9 +26,9 @@ package nz.pumbas.halpbot.commands;
 
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.annotations.Children;
+import nz.pumbas.halpbot.converters.annotations.parameter.Children;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.Halpbot;
 import nz.pumbas.halpbot.customparameters.electrical.CircuitManager;
 import nz.pumbas.halpbot.customparameters.electrical.ElectricalComponent;

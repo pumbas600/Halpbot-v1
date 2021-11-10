@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public class ContextState

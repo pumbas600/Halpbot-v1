@@ -22,18 +22,21 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.converters;
+package nz.pumbas.halpbot.converters.annotations.parameter;
 
-@FunctionalInterface
-public interface ConverterRegister
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.List;
+
+import nz.pumbas.halpbot.converters.annotations.AnnotationContext;
+
+@AnnotationContext(allowedType = { Array.class, Collection.class })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface Implicit
 {
-    /**
-     * Registers the specified {@link Converter} with the {@link ConverterHandler}.
-     *
-     * @param handler
-     *      The {@link ConverterHandler} to have this converter registered against.
-     * @param converter
-     *      The {@link Converter} to register.
-     */
-    void register(ConverterHandler handler, Converter<?> converter);
 }

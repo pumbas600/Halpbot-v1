@@ -22,16 +22,18 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.annotations;
+package nz.pumbas.halpbot.converters.tokens;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import nz.pumbas.halpbot.commands.annotations.Command;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Description
+/**
+ * A representation of an individual element in an {@link Command}.
+ */
+public interface Token
 {
-    String value();
+
+    /**
+     * @return If this {@link Token} is optional or not
+     */
+    boolean isOptional();
 }

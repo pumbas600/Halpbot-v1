@@ -25,7 +25,7 @@
 package nz.pumbas.halpbot.commands;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.Converters;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.customparameters.Shape;

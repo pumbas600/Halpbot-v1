@@ -42,14 +42,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
 @RequiredArgsConstructor
 public class InvocationContext implements ContextCarrier
 {
-    @NotNull private final ApplicationContext applicationContext; //TODO: Pass ApplicationContext to this
+    @NotNull private final ApplicationContext applicationContext;
 
     @Nullable private final HalpbotEvent halpbotEvent;
 

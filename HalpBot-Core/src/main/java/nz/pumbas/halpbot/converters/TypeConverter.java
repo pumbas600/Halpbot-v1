@@ -26,25 +26,24 @@ package nz.pumbas.halpbot.converters;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
 import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
+import nz.pumbas.halpbot.converters.exceptions.IllegalConverterException;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
-public record TypeConverter<T>(Function<InvocationContext, Exceptional<T>> mapper,
+public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
+                               @NotNull TypeContext<? extends Annotation> annotationType,
+                               @NotNull Function<InvocationContext, Exceptional<T>> mapper,
                                Priority priority,
-                               ConverterRegister register,
                                OptionType optionType)
     implements Converter<T>
 {
@@ -58,41 +57,21 @@ public record TypeConverter<T>(Function<InvocationContext, Exceptional<T>> mappe
      *
      * @return A {@link TypeConverterBuilder}
      */
-    public static <T> TypeConverterBuilder<T> builder(@NotNull Class<T> type) {
+    public static <T> TypeConverterBuilder<T> builder(@NotNull TypeContext<T> type) {
         return new TypeConverterBuilder<>(type);
-    }
-
-    /**
-     * Returns a {@link TypeConverterBuilder} that utilises a {@link Predicate<Class> filter}.
-     *
-     * @param filter
-     *     The {@link Predicate<Class>} filter that matches classes to this {@link Converter}
-     * @param <T>
-     *     The type of the converter
-     *
-     * @return A {@link TypeConverterBuilder}
-     */
-    public static <T> TypeConverterBuilder<T> builder(@NotNull Predicate<Class<?>> filter) {
-        return new TypeConverterBuilder<>(filter);
     }
 
     public static class TypeConverterBuilder<T>
     {
+        private final @NotNull TypeContext<T> typeContext;
+        private @Nullable Function<InvocationContext, Exceptional<T>> converter;
+        private @Nullable Class<? extends Annotation> annotation;
 
-        private Class<T> type;
-        private Predicate<Class<?>> filter;
-
-        private Function<InvocationContext, Exceptional<T>> converter;
         private Priority priority = Priority.DEFAULT;
-        private Class<?> annotation = Void.class;
         private OptionType optionType = OptionType.STRING;
 
-        protected TypeConverterBuilder(@NotNull Class<T> type) {
-            this.type = type;
-        }
-
-        protected TypeConverterBuilder(@NotNull Predicate<Class<?>> filter) {
-            this.filter = filter;
+        protected TypeConverterBuilder(@NotNull TypeContext<T> type) {
+            this.typeContext = type;
         }
 
         /**
@@ -164,16 +143,20 @@ public record TypeConverter<T>(Function<InvocationContext, Exceptional<T>> mappe
         }
 
         /**
-         * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link ConverterHandlerImpl}.
+         * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link HalpbotConverterHandler}.
          *
          * @return The built {@link TypeConverter}
          */
         public TypeConverter<T> build() {
-            ConverterRegister register = (null == this.type)
-                ? (handler, converter) -> handler.registerConverter(this.filter, this.annotation, converter)
-                : (handler, converter) -> handler.registerConverter(this.type, this.annotation, converter);
-
-            return new TypeConverter<>(this.converter, this.priority, register, this.optionType);
+            if (this.converter == null)
+                throw new IllegalConverterException(
+                        "You must specify a converting function before building the converter");
+            return new TypeConverter<>(
+                    this.typeContext,
+                    TypeContext.of(this.annotation),
+                    this.converter,
+                    this.priority,
+                    this.optionType);
         }
     }
 }

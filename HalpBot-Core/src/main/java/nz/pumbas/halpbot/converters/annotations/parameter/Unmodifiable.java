@@ -22,15 +22,20 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.annotations;
+package nz.pumbas.halpbot.converters.annotations.parameter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
+import java.util.Set;
 
-@Target(ElementType.PARAMETER)
+import nz.pumbas.halpbot.converters.annotations.AnnotationContext;
+
+@AnnotationContext(dependencies = Unrequired.class, allowedType = { List.class, Set.class })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Source
+@Target(ElementType.PARAMETER)
+public @interface Unmodifiable
 {
 }

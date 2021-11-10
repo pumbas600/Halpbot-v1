@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.converters;
 
+//TODO: Rework this
 public class ConverterContext
 {
 

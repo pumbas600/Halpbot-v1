@@ -5,7 +5,6 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ConstructorContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,8 +14,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.tokens.HalpbotParsingToken;
-import nz.pumbas.halpbot.commands.tokens.Token;
+import nz.pumbas.halpbot.converters.tokens.HalpbotParsingToken;
+import nz.pumbas.halpbot.converters.tokens.Token;
 
 @SuppressWarnings("ConstantDeclaredInInterface")
 public interface Invokable

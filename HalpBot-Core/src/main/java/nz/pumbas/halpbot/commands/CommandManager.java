@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.utilities.ErrorManager;
-import nz.pumbas.halpbot.commands.annotations.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
@@ -39,10 +39,10 @@ import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
-import nz.pumbas.halpbot.commands.tokens.SimpleParsingToken;
-import nz.pumbas.halpbot.commands.tokens.Token;
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.converters.tokens.SimpleParsingToken;
+import nz.pumbas.halpbot.converters.tokens.Token;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Modifiers;
@@ -513,6 +513,7 @@ public final class CommandManager
         return defaultAlias;
     }
 
+    //TODO: Replace usages with ConverterHandler#isCommandParameter
     public static boolean isCommandParameter(@NotNull ParameterContext<?> parameterContext) {
         return true; //TODO: Add support for determining if its a command parameter from a parameter context
     }
@@ -530,6 +531,7 @@ public final class CommandManager
      *
      * @return If it's a command parameter.
      */
+    //TODO: Replace usages with ConverterHandler#isCommandParameter
     public static boolean isCommandParameter(final Type type, final Annotation[] annotations) {
         final Class<?> clazz = Reflect.asClass(type);
         return !Reflect.hasAnnotation(annotations, Source.class) &&

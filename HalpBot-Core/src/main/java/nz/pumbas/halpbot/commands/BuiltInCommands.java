@@ -34,11 +34,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import nz.pumbas.halpbot.commands.annotations.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.sql.SQLManager;

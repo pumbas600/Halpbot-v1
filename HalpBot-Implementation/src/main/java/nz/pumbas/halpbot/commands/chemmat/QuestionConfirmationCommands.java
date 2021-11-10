@@ -24,7 +24,7 @@ import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.Question;

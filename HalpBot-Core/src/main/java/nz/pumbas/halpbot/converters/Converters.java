@@ -44,19 +44,18 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
-import nz.pumbas.halpbot.commands.annotations.Explicit;
-import nz.pumbas.halpbot.commands.annotations.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Priority;
-import nz.pumbas.halpbot.commands.annotations.Children;
+import nz.pumbas.halpbot.converters.annotations.parameter.Children;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,8 +65,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.annotations.Remaining;
-import nz.pumbas.halpbot.commands.annotations.Unmodifiable;
+import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 
 @Service
 @NonCommandParameters(
@@ -145,13 +144,6 @@ public final class Converters
         .annotation(Remaining.class)
         .priority(Priority.EARLY)
         .convert(invocationContext -> Exceptional.of(invocationContext::remaining))
-        .build();
-
-    public static final TypeConverter<String> EXPLICIT_STRING_CONVERTER = TypeConverter.builder(String.class)
-        .annotation(Explicit.class)
-        .priority(Priority.EARLY)
-        .convert(invocationContext -> invocationContext.nextSurrounded("\"", "\"")
-            .orElse(() -> STRING_CONVERTER.apply(invocationContext).orNull()))
         .build();
 
     @SuppressWarnings("OverlyComplexBooleanExpression")

@@ -22,16 +22,19 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.annotations;
+package nz.pumbas.halpbot.converters.annotations.parameter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
+import nz.pumbas.halpbot.converters.annotations.AnnotationContext;
+import nz.pumbas.halpbot.converters.annotations.Any;
+
+@AnnotationContext(conflictingAnnotations = Any.class)
 @Target(ElementType.PARAMETER)
-public @interface Unrequired
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Source
 {
-    String value() default "${Default}";
 }

@@ -30,9 +30,9 @@ import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.commands.tokens.Token;
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
-import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.converters.tokens.Token;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.core.function.CheckedFunction;

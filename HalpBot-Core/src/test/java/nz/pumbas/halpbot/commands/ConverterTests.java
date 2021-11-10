@@ -30,8 +30,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.annotations.Remaining;
-import nz.pumbas.halpbot.commands.annotations.Unmodifiable;
+import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;

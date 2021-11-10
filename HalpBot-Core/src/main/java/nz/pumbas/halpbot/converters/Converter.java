@@ -26,20 +26,29 @@ package nz.pumbas.halpbot.converters;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 //TODO: Make converters support use of $Default
-//TODO: Update syntax
 public interface Converter<T>
 {
+    @NotNull
+    TypeContext<T> typeContext();
+
+    @NotNull
+    TypeContext<? extends Annotation> annotationType();
+
     /**
      * @return The {@link Function mapper} for this {@link Converter}
      */
+    @NotNull
     Function<InvocationContext, Exceptional<T>> mapper();
 
     /**
@@ -47,22 +56,7 @@ public interface Converter<T>
      */
     Priority priority();
 
-    /**
-     * @return The {@link ConverterRegister} for this converter, describing how to register it to a {@link ConverterHandler}
-     */
-    ConverterRegister register();
-
     OptionType optionType();
-
-    /**
-     * Registers itself to the {@link ConverterHandler} using the {@link ConverterRegister}.
-     *
-     * @param handler
-     *      The {@link ConverterHandler} to register itself to.
-     */
-    default void register(ConverterHandler handler) {
-        this.register().register(handler, this);
-    }
 
     default Exceptional<T> apply(InvocationContext invocationContext) {
         return this.mapper().apply(invocationContext);

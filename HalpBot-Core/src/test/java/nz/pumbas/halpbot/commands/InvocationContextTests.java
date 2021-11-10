@@ -28,7 +28,6 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -36,11 +35,11 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.commands.annotations.Children;
-import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.converters.annotations.parameter.Children;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
 //TODO: Confirm what I need to @ExtendWith to use HH injections
 public class InvocationContextTests

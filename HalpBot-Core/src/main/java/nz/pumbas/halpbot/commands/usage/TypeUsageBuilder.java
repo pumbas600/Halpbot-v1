@@ -6,9 +6,9 @@ import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.methods.Invokable;
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
-import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
-import nz.pumbas.halpbot.commands.tokens.Token;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class TypeUsageBuilder implements UsageBuilder

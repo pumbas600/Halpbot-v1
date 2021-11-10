@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Source;
-import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.hibernate.models.UserStatistics;
 import nz.pumbas.halpbot.hibernate.services.UserStatisticsService;
 import nz.pumbas.halpbot.objects.expiring.ConcurrentExpiringMap;

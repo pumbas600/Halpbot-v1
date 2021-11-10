@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.utilities.Reflect;
 

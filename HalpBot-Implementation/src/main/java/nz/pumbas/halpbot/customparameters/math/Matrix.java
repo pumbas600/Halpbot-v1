@@ -28,10 +28,10 @@ import java.util.Arrays;
 
 import nz.pumbas.halpbot.commands.DiscordString;
 import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
-import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
-import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
 public class Matrix implements DiscordString
 {

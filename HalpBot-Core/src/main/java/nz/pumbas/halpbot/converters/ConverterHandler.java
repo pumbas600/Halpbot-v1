@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
@@ -39,27 +38,9 @@ import nz.pumbas.halpbot.commands.context.MethodContext;
 //TODO: Refactor to support HH
 public interface ConverterHandler
 {
-    /**
-     * Retrieves the {@link Converter} for the {@link MethodContext}.
-     *
-     * @param ctx
-     *      The {@link MethodContext}
-     * @param <T>
-     *      The type of the {@link TypeConverter}
-     *
-     * @return The retrieved {@link Converter}
-     */
-    @SuppressWarnings("unchecked")
-    @NotNull
-    default <T> Converter<T> from(@NotNull MethodContext ctx) {
-        return (Converter<T>) this.from(ctx.getContextState().getClazz(), ctx);
-    }
 
     @NotNull
-    default <T> Converter<T> from(ParameterContext<T> parameterContext) {
-        // TODO: Add support for ParameterContext
-        return null;
-    }
+    <T> Converter<T> from(@NotNull ParameterContext<T> parameterContext);
 
     @NotNull
     default <T> Converter<T> from(@NotNull TypeContext<T> typeContext, @NotNull InvocationContext invocationContext) {
@@ -80,7 +61,9 @@ public interface ConverterHandler
      * @return The retrieved {@link Converter}
      */
     @NotNull
-    <T> Converter<T> from(@NotNull Class<T> type, @NotNull InvocationContext invocationContext);
+    default <T> Converter<T> from(@NotNull Class<T> type, @NotNull InvocationContext invocationContext) {
+        return this.from(TypeContext.of(type), invocationContext);
+    }
 
     /**
      * Registers a {@link Converter} against the {@link Class type} with the specified {@link Class annotation type}.
@@ -92,20 +75,7 @@ public interface ConverterHandler
      * @param converter
      *      The {@link Converter} to register
      */
-    void registerConverter(@NotNull Class<?> type, @NotNull Class<?> annotationType, @NotNull Converter<?> converter);
-
-    /**
-     * Registers a {@link Converter} against the {@link Predicate filter} with the specified {@link Class annotation type}.
-     *
-     * @param filter
-     *      The {@link Predicate filter} for this {@link Converter}
-     * @param annotationType
-     *      The {@link Class type} of the annotation
-     * @param converter
-     *      The {@link Converter} to register
-     */
-    void registerConverter(@NotNull Predicate<Class<?>> filter, @NotNull Class<?> annotationType,
-                           @NotNull Converter<?> converter);
+    void registerConverter(@NotNull Converter<?> converter);
 
 
     //TODO: Update implementation to accept Set
@@ -116,10 +86,14 @@ public interface ConverterHandler
      * @param type
      *      The {@link Class} to specify as a non-command parameter type
      */
-    void addNonCommandParameters(Set<Class<?>> type);
+    void addNonCommandTypes(@NotNull Set<TypeContext<?>> types);
 
     //TODO: Implement in subclasses
-    void addNonCammandAnnotations(Set<Class<? extends Annotation>> type);
+    void addNonCammandAnnotations(@NotNull Set<TypeContext<? extends Annotation>> types);
+
+    boolean isCommandParameter(@NotNull ParameterContext<?> parameterContext);
+
+    boolean isCommandParameter(@NotNull TypeContext<?> typeContext);
 
     /**
      * @return An unmodifiable {@link List} of all the types that have been specified as non-command parameter types.

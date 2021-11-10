@@ -38,7 +38,7 @@ import java.util.Set;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.events.HalpbotEvent;
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 
 //TODO: Remove MethodContext -> Combine it with InvocationContext
 public class MethodContext extends InvocationContext

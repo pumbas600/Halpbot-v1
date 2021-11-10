@@ -33,11 +33,11 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.Unrequired;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.commands.tokens.ParsingToken;
-import nz.pumbas.halpbot.commands.annotations.Implicit;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.commands.objects.Shape;

@@ -27,7 +27,7 @@ package nz.pumbas.halpbot.utilities.context;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.permissions.SQLPermissionManager;
 import nz.pumbas.halpbot.converters.ConverterHandler;
-import nz.pumbas.halpbot.converters.ConverterHandlerImpl;
+import nz.pumbas.halpbot.converters.HalpbotConverterHandler;
 import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.sql.SQLiteManager;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
@@ -40,7 +40,7 @@ public final class DefaultContext
     public static void addAll() {
 
         // Parsers
-        HalpbotUtils.context().bind(ConverterHandler.class, ConverterHandlerImpl.class);
+        HalpbotUtils.context().bind(ConverterHandler.class, HalpbotConverterHandler.class);
 
         // Utils
         HalpbotUtils.context().bind(ConcurrentManager.class, ConcurrentManager.class);
