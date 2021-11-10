@@ -53,6 +53,7 @@ import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
+import nz.pumbas.halpbot.converters.types.ArrayContext;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 import nz.pumbas.halpbot.converters.annotations.parameter.Children;
@@ -167,7 +168,7 @@ public final class Converters
         .optionType(OptionType.STRING)
         .build();
 
-    public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(c -> true)
+    public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(Object.class)
         .priority(Priority.DEFAULT)
         .convert(invocationContext -> {
             TypeContext<?> typeContext = invocationContext.currentParameter().type();
@@ -199,7 +200,7 @@ public final class Converters
             return result;
         }).build();
 
-    public static final TypeConverter<Object> CHILDREN_TYPE_CONVERTER = TypeConverter.builder(Objects::nonNull)
+    public static final TypeConverter<Object> CHILDREN_TYPE_CONVERTER = TypeConverter.builder(Object.class)
         .priority(Priority.LAST)
         .annotation(Children.class)
         .convert(invocationContext -> {
@@ -306,7 +307,7 @@ public final class Converters
                 .map(Collections::unmodifiableSet))
         .build();
 
-    public static final TypeConverter<Object> ARRAY_CONVERTER = TypeConverter.builder(Class::isArray)
+    public static final TypeConverter<Object> ARRAY_CONVERTER = TypeConverter.builder(ArrayContext.TYPE)
         .convert(invocationContext ->
             invocationContext.applicationContext().get(ConverterHandler.class)
                 .from(List.class, invocationContext)

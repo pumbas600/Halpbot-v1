@@ -47,6 +47,10 @@ public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
                                OptionType optionType)
     implements Converter<T>
 {
+    public static <T> TypeConverterBuilder<T> builder(@NotNull Class<T> type) {
+        return builder(TypeContext.of(type));
+    }
+
     /**
      * Returns a {@link TypeConverterBuilder} from the {@link Class type} which builds the {@link TypeConverter}.
      *

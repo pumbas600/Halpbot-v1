@@ -14,7 +14,24 @@ public class ArrayContext extends TypeContext<Void>
 
     @Override
     public boolean equals(Object o) {
+        if (o == null)
+            return false;
         // Return true if this equals any array
         return TYPE.equals(o) || o instanceof TypeContext<?> typeContext && typeContext.type().isArray();
+    }
+
+    @Override
+    public boolean childOf(TypeContext<?> type) {
+        return TYPE == type || super.childOf(type);
+    }
+
+    @Override
+    public boolean childOf(Class<?> to) {
+        return to != null && to.isArray();
+    }
+
+    @Override
+    public String toString() {
+        return "TypeContext{*[]}";
     }
 }
