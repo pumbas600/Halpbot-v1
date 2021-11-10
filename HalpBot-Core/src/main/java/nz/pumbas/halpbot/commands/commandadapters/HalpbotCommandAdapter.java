@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.commands.commandadapters;
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.service.Service;
@@ -8,6 +10,7 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.events.EngineChangedState;
 import org.dockbox.hartshorn.events.annotations.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +36,9 @@ import nz.pumbas.halpbot.commands.usage.NameVariableBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.common.annotations.Bot;
+import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.MessageEvent;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
 @Binds(CommandAdapter.class)
@@ -58,6 +64,49 @@ public class HalpbotCommandAdapter extends HalpbotAdapter implements CommandAdap
             throw new IllegalPrefixException("The prefix defined in @Bot cannot be blank");
 
         this.determineUsageBuilder();
+    }
+
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) return;
+
+        // Remove all the additional whitespace
+        String message = event.getMessage().getContentRaw().replaceAll("\\s+", " ");
+
+        String[] splitText  = message.split(" ", 2);
+        String commandAlias = splitText[0].toLowerCase();
+        String content      = (2 == splitText.length) ? splitText[1] : "";
+
+        HalpbotEvent halpbotEvent = new MessageEvent(event);
+
+        if (commandAlias.startsWith(this.prefix())) {
+            String alias = commandAlias.substring(this.prefix.length());
+            this.commandContextSafely(alias)
+                .absent(() -> this.halpBotCore.getDisplayConfiguration()
+                    .displayTemporary(halpbotEvent,
+                        "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling",
+                        30))
+                .flatMap(commandContext ->
+                    this.handleCommandInvocation(halpbotEvent, commandContext, content))
+                .present(output -> this.getHalpbotCore().getDisplayConfiguration().display(halpbotEvent, output))
+                .caught(exception -> {
+                    ErrorManager.handle(event, exception);
+                    this.getHalpbotCore().getDisplayConfiguration()
+                        .displayTemporary(
+                            halpbotEvent,
+                            "There was the following error trying to invoke this command: " + exception.getMessage(),
+                            30);
+                });
+        }
+    }
+
+    @NotNull
+    private Exceptional<Object> handleCommandInvocation(@NotNull HalpbotEvent event,
+                                                        @NotNull CommandContext commandContext,
+                                                        @NotNull String content)
+    {
+        //TODO: Implement command invocation handling
+        return Exceptional.empty();
     }
 
     private void hasMethodParameterNamesVerifier(String sampleParameter) { }

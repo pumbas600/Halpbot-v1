@@ -6,6 +6,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.ContextCarrier;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.ArrayList;
@@ -14,8 +18,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.security.auth.login.LoginException;
 
+import lombok.Getter;
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.actions.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.events.HalpbotEvent;
@@ -27,11 +33,15 @@ import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.context.ContextHolder;
 
-public class HalpbotCore implements ContextHolder
+@Service
+public class HalpbotCore implements ContextHolder, ContextCarrier
 {
     private static JDA jda;
     private long ownerId = -1;
     private final JDABuilder jdaBuilder;
+
+    @Inject
+    @Getter private ApplicationContext applicationContext;
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
     private final Map<Long, UserCooldowns> userCooldownsMap = new ConcurrentHashMap<>();
@@ -203,6 +213,15 @@ public class HalpbotCore implements ContextHolder
         return this.ownerId;
     }
 
+    public <T extends HalpbotAdapter> T getAndRegister(Class<T> adapterType) {
+        Exceptional<T> registeredInstance = this.getSafely(adapterType);
+        if (registeredInstance.present())
+            return registeredInstance.get();
+        T instance = this.applicationContext.get(adapterType);
+        this.register(instance);
+        return instance;
+    }
+
     /**
      * Retrieves the instance of the specified {@link Class implementation}. If there isn't already an implementation
      * for that class, then it tries to create one, assuming it has a constructor that takes no parameters. If the
@@ -214,7 +233,7 @@ public class HalpbotCore implements ContextHolder
      * @return The instance, or null if there isn't one registered.
      */
     @Override
-    public <T> T get(final Class<T> implementation) {
+    public <T> T get(final Class<T> implementation) { //TODO: Migrate to TypeContext
         return this.getSafely(implementation).orNull();
     }
 
@@ -228,7 +247,7 @@ public class HalpbotCore implements ContextHolder
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Exceptional<T> getSafely(final Class<T> contract) {
+    public <T> Exceptional<T> getSafely(final Class<T> contract) { //TODO: Migrate to TypeContext
         return Exceptional.of(
             this.adapters
             .stream()
