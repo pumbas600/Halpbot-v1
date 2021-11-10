@@ -49,7 +49,7 @@ public class CommandServiceScanner implements ServiceProcessor<UseCommands>
                                                                               @NotNull TypeContext<?> type,
                                                                               @NotNull Class<? extends CommandAdapter> adapter)
     {
-        halpbotCore.getAndRegister((Class<T>) adapter)
+        halpbotCore.getAndRegister((TypeContext<T>) TypeContext.of(adapter))
             .registerCommands(type);
     }
 }

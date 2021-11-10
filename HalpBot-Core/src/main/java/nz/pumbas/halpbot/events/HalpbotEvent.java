@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.User;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+//TODO: Update with fluent style
 public interface HalpbotEvent
 {
     Object getRawEvent();

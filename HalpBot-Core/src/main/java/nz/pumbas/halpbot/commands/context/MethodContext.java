@@ -40,6 +40,7 @@ import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.tokens.ParsingToken;
 
+//TODO: Remove MethodContext -> Combine it with InvocationContext
 public class MethodContext extends InvocationContext
 {
     private @NotNull ContextState contextState;

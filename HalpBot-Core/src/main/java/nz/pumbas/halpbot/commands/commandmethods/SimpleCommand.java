@@ -290,7 +290,7 @@ public class SimpleCommand
                     ctx.setCurrentIndex(currentIndex);
 
                     result = parsingToken.converter()
-                        .getMapper()
+                        .mapper()
                         .apply(ctx)
                         .map(o -> o);
 

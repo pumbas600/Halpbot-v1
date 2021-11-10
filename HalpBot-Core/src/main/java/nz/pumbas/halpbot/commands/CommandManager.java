@@ -38,7 +38,6 @@ import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.commands.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.commands.tokens.SimpleParsingToken;
@@ -398,7 +397,7 @@ public final class CommandManager
     public static Exceptional<Object> handleReflectionSyntax(@NotNull MethodContext ctx) {
         if (ctx.getReflections().isEmpty()) return Exceptional.empty();
 
-        Exceptional<String> type = ctx.getNext(".");
+        Exceptional<String> type = ctx.next(".");
         if (type.present()) {
 
             Optional<Class<?>> oClass = ctx.getReflections()
@@ -409,7 +408,7 @@ public final class CommandManager
             if (oClass.isPresent()) {
                 Class<?> reflectionClass = oClass.get();
 
-                Exceptional<String> methodName = ctx.getNext("[", false);
+                Exceptional<String> methodName = ctx.next("[", false);
 
                 return methodName
                     .flatMap(name -> handleMethodReflectionSyntax(ctx, name, reflectionClass))
@@ -475,7 +474,7 @@ public final class CommandManager
     private static Exceptional<Object> handleFieldReflectionSyntax(@NotNull MethodContext ctx,
                                                                    @NotNull Class<?> reflectionClass) {
         if (!ctx.hasNext()) return Exceptional.empty();
-        String fieldName = ctx.getNext();
+        String fieldName = ctx.next();
 
         return Exceptional.of(Reflect.getFields(reflectionClass, fieldName)
             .stream()
@@ -501,7 +500,7 @@ public final class CommandManager
      *
      * @return The {@link String alias} of the specified {@link Class type}
      */
-    public static String getTypeAlias(Class<?> type) {
+    public static String getTypeAlias(Class<?> type) { //TODO: Add support for TypeContext
         if (type.isAnnotationPresent(CustomParameter.class))
             return type.getAnnotation(CustomParameter.class).identifier();
 

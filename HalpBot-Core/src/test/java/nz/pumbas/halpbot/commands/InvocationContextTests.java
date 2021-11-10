@@ -24,12 +24,17 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import javax.inject.Inject;
 
 import nz.pumbas.halpbot.commands.annotations.Children;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
@@ -37,16 +42,19 @@ import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 
+//TODO: Confirm what I need to @ExtendWith to use HH injections
 public class InvocationContextTests
 {
+    @Inject
+    private ApplicationContext applicationContext;
 
     @Test
     public void getNextSurroundedTest() {
-        InvocationContext tokenInfo = InvocationContext.of("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
+        InvocationContext tokenInfo = new InvocationContext(this.applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
 
-        Exceptional<String> oArray1 = tokenInfo.getNextSurrounded("[", "]");
-        Exceptional<String> oArray2 = tokenInfo.getNextSurrounded("[", "]");
-        Exceptional<String> oArray3 = tokenInfo.getNextSurrounded("[", "]");
+        Exceptional<String> oArray1 = tokenInfo.nextSurrounded("[", "]");
+        Exceptional<String> oArray2 = tokenInfo.nextSurrounded("[", "]");
+        Exceptional<String> oArray3 = tokenInfo.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertTrue(oArray2.present());
@@ -58,12 +66,12 @@ public class InvocationContextTests
 
     @Test
     public void getNextSurroundedIncompleteTest() {
-        InvocationContext tokenInfo1 = InvocationContext.of("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
-        InvocationContext tokenInfo2 = InvocationContext.of("#Block[1 2 3]]");
+        InvocationContext tokenInfo1 = new InvocationContext(this.applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
+        InvocationContext tokenInfo2 = new InvocationContext(this.applicationContext, "#Block[1 2 3]]");
 
-        Exceptional<String> oArray1 = tokenInfo1.getNextSurrounded("[", "]");
-        Exceptional<String> oArray2 = tokenInfo1.getNextSurrounded("[", "]");
-        Exceptional<String> oArray3 = tokenInfo2.getNextSurrounded("[", "]");
+        Exceptional<String> oArray1 = tokenInfo1.nextSurrounded("[", "]");
+        Exceptional<String> oArray2 = tokenInfo1.nextSurrounded("[", "]");
+        Exceptional<String> oArray3 = tokenInfo2.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertFalse(oArray2.present());
@@ -74,10 +82,10 @@ public class InvocationContextTests
 
     @Test
     public void getNextSurroundedStepPastTest() {
-        InvocationContext tokenInfo = InvocationContext.of("#Block[1 2 3]");
+        InvocationContext tokenInfo = new InvocationContext(this.applicationContext, "#Block[1 2 3]");
 
-        Exceptional<String> oType = tokenInfo.getNextSurrounded("#", "[", false);
-        Exceptional<String> oParameters = tokenInfo.getNextSurrounded("[", "]");
+        Exceptional<String> oType = tokenInfo.nextSurrounded("#", "[", false);
+        Exceptional<String> oParameters = tokenInfo.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oType.present());
         Assertions.assertTrue(oParameters.present());

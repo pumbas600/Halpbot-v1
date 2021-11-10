@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
@@ -186,7 +187,7 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
                 String optionDescription = null == description ? "N/A" : description.value();
                 String name = this.formatSlashCommandIdentifiers(parsingToken.getParameterName());
 
-                data.addOption(parsingToken.converter().getOptionType(), name,
+                data.addOption(parsingToken.converter().optionType(), name,
                     optionDescription, !token.isOptional());
             }
             else if (token instanceof PlaceholderToken){
@@ -353,7 +354,8 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
      */
     @NotNull
     @SuppressWarnings("unchecked")
-    public <T extends PersistantUserData> T getPersistantUserData(Class<T> type, long userId) {
+    //TODO: Move to new command adapter
+    public <T extends PersistantUserData> T getPersistantUserData(TypeContext<T> typeContext, long userId) {
         Map<Class<? extends PersistantUserData>, PersistantUserData> mappings;
         if (!this.persistantUserData.containsKey(userId)) {
             mappings = new ConcurrentHashMap<>();
@@ -362,8 +364,8 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
         else mappings = this.persistantUserData.get(userId);
 
 
-        if (!mappings.containsKey(type)) {
-            T userData = Reflect.createInstance(type, userId);
+        if (!mappings.containsKey(typeContext)) {
+            T userData = Reflect.createInstance(typeContext, userId);
             if (null == userData)
                 throw new IllegalPersistantDataConstructor(
                     "Persistant user data can only have a user id as a parameter for its constructor");
@@ -371,10 +373,10 @@ public abstract class AbstractCommandAdapter extends HalpbotAdapter
             if (userData instanceof AbstractPersistantUserData)
                 ((AbstractPersistantUserData) userData).setCommandAdapter(this);
 
-            mappings.put(type, userData);
+            mappings.put(typeContext, userData);
             return userData;
         }
-        T userData = (T) mappings.get(type);
+        T userData = (T) mappings.get(typeContext);
         userData.setAlreadyExisted();
         return userData;
     }

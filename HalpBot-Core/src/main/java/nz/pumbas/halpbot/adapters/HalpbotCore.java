@@ -34,7 +34,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.context.ContextHolder;
 
 @Service
-public class HalpbotCore implements ContextHolder, ContextCarrier
+public class HalpbotCore implements ContextCarrier
 {
     private static JDA jda;
     private long ownerId = -1;
@@ -213,7 +213,7 @@ public class HalpbotCore implements ContextHolder, ContextCarrier
         return this.ownerId;
     }
 
-    public <T extends HalpbotAdapter> T getAndRegister(Class<T> adapterType) {
+    public <T extends HalpbotAdapter> T getAndRegister(TypeContext<T> adapterType) {
         Exceptional<T> registeredInstance = this.getSafely(adapterType);
         if (registeredInstance.present())
             return registeredInstance.get();
@@ -232,8 +232,7 @@ public class HalpbotCore implements ContextHolder, ContextCarrier
      *
      * @return The instance, or null if there isn't one registered.
      */
-    @Override
-    public <T> T get(final Class<T> implementation) { //TODO: Migrate to TypeContext
+    public <T> T get(final TypeContext<T> implementation) {
         return this.getSafely(implementation).orNull();
     }
 
@@ -245,13 +244,12 @@ public class HalpbotCore implements ContextHolder, ContextCarrier
      *
      * @return An {@link Exceptional} of the instance, or {@link Exceptional#empty()} if there isn't one registered.
      */
-    @Override
     @SuppressWarnings("unchecked")
-    public <T> Exceptional<T> getSafely(final Class<T> contract) { //TODO: Migrate to TypeContext
+    public <T> Exceptional<T> getSafely(final TypeContext<T> contract) {
         return Exceptional.of(
             this.adapters
             .stream()
-            .filter(adapter -> contract.isAssignableFrom(adapter.getClass()))
+            .filter(adapter -> TypeContext.of(adapter).childOf(contract))
             .findFirst()
             .map(adapter -> (T)adapter));
     }

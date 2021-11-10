@@ -33,26 +33,21 @@ import java.lang.annotation.Annotation;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import nz.pumbas.halpbot.commands.context.ContextState;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
-public class TypeConverter<T> implements Converter<T>
+public record TypeConverter<T>(Function<InvocationContext, Exceptional<T>> mapper,
+                               Priority priority,
+                                ConverterRegister register,
+                                OptionType optionType)
+    implements Converter<T>
 {
-    private final Function<MethodContext, Exceptional<T>> converter;
-    private final Priority priority;
-    private final ConverterRegister register;
-    private final OptionType optionType;
-
-    public TypeConverter(Function<MethodContext, Exceptional<T>> converter, Priority priority,
-                         ConverterRegister register, OptionType optionType) {
-        this.converter = converter;
-        this.priority = priority;
-        this.register = register;
-        this.optionType = optionType;
-    }
-
     /**
      * Returns a {@link TypeConverterBuilder} from the {@link Class type} which builds the {@link TypeConverter}.
      *
@@ -81,49 +76,16 @@ public class TypeConverter<T> implements Converter<T>
         return new TypeConverterBuilder<>(filter);
     }
 
-    /**
-     * @return The {@link Function} for this {@link Converter}
-     */
-    @Override
-    public Function<MethodContext, Exceptional<T>> getMapper() {
-        return this.converter;
-    }
-
-    /**
-     * @return The {@link Priority} associated with this {@link Converter}
-     */
-    @Override
-    public Priority getPriority() {
-        return this.priority;
-    }
-
-    /**
-     * @return The {@link ConverterRegister} for this converter, describing how to register it to a {@link ConverterHandler}
-     */
-    @Override
-    public ConverterRegister getRegister() {
-        return this.register;
-    }
-
-    /**
-     * @return The JDA {@link OptionType} for this converter.
-     */
-    @Override
-    public OptionType getOptionType() {
-        return this.optionType;
-    }
-
     public static class TypeConverterBuilder<T>
     {
 
         private Class<T> type;
         private Predicate<Class<?>> filter;
 
-        private Function<MethodContext, Exceptional<T>> converter;
+        private Function<InvocationContext, Exceptional<T>> converter;
         private Priority priority = Priority.DEFAULT;
         private Class<?> annotation = Void.class;
         private OptionType optionType = OptionType.STRING;
-        private boolean isCommandParameter = true;
 
         protected TypeConverterBuilder(@NotNull Class<T> type) {
             this.type = type;
@@ -138,16 +100,17 @@ public class TypeConverter<T> implements Converter<T>
          * function, then it will automatically reset the current index of the {@link MethodContext}.
          *
          * @param parser
-         *      The {@link Function} to be used to parse the type
+         *     The {@link Function} to be used to parse the type
          *
          * @return Itself for chaining
          */
-        public TypeConverterBuilder<T> convert(@NotNull Function<MethodContext, Exceptional<T>> parser) {
+        public TypeConverterBuilder<T> convert(@NotNull Function<InvocationContext, Exceptional<T>> parser) {
             this.converter = ctx -> {
-                int currentIndex = ctx.getCurrentIndex();
-                ContextState state = ctx.getContextState().copyContextState();
+                //TODO: Refactor resetting context states to leverage new design
+                int currentIndex = ctx.currentIndex();
+                ContextState state = ctx.contextState().copyContextState();
                 Exceptional<T> result = parser.apply(ctx)
-                    .caught(t -> ctx.setCurrentIndex(currentIndex));
+                    .caught(t -> ctx.currentIndex(currentIndex));
 
                 // Always restore the state of parser back to what it was when it was called.
                 ctx.setContextState(state);
@@ -162,7 +125,7 @@ public class TypeConverter<T> implements Converter<T>
          * evaulated last.
          *
          * @param priority
-         *      The {@link Priority} to be set for this {@link TypeConverter}
+         *     The {@link Priority} to be set for this {@link TypeConverter}
          *
          * @return Itself for chaining
          */
@@ -177,7 +140,7 @@ public class TypeConverter<T> implements Converter<T>
          * annotations present.
          *
          * @param annotation
-         *      The {@link Class type} of the annotation that needs to be present for this type parser to be called
+         *     The {@link Class type} of the annotation that needs to be present for this type parser to be called
          *
          * @return Itself for chaining
          */
@@ -191,23 +154,12 @@ public class TypeConverter<T> implements Converter<T>
          * is specified, then it will default to {@link OptionType#STRING}.
          *
          * @param optionType
-         *      The JDA {@link OptionType}
+         *     The JDA {@link OptionType}
          *
          * @return Itself for chaining
          */
         public TypeConverterBuilder<T> optionType(OptionType optionType) {
             this.optionType = optionType;
-            return this;
-        }
-
-        /**
-         * Specifies that this type, or any which extend it are not parameters that are passed in when someone uses a
-         * command and is instead something that is extracted based on the event, or other information.
-         *
-         * @return Itself for chaining
-         */
-        public TypeConverterBuilder<T> notCommandParameter() {
-            this.isCommandParameter = false;
             return this;
         }
 
@@ -222,24 +174,6 @@ public class TypeConverter<T> implements Converter<T>
                 : (handler, converter) -> handler.registerConverter(this.type, this.annotation, converter);
 
             return new TypeConverter<>(this.converter, this.priority, register, this.optionType);
-        }
-
-        /**
-         * Builds the {@link TypeConverter} and automatically registers it with {@link ConverterHandlerImpl}. This makes it
-         * available to be retrieved using {@link ConverterHandlerImpl#from}.
-         *
-         * @return The built {@link TypeConverter}
-         */
-        public TypeConverter<T> register() {
-            TypeConverter<T> converter = this.build();
-            ConverterHandler handler = HalpbotUtils.context().get(ConverterHandler.class);
-
-            converter.getRegister().register(handler, converter);
-
-            if (!this.isCommandParameter && null != this.type)
-                handler.addNonCommandParameterType(this.type);
-
-            return converter;
         }
     }
 }

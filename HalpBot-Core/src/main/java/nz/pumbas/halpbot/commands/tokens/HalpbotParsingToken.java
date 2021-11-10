@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.annotations.Unrequired;
-import nz.pumbas.halpbot.commands.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 
@@ -31,13 +31,13 @@ public record HalpbotParsingToken(@NotNull ParameterContext<?> parameterContext,
         Exceptional<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
 
         if (unrequired.present()) {
-            isOptional = true; //TODO: Make converters support use of $Default
-            //TODO: Remove MethodContext -> Combine it with InvocationContext
-            //TODO: This currently doesn't work - Make methodContext be able to take in a ParameterContext
-            defaultValue = ParsingToken.parseDefaultValue(converter, MethodContext.of(unrequired.type()));
+            isOptional = true;
+            InvocationContext invocationContext = new InvocationContext(applicationContext, unrequired.get().value());
+            invocationContext.currentParameter(parameterContext);
+
+            defaultValue = ParsingToken.parseDefaultValue(converter, invocationContext);
         }
 
         return new HalpbotParsingToken(parameterContext, converter, defaultValue, isCommandParameter, isOptional);
     }
-
 }

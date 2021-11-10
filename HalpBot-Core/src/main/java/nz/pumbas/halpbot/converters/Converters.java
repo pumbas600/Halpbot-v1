@@ -35,15 +35,16 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.utils.MiscUtil;
 
+import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Explicit;
-import nz.pumbas.halpbot.commands.annotations.Id;
 import nz.pumbas.halpbot.commands.annotations.Source;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
@@ -52,12 +53,11 @@ import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.annotations.Implicit;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
+import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 import nz.pumbas.halpbot.commands.annotations.Children;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -70,15 +70,14 @@ import nz.pumbas.halpbot.commands.annotations.Remaining;
 import nz.pumbas.halpbot.commands.annotations.Unmodifiable;
 
 @Service
+@NonCommandParameters(
+    types = { PersistantUserData.class, GenericEvent.class, Interaction.class, HalpbotCore.class,
+        HalpbotAdapter.class, JDA.class, ApplicationContext.class },
+    annotations = Source.class
+)
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
 public final class Converters
 {
-
-    /**
-     * A static method that can be called so that the converters in this file are loaded.
-     * Note: This is already automatically called by {@link ConverterHandlerImpl}.
-     */
-    public static void load() {}
 
     private Converters() {}
 
@@ -87,120 +86,124 @@ public final class Converters
     //region Simple Converters
 
     public static final TypeConverter<Byte> BYTE_CONVERTER = TypeConverter.builder(Byte.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Byte.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Byte.class))
                 .map(Byte::parseByte))
         .optionType(OptionType.INTEGER)
-        .register();
+        .build();
 
     public static final TypeConverter<Short> SHORT_CONVERTER = TypeConverter.builder(Short.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Short.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Short.class))
                 .map(Short::parseShort))
         .optionType(OptionType.INTEGER)
-        .register();
+        .build();
 
     public static final TypeConverter<Integer> INTEGER_CONVERTER = TypeConverter.builder(Integer.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Integer.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Integer.class))
                 .map(Integer::parseInt))
         .optionType(OptionType.INTEGER)
-        .register();
+        .build();
 
     public static final TypeConverter<Long> LONG_CONVERTER = TypeConverter.builder(Long.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Long.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Long.class))
                 .map(number -> {
                     if (number.startsWith("-"))
                         return Long.parseLong(number);
                     else return Long.parseUnsignedLong(number);
                 }))
         .optionType(OptionType.INTEGER)
-        .register();
+        .build();
 
     public static final TypeConverter<Float> FLOAT_CONVERTER = TypeConverter.builder(Float.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Float.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Float.class))
                 .map(Float::parseFloat))
-        .register();
+        .build();
 
     public static final TypeConverter<Double> DOUBLE_CONVERTER = TypeConverter.builder(Double.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Double.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Double.class))
                 .map(Double::parseDouble))
-        .register();
+        .build();
 
     public static final TypeConverter<Character> CHARACTER_CONVERTER = TypeConverter.builder(Character.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Character.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Character.class))
                 .map(in -> in.charAt(0)))
         .optionType(OptionType.STRING)
-        .register();
+        .build();
 
     public static final TypeConverter<String> STRING_CONVERTER = TypeConverter.builder(String.class)
-        .convert(InvocationContext::getNextSafe)
+        .convert(InvocationContext::nextSafe)
         .optionType(OptionType.STRING)
-        .register();
+        .build();
 
     public static final TypeConverter<String> REMAINING_STRINGS_CONVERTER = TypeConverter.builder(String.class)
         .annotation(Remaining.class)
         .priority(Priority.EARLY)
-        .convert(ctx -> Exceptional.of(ctx::getRemaining))
-        .register();
+        .convert(invocationContext -> Exceptional.of(invocationContext::remaining))
+        .build();
 
     public static final TypeConverter<String> EXPLICIT_STRING_CONVERTER = TypeConverter.builder(String.class)
         .annotation(Explicit.class)
         .priority(Priority.EARLY)
-        .convert(ctx -> ctx.getNextSurrounded("\"", "\"")
-            .orElse(() -> STRING_CONVERTER.apply(ctx).orNull()))
-        .register();
+        .convert(invocationContext -> invocationContext.nextSurrounded("\"", "\"")
+            .orElse(() -> STRING_CONVERTER.apply(invocationContext).orNull()))
+        .build();
 
+    @SuppressWarnings("OverlyComplexBooleanExpression")
     public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
-        .convert(ctx ->
-            ctx.getNext(Reflect.getSyntax(Boolean.class))
+        .convert(invocationContext ->
+            invocationContext.next(Reflect.getSyntax(Boolean.class))
                 .map(in -> {
                     String lowered = in.toLowerCase(Locale.ROOT);
-                    return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered) || "y".equals(lowered);
+                    return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered)
+                        || "y".equals(lowered) | "1".equals(lowered);
                 }))
         .optionType(OptionType.BOOLEAN)
-        .register();
+        .build();
 
     public static final TypeConverter<Enum> ENUM_CONVERTER = TypeConverter.builder(Enum.class)
-        .convert(ctx ->
+        .convert(invocationContext ->
             Exceptional.of(
-                Reflect.parseEnumValue(ctx.getContextState().getClazz(), ctx.getNext()))
+                Reflect.parseEnumValue(invocationContext.currentParameter().type(), invocationContext.next()))
                 .orElse(() -> {
                     throw new IllegalArgumentException(
-                        "That didn't seem to be a valid value for " + ctx.getContextState().getClazz().getSimpleName());
+                        "That didn't seem to be a valid value for " + invocationContext.currentParameter().type().name());
                 }))
         .optionType(OptionType.STRING)
-        .register();
+        .build();
 
     public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(c -> true)
-        .convert(ctx -> {
-            Class<?> clazz = ctx.getContextState().getClazz();
-            String expectedTypeAlias = CommandManager.getTypeAlias(clazz);
-            Exceptional<String> typeAlias = ctx.getNext("[", false);
+        .priority(Priority.DEFAULT)
+        .convert(invocationContext -> {
+            TypeContext<?> typeContext = invocationContext.currentParameter().type();
+            String expectedTypeAlias = CommandManager.getTypeAlias(typeContext.type());
+            Exceptional<String> typeAlias = invocationContext.next("[", false);
 
             if (typeAlias.caught())
                 return Exceptional.of(typeAlias.error());
             if (typeAlias.absent())
-                return Exceptional.of(new CommandException("Missing '[' when creating object " + expectedTypeAlias));
+                return Exceptional.of(new CommandException("Missing opening '[' when creating the object " + expectedTypeAlias));
 
             if (!typeAlias.get().equalsIgnoreCase(expectedTypeAlias))
                 return Exceptional.of(
                     new CommandException("Expected the alias " + expectedTypeAlias + " but got " + typeAlias.get()));
 
-            ctx.assertNext('[');
-            int currentIndex = ctx.getCurrentIndex();
+            invocationContext.assertNext('[');
+            int currentIndex = invocationContext.currentIndex();
             Exceptional<Object> result = Exceptional.empty();
+            //TODO: Refactor to utilise Invokable and HalpbotCommandContext
             for (SimpleCommand simpleCommand : CommandManager.getParsedConstructors(clazz)) {
-                ctx.setCurrentIndex(currentIndex);
-                result = simpleCommand.parse(ctx, true);
-                if (result.present() && ctx.isNext(']', true)) break;
+                invocationContext.currentIndex(currentIndex);
+                result = simpleCommand.parse(invocationContext, true);
+                if (result.present() && invocationContext.isNext(']', true)) break;
 
                 else if (!result.caught()) result = Exceptional.of(
-                    new CommandException("There seems to have been an error when constructing the " + expectedTypeAlias));
+                    new CommandException("There seems to have been an error when constructing the object " + expectedTypeAlias));
 
             }
             return result;
@@ -209,120 +212,119 @@ public final class Converters
     public static final TypeConverter<Object> CHILDREN_TYPE_CONVERTER = TypeConverter.builder(Objects::nonNull)
         .priority(Priority.LAST)
         .annotation(Children.class)
-        .convert(ctx -> {
-            final Exceptional<Object> result = OBJECT_CONVERTER.apply(ctx);
+        .convert(invocationContext -> {
+            final Exceptional<Object> result = OBJECT_CONVERTER.apply(invocationContext);
             if (!result.caught())
                 return result;
-            return ctx.getAnnotation(Children.class).flatMap(children -> {
+            return invocationContext.currentParameter().annotation(Children.class).flatMap(children -> {
                 // If there are no children then it will return the error in 'result'
                 Exceptional<Object> parsed = result;
 
                 for (Class<?> child : children.value()) {
-                    ctx.getContextState().setType(child);
-                    parsed = OBJECT_CONVERTER.apply(ctx);
+                    invocationContext.getContextState().setType(child); //TODO: Replace context state set type
+                    parsed = OBJECT_CONVERTER.apply(invocationContext);
                     if (!parsed.caught()) break;
                 }
                 return parsed;
             });
-        }).register();
+        }).build();
 
     //endregion
 
     //region Collection Converters
 
     public static final TypeConverter<List> LIST_CONVERTER = TypeConverter.builder(List.class)
-        .convert(ctx -> {
-            Type subType = Reflect.getGenericType(ctx.getContextState().getType());
-            Converter<?> elementConverter = HalpbotUtils.context().get(ConverterHandler.class)
-                .from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
+        .convert(invocationContext -> {
+            //TODO: Test for arrays
+            TypeContext<?> genericType = invocationContext.currentParameter().type().typeParameters(List.class).get(0);
+            Converter<?> elementConverter = invocationContext.applicationContext()
+                .get(ConverterHandler.class)
+                .from(genericType, invocationContext);
 
             return Exceptional.of(() -> {
                 List<Object> list = new ArrayList<>();
-                ctx.assertNext('[');
-                ctx.getContextState().setType(subType);
+                invocationContext.assertNext('[');
+                invocationContext.getContextState().setType(subType);
 
-                while (!ctx.isNext(']', true)) {
-                    elementConverter.getMapper()
-                        .apply(ctx)
+                while (!invocationContext.isNext(']', true)) {
+                    elementConverter.apply(invocationContext)
                         .present(list::add)
                         .rethrow();
                 }
                 return list;
             });
-        }).register();
+        }).build();
 
     public static final TypeConverter<List> IMPLICIT_LIST_CONVERTER = TypeConverter.builder(List.class)
         .annotation(Implicit.class)
         .priority(Priority.LAST)
-        .convert(ctx -> {
-            Exceptional<List> listExceptional = LIST_CONVERTER.getMapper().apply(ctx);
-            if (listExceptional.errorAbsent())
+        .convert(invocationContext -> {
+            Exceptional<List> listExceptional = LIST_CONVERTER.mapper().apply(invocationContext);
+            if (listExceptional.errorAbsent() && listExceptional.present())
                 return listExceptional;
 
-            Type subType = Reflect.getGenericType(ctx.getContextState().getType());
-            Converter<?> elementConverter = HalpbotUtils.context().get(ConverterHandler.class)
-                .from(Reflect.wrapPrimative(Reflect.asClass(subType)), ctx);
-            ctx.getContextState().setType(subType);
+            //TODO: Test for arrays
+            TypeContext<?> genericType = invocationContext.currentParameter().type().typeParameters(List.class).get(0);
+            Converter<?> elementConverter = invocationContext.applicationContext()
+                .get(ConverterHandler.class)
+                .from(genericType, invocationContext);
+
+            invocationContext.getContextState().setType(subType);
 
             List<Object> list = new ArrayList<>();
 
-            Exceptional<?> element = elementConverter.getMapper()
-                .apply(ctx)
+            Exceptional<?> element = elementConverter.apply(invocationContext)
                 .present(list::add);
-            if (element.absent()) return Exceptional.of(element.error());
+            // Expects there to be atleast one element if the arrays being passed implicitly
+            if (element.absent()) return Exceptional.of(element.error()); //TODO: More useful error here
 
-            while (ctx.hasNext()) {
-                element = elementConverter.getMapper()
-                    .apply(ctx);
+            while (invocationContext.hasNext()) {
+                element = elementConverter.apply(invocationContext);
                 if (element.present()) list.add(element.get());
                 else break;
             }
 
             return Exceptional.of(list);
-
-        }).register();
+        }).build();
 
     public static final TypeConverter<List> UNMODIFIABLE_LIST_CONVERTER = TypeConverter.builder(List.class)
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
-        .convert(ctx ->
-            HalpbotUtils.context().get(ConverterHandler.class)
-                .from(List.class, ctx)
-                .getMapper()
-                .apply(ctx)
+        .convert(invocationContext ->
+            invocationContext.applicationContext().get(ConverterHandler.class)
+                .from(List.class, invocationContext)
+                .apply(invocationContext)
                 .map(Collections::unmodifiableList))
-        .register();
+        .build();
 
     public static final TypeConverter<Set> SET_CONVERTER = TypeConverter.builder(Set.class)
-        .convert(ctx ->
-            HalpbotUtils.context().get(ConverterHandler.class)
-                .from(List.class, ctx)
-                .getMapper()
-                .apply(ctx)
+        .convert(invocationContext ->
+            invocationContext.applicationContext().get(ConverterHandler.class)
+                .from(List.class, invocationContext)
+                .apply(invocationContext)
                 .map(HashSet::new))
-        .register();
+        .build();
 
 
     public static final TypeConverter<Set> UNMODIFIABLE_SET_CONVERTER = TypeConverter.builder(Set.class)
         .annotation(Unmodifiable.class)
         .priority(Priority.EARLY)
-        .convert(ctx ->
-            HalpbotUtils.context().get(ConverterHandler.class)
-                .from(Set.class, ctx)
-                .getMapper()
-                .apply(ctx)
+        .convert(invocationContext ->
+            invocationContext.applicationContext().get(ConverterHandler.class)
+                .from(Set.class, invocationContext)
+                .apply(invocationContext)
                 .map(Collections::unmodifiableSet))
-        .register();
+        .build();
 
     public static final TypeConverter<Object> ARRAY_CONVERTER = TypeConverter.builder(Class::isArray)
-        .convert(ctx ->
-            HalpbotUtils.context().get(ConverterHandler.class)
-                .from(List.class, ctx)
-                .getMapper()
-                .apply(ctx)
-                .map(list ->
-                    Reflect.toArray(Reflect.getArrayType(ctx.getContextState().getClazz()), list)))
-        .register();
+        .convert(invocationContext ->
+            invocationContext.applicationContext().get(ConverterHandler.class)
+                .from(List.class, invocationContext)
+                .apply(invocationContext)
+                //TODO: Replace .type().type().getComponentType() with TypeContext version when available
+                .map(list -> HartshornUtils.toArray(
+                        invocationContext.currentParameter().type().type().getComponentType(), list)))
+        .build();
 
     //endregion
 
@@ -330,140 +332,123 @@ public final class Converters
 
     public static final TypeConverter<PersistantUserData> PERSISTANT_USER_DATA_CONVERTER =
         TypeConverter.builder(PersistantUserData.class)
-            .notCommandParameter()
-            .convert(ctx -> Exceptional.of(
-                ctx.getHalpbotCore().get(AbstractCommandAdapter.class).getPersistantUserData(
-                    (Class<? extends PersistantUserData>) ctx.getContextState().getClazz(),
-                    ctx.getEvent().getUser().getIdLong())
+            .convert(invocationContext -> Exceptional.of(
+                invocationContext.applicationContext().get(HalpbotCore.class).get(AbstractCommandAdapter.class)
+                    .getPersistantUserData(
+                        (TypeContext<? extends PersistantUserData>) invocationContext.currentParameter().type(),
+                        invocationContext.halpbotEvent().getUser().getIdLong())
             ))
-            .register();
+            .build();
 
     //endregion
 
     //region JDA Converters
 
     public static final TypeConverter<TextChannel> TEXT_CHANNEL_CONVERTER = TypeConverter.builder(TextChannel.class)
-        .convert(ctx ->
-            ctx.getNextSurrounded("<#", ">")
-                .map(ctx.getEvent().getGuild()::getTextChannelById)
+        .convert(invocationContext ->
+            invocationContext.nextSurrounded("<#", ">")
+                .map(invocationContext.halpbotEvent().getGuild()::getTextChannelById)
                 .orElse(
-                    () -> LONG_CONVERTER.apply(ctx)
-                        .map(id -> ctx.getEvent().getGuild().getTextChannelById(id))
+                    () -> LONG_CONVERTER.apply(invocationContext)
+                        .map(id -> invocationContext.halpbotEvent().getGuild().getTextChannelById(id))
                         .orNull()
                 ))
         .optionType(OptionType.CHANNEL)
-        .register();
+        .build();
 
     public static final TypeConverter<Member> MEMBER_CONVERTER = TypeConverter.builder(Member.class)
-        .convert(ctx ->
-            ctx.getNextSurrounded("<@!", ">")
-                .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete())
+        .convert(invocationContext ->
+            invocationContext.nextSurrounded("<@!", ">")
+                .map(id -> invocationContext.halpbotEvent().getGuild().retrieveMemberById(id).complete())
                 .orElse(
-                    () -> LONG_CONVERTER.apply(ctx)
-                        .map(id -> ctx.getEvent().getGuild().retrieveMemberById(id).complete())
+                    () -> LONG_CONVERTER.apply(invocationContext)
+                        .map(id -> invocationContext.halpbotEvent().getGuild().retrieveMemberById(id).complete())
                         .orNull()
                 ))
         .optionType(OptionType.USER)
-        .register();
+        .build();
 
     public static final TypeConverter<User> USER_CONVERTER = TypeConverter.builder(User.class)
-        .convert(ctx ->
-            ctx.getNextSurrounded("<@!", ">")
-                .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
+        .convert(invocationContext ->
+            invocationContext.nextSurrounded("<@!", ">")
+                .map(id -> invocationContext.halpbotEvent().getJDA().retrieveUserById(id).complete())
                 .orElse(
-                    () -> LONG_CONVERTER.apply(ctx)
-                        .map(id -> ctx.getEvent().getJDA().retrieveUserById(id).complete())
+                    () -> LONG_CONVERTER.apply(invocationContext)
+                        .map(id -> invocationContext.halpbotEvent().getJDA().retrieveUserById(id).complete())
                         .orNull()
                 ))
         .optionType(OptionType.USER)
-        .register();
-
-    public static final TypeConverter<Long> ID_LONG_CONVERTER = TypeConverter.builder(Long.class)
-        .annotation(Id.class)
-        .priority(Priority.EARLY)
-        .convert(
-            ctx -> {
-                Class<?> idType = ctx.getAnnotation(Id.class).get().value();
-                Exceptional<Long> parsedId = Exceptional.empty();
-
-                if (TextChannel.class.isAssignableFrom(idType))
-                    parsedId = ctx.getNextSurrounded("<#", ">").map(MiscUtil::parseSnowflake);
-                else if (Member.class.isAssignableFrom(idType) || User.class.isAssignableFrom(idType))
-                    parsedId = ctx.getNextSurrounded("<@!", ">").map(MiscUtil::parseSnowflake);
-                return parsedId.orElse(() -> LONG_CONVERTER.apply(ctx).orNull());
-            })
-        .optionType(OptionType.MENTIONABLE)
-        .register();
+        .build();
 
     //endregion
 
     //region Source Converters
 
     public static final TypeConverter<GenericEvent> EVENT_CONVERTER = TypeConverter.builder(GenericEvent.class)
-        .notCommandParameter()
-        .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getEvent(GenericEvent.class)))
-        .register();
+        .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getEvent(GenericEvent.class)))
+        .build();
 
     public static final TypeConverter<Interaction> INTERACTION_CONVERTER = TypeConverter.builder(Interaction.class)
-        .notCommandParameter()
-        .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getEvent(Interaction.class)))
-        .register();
+        .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getEvent(Interaction.class)))
+        .build();
 
     public static final TypeConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = TypeConverter.builder(HalpbotCore.class)
-        .notCommandParameter()
-        .convert(ctx -> Exceptional.of(ctx.getHalpbotCore()))
-        .register();
+        .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext().get(HalpbotCore.class)))
+        .build();
 
     public static final TypeConverter<HalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
         TypeConverter.builder(HalpbotAdapter.class)
-            .notCommandParameter()
-            .convert(ctx -> ctx.getHalpbotCore()
-                .getSafely((Class<HalpbotAdapter>) ctx.getContextState().getClazz()))
-            .register();
+            .convert(invocationContext -> invocationContext.applicationContext().get(HalpbotCore.class)
+                .getSafely((TypeContext<HalpbotAdapter>) invocationContext.currentParameter().type()))
+            .build();
 
     public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)
-        .notCommandParameter()
-        .convert(ctx -> Exceptional.of(ctx.getEvent().getJDA()))
-        .register();
+        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getJDA()))
+        .build();
+
+    public static final TypeConverter<ApplicationContext> APPLICATION_CONTEXT_CONVERTER =
+        TypeConverter.builder(ApplicationContext.class)
+            .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext()))
+            .build();
 
     public static final TypeConverter<MessageChannel> SOURCE_MESSAGE_CHANNEL_CONVERTER =
         TypeConverter.builder(MessageChannel.class)
             .annotation(Source.class)
             .priority(Priority.FIRST)
-            .convert(ctx -> Exceptional.of(ctx.getEvent().getMessageChannel()))
-            .register();
+            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getMessageChannel()))
+            .build();
 
     public static final TypeConverter<TextChannel> SOURCE_TEXT_CHANNEL_CONVERTER =
         TypeConverter.builder(TextChannel.class)
             .annotation(Source.class)
             .priority(Priority.FIRST)
-            .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getTextChannel()))
-            .register();
+            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getTextChannel()))
+            .build();
 
     public static final TypeConverter<PrivateChannel> SOURCE_PRIVATE_CHANNEL_CONVERTER =
         TypeConverter.builder(PrivateChannel.class)
             .annotation(Source.class)
             .priority(Priority.FIRST)
-            .convert(ctx -> Exceptional.of(() -> ctx.getEvent().getPrivateChannel()))
-            .register();
+            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getPrivateChannel()))
+            .build();
 
     public static final TypeConverter<User> SOURCE_USER_CONVERTER = TypeConverter.builder(User.class)
         .annotation(Source.class)
         .priority(Priority.FIRST)
-        .convert(ctx -> Exceptional.of(ctx.getEvent().getUser()))
-        .register();
+        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getUser()))
+        .build();
 
     public static final TypeConverter<Guild> SOURCE_GUILD_CONVERTER = TypeConverter.builder(Guild.class)
         .annotation(Source.class)
         .priority(Priority.FIRST)
-        .convert(ctx -> Exceptional.of(ctx.getEvent().getGuild()))
-        .register();
+        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getGuild()))
+        .build();
 
     public static final TypeConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = TypeConverter.builder(ChannelType.class)
         .annotation(Source.class)
         .priority(Priority.FIRST)
-        .convert(ctx -> Exceptional.of(ctx.getEvent().getChannelType()))
-        .register();
+        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getChannelType()))
+        .build();
 
     //endregion
 

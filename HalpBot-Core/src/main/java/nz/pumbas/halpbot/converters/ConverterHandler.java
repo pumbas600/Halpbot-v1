@@ -25,11 +25,15 @@
 package nz.pumbas.halpbot.converters;
 
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 
 //TODO: Refactor to support HH
@@ -46,12 +50,20 @@ public interface ConverterHandler
      * @return The retrieved {@link Converter}
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     default <T> Converter<T> from(@NotNull MethodContext ctx) {
         return (Converter<T>) this.from(ctx.getContextState().getClazz(), ctx);
     }
 
+    @NotNull
     default <T> Converter<T> from(ParameterContext<T> parameterContext) {
         // TODO: Add support for ParameterContext
+        return null;
+    }
+
+    @NotNull
+    default <T> Converter<T> from(@NotNull TypeContext<T> typeContext, @NotNull InvocationContext invocationContext) {
+        //TODO: Add support for TypeContext
         return null;
     }
 
@@ -60,14 +72,15 @@ public interface ConverterHandler
      *
      * @param type
      *      The {@link Class type} of the {@link TypeConverter}
-     * @param ctx
-     *      The {@link MethodContext}
+     * @param invocationContext
+     *      The {@link InvocationContext}
      * @param <T>
      *      The type of the {@link TypeConverter}
      *
      * @return The retrieved {@link Converter}
      */
-    <T> Converter<T> from(@NotNull Class<T> type, @NotNull MethodContext ctx);
+    @NotNull
+    <T> Converter<T> from(@NotNull Class<T> type, @NotNull InvocationContext invocationContext);
 
     /**
      * Registers a {@link Converter} against the {@link Class type} with the specified {@link Class annotation type}.
@@ -95,6 +108,7 @@ public interface ConverterHandler
                            @NotNull Converter<?> converter);
 
 
+    //TODO: Update implementation to accept Set
     /**
      * Specifies a type that shouldn't be treated as a command parameter. This means it won't show up in the command
      * usage or try to be parsed.
@@ -102,7 +116,10 @@ public interface ConverterHandler
      * @param type
      *      The {@link Class} to specify as a non-command parameter type
      */
-    void addNonCommandParameterType(Class<?> type);
+    void addNonCommandParameters(Set<Class<?>> type);
+
+    //TODO: Implement in subclasses
+    void addNonCammandAnnotations(Set<Class<? extends Annotation>> type);
 
     /**
      * @return An unmodifiable {@link List} of all the types that have been specified as non-command parameter types.

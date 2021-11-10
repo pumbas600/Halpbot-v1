@@ -30,6 +30,7 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.HalpbotCommandContext;
+import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
 import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.commands.usage.NameVariableBuilder;
@@ -105,6 +106,12 @@ public class HalpbotCommandAdapter extends HalpbotAdapter implements CommandAdap
                                                         @NotNull CommandContext commandContext,
                                                         @NotNull String content)
     {
+        if (!commandContext.hasPermission(event.getUser()))
+            return Exceptional.of(new CommandException("You do not have permission to use this command"));
+
+//        nz.pumbas.halpbot.commands.context.MethodContext ctx = nz.pumbas.halpbot.commands.context.MethodContext.of(content, this.halpBotCore, event, commandContext.reflections());
+//
+//        return commandContext.parse(ctx, false);
         //TODO: Implement command invocation handling
         return Exceptional.empty();
     }
@@ -197,7 +204,7 @@ public class HalpbotCommandAdapter extends HalpbotAdapter implements CommandAdap
             instance,
             methodContext,
             List.of(command.permissions()),
-            Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()), );
+            Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()));
     }
 
     @Override

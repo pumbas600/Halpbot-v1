@@ -29,12 +29,12 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-//TODO: @Bind implementation and convert to HH syntax
 /**
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
  */
@@ -67,20 +67,20 @@ public interface ParsingToken extends Token
     /**
      * Parses the {@link MethodContext} of the default value.
      *
-     * @param ctx
+     * @param invocationContext
      *     {@link MethodContext} containing the default value to be parsed into an {@link Object} using the token's
      *     {@link TypeConverter}
      *
      * @return The parsed {@link Object default value}
      */
     @Nullable
-    static Object parseDefaultValue(@NotNull Converter<?> converter, @NotNull MethodContext ctx) {
+    static Object parseDefaultValue(@NotNull Converter<?> converter, @NotNull InvocationContext invocationContext) {
         //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
-        if ("${Default}".equalsIgnoreCase(ctx.getOriginal()))
-            return Reflect.getDefaultValue(ctx.getContextState().getClazz());
-        if (String.class.isAssignableFrom(ctx.getContextState().getClazz()))
-            return ctx.getOriginal();
-        return converter.apply(ctx)
+        if ("${Default}".equalsIgnoreCase(invocationContext.content()))
+            return Reflect.getDefaultValue(invocationContext.currentParameter().type().type());
+        if (invocationContext.currentParameter().type().childOf(String.class))
+            return invocationContext.content();
+        return converter.apply(invocationContext)
             .rethrow()
             .get();
 

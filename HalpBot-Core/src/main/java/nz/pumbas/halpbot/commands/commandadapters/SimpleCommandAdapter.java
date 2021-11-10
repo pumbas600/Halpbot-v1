@@ -36,7 +36,6 @@ import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
-import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 

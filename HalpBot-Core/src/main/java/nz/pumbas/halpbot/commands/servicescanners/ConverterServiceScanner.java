@@ -7,10 +7,12 @@ import org.dockbox.hartshorn.core.services.ServiceOrder;
 import org.dockbox.hartshorn.core.services.ServiceProcessor;
 
 import java.util.List;
+import java.util.Set;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
+import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
 
 public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
 {
@@ -26,7 +28,8 @@ public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
 
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
-        return !type.fieldsOf(Converter.class).isEmpty();
+        return type.annotation(NonCommandParameters.class).present()
+            || !type.fieldsOf(Converter.class).isEmpty();
     }
 
     @SuppressWarnings("rawtypes")
@@ -34,6 +37,13 @@ public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
         final T instance = context.get(type);
         final ConverterHandler handler = context.get(ConverterHandler.class);
+
+        type.annotation(NonCommandParameters.class)
+            .present(nonCommandParameters -> {
+                handler.addNonCommandParameters(Set.of(nonCommandParameters.types()));
+                handler.addNonCammandAnnotations(Set.of(nonCommandParameters.annotations()));
+            });
+
         List<FieldContext<Converter>> converters = type.fieldsOf(Converter.class);
 
         for (FieldContext<Converter> fieldContext : converters) {

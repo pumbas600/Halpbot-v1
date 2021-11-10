@@ -42,6 +42,7 @@ import nz.pumbas.halpbot.commands.annotations.Unrequired;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
+//TODO: Swap all current usages to HalpbotParsingToken
 public class SimpleParsingToken implements ParsingToken
 {
     private final Type type;
@@ -67,7 +68,7 @@ public class SimpleParsingToken implements ParsingToken
         MethodContext ctx = MethodContext.of(defaultValue, this);
 
         this.converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
-        this.defaultValue = this.parseDefaultValue(ctx);
+        this.defaultValue = parseDefaultValue(ctx);
 
         this.isCommandParameter = CommandManager.isCommandParameter(type, annotations);
         this.parameterName = parameterName;

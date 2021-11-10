@@ -140,7 +140,7 @@ public class ConverterHandlerImpl implements ConverterHandler, LateInit
 
         List<ConverterContext> converterContexts = this.converters.get(type);
         for (int i = 0; i < converterContexts.size(); i++) {
-            if (0 < converterContexts.get(i).getConverter().getPriority().compareTo(converter.getPriority())) {
+            if (0 < converterContexts.get(i).getConverter().priority().compareTo(converter.priority())) {
                 converterContexts.add(i, new ConverterContext(annotationType, converter));
                 return;
             }
@@ -166,7 +166,7 @@ public class ConverterHandlerImpl implements ConverterHandler, LateInit
             Tuple.of(filter, new ConverterContext(annotationType, converter));
 
         for (int i = 0; i < this.fallbackConverters.size(); i++) {
-            if (0 < this.fallbackConverters.get(i).getValue().getConverter().getPriority().compareTo(converter.getPriority())) {
+            if (0 < this.fallbackConverters.get(i).getValue().getConverter().priority().compareTo(converter.priority())) {
                 this.fallbackConverters.add(i, converterContext);
                 return;
             }

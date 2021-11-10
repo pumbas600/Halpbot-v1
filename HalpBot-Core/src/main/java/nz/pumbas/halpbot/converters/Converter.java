@@ -30,27 +30,29 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.commands.context.MethodContext;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
+//TODO: Make converters support use of $Default
+//TODO: Update syntax
 public interface Converter<T>
 {
     /**
      * @return The {@link Function mapper} for this {@link Converter}
      */
-    Function<MethodContext, Exceptional<T>> getMapper();
+    Function<InvocationContext, Exceptional<T>> mapper();
 
     /**
      * @return The {@link Priority} associated with this {@link Converter}
      */
-    Priority getPriority();
+    Priority priority();
 
     /**
      * @return The {@link ConverterRegister} for this converter, describing how to register it to a {@link ConverterHandler}
      */
-    ConverterRegister getRegister();
+    ConverterRegister register();
 
-    OptionType getOptionType();
+    OptionType optionType();
 
     /**
      * Registers itself to the {@link ConverterHandler} using the {@link ConverterRegister}.
@@ -59,10 +61,10 @@ public interface Converter<T>
      *      The {@link ConverterHandler} to register itself to.
      */
     default void register(ConverterHandler handler) {
-        this.getRegister().register(handler, this);
+        this.register().register(handler, this);
     }
 
-    default Exceptional<T> apply(MethodContext methodContext) {
-        return this.getMapper().apply(methodContext);
+    default Exceptional<T> apply(InvocationContext invocationContext) {
+        return this.mapper().apply(invocationContext);
     }
 }

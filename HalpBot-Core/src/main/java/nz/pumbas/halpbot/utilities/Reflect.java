@@ -74,7 +74,7 @@ public final class Reflect
         Float.class, DecimalNumberPattern,
         Double.class, DecimalNumberPattern,
         Character.class, Pattern.compile("."),
-        Boolean.class, Pattern.compile("true|yes|false|no|t|f|y|n")
+        Boolean.class, Pattern.compile("true|yes|false|no|t|f|y|n|1|0", Pattern.CASE_INSENSITIVE)
     );
 
     /**
@@ -171,7 +171,7 @@ public final class Reflect
      * @return The types default value
      */
     @Nullable
-    public static Object getDefaultValue(Class<?> type) {
+    public static Object getDefaultValue(Class<?> type) { //TODO: Make this accept TypeContext
         return DefaultValues.getOrDefault(wrapPrimative(type), null);
     }
 
@@ -681,23 +681,8 @@ public final class Reflect
      *
      * @return if the {@link String value} is a valid value of the {@link Enum}
      */
-    public static boolean isEnumValue(Class<?> enumClass, String value) {
-        return parseEnumValue(enumClass, value).isPresent();
-    }
-
-    /**
-     * Returns if the passed in {@link String value} is a valid value of the {@link Enum}.
-     * Note: This method is case sensitive.
-     *
-     * @param enumClass
-     *     The {@link Class} of the {@link Enum}
-     * @param value
-     *     The {@link String value} to test
-     *
-     * @return if the {@link String value} is a valid value of the {@link Enum}
-     */
     @SuppressWarnings("rawtypes")
-    public static Optional<Enum> parseEnumValue(Class<?> enumClass, @NonNls String value) {
+    public static Optional<Enum> parseEnumValue(Class<?> enumClass, @NonNls String value) { //TODO: Accept TypeContext
         if (!enumClass.isEnum())
             throw new IllegalArgumentException(
                 String.format("The type %s must be an enum.", enumClass.getSimpleName()));

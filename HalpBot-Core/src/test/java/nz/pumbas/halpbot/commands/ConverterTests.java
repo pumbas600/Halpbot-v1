@@ -94,7 +94,7 @@ public class ConverterTests
         MethodContext ctx = MethodContext.of("This is a test sentence.", String.class, Remaining.class);
         Converter<String> converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
 
-        Exceptional<String> sentence = converter.getMapper().apply(ctx);
+        Exceptional<String> sentence = converter.mapper().apply(ctx);
 
         Assertions.assertTrue(sentence.present());
         Assertions.assertEquals("This is a test sentence.", sentence.get());
@@ -105,7 +105,7 @@ public class ConverterTests
         MethodContext ctx = MethodContext.of("[5 1 3 12 20]", Integer[].class);
         Converter<Integer[]> converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
 
-        Integer[] array = converter.getMapper().apply(ctx).get();
+        Integer[] array = converter.mapper().apply(ctx).get();
 
         Assertions.assertEquals(5, array[0]);
         Assertions.assertEquals(1, array[1]);

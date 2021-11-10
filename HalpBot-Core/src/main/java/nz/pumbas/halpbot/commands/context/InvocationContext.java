@@ -24,71 +24,81 @@
 
 package nz.pumbas.halpbot.commands.context;
 
+import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
+import nz.pumbas.halpbot.commands.tokens.ParsingToken;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 
+@Getter
+@RequiredArgsConstructor
 public class InvocationContext implements ContextCarrier
 {
-    protected final String original;
-    protected int currentIndex;
-    private ApplicationContext applicationContext; //TODO: Pass ApplicationContext to this
+    @NotNull private final ApplicationContext applicationContext; //TODO: Pass ApplicationContext to this
 
-    protected InvocationContext(@NotNull String context) {
-        this.original = context;
-    }
+    @Nullable private final HalpbotEvent halpbotEvent;
 
-    /**
-     * Creates an {@link InvocationContext} from the passed {@link String invocation token}.
-     *
-     * @param context
-     *     The {@link String invocation token} to create this {@link InvocationContext} from
-     *
-     * @return A new {@link InvocationContext}
-     */
-    public static InvocationContext of(String context) {
-        return new InvocationContext(context);
+    @NotNull private final Set<TypeContext<?>> reflections;
+
+    @NotNull private final String content;
+
+    @Setter private int currentIndex;
+
+    @Setter
+    @Nullable private ParameterContext<?> currentParameter;
+
+    public InvocationContext(@NotNull ApplicationContext applicationContext, @NotNull String content) {
+        this(applicationContext, null, HartshornUtils.emptySet(), content);
     }
 
     /**
      * @return If there are any more tokens left.
      */
     public boolean hasNext() {
-        return this.currentIndex < this.original.length();
-    }
-
-    /**
-     * @return The next {@link String token} (Split on spaces) from the current index or an empty
-     *     {@link String} if there are no more tokens;
-     */
-    public @NotNull String getNext() {
-        return this.getNextSafe().or("");
+        return this.currentIndex < this.content.length();
     }
 
     /**
      * @return An {@link Exceptional} containing the next {@link String token} (Split on spaces) from the current
      *     index or {@link Exceptional#empty()} if there are no more tokens;
      */
-    public Exceptional<String> getNextSafe() {
+    public Exceptional<String> nextSafe() {
         if (!this.hasNext())
-            return Exceptional.of(new IllegalFormatException("No string next in " + this.original));
+            return Exceptional.of(new IllegalFormatException("No string next in " + this.content));
 
-        int endIndex = this.original.indexOf(" ", this.currentIndex);
+        int endIndex = this.content.indexOf(" ", this.currentIndex);
 
-        if (-1 == endIndex) endIndex = this.original.length();
+        if (-1 == endIndex) endIndex = this.content.length();
 
-        String match = this.original.substring(this.currentIndex, endIndex);
+        String match = this.content.substring(this.currentIndex, endIndex);
         this.currentIndex = endIndex + 1;
         this.skipPastSpaces();
 
         return Exceptional.of(match);
+    }
+
+    /**
+     * @return The next {@link String token} (Split on spaces) from the current index or an empty
+     *     {@link String} if there are no more tokens;
+     */
+    @NotNull
+    public String next() {
+        return this.nextSafe().or("");
     }
 
     /**
@@ -101,8 +111,9 @@ public class InvocationContext implements ContextCarrier
      *
      * @return an {@link Optional} containing the next string up until the specified string
      */
-    public Exceptional<String> getNext(String until) {
-        return this.getNext(until, true);
+    @NotNull
+    public Exceptional<String> next(@NotNull String until) {
+        return this.next(until, true);
     }
 
     /**
@@ -116,15 +127,16 @@ public class InvocationContext implements ContextCarrier
      *
      * @return an {@link Optional} containing the next string up until the specified string
      */
-    public Exceptional<String> getNext(String until, boolean stepPast) {
+    @NotNull
+    public Exceptional<String> next(@NotNull String until, boolean stepPast) {
         if (!this.hasNext())
             return Exceptional.of(new IllegalFormatException("There is nothing left to retrieve"));
 
-        int endIndex = this.original.indexOf(until, this.currentIndex);
+        int endIndex = this.content.indexOf(until, this.currentIndex);
         if (-1 == endIndex)
             return Exceptional.of(new IllegalFormatException("Missing the ending " + until));
 
-        String match = this.original.substring(this.currentIndex, endIndex);
+        String match = this.content.substring(this.currentIndex, endIndex);
         this.currentIndex = endIndex;
 
         if (stepPast) {
@@ -148,8 +160,9 @@ public class InvocationContext implements ContextCarrier
      *
      * @return The {@link String} between the start and stop
      */
-    public Exceptional<String> getNextSurrounded(String start, String stop) {
-        return this.getNextSurrounded(start, stop, true);
+    @NotNull
+    public Exceptional<String> nextSurrounded(@NotNull String start, @NotNull String stop) {
+        return this.nextSurrounded(start, stop, true);
     }
 
     /**
@@ -169,28 +182,29 @@ public class InvocationContext implements ContextCarrier
      *
      * @return The {@link String} between the start and stop
      */
-    public Exceptional<String> getNextSurrounded(String start, String stop, boolean stepPast) {
-        if (!this.hasNext() || this.original.indexOf(start, this.currentIndex) != this.currentIndex)
+    @NotNull
+    public Exceptional<String> nextSurrounded(@NotNull String start, @NotNull String stop, boolean stepPast) {
+        if (!this.hasNext() || this.content.indexOf(start, this.currentIndex) != this.currentIndex)
             return Exceptional.of(new IllegalFormatException("Missing the starting " + start));
 
         int startCount = 1;
         int startIndex = this.currentIndex + 1;
         int endIndex = this.currentIndex;
         do {
-            endIndex = this.original.indexOf(stop, endIndex + 1);
+            endIndex = this.content.indexOf(stop, endIndex + 1);
             if (-1 == endIndex)
                 return Exceptional.of(new IllegalFormatException("Missing the ending " + stop));
 
             startCount--;
 
             int tempStartIndex;
-            while ((tempStartIndex = this.original.indexOf(start, startIndex)) < endIndex && -1 != tempStartIndex) {
+            while ((tempStartIndex = this.content.indexOf(start, startIndex)) < endIndex && -1 != tempStartIndex) {
                 startCount++;
                 startIndex = tempStartIndex + 1;
             }
         } while (0 != startCount);
 
-        String match = this.original.substring(this.currentIndex + start.length(), endIndex);
+        String match = this.content.substring(this.currentIndex + start.length(), endIndex);
         this.currentIndex = endIndex;
 
         if (stepPast) {
@@ -211,7 +225,7 @@ public class InvocationContext implements ContextCarrier
      */
     public boolean nextMatches(@NotNull String next) {
         int endIndex = this.currentIndex + next.length();
-        if (this.original.substring(this.currentIndex, endIndex).equalsIgnoreCase(next)) {
+        if (this.content.substring(this.currentIndex, endIndex).equalsIgnoreCase(next)) {
             this.currentIndex = endIndex;
             if (this.currentlyOnSpace())
                 this.incrementIndex();
@@ -229,16 +243,17 @@ public class InvocationContext implements ContextCarrier
      *
      * @return An {@link Optional} containing the matched {@link String pattern} if present
      */
-    public Exceptional<String> getNext(@NotNull Pattern pattern) {
+    @NotNull
+    public Exceptional<String> next(@NotNull Pattern pattern) {
         if (this.hasNext()) {
-            String originalSubstring = this.original.substring(this.currentIndex);
+            String originalSubstring = this.content.substring(this.currentIndex);
             Matcher matcher = pattern.matcher(originalSubstring);
             if (matcher.lookingAt()) { //Will return true if the start of the string matches the Regex
                 String match = originalSubstring.substring(0, matcher.end());
                 this.currentIndex += matcher.end();
 
                 //If there's a space right after the match, skip past it
-                if (this.hasNext() && ' ' == this.original.charAt(this.currentIndex))
+                if (this.hasNext() && ' ' == this.content.charAt(this.currentIndex))
                     this.currentIndex++;
 
                 this.skipPastSpaces();
@@ -247,50 +262,27 @@ public class InvocationContext implements ContextCarrier
             }
         }
         return Exceptional.of(
-            new IllegalFormatException("The start of " + this.getNext() + " doesn't match the expected format"));
+            new IllegalFormatException("The start of " + this.next() + " doesn't match the expected format"));
     }
 
     /**
      * @return The remaining strings
      */
-    public String getRemaining() {
+    @NotNull
+    public String remaining() {
         if (!this.hasNext())
             throw new IllegalFormatException("There are no remaining strings");
 
-        String remaining = this.original.substring(this.currentIndex);
-        this.currentIndex = this.original.length();
+        String remaining = this.content.substring(this.currentIndex);
+        this.currentIndex = this.content.length();
         return remaining;
-    }
-
-    /**
-     * @return The original string
-     */
-    public String getOriginal() {
-        return this.original;
-    }
-
-    /**
-     * @return The current index
-     */
-    public int getCurrentIndex() {
-        return this.currentIndex;
     }
 
     /**
      * @return If the current character is a space
      */
     private boolean currentlyOnSpace() {
-        return this.hasNext() && ' ' == this.original.charAt(this.currentIndex);
-    }
-
-    /**
-     * Sets the current index.
-     *
-     * @param index
-     *     Set the current index to the specified index
-     */
-    public void setCurrentIndex(int index) {
-        this.currentIndex = index;
+        return this.hasNext() && ' ' == this.content.charAt(this.currentIndex);
     }
 
     /**
@@ -309,7 +301,8 @@ public class InvocationContext implements ContextCarrier
     }
 
     /**
-     * Returns if the character at the current index is the one specified but does not step past it.
+     * Returns if the character at the current index is the one specified. If it is, then it steps past this
+     * character automatically.
      *
      * @param character
      *     The character to check
@@ -317,7 +310,7 @@ public class InvocationContext implements ContextCarrier
      * @return If the character is at the current index
      */
     public boolean isNext(char character) {
-        return this.isNext(character, false);
+        return this.isNext(character, true);
     }
 
     /**
@@ -335,7 +328,7 @@ public class InvocationContext implements ContextCarrier
         if (!this.hasNext())
             return false;
 
-        boolean isNext = this.getOriginal().charAt(this.getCurrentIndex()) == character;
+        boolean isNext = this.content().charAt(this.currentIndex()) == character;
 
         if (isNext && stepPast) {
             this.incrementIndex();
@@ -351,12 +344,9 @@ public class InvocationContext implements ContextCarrier
      *     The character to assert is next.
      */
     public void assertNext(char character) {
-        if (!this.isNext(character, true))
-            throw new IllegalFormatException("Expected the character '" + character + "'");
-    }
-
-    @NotNull
-    public ApplicationContext applicationContext() {
-        return this.applicationContext;
+        if (!this.isNext(character, true)) {
+            String found = this.hasNext() ? "" + this.content.charAt(this.currentIndex) : "End of content";
+            throw new IllegalFormatException("Expected the character '%s' but found '%s'".formatted(character, found));
+        }
     }
 }
