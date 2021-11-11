@@ -29,9 +29,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import nz.pumbas.halpbot.converters.annotations.AnnotationContext;
+import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
-@AnnotationContext(allowedType = String.class)
+@ParameterAnnotation(allowedType = String.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Remaining

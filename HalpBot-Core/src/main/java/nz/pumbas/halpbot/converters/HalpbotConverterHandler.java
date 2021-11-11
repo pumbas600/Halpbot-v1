@@ -29,8 +29,10 @@ import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.MultiMap;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -41,9 +43,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
+import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 import nz.pumbas.halpbot.objects.Tuple;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.utilities.Reflect;
@@ -52,6 +59,12 @@ import nz.pumbas.halpbot.utilities.Reflect;
 @Binds(ConverterHandler.class)
 public class HalpbotConverterHandler implements ConverterHandler
 {
+    @Inject
+    private ApplicationContext applicationContext;
+
+    private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
+            = HartshornUtils.emptyConcurrentMap();
+
     private final MultiMap<TypeContext<?>, ConverterContext> converters = new ArrayListMultiMap<>();
 
     private final Set<TypeContext<?>> nonCommandTypes = HartshornUtils.emptyConcurrentSet();
@@ -84,8 +97,9 @@ public class HalpbotConverterHandler implements ConverterHandler
     }
 
     @Override
+    @NotNull
     @SuppressWarnings("unchecked")
-    public @NotNull <T> Converter<T> from(@NotNull ParameterContext<T> parameterContext) {
+    public <T> Converter<T> from(@NotNull ParameterContext<T> parameterContext) {
         if (this.converters.containsKey(parameterContext.type())) {
             return (Converter<T>) this.retrieveConverterByAnnotation(
                     this.converters.get(parameterContext.type()),
@@ -155,6 +169,53 @@ public class HalpbotConverterHandler implements ConverterHandler
             }
         }
         converterContexts.add(new ConverterContext(annotationType, converter));
+    }
+
+    @Override
+    public void registerAnnotation(@NotNull TypeContext<? extends Annotation> annotationType) {
+        Exceptional<ParameterAnnotation> eParameterAnnotation = annotationType.annotation(ParameterAnnotation.class);
+
+        if (eParameterAnnotation.absent()) {
+            this.parameterAnnotationContextMap.put(annotationType, HalpbotParameterAnnotationContext.generic());
+        }
+        else {
+            ParameterAnnotation parameterAnnotation = eParameterAnnotation.get();
+            this.parameterAnnotationContextMap.put(annotationType, this.applicationContext.get(
+                    parameterAnnotation.context(),
+                    Stream.of(parameterAnnotation.after())
+                            .map(TypeContext::of)
+                            .collect(Collectors.toSet()),
+                    Stream.of(parameterAnnotation.conflictingAnnotations())
+                            .map(TypeContext::of)
+                            .collect(Collectors.toSet()),
+                    Stream.of(parameterAnnotation.allowedType())
+                            .map(TypeContext::of)
+                            .collect(Collectors.toSet()))
+            );
+            // I've made sure to add the parameter annotation context to the map before checking these, in case
+            // there's a circular reference, so that this doesn't get stuck in an infinite loop. The circular
+            // reference will be identified at a later point when it goes to order the parameter annotations.
+            for (Class<? extends Annotation> before : parameterAnnotation.before()) {
+                this.getAndRegisterAnnotationContext(TypeContext.of(before))
+                        .addAfterAnnotation(annotationType);
+            }
+        }
+    }
+
+    private ParameterAnnotationContext getAndRegisterAnnotationContext(@NotNull TypeContext<? extends Annotation> annotationType) {
+        if (!this.parameterAnnotationContextMap.containsKey(annotationType)) {
+            this.registerAnnotation(annotationType);
+        }
+        return this.parameterAnnotationContextMap.get(annotationType);
+    }
+
+    @Override
+    @NotNull
+    public ParameterAnnotationContext parameterAnotationContext(@NotNull TypeContext<? extends Annotation> annotationType) {
+        if (!this.parameterAnnotationContextMap.containsKey(annotationType)) {
+            return HalpbotParameterAnnotationContext.GENERIC;
+        }
+        return this.parameterAnnotationContextMap.get(annotationType);
     }
 
     /**

@@ -2,12 +2,12 @@ package nz.pumbas.halpbot.converters.types;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
-public class ArrayContext extends TypeContext<Void>
+public class ArrayTypeContext extends TypeContext<Object>
 {
-    public static final ArrayContext TYPE = new ArrayContext();
+    public static final ArrayTypeContext TYPE = new ArrayTypeContext();
 
-    protected ArrayContext() {
-        super(Void.class);
+    protected ArrayTypeContext() {
+        super(Object.class);
     }
 
     //TODO: Override isArray when that's implemented

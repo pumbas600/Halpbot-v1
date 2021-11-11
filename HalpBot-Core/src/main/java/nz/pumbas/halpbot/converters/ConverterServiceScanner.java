@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
 
 public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
@@ -52,6 +53,9 @@ public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
         List<FieldContext<Converter>> converters = type.fieldsOf(Converter.class);
 
         for (FieldContext<Converter> fieldContext : converters) {
+            if (fieldContext.annotation(Ignore.class).present())
+                continue;
+
             if (!fieldContext.isStatic() || !fieldContext.isPublic() || !fieldContext.isFinal())
                 context.log().warn("The converter %s in %s needs to be static, public and final"
                     .formatted(fieldContext.name(), type.qualifiedName()));

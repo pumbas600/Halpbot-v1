@@ -30,11 +30,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.List;
 
-import nz.pumbas.halpbot.converters.annotations.AnnotationContext;
+import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
-@AnnotationContext(allowedType = { Array.class, Collection.class })
+@ParameterAnnotation(allowedType = { Array.class, Collection.class })
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Implicit

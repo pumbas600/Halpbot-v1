@@ -29,10 +29,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import nz.pumbas.halpbot.converters.annotations.AnnotationContext;
+import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 import nz.pumbas.halpbot.converters.annotations.Any;
 
-@AnnotationContext(conflictingAnnotations = Any.class)
+@ParameterAnnotation(conflictingAnnotations = Any.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Source

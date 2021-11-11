@@ -29,7 +29,6 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
@@ -77,8 +76,11 @@ public interface ConverterHandler
      */
     void registerConverter(@NotNull Converter<?> converter);
 
+    void registerAnnotation(@NotNull TypeContext<? extends Annotation> annotationType);
 
-    //TODO: Update implementation to accept Set
+    @NotNull
+    ParameterAnnotationContext parameterAnotationContext(@NotNull TypeContext<? extends Annotation> annotationType);
+
     /**
      * Specifies a type that shouldn't be treated as a command parameter. This means it won't show up in the command
      * usage or try to be parsed.
@@ -88,15 +90,9 @@ public interface ConverterHandler
      */
     void addNonCommandTypes(@NotNull Set<TypeContext<?>> types);
 
-    //TODO: Implement in subclasses
     void addNonCammandAnnotations(@NotNull Set<TypeContext<? extends Annotation>> types);
 
     boolean isCommandParameter(@NotNull ParameterContext<?> parameterContext);
 
     boolean isCommandParameter(@NotNull TypeContext<?> typeContext);
-
-    /**
-     * @return An unmodifiable {@link List} of all the types that have been specified as non-command parameter types.
-     */
-    List<Class<?>> getNonCommandParameterTypes();
 }

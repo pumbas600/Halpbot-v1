@@ -44,6 +44,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
@@ -53,7 +54,7 @@ import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
-import nz.pumbas.halpbot.converters.types.ArrayContext;
+import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 import nz.pumbas.halpbot.converters.annotations.parameter.Children;
@@ -63,7 +64,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
@@ -71,8 +71,10 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 
 @Service
 @NonCommandParameters(
-    types = { PersistantUserData.class, GenericEvent.class, Interaction.class, HalpbotCore.class,
-        HalpbotAdapter.class, JDA.class, ApplicationContext.class },
+    types = {
+            PersistantUserData.class, GenericEvent.class, Interaction.class, HalpbotCore.class,
+            HalpbotAdapter.class, JDA.class, ApplicationContext.class
+    },
     annotations = Source.class
 )
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
@@ -168,6 +170,7 @@ public final class Converters
         .optionType(OptionType.STRING)
         .build();
 
+    @Ignore
     public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(Object.class)
         .priority(Priority.DEFAULT)
         .convert(invocationContext -> {
@@ -307,7 +310,7 @@ public final class Converters
                 .map(Collections::unmodifiableSet))
         .build();
 
-    public static final TypeConverter<Object> ARRAY_CONVERTER = TypeConverter.builder(ArrayContext.TYPE)
+    public static final TypeConverter<Object> ARRAY_CONVERTER = TypeConverter.builder(ArrayTypeContext.TYPE)
         .convert(invocationContext ->
             invocationContext.applicationContext().get(ConverterHandler.class)
                 .from(List.class, invocationContext)

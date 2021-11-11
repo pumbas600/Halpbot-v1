@@ -6,7 +6,6 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.Converter;
@@ -23,8 +22,10 @@ public record HalpbotParsingToken(@NotNull ParameterContext<?> parameterContext,
     public static HalpbotParsingToken of(@NotNull ApplicationContext applicationContext,
                                          @NotNull ParameterContext<?> parameterContext)
     {
-        Converter<?> converter = applicationContext.get(ConverterHandler.class).from(parameterContext);
-        boolean isCommandParameter = CommandManager.isCommandParameter(parameterContext);
+        final ConverterHandler converterHandler = applicationContext.get(ConverterHandler.class);
+
+        Converter<?> converter = converterHandler.from(parameterContext);
+        boolean isCommandParameter = converterHandler.isCommandParameter(parameterContext);
         Object defaultValue = null;
         boolean isOptional = false;
 

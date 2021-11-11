@@ -31,7 +31,6 @@ import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
-import nz.pumbas.halpbot.utilities.context.ContextHolder;
 
 @Service
 public class HalpbotCore implements ContextCarrier
@@ -222,16 +221,10 @@ public class HalpbotCore implements ContextCarrier
         return instance;
     }
 
-    /**
-     * Retrieves the instance of the specified {@link Class implementation}. If there isn't already an implementation
-     * for that class, then it tries to create one, assuming it has a constructor that takes no parameters. If the
-     * specified {@link Class}, or a bound implementation if present is abstract or an interface, null is returned.
-     *
-     * @param implementation
-     *     The {@link Class implementation} of the instance to retrieve
-     *
-     * @return The instance, or null if there isn't one registered.
-     */
+    public <T> T get(final Class<T> implementation) {
+        return this.get(TypeContext.of(implementation));
+    }
+
     public <T> T get(final TypeContext<T> implementation) {
         return this.getSafely(implementation).orNull();
     }

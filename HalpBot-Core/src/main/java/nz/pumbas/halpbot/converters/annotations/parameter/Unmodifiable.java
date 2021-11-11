@@ -31,9 +31,9 @@ import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Set;
 
-import nz.pumbas.halpbot.converters.annotations.AnnotationContext;
+import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
-@AnnotationContext(dependencies = Unrequired.class, allowedType = { List.class, Set.class })
+@ParameterAnnotation(after = Unrequired.class, allowedType = { List.class, Set.class })
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Unmodifiable
