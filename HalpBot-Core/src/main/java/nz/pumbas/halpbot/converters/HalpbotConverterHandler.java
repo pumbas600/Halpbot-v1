@@ -38,12 +38,9 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,6 +48,8 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
+import nz.pumbas.halpbot.converters.parametercontext.HalpbotParameterAnnotationContext;
+import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationContext;
 import nz.pumbas.halpbot.objects.Tuple;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.utilities.Reflect;
@@ -169,53 +168,6 @@ public class HalpbotConverterHandler implements ConverterHandler
             }
         }
         converterContexts.add(new ConverterContext(annotationType, converter));
-    }
-
-    @Override
-    public void registerAnnotation(@NotNull TypeContext<? extends Annotation> annotationType) {
-        Exceptional<ParameterAnnotation> eParameterAnnotation = annotationType.annotation(ParameterAnnotation.class);
-
-        if (eParameterAnnotation.absent()) {
-            this.parameterAnnotationContextMap.put(annotationType, HalpbotParameterAnnotationContext.generic());
-        }
-        else {
-            ParameterAnnotation parameterAnnotation = eParameterAnnotation.get();
-            this.parameterAnnotationContextMap.put(annotationType, this.applicationContext.get(
-                    parameterAnnotation.context(),
-                    Stream.of(parameterAnnotation.after())
-                            .map(TypeContext::of)
-                            .collect(Collectors.toSet()),
-                    Stream.of(parameterAnnotation.conflictingAnnotations())
-                            .map(TypeContext::of)
-                            .collect(Collectors.toSet()),
-                    Stream.of(parameterAnnotation.allowedType())
-                            .map(TypeContext::of)
-                            .collect(Collectors.toSet()))
-            );
-            // I've made sure to add the parameter annotation context to the map before checking these, in case
-            // there's a circular reference, so that this doesn't get stuck in an infinite loop. The circular
-            // reference will be identified at a later point when it goes to order the parameter annotations.
-            for (Class<? extends Annotation> before : parameterAnnotation.before()) {
-                this.getAndRegisterAnnotationContext(TypeContext.of(before))
-                        .addAfterAnnotation(annotationType);
-            }
-        }
-    }
-
-    private ParameterAnnotationContext getAndRegisterAnnotationContext(@NotNull TypeContext<? extends Annotation> annotationType) {
-        if (!this.parameterAnnotationContextMap.containsKey(annotationType)) {
-            this.registerAnnotation(annotationType);
-        }
-        return this.parameterAnnotationContextMap.get(annotationType);
-    }
-
-    @Override
-    @NotNull
-    public ParameterAnnotationContext parameterAnotationContext(@NotNull TypeContext<? extends Annotation> annotationType) {
-        if (!this.parameterAnnotationContextMap.containsKey(annotationType)) {
-            return HalpbotParameterAnnotationContext.GENERIC;
-        }
-        return this.parameterAnnotationContextMap.get(annotationType);
     }
 
     /**

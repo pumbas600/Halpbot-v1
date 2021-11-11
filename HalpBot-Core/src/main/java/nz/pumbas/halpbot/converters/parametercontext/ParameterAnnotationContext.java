@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.converters;
+package nz.pumbas.halpbot.converters.parametercontext;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;

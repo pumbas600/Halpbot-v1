@@ -6,8 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import nz.pumbas.halpbot.converters.HalpbotParameterAnnotationContext;
-import nz.pumbas.halpbot.converters.ParameterAnnotationContext;
+import nz.pumbas.halpbot.converters.parametercontext.HalpbotParameterAnnotationContext;
+import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationContext;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)

@@ -76,11 +76,6 @@ public interface ConverterHandler
      */
     void registerConverter(@NotNull Converter<?> converter);
 
-    void registerAnnotation(@NotNull TypeContext<? extends Annotation> annotationType);
-
-    @NotNull
-    ParameterAnnotationContext parameterAnotationContext(@NotNull TypeContext<? extends Annotation> annotationType);
-
     /**
      * Specifies a type that shouldn't be treated as a command parameter. This means it won't show up in the command
      * usage or try to be parsed.
