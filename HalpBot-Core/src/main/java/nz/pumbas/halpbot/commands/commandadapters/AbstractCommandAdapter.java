@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.events.HalpbotEvent;
@@ -86,7 +86,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 @Service
-public abstract class AbstractCommandAdapter extends HalpbotAdapter
+public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
 {
     @Inject
     private ApplicationContext applicationContext;

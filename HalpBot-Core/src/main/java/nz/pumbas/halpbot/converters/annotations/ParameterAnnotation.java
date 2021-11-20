@@ -36,17 +36,4 @@ public @interface ParameterAnnotation
      * The parameter types that this annotation can be used on. By default, it can be used on any type.
      */
     Class<?>[] allowedType() default Object.class;
-
-    //TODO: Create factory binding for constructor when available
-    /**
-     * Allows you to specify a custom context to use for this parameter annotation. By default, this is the built-in
-     * {@link HalpbotParameterAnnotationContext}. Note that any implementation should have the following constructor:
-     * <pre>{@code
-     *     @NotNull TypeContext<? extends Annotation> annotation,
-     *     @NotNull Set<TypeContext<? extends Annotation>> afterAnnotations,
-     *     @NotNull Set<TypeContext<? extends Annotation>> conflictingAnnotations,
-     *     @NotNull Set<TypeContext<?>> allowedTypes
-     * }</pre>
-     */
-    Class<? extends ParameterAnnotationContext> context() default HalpbotParameterAnnotationContext.class;
 }

@@ -26,7 +26,7 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 
-import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.HalpbotCommandContext;
@@ -43,7 +43,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
 @Binds(CommandAdapter.class)
-public class HalpbotCommandAdapter extends HalpbotAdapter implements CommandAdapter, ContextCarrier
+public class HalpbotCommandAdapter extends AbstractHalpbotAdapter implements CommandAdapter, ContextCarrier
 {
 
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();

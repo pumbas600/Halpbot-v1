@@ -16,7 +16,7 @@ import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class ReactionAdapter extends HalpbotAdapter implements ActionHandler
+public class ReactionAdapter extends AbstractHalpbotAdapter implements ActionHandler
 {
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected final Map<Long, Map<String, ReactionActionCallback>> reactionCallbacks = new ConcurrentHashMap<>();

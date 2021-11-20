@@ -21,7 +21,7 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 
-public class ButtonAdapter extends HalpbotAdapter implements ActionHandler
+public class ButtonAdapter extends AbstractHalpbotAdapter implements ActionHandler
 {
     private final ConcurrentManager concurrentManager = new ConcurrentManager();
     private final Queue<String> expiredButtonCallbacks = new ConcurrentLinkedQueue<>();

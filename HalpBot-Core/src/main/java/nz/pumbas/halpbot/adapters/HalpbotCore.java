@@ -42,7 +42,7 @@ public class HalpbotCore implements ContextCarrier
     @Inject
     @Getter private ApplicationContext applicationContext;
 
-    private final List<HalpbotAdapter> adapters = new ArrayList<>();
+    private final List<AbstractHalpbotAdapter> adapters = new ArrayList<>();
     private final Map<Long, UserCooldowns> userCooldownsMap = new ConcurrentHashMap<>();
 
     private final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
@@ -61,7 +61,7 @@ public class HalpbotCore implements ContextCarrier
     }
 
     /**
-     * Adds the {@link HalpbotAdapter}s to the core. This will automatically register the adapters when you invoke
+     * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke
      * {@link HalpbotCore#registerAdapters()}. Note that the Halpbot adapters will also need to extend
      * {@link ListenerAdapter}.
      *
@@ -73,14 +73,14 @@ public class HalpbotCore implements ContextCarrier
      * @return Itself for chaining
      */
     @SafeVarargs
-    public final <T extends HalpbotAdapter> HalpbotCore addAdapters(T... adapters) {
+    public final <T extends AbstractHalpbotAdapter> HalpbotCore addAdapters(T... adapters) {
         this.adapters.addAll(List.of(adapters));
         return this;
     }
 
     /**
-     * Registers the {@link HalpbotAdapter} to the {@link JDABuilder}. Note that this also invokes
-     * {@link HalpbotAdapter#setHalpBotCore(HalpbotCore)}.
+     * Registers the {@link AbstractHalpbotAdapter} to the {@link JDABuilder}. Note that this also invokes
+     * {@link AbstractHalpbotAdapter#setHalpBotCore(HalpbotCore)}.
      *
      * @return Itself for chaining
      */
@@ -124,7 +124,7 @@ public class HalpbotCore implements ContextCarrier
 
     /**
      * Registers the objects with each of the adapters by calling their respective
-     * {@link HalpbotAdapter#registerObjects(Object...)} methods.
+     * {@link AbstractHalpbotAdapter#registerObjects(Object...)} methods.
      *
      * @param objects
      *      The objects to register
@@ -212,7 +212,7 @@ public class HalpbotCore implements ContextCarrier
         return this.ownerId;
     }
 
-    public <T extends HalpbotAdapter> T getAndRegister(TypeContext<T> adapterType) {
+    public <T extends AbstractHalpbotAdapter> T getAndRegister(TypeContext<T> adapterType) {
         Exceptional<T> registeredInstance = this.getSafely(adapterType);
         if (registeredInstance.present())
             return registeredInstance.get();

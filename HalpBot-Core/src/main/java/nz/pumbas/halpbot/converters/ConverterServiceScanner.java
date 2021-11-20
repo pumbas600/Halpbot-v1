@@ -50,6 +50,7 @@ public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
                         .collect(Collectors.toSet()));
             });
 
+        int count = 0;
         List<FieldContext<Converter>> converters = type.fieldsOf(Converter.class);
 
         for (FieldContext<Converter> fieldContext : converters) {
@@ -60,7 +61,11 @@ public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
                 context.log().warn("The converter %s in %s needs to be static, public and final"
                     .formatted(fieldContext.name(), type.qualifiedName()));
 
-            else fieldContext.get(instance).present(handler::registerConverter);
+            else {
+                fieldContext.get(instance).present(handler::registerConverter);
+                count++;
+            }
         }
+        context.log().info("Registered %d converters found in %s".formatted(count, type.qualifiedName()));
     }
 }

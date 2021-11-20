@@ -66,10 +66,15 @@ allprojects {
         dependencies {
             include 'net.dv8tion:JDA:4.3.0_333'
             implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.14.1'
-            implementation fileTree(dir: 'libs', include: '*.jar')
+            //implementation fileTree(dir: 'libs', include: '*.jar')
 
             testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+            implementation 'org.dockbox.hartshorn:hartshorn-core:4.2.4'
+            implementation 'org.dockbox.hartshorn:hartshorn-config:4.2.4'
+            implementation 'org.dockbox.hartshorn:hartshorn-events:4.2.4'
+            implementation 'org.dockbox.hartshorn:hartshorn-persistence:4.2.4'
         }
 
         test {

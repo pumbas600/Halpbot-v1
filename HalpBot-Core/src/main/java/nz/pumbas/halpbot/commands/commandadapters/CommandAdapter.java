@@ -10,10 +10,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 
 @Service
-public interface CommandAdapter
+public interface CommandAdapter extends HalpbotAdapter
 {
     void onMessageReceived(@NotNull MessageReceivedEvent event);
 

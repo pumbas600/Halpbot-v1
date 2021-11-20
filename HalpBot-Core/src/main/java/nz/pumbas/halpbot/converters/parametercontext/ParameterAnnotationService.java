@@ -21,9 +21,10 @@ public interface ParameterAnnotationService extends ContextCarrier
             this.add(annotationType, HalpbotParameterAnnotationContext.generic());
         }
         else {
+            //TODO: Determine what's replaced ApplicationContext#get(Class<T> clazz, Object... parameters);
             ParameterAnnotation parameterAnnotation = eParameterAnnotation.get();
             this.add(annotationType, this.applicationContext().get(
-                    parameterAnnotation.context(),
+                    ParameterAnnotationContext.class,
                     Stream.of(parameterAnnotation.after())
                             .map(TypeContext::of)
                             .collect(Collectors.toSet()),

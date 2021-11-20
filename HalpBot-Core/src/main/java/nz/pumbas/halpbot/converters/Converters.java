@@ -42,7 +42,7 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
-import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
@@ -73,7 +73,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 @NonCommandParameters(
     types = {
             PersistantUserData.class, GenericEvent.class, Interaction.class, HalpbotCore.class,
-            HalpbotAdapter.class, JDA.class, ApplicationContext.class
+            AbstractHalpbotAdapter.class, JDA.class, ApplicationContext.class
     },
     annotations = Source.class
 )
@@ -390,10 +390,10 @@ public final class Converters
         .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext().get(HalpbotCore.class)))
         .build();
 
-    public static final TypeConverter<HalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
-        TypeConverter.builder(HalpbotAdapter.class)
+    public static final TypeConverter<AbstractHalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
+        TypeConverter.builder(AbstractHalpbotAdapter.class)
             .convert(invocationContext -> invocationContext.applicationContext().get(HalpbotCore.class)
-                .getSafely((TypeContext<HalpbotAdapter>) invocationContext.currentParameter().type()))
+                .getSafely((TypeContext<AbstractHalpbotAdapter>) invocationContext.currentParameter().type()))
             .build();
 
     public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)
