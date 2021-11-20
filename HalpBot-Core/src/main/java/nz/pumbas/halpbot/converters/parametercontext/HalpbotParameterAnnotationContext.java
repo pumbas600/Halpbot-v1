@@ -1,6 +1,8 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
+import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +15,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@AllArgsConstructor
+@Binds(ParameterAnnotationContext.class)
+@AllArgsConstructor(onConstructor_ = @Bound)
 public class HalpbotParameterAnnotationContext implements ParameterAnnotationContext
 {
     public static final HalpbotParameterAnnotationContext GENERIC = generic();

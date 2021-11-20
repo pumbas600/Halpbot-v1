@@ -21,6 +21,9 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
     @Inject
     @Getter private ApplicationContext applicationContext;
 
+    @Inject
+    @Getter private ParameterAnnotationContextFactory factory;
+
     private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
             = HartshornUtils.emptyConcurrentMap();
 
