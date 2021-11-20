@@ -1,6 +1,8 @@
 package nz.pumbas.halpbot.commands.commandadapters;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
@@ -11,8 +13,6 @@ import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.events.EngineChangedState;
-import org.dockbox.hartshorn.events.annotations.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,9 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 
+import lombok.SneakyThrows;
 import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
+import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.HalpbotCommandContext;
@@ -43,7 +45,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
 @Binds(CommandAdapter.class)
-public class HalpbotCommandAdapter extends AbstractHalpbotAdapter implements CommandAdapter, ContextCarrier
+public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
 {
 
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
@@ -53,13 +55,11 @@ public class HalpbotCommandAdapter extends AbstractHalpbotAdapter implements Com
 
     @Inject
     @Getter private ApplicationContext applicationContext;
+    @Inject private HalpbotCore halpbotCore;
 
-
-    @Listener
-    public void on(@NotNull EngineChangedState<Started> event) throws UndefinedActivatorException, IllegalPrefixException {
-        if (!this.applicationContext.hasActivator(Bot.class))
-            throw new UndefinedActivatorException("The @Bot activator must be present on the main class");
-
+    @SneakyThrows
+    @Override
+    public void onCreation(JDA jda) {
         this.prefix = this.applicationContext.activator(Bot.class).prefix();
         if (this.prefix.isBlank())
             throw new IllegalPrefixException("The prefix defined in @Bot cannot be blank");
@@ -67,7 +67,7 @@ public class HalpbotCommandAdapter extends AbstractHalpbotAdapter implements Com
         this.determineUsageBuilder();
     }
 
-    @Override
+    @SubscribeEvent
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
@@ -83,16 +83,16 @@ public class HalpbotCommandAdapter extends AbstractHalpbotAdapter implements Com
         if (commandAlias.startsWith(this.prefix())) {
             String alias = commandAlias.substring(this.prefix.length());
             this.commandContextSafely(alias)
-                .absent(() -> this.halpBotCore.getDisplayConfiguration()
+                .absent(() -> this.halpbotCore.getDisplayConfiguration()
                     .displayTemporary(halpbotEvent,
                         "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling",
                         30))
                 .flatMap(commandContext ->
                     this.handleCommandInvocation(halpbotEvent, commandContext, content))
-                .present(output -> this.getHalpbotCore().getDisplayConfiguration().display(halpbotEvent, output))
+                .present(output -> this.halpbotCore.getDisplayConfiguration().display(halpbotEvent, output))
                 .caught(exception -> {
                     ErrorManager.handle(event, exception);
-                    this.getHalpbotCore().getDisplayConfiguration()
+                    this.halpbotCore.getDisplayConfiguration()
                         .displayTemporary(
                             halpbotEvent,
                             "There was the following error trying to invoke this command: " + exception.getMessage(),

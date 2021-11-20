@@ -33,14 +33,16 @@ import java.io.IOException;
 
 import javax.security.auth.login.LoginException;
 
+import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.common.annotations.Bot;
+import nz.pumbas.halpbot.configurations.EmbedStringsDisplayConfiguration;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-@Bot(prefix = "$")
+@Bot(prefix = "$", displayConfiguration = EmbedStringsDisplayConfiguration.class)
 @SpringBootApplication
 public class Main
 {
-    public static void main(String[] args) throws LoginException, IOException {
+    public static void main(String[] args) throws LoginException, IOException, UndefinedActivatorException {
         ApplicationContext context = SpringApplication.run(Main.class, args);
         String token = HalpbotUtils.getFirstLine(new ClassPathResource("static/Token.txt").getInputStream());
 

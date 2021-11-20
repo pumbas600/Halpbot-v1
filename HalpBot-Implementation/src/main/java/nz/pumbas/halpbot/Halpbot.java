@@ -52,6 +52,7 @@ import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
 import nz.pumbas.halpbot.commands.ElectricalCommands;
 import nz.pumbas.halpbot.commands.HalpBotCommands;
 import nz.pumbas.halpbot.commands.VectorCommands;
+import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.configurations.EmbedStringsDisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -63,8 +64,7 @@ public class Halpbot extends ListenerAdapter
     private static HalpbotCore halpbotCore;
     private final ApplicationContext context;
 
-    public Halpbot(ApplicationContext context, String token) throws LoginException
-    {
+    public Halpbot(ApplicationContext context, String token) throws LoginException, UndefinedActivatorException {
         this.context = context;
         JDABuilder builder = JDABuilder.createDefault(token)
             .disableIntents(GatewayIntent.GUILD_PRESENCES)

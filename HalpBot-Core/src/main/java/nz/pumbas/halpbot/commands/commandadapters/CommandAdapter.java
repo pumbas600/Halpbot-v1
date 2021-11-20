@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.commands.commandadapters;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -16,6 +17,7 @@ import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 @Service
 public interface CommandAdapter extends HalpbotAdapter
 {
+    @SubscribeEvent
     void onMessageReceived(@NotNull MessageReceivedEvent event);
 
     @NotNull

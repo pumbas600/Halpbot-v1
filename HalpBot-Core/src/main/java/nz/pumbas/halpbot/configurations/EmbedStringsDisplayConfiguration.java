@@ -10,15 +10,6 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class EmbedStringsDisplayConfiguration implements DisplayConfiguration
 {
-    private Color embedColour = Color.ORANGE;
-
-    public EmbedStringsDisplayConfiguration() { }
-
-    public EmbedStringsDisplayConfiguration(Color embedColour) {
-        this.embedColour = embedColour;
-    }
-
-
     @Override
     public void display(HalpbotEvent event, String message) {
         this.display(event, this.createEmbed(message));
@@ -42,7 +33,7 @@ public class EmbedStringsDisplayConfiguration implements DisplayConfiguration
     private MessageEmbed createEmbed(String message) {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setDescription(HalpbotUtils.checkEmbedDesciptionLength(message));
-        builder.setColor(this.embedColour);
+        builder.setColor(Color.ORANGE);
         return builder.build();
     }
 }
