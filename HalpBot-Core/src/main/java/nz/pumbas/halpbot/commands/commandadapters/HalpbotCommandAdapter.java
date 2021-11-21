@@ -29,15 +29,20 @@ import lombok.SneakyThrows;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
+import nz.pumbas.halpbot.commands.commandmethods.CommandContextFactory;
 import nz.pumbas.halpbot.commands.commandmethods.HalpbotCommandContext;
+import nz.pumbas.halpbot.commands.commandmethods.parsing.MessageParsingContext;
+import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
-import nz.pumbas.halpbot.commands.usage.NameVariableBuilder;
+import nz.pumbas.halpbot.commands.usage.VariableNameBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.common.annotations.Bot;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
+import nz.pumbas.halpbot.permissions.exceptions.InsufficientPermissionException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
@@ -52,6 +57,7 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
     @Inject
     @Getter private ApplicationContext applicationContext;
     @Inject private HalpbotCore halpbotCore;
+    @Inject private CommandContextFactory commandContextFactory;
 
     @SneakyThrows
     @Override
@@ -63,6 +69,7 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
         this.determineUsageBuilder();
     }
 
+    //TODO: Guild specific prefixes
     @SubscribeEvent
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
@@ -103,13 +110,10 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
                                                         @NotNull String content)
     {
         if (!commandContext.hasPermission(event.getUser()))
-            return Exceptional.of(new CommandException("You do not have permission to use this command"));
+            return Exceptional.of(new InsufficientPermissionException("You do not have permission to use this command"));
 
-//        nz.pumbas.halpbot.commands.context.MethodContext ctx = nz.pumbas.halpbot.commands.context.MethodContext.of(content, this.halpBotCore, event, commandContext.reflections());
-//
-//        return commandContext.parse(ctx, false);
-        //TODO: Implement command invocation handling
-        return Exceptional.empty();
+        InvocationContext invocationContext = new InvocationContext(this.applicationContext, event, commandContext.reflections(), content);
+        return commandContext.invoke(invocationContext, false);
     }
 
     private void hasMethodParameterNamesVerifier(String sampleParameter) { }
@@ -122,9 +126,13 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
                 .get(0)
                 .name()))
         {
+            this.applicationContext.log()
+                    .info("Parameter names have not been preserved. Using a type usage builder");
             this.usageBuilder = new TypeUsageBuilder();
         } else {
-            this.usageBuilder = new NameVariableBuilder();
+            this.applicationContext.log()
+                    .info("Parameter names have been preserved. Using a variable name usage builder");
+            this.usageBuilder = new VariableNameBuilder();
         }
     }
 
@@ -152,7 +160,12 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
             }
             Command command = methodContext.annotation(Command.class).get();
             List<String> aliases = this.aliases(command, methodContext);
-            CommandContext commandContext = this.createCommand(aliases, instance, command, methodContext);
+            CommandContext commandContext = this.createCommand(
+                    aliases,
+                    instance,
+                    command,
+                    methodContext,
+                    new MessageParsingContext());
 
             for (String alias : aliases) {
                 if (this.registeredCommands.containsKey(alias)) {
@@ -191,16 +204,18 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
     private <T> CommandContext createCommand(@NotNull List<String> aliases,
                                              @NotNull T instance,
                                              @NotNull Command command,
-                                             @NotNull MethodContext<?, T> methodContext)
+                                             @NotNull MethodContext<?, T> methodContext,
+                                             @NotNull ParsingContext parsingContext)
     {
-        return new HalpbotCommandContext(
+        return this.commandContextFactory.create(
             aliases,
             command.description(),
             this.usage(command, methodContext),
             instance,
             methodContext,
             List.of(command.permissions()),
-            Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()));
+            Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
+            parsingContext);
     }
 
     @Override

@@ -7,7 +7,6 @@ import java.util.List;
 
 import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.commands.CommandManager;
-import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
@@ -41,7 +40,7 @@ public class MessageParsingContext implements ParsingContext
 
             if (parameter.caught()) {
                 if (!currentToken.isOptional())
-                    return parameter.map(o -> new Object[] { o });
+                    return Exceptional.of(parameter.error());
 
                 if (currentToken instanceof ParsingToken parsingToken)
                     parsedTokens[parameterIndex++] = parsingToken.defaultValue();

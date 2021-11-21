@@ -12,7 +12,7 @@ import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class NameVariableBuilder implements UsageBuilder
+public class VariableNameBuilder implements UsageBuilder
 {
     @Override
     public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext) {
@@ -32,7 +32,7 @@ public class NameVariableBuilder implements UsageBuilder
                 parameterIndex++;
             }
             else if (token instanceof PlaceholderToken placeholderToken)
-                stringBuilder.append(placeholderToken.getPlaceHolder());
+                stringBuilder.append(placeholderToken.placeholder());
 
             stringBuilder.append(token.isOptional() ? ']' : '>')
                 .append(' ');

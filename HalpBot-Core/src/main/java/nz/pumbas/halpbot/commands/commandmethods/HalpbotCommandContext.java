@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.commands.commandmethods;
 
+import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
@@ -21,4 +22,6 @@ public record HalpbotCommandContext(@NotNull List<String> aliases,
     implements CommandContext
 {
 
+    @Bound
+    public HalpbotCommandContext {}
 }

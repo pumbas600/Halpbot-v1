@@ -276,8 +276,7 @@ public class SimpleCommand
             Exceptional<Object[]> mismatchResult = Exceptional.empty();
             int currentIndex = ctx.getCurrentIndex();
 
-            if (currentToken instanceof ParsingToken) {
-                ParsingToken parsingToken = (ParsingToken) currentToken;
+            if (currentToken instanceof ParsingToken parsingToken) {
                 ctx.update(parsingToken);
 
                 Exceptional<Object> result = CommandManager.handleReflectionSyntax(ctx);

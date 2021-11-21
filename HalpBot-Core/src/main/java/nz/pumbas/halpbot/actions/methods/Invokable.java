@@ -52,22 +52,29 @@ public interface Invokable
     }
 
     @NotNull
-    default Object[] parseParameters(@NotNull InvocationContext invocationContext) {
+    default Exceptional<Object[]> parseParameters(@NotNull InvocationContext invocationContext,
+                                                  boolean canHaveContextLeft) {
         final List<Token> tokens = tokens(invocationContext.applicationContext(), this.executable());
-        return new Object[] { };
-        //TODO: parse parameters
+        return this.parsingContext().parseParameters(
+                invocationContext,
+                this,
+                tokens,
+                canHaveContextLeft);
     }
 
     @SuppressWarnings("unchecked")
-    default <R, P> Exceptional<R> invoke(@NotNull InvocationContext invocationContext) {
+    default <R> Exceptional<R> invoke(@NotNull InvocationContext invocationContext, boolean canHaveContextLeft) {
         final ExecutableElementContext<?> executable = this.executable();
-        final Object[] parameters = this.parseParameters(invocationContext);
+        final Exceptional<Object[]> parameters = this.parseParameters(invocationContext, canHaveContextLeft);
 
-        if (executable instanceof MethodContext) {
-            return ((MethodContext<R, P>) executable).invoke((P) this.instance(), parameters);
+        if (parameters.caught())
+            return Exceptional.of(parameters.error());
+
+        if (executable instanceof MethodContext methodContext) {
+            return methodContext.invoke(this.instance(), parameters.or(new Object[0]));
         }
         ConstructorContext<R> constructorContext = (ConstructorContext<R>) executable;
-        return constructorContext.createInstance(parameters);
+        return constructorContext.createInstance(parameters.or(new Object[0]));
 
     }
 }
