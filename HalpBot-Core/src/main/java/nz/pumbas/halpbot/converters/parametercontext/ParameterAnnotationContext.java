@@ -24,7 +24,15 @@ public interface ParameterAnnotationContext
 
     void allowedTypes(@NotNull Set<TypeContext<?>> allowedTypes);
 
-    boolean isValidType(@NotNull TypeContext<?> typeContext);
+    default boolean isValidType(@NotNull TypeContext<?> typeContext) {
+        return this.allowedTypes()
+                .stream()
+                .anyMatch(typeContext::childOf);
+    }
 
-    boolean noConflictingAnnotations(@NotNull List<Annotation> annotations);
+    default boolean noConflictingAnnotations(@NotNull List<TypeContext<? extends Annotation>> annotationTypes) {
+        return annotationTypes
+                .stream()
+                .noneMatch(annotationType -> this.conflictingAnnotations().contains(annotationType));
+    }
 }

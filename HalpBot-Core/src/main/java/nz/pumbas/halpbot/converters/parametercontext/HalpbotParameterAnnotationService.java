@@ -8,6 +8,7 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -18,14 +19,14 @@ import lombok.Getter;
 @Binds(ParameterAnnotationService.class)
 public class HalpbotParameterAnnotationService implements ParameterAnnotationService
 {
+    private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
+            = HartshornUtils.emptyConcurrentMap();
+
     @Inject
     @Getter private ApplicationContext applicationContext;
 
     @Inject
     @Getter private ParameterAnnotationContextFactory factory;
-
-    private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
-            = HartshornUtils.emptyConcurrentMap();
 
     @Override
     @NotNull
@@ -44,5 +45,11 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
     @Override
     public boolean contains(@NotNull TypeContext<? extends Annotation> annotationType) {
         return this.parameterAnnotationContextMap.containsKey(annotationType);
+    }
+
+    //TODO: Sort annotations based on what annotations depend on which
+    @Override
+    public @NotNull <T extends Annotation> List<T> sort(@NotNull List<T> annotations) {
+        return annotations;
     }
 }

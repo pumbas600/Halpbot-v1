@@ -35,7 +35,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
-import nz.pumbas.halpbot.converters.Converters;
+import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ConverterTests
@@ -46,7 +46,7 @@ public class ConverterTests
         Converter<Object[]> arrayConverter = HalpbotUtils.context().get(ConverterHandler.class)
             .from(MethodContext.of(Object[].class));
 
-        Assertions.assertEquals(Converters.ARRAY_CONVERTER, arrayConverter);
+        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, arrayConverter);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class ConverterTests
         Converter<Integer> integerConverter = HalpbotUtils.context().get(ConverterHandler.class)
             .from(MethodContext.of(Integer.class));
 
-        Assertions.assertEquals(Converters.INTEGER_CONVERTER, integerConverter);
+        Assertions.assertEquals(DefaultConverters.INTEGER_CONVERTER, integerConverter);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ConverterTests
         Converter<List<?>> listConverter = HalpbotUtils.context().get(ConverterHandler.class)
             .from(MethodContext.of(List.class));
 
-        Assertions.assertEquals(Converters.LIST_CONVERTER, listConverter);
+        Assertions.assertEquals(DefaultConverters.LIST_CONVERTER, listConverter);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ConverterTests
         Converter<Set<?>> setConverter = HalpbotUtils.context().get(ConverterHandler.class)
             .from(MethodContext.of(Set.class));
 
-        Assertions.assertEquals(Converters.SET_CONVERTER, setConverter);
+        Assertions.assertEquals(DefaultConverters.SET_CONVERTER, setConverter);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ConverterTests
         Converter<List<?>> listConverter = HalpbotUtils.context().get(ConverterHandler.class)
             .from(MethodContext.of(List.class, Unmodifiable.class));
 
-        Assertions.assertEquals(Converters.UNMODIFIABLE_LIST_CONVERTER, listConverter);
+        Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, listConverter);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ConverterTests
         Converter<String> remainingStringsConverter = HalpbotUtils.context().get(ConverterHandler.class)
             .from(MethodContext.of(String.class, Remaining.class));
 
-        Assertions.assertEquals(Converters.REMAINING_STRINGS_CONVERTER, remainingStringsConverter);
+        Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, remainingStringsConverter);
     }
 
     @Test

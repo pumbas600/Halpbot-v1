@@ -26,7 +26,7 @@ package nz.pumbas.halpbot.commands;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
-import nz.pumbas.halpbot.converters.Converters;
+import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
@@ -74,10 +74,10 @@ public class HalpBotCommands
 
     public static final TypeConverter<Unit> UNIT_CONVERTER = TypeConverter.builder(Unit.class)
         .convert(
-            ctx -> Converters.DOUBLE_CONVERTER.mapper()
+            ctx -> DefaultConverters.DOUBLE_CONVERTER.mapper()
                 .apply(ctx)
                 .map(value -> {
-                    Exceptional<String> eUnit = Converters.STRING_CONVERTER.mapper().apply(ctx);
+                    Exceptional<String> eUnit = DefaultConverters.STRING_CONVERTER.mapper().apply(ctx);
                     if (eUnit.caught()) eUnit.rethrow();
                     String unit = eUnit.get();
                     if (1 < unit.length() && Prefix.isPrefix(unit.charAt(0)))
@@ -89,10 +89,10 @@ public class HalpBotCommands
 
     public static final TypeConverter<Prefix> PREFIX_CONVERTER = TypeConverter.builder(Prefix.class)
         .convert(ctx ->
-            Converters.ENUM_CONVERTER.apply(ctx)
+            DefaultConverters.ENUM_CONVERTER.apply(ctx)
                 .map(prefix -> (Prefix) prefix)
                 .orExceptional(() ->
-                    Converters.CHARACTER_CONVERTER.mapper().apply(ctx)
+                    DefaultConverters.CHARACTER_CONVERTER.mapper().apply(ctx)
                         .map(prefix -> {
                             if (Prefix.isPrefix(prefix))
                                 return Prefix.getPrefix(prefix);

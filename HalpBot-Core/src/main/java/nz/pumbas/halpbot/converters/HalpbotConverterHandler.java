@@ -32,7 +32,6 @@ import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -43,12 +42,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
-import nz.pumbas.halpbot.converters.parametercontext.HalpbotParameterAnnotationContext;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationContext;
 import nz.pumbas.halpbot.objects.Tuple;
 import nz.pumbas.halpbot.commands.context.MethodContext;
@@ -92,7 +88,7 @@ public class HalpbotConverterHandler implements ConverterHandler
                 .filter(c -> c.isAssignableFrom(type))
                 .findFirst()
                 .map(c -> (Object) this.retrieveConverterByAnnotation(this.converters.get(c), ctx))
-                .orElse(Converters.OBJECT_CONVERTER);
+                .orElse(DefaultConverters.OBJECT_CONVERTER);
     }
 
     @Override
@@ -116,7 +112,7 @@ public class HalpbotConverterHandler implements ConverterHandler
                         .filter(t -> this.filterFallbackConverters(t, type, ctx))
                         .findFirst()
                         .map(t -> t.getValue().getConverter())
-                        .orElse(Reflect.cast(Converters.OBJECT_CONVERTER)));
+                        .orElse(Reflect.cast(DefaultConverters.OBJECT_CONVERTER)));
     }
 
     /**
@@ -132,7 +128,7 @@ public class HalpbotConverterHandler implements ConverterHandler
     private Converter<?> retrieveConverterByAnnotation(@NotNull Collection<ConverterContext> converterContexts,
                                                        @NotNull Collection<TypeContext<? extends Annotation>> annotationTypes) {
         if (converterContexts.isEmpty())
-            return Converters.OBJECT_CONVERTER;
+            return DefaultConverters.OBJECT_CONVERTER;
 
         for (ConverterContext converterContext : converterContexts) {
             if (ctx.getContextState().getAnnotationTypes().contains(converterContext.getAnnotationType())) {

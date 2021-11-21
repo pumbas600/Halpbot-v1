@@ -41,7 +41,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.commands.objects.Shape;
-import nz.pumbas.halpbot.converters.Converters;
+import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 public class SimpleCommandTests
@@ -114,7 +114,7 @@ public class SimpleCommandTests
             Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
 
         Assertions.assertEquals(
-            Converters.OBJECT_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
+            DefaultConverters.OBJECT_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
 
         Assertions.assertTrue(command.parse(MethodContext.of("Vector3[1 2 3]")).present());
         Assertions.assertTrue(command.parse(MethodContext.of("Vector3[3 1]")).present());
@@ -243,7 +243,7 @@ public class SimpleCommandTests
             Reflect.getMethod(this, "commandWithVarargsMethodTest"));
 
         Assertions.assertEquals(1, command.getCommandTokens().size());
-        Assertions.assertEquals(Converters.ARRAY_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
+        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
 
         Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3]")).errorAbsent());
         Assertions.assertTrue(command.parse(MethodContext.of("")).caught());

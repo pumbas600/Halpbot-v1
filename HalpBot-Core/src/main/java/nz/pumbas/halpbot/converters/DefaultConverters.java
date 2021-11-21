@@ -78,10 +78,10 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
     annotations = Source.class
 )
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
-public final class Converters
+public final class DefaultConverters
 {
 
-    private Converters() {}
+    private DefaultConverters() {}
 
     //region Converters
 

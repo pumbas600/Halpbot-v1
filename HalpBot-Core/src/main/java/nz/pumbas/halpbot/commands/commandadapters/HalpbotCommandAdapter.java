@@ -30,16 +30,15 @@ import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContextFactory;
-import nz.pumbas.halpbot.commands.commandmethods.HalpbotCommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.parsing.MessageParsingContext;
 import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
 import nz.pumbas.halpbot.commands.usage.VariableNameBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.common.annotations.Bot;
+import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.permissions.exceptions.InsufficientPermissionException;
@@ -54,8 +53,9 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
     @Getter private String prefix;
     @Getter private UsageBuilder usageBuilder;
 
-    @Inject
-    @Getter private ApplicationContext applicationContext;
+    @Inject @Getter private ApplicationContext applicationContext;
+    @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
+
     @Inject private HalpbotCore halpbotCore;
     @Inject private CommandContextFactory commandContextFactory;
 
@@ -158,6 +158,10 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
                         .formatted(methodContext.qualifiedName()));
                 continue;
             }
+
+            if (!this.parameterAnnotationsAreValid(methodContext))
+                continue;
+
             Command command = methodContext.annotation(Command.class).get();
             List<String> aliases = this.aliases(command, methodContext);
             CommandContext commandContext = this.createCommand(

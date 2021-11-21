@@ -1,11 +1,16 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
 import org.dockbox.hartshorn.core.context.ContextCarrier;
+import org.dockbox.hartshorn.core.context.element.ConstructorContext;
+import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
+import org.dockbox.hartshorn.core.context.element.MethodContext;
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,6 +60,14 @@ public interface ParameterAnnotationService extends ContextCarrier
         return this.get(annotationType);
     }
 
+    default boolean isValid(@NotNull TypeContext<?> parameterType,
+                            @NotNull List<TypeContext<? extends Annotation>> parameterAnnotations) {
+        return parameterAnnotations.stream()
+                .map(this::get)
+                .allMatch(annotationContext ->
+                        annotationContext.isValidType(parameterType) && annotationContext.noConflictingAnnotations(parameterAnnotations));
+    }
+
     @NotNull
     ParameterAnnotationContext get(@NotNull TypeContext<? extends Annotation> annotationType);
 
@@ -62,5 +75,8 @@ public interface ParameterAnnotationService extends ContextCarrier
              @NotNull ParameterAnnotationContext annotationContext);
 
     boolean contains(@NotNull TypeContext<? extends Annotation> annotationType);
+
+    @NotNull
+    <T extends  Annotation> List<T> sort(@NotNull List<T> annotations);
 
 }
