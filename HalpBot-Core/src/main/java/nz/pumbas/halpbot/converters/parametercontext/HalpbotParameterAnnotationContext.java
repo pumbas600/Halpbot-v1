@@ -4,7 +4,6 @@ import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
@@ -20,16 +19,14 @@ public class HalpbotParameterAnnotationContext implements ParameterAnnotationCon
 {
     public static final HalpbotParameterAnnotationContext GENERIC = generic();
 
-    @NotNull private final Set<TypeContext<? extends Annotation>> afterAnnotations;
+    private final Set<TypeContext<? extends Annotation>> afterAnnotations;
 
-    @NotNull
     @Setter private Set<TypeContext<? extends Annotation>> conflictingAnnotations;
 
-    @NotNull
     @Setter private Set<TypeContext<?>> allowedTypes;
 
     @Override
-    public void addAfterAnnotation(@NotNull TypeContext<? extends Annotation> afterAnnotation) {
+    public void addAfterAnnotation(TypeContext<? extends Annotation> afterAnnotation) {
         this.afterAnnotations.add(afterAnnotation);
     }
 

@@ -3,9 +3,9 @@ package nz.pumbas.halpbot.converters.parametercontext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,9 +14,11 @@ import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
 public interface ParameterAnnotationService extends ContextCarrier
 {
+    Comparator<TypeContext<? extends Annotation>> comparator();
+
     ParameterAnnotationContextFactory factory();
 
-    default void register(@NotNull TypeContext<? extends Annotation> annotationType) {
+    default void register(TypeContext<? extends Annotation> annotationType) {
         Exceptional<ParameterAnnotation> eParameterAnnotation = annotationType.annotation(ParameterAnnotation.class);
 
         // It's possible to specify that an annotation comes after another one which doesn't have the annotation
@@ -48,31 +50,29 @@ public interface ParameterAnnotationService extends ContextCarrier
             }
         }
     }
-
-    @NotNull
-    default ParameterAnnotationContext getAndRegister(@NotNull TypeContext<? extends Annotation> annotationType) {
+    
+    default ParameterAnnotationContext getAndRegister(TypeContext<? extends Annotation> annotationType) {
         if (!this.contains(annotationType))
             this.register(annotationType);
         return this.get(annotationType);
     }
 
-    default boolean isValid(@NotNull TypeContext<?> parameterType,
-                            @NotNull List<TypeContext<? extends Annotation>> parameterAnnotations) {
+    default boolean isValid(TypeContext<?> parameterType,
+                            List<TypeContext<? extends Annotation>> parameterAnnotations) {
         return parameterAnnotations.stream()
                 .map(this::get)
                 .allMatch(annotationContext ->
                         annotationContext.isValidType(parameterType) && annotationContext.noConflictingAnnotations(parameterAnnotations));
     }
+    
+    ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType);
 
-    @NotNull
-    ParameterAnnotationContext get(@NotNull TypeContext<? extends Annotation> annotationType);
+    void add(TypeContext<? extends Annotation> annotationType,
+             ParameterAnnotationContext annotationContext);
 
-    void add(@NotNull TypeContext<? extends Annotation> annotationType,
-             @NotNull ParameterAnnotationContext annotationContext);
+    boolean contains(TypeContext<? extends Annotation> annotationType);
 
-    boolean contains(@NotNull TypeContext<? extends Annotation> annotationType);
-
-    @NotNull
-    <T extends  Annotation> List<T> sort(@NotNull List<T> annotations);
-
+    default void sort(List<TypeContext<? extends Annotation>> annotations) {
+        annotations.sort(this.comparator());
+    }
 }

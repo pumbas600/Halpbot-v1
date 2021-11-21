@@ -22,6 +22,7 @@ public class ParameterAnnotationServiceScanner implements ServiceProcessor<UseCo
     public <T> void process(@NotNull ApplicationContext context, @NotNull TypeContext<T> type) {
         context.get(ParameterAnnotationService.class)
                 .register((TypeContext<? extends Annotation>) type);
+        context.log().info("Registered the parameter annotation %s".formatted(type.qualifiedName()));
     }
 
     @Override
