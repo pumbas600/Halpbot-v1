@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.tokens.HalpbotParsingToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
@@ -41,6 +42,9 @@ public interface Invokable
 
     @Nullable
     Object instance();
+
+    @NotNull
+    ParsingContext parsingContext();
 
     @NotNull
     default List<Token> tokens(@NotNull ApplicationContext applicationContext) {

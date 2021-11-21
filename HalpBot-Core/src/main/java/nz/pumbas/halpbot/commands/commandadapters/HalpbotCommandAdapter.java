@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.service.Service;
-import org.dockbox.hartshorn.core.boot.ApplicationState.Started;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
@@ -25,16 +24,14 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import lombok.Getter;
-
 import lombok.SneakyThrows;
-import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
+
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.HalpbotCommandContext;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
-import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.commands.usage.NameVariableBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
@@ -47,7 +44,6 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 @Binds(CommandAdapter.class)
 public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
 {
-
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
 
     @Getter private String prefix;

@@ -386,6 +386,7 @@ public final class CommandManager
         return restrictedToList;
     }
 
+    //TODO: Move this somewhere else and make it accept InvocationContext
     /**
      * Retrieves an {@link Exceptional} containing the result of any reflection syntax.
      *

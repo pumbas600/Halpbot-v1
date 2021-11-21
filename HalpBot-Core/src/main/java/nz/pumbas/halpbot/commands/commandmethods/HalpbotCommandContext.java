@@ -8,13 +8,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
+import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
+
 public record HalpbotCommandContext(@NotNull List<String> aliases,
                                     @NotNull String description,
                                     @NotNull String usage,
                                     @Nullable Object instance,
                                     @NotNull ExecutableElementContext<?> executable,
                                     @NotNull List<String> permissions,
-                                    @NotNull Set<TypeContext<?>> reflections)
+                                    @NotNull Set<TypeContext<?>> reflections,
+                                    @NotNull ParsingContext parsingContext)
     implements CommandContext
 {
 
