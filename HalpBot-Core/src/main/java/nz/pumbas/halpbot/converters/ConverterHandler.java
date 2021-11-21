@@ -38,11 +38,11 @@ import nz.pumbas.halpbot.commands.context.MethodContext;
 public interface ConverterHandler
 {
 
-    @NotNull
-    <T> Converter<T> from(@NotNull ParameterContext<T> parameterContext);
+    
+    <T> Converter<T> from(ParameterContext<T> parameterContext);
 
-    @NotNull
-    default <T> Converter<T> from(@NotNull TypeContext<T> typeContext, @NotNull InvocationContext invocationContext) {
+    
+    default <T> Converter<T> from(TypeContext<T> typeContext, InvocationContext invocationContext) {
         //TODO: Add support for TypeContext
         return null;
     }
@@ -59,8 +59,8 @@ public interface ConverterHandler
      *
      * @return The retrieved {@link Converter}
      */
-    @NotNull
-    default <T> Converter<T> from(@NotNull Class<T> type, @NotNull InvocationContext invocationContext) {
+    
+    default <T> Converter<T> from(Class<T> type, InvocationContext invocationContext) {
         return this.from(TypeContext.of(type), invocationContext);
     }
 
@@ -74,7 +74,7 @@ public interface ConverterHandler
      * @param converter
      *      The {@link Converter} to register
      */
-    void registerConverter(@NotNull Converter<?> converter);
+    void registerConverter(Converter<?> converter);
 
     /**
      * Specifies a type that shouldn't be treated as a command parameter. This means it won't show up in the command
@@ -83,11 +83,11 @@ public interface ConverterHandler
      * @param type
      *      The {@link Class} to specify as a non-command parameter type
      */
-    void addNonCommandTypes(@NotNull Set<TypeContext<?>> types);
+    void addNonCommandTypes(Set<TypeContext<?>> types);
 
-    void addNonCammandAnnotations(@NotNull Set<TypeContext<? extends Annotation>> types);
+    void addNonCammandAnnotations(Set<TypeContext<? extends Annotation>> types);
 
-    boolean isCommandParameter(@NotNull ParameterContext<?> parameterContext);
+    boolean isCommandParameter(ParameterContext<?> parameterContext);
 
-    boolean isCommandParameter(@NotNull TypeContext<?> typeContext);
+    boolean isCommandParameter(TypeContext<?> typeContext);
 }

@@ -2,20 +2,15 @@ package nz.pumbas.halpbot.permissions;
 
 import net.dv8tion.jda.api.entities.User;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.jetbrains.annotations.NotNull;
+import org.dockbox.hartshorn.core.context.ContextCarrier;
 
 import java.util.List;
 
-public interface Permissive
+public interface Permissive extends ContextCarrier
 {
-    default ApplicationContext applicationContext() {
-        return null; //TODO: Implement in subclasses and remove default method
-    }
-
     List<String> permissions();
 
-    default boolean hasPermission(@NotNull User user) {
+    default boolean hasPermission(User user) {
         return this.hasPermission(user.getIdLong());
     }
 
