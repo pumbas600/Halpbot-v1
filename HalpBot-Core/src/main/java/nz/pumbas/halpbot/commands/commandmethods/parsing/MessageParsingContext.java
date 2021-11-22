@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.commands.commandmethods.parsing;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -15,8 +16,6 @@ import nz.pumbas.halpbot.converters.tokens.Token;
 
 public class MessageParsingContext implements ParsingContext
 {
-
-    @NotNull
     @Override
     public Exceptional<Object[]> parseParameters(@NotNull InvocationContext invocationContext,
                                                  @NotNull Invokable invokable,
@@ -54,10 +53,11 @@ public class MessageParsingContext implements ParsingContext
     }
 
     @Override
-    public @NotNull Exceptional<Object> parseToken(@NotNull InvocationContext invocationContext,
+    public Exceptional<Object> parseToken(@NotNull InvocationContext invocationContext,
                                                    @NotNull Invokable invokable,
                                                    @NotNull Token token) {
         if (token instanceof ParsingToken parsingToken) {
+            invocationContext.update(parsingToken.parameterContext(), parsingToken.sortedAnnotations());
             int currentIndex = invocationContext.currentIndex();
 
             Exceptional<Object> result = CommandManager.handleReflectionSyntax(invocationContext);

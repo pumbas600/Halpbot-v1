@@ -26,8 +26,10 @@ package nz.pumbas.halpbot.converters.tokens;
 
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
@@ -41,15 +43,15 @@ import nz.pumbas.halpbot.utilities.Reflect;
 public interface ParsingToken extends Token
 {
     /**
-     * @return The required {@link TypeContext} of this {@link ParsingToken}
+     * @return The {@link ParameterContext} this {@link ParsingToken} represents
      */
-    @NotNull
     ParameterContext<?> parameterContext();
+
+    List<TypeContext<? extends Annotation>> sortedAnnotations();
 
     /**
      * @return The {@link TypeConverter} for this token
      */
-    @NotNull
     Converter<?> converter();
 
     /**
@@ -74,11 +76,11 @@ public interface ParsingToken extends Token
      * @return The parsed {@link Object default value}
      */
     @Nullable
-    static Object parseDefaultValue(@NotNull Converter<?> converter, @NotNull InvocationContext invocationContext) {
+    static Object parseDefaultValue(Converter<?> converter, InvocationContext invocationContext) {
         //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
         if ("${Default}".equalsIgnoreCase(invocationContext.content()))
-            return Reflect.getDefaultValue(invocationContext.currentParameter().type().type());
-        if (invocationContext.currentParameter().type().childOf(String.class))
+            return Reflect.getDefaultValue(invocationContext.currentType().type());
+        if (invocationContext.currentType().childOf(String.class))
             return invocationContext.content();
         return converter.apply(invocationContext)
             .rethrow()

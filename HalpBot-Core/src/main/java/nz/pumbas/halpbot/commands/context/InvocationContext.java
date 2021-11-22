@@ -343,14 +343,14 @@ public class InvocationContext implements ContextCarrier
         }
     }
 
-    public void update(ParameterContext<?> parameterContext) {
+    public void update(ParameterContext<?> parameterContext, List<TypeContext<? extends Annotation>> sortedAnnotations) {
         this.currentType = parameterContext.type();
-        this.sortedAnnotations = parameterContext.annotations()
-                .stream()
-                .map(annotation -> TypeContext.of(annotation.annotationType()))
-                .collect(Collectors.toList());
-        this.applicationContext.get(ParameterAnnotationService.class).sort(this.sortedAnnotations);
+        this.sortedAnnotations = sortedAnnotations;
         this.annotations = parameterContext.annotations();
         this.currentAnnotationIndex = 0;
+    }
+
+    public void incrementAnnotationIndex() {
+        this.currentAnnotationIndex++;
     }
 }

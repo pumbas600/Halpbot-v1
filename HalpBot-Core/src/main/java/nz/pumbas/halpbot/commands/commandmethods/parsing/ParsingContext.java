@@ -1,7 +1,6 @@
 package nz.pumbas.halpbot.commands.commandmethods.parsing;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -14,14 +13,12 @@ public interface ParsingContext
 {
     Object IGNORE_RESULT = new Object();
 
-    @NotNull
-    Exceptional<Object[]> parseParameters(@NotNull InvocationContext invocationContext,
-                                          @NotNull Invokable invokable,
-                                          @NotNull List<Token> tokens,
+    Exceptional<Object[]> parseParameters(InvocationContext invocationContext,
+                                          Invokable invokable,
+                                          List<Token> tokens,
                                           boolean canHaveContextLeft);
 
-    @NotNull
-    Exceptional<Object> parseToken(@NotNull InvocationContext invocationContext,
-                                   @NotNull Invokable invokable,
-                                   @NotNull Token token);
+    Exceptional<Object> parseToken(InvocationContext invocationContext,
+                                   Invokable invokable,
+                                   Token token);
 }
