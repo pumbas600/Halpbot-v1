@@ -46,12 +46,12 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
 @Binds(CommandAdapter.class)
-public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
+public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
 
-    @Getter private String prefix;
-    @Getter private UsageBuilder usageBuilder;
+    @Getter private final String prefix;
+    @Getter private final UsageBuilder usageBuilder;
 
     @Inject @Getter private ApplicationContext applicationContext;
     @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
@@ -60,18 +60,17 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
     @Inject private CommandContextFactory commandContextFactory;
 
     @SneakyThrows
-    @Override
-    public void onCreation(JDA jda) {
+    public HalpbotCommandAdapter() {
         this.prefix = this.applicationContext.activator(Bot.class).prefix();
         if (this.prefix.isBlank())
             throw new IllegalPrefixException("The prefix defined in @Bot cannot be blank");
 
-        this.determineUsageBuilder();
+        this.usageBuilder = this.determineUsageBuilder();
     }
 
     //TODO: Guild specific prefixes
     @SubscribeEvent
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
         // Remove all the additional whitespace
@@ -104,21 +103,25 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
         }
     }
 
-    @NotNull
-    private Exceptional<Object> handleCommandInvocation(@NotNull HalpbotEvent event,
-                                                        @NotNull CommandContext commandContext,
-                                                        @NotNull String content)
+    
+    private Exceptional<Object> handleCommandInvocation(HalpbotEvent event,
+                                                        CommandContext commandContext,
+                                                        String content)
     {
         if (!commandContext.hasPermission(event.getUser()))
             return Exceptional.of(new InsufficientPermissionException("You do not have permission to use this command"));
 
-        InvocationContext invocationContext = new InvocationContext(this.applicationContext, event, commandContext.reflections(), content);
+        InvocationContext invocationContext = new InvocationContext(
+                this.applicationContext,
+                content,
+                event,
+                commandContext.reflections());
         return commandContext.invoke(invocationContext, false);
     }
 
     private void hasMethodParameterNamesVerifier(String sampleParameter) { }
 
-    private void determineUsageBuilder() {
+    private UsageBuilder determineUsageBuilder() {
         if ("arg0".equals(TypeContext.of(this)
                 .method("hasMethodParameterNamesVerifier")
                 .get()
@@ -128,16 +131,15 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
         {
             this.applicationContext.log()
                     .info("Parameter names have not been preserved. Using a type usage builder");
-            this.usageBuilder = new TypeUsageBuilder();
-        } else {
-            this.applicationContext.log()
-                    .info("Parameter names have been preserved. Using a variable name usage builder");
-            this.usageBuilder = new VariableNameBuilder();
+            return new TypeUsageBuilder();
         }
+        this.applicationContext.log()
+                .info("Parameter names have been preserved. Using a variable name usage builder");
+        return new VariableNameBuilder();
     }
 
     @Override
-    public <T> void registerCommands(@NotNull TypeContext<T> typeContext)     {
+    public <T> void registerCommands(TypeContext<T> typeContext)     {
         T instance = this.applicationContext.get(typeContext);
         this.registerCommandContext(
             instance,
@@ -146,11 +148,11 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
 
     @Override
     @Nullable
-    public CommandContext commandContext(@NotNull String alias) {
+    public CommandContext commandContext(String alias) {
         return this.registeredCommands.get(alias);
     }
 
-    private <T> void registerCommandContext(@NotNull T instance, @NotNull List<MethodContext<?, T>> annotatedMethods)
+    private <T> void registerCommandContext(T instance, List<MethodContext<?, T>> annotatedMethods)
     {
         for (MethodContext<?, T> methodContext : annotatedMethods) {
             if (!methodContext.isPublic()) {
@@ -184,8 +186,7 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
         }
     }
 
-    @NotNull
-    private List<String> aliases(@NotNull Command command, @NotNull MethodContext<?, ?> methodContext) {
+    private List<String> aliases(Command command, MethodContext<?, ?> methodContext) {
         List<String> aliases = HartshornUtils.asList(command.alias())
             .stream()
             .map(alias -> alias.toLowerCase(Locale.ROOT))
@@ -197,19 +198,17 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
         return aliases;
     }
 
-    @NotNull
-    private String usage(@NotNull Command command, @NotNull MethodContext<?, ?> methodContext) {
+    private String usage(Command command, MethodContext<?, ?> methodContext) {
         if (!command.usage().isBlank())
             return command.usage();
         else return this.usageBuilder.buildUsage(this.applicationContext, methodContext);
     }
 
-    @NotNull
-    private <T> CommandContext createCommand(@NotNull List<String> aliases,
-                                             @NotNull T instance,
-                                             @NotNull Command command,
-                                             @NotNull MethodContext<?, T> methodContext,
-                                             @NotNull ParsingContext parsingContext)
+    private <T> CommandContext createCommand(List<String> aliases,
+                                             T instance,
+                                             Command command,
+                                             MethodContext<?, T> methodContext,
+                                             ParsingContext parsingContext)
     {
         return this.commandContextFactory.create(
             aliases,
@@ -223,7 +222,6 @@ public class HalpbotCommandAdapter implements CommandAdapter, ContextCarrier
     }
 
     @Override
-    @NotNull
     public Map<String, CommandContext> registeredCommands() {
         return HartshornUtils.asUnmodifiableMap(this.registeredCommands);
     }

@@ -24,45 +24,46 @@
 
 package nz.pumbas.halpbot.commands.context;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
+import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
 @RequiredArgsConstructor
 public class InvocationContext implements ContextCarrier
 {
-    @NotNull private final ApplicationContext applicationContext;
-
+    private final ApplicationContext applicationContext;
+    private final String content;
     @Nullable private final HalpbotEvent halpbotEvent;
-
-    @NotNull private final Set<TypeContext<?>> reflections;
-
-    @NotNull private final String content;
+    private final Set<TypeContext<?>> reflections;
 
     @Setter private int currentIndex;
+    @Setter private int currentAnnotationIndex;
+    @Setter @Nullable private TypeContext<?> currentType;
+    private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
+    private List<Annotation> annotations = Collections.emptyList();
 
-    @Setter
-    @Nullable private ParameterContext<?> currentParameter;
-
-    public InvocationContext(@NotNull ApplicationContext applicationContext, @NotNull String content) {
-        this(applicationContext, null, HartshornUtils.emptySet(), content);
+    public InvocationContext(ApplicationContext applicationContext, String content) {
+        this(applicationContext, content, null, Collections.emptySet());
     }
 
     /**
@@ -95,7 +96,6 @@ public class InvocationContext implements ContextCarrier
      * @return The next {@link String token} (Split on spaces) from the current index or an empty
      *     {@link String} if there are no more tokens;
      */
-    @NotNull
     public String next() {
         return this.nextSafe().or("");
     }
@@ -110,8 +110,7 @@ public class InvocationContext implements ContextCarrier
      *
      * @return an {@link Optional} containing the next string up until the specified string
      */
-    @NotNull
-    public Exceptional<String> next(@NotNull String until) {
+    public Exceptional<String> next(String until) {
         return this.next(until, true);
     }
 
@@ -126,8 +125,7 @@ public class InvocationContext implements ContextCarrier
      *
      * @return an {@link Optional} containing the next string up until the specified string
      */
-    @NotNull
-    public Exceptional<String> next(@NotNull String until, boolean stepPast) {
+    public Exceptional<String> next(String until, boolean stepPast) {
         if (!this.hasNext())
             return Exceptional.of(new IllegalFormatException("There is nothing left to retrieve"));
 
@@ -159,8 +157,7 @@ public class InvocationContext implements ContextCarrier
      *
      * @return The {@link String} between the start and stop
      */
-    @NotNull
-    public Exceptional<String> nextSurrounded(@NotNull String start, @NotNull String stop) {
+    public Exceptional<String> nextSurrounded(String start, String stop) {
         return this.nextSurrounded(start, stop, true);
     }
 
@@ -181,8 +178,7 @@ public class InvocationContext implements ContextCarrier
      *
      * @return The {@link String} between the start and stop
      */
-    @NotNull
-    public Exceptional<String> nextSurrounded(@NotNull String start, @NotNull String stop, boolean stepPast) {
+    public Exceptional<String> nextSurrounded(String start, String stop, boolean stepPast) {
         if (!this.hasNext() || this.content.indexOf(start, this.currentIndex) != this.currentIndex)
             return Exceptional.of(new IllegalFormatException("Missing the starting " + start));
 
@@ -222,7 +218,7 @@ public class InvocationContext implements ContextCarrier
      *
      * @return If the specified string is next
      */
-    public boolean nextMatches(@NotNull String next) {
+    public boolean nextMatches(String next) {
         int endIndex = this.currentIndex + next.length();
         if (this.content.substring(this.currentIndex, endIndex).equalsIgnoreCase(next)) {
             this.currentIndex = endIndex;
@@ -242,8 +238,7 @@ public class InvocationContext implements ContextCarrier
      *
      * @return An {@link Optional} containing the matched {@link String pattern} if present
      */
-    @NotNull
-    public Exceptional<String> next(@NotNull Pattern pattern) {
+    public Exceptional<String> next(Pattern pattern) {
         if (this.hasNext()) {
             String originalSubstring = this.content.substring(this.currentIndex);
             Matcher matcher = pattern.matcher(originalSubstring);
@@ -267,7 +262,6 @@ public class InvocationContext implements ContextCarrier
     /**
      * @return The remaining strings
      */
-    @NotNull
     public String remaining() {
         if (!this.hasNext())
             throw new IllegalFormatException("There are no remaining strings");
@@ -347,5 +341,16 @@ public class InvocationContext implements ContextCarrier
             String found = this.hasNext() ? "" + this.content.charAt(this.currentIndex) : "End of content";
             throw new IllegalFormatException("Expected the character '%s' but found '%s'".formatted(character, found));
         }
+    }
+
+    public void update(ParameterContext<?> parameterContext) {
+        this.currentType = parameterContext.type();
+        this.sortedAnnotations = parameterContext.annotations()
+                .stream()
+                .map(annotation -> TypeContext.of(annotation.annotationType()))
+                .collect(Collectors.toList());
+        this.applicationContext.get(ParameterAnnotationService.class).sort(this.sortedAnnotations);
+        this.annotations = parameterContext.annotations();
+        this.currentAnnotationIndex = 0;
     }
 }
