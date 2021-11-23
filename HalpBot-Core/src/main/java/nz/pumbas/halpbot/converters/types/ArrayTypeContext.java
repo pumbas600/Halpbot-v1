@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.converters.types;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.jetbrains.annotations.Nullable;
 
 public class ArrayTypeContext extends TypeContext<Object>
 {
@@ -10,10 +11,8 @@ public class ArrayTypeContext extends TypeContext<Object>
         super(Object.class);
     }
 
-    //TODO: Override isArray when that's implemented
-
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null)
             return false;
         // Return true if this equals any array
@@ -22,12 +21,17 @@ public class ArrayTypeContext extends TypeContext<Object>
 
     @Override
     public boolean childOf(TypeContext<?> type) {
-        return TYPE == type || super.childOf(type);
+        return type.isArray();
     }
 
     @Override
-    public boolean childOf(Class<?> to) {
+    public boolean childOf(@Nullable Class<?> to) {
         return to != null && to.isArray();
+    }
+
+    @Override
+    public boolean isArray() {
+        return true;
     }
 
     @Override

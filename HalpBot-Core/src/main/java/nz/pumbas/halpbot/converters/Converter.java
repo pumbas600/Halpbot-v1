@@ -29,26 +29,25 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
+import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 //TODO: Make converters support use of $Default
 public interface Converter<T>
 {
-    @NotNull
     TypeContext<T> typeContext();
 
-    @NotNull
     TypeContext<? extends Annotation> annotationType();
 
     /**
      * @return The {@link Function mapper} for this {@link Converter}
      */
-    @NotNull
     Function<InvocationContext, Exceptional<T>> mapper();
 
     /**
@@ -58,7 +57,24 @@ public interface Converter<T>
 
     OptionType optionType();
 
+    boolean requiresHalpbotEvent();
+
     default Exceptional<T> apply(InvocationContext invocationContext) {
-        return this.mapper().apply(invocationContext);
+
+        if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent() == null)
+            return Exceptional.of(
+                    new NullPointerException("The halpbot event is null but it is required to convert this type"));
+
+        int currentIndex = invocationContext.currentIndex();
+        int currentAnnotationIndex = invocationContext.currentAnnotationIndex();
+        TypeContext<?> currentType = invocationContext.currentType();
+
+        Exceptional<T> result = this.mapper().apply(invocationContext)
+                .caught(throwable -> invocationContext.currentIndex(currentIndex));
+
+        // Always restore the state of parser back to what it was when it was called.
+        invocationContext.currentAnnotationIndex(currentAnnotationIndex);
+        invocationContext.currentType(currentType);
+        return result;
     }
 }

@@ -74,10 +74,9 @@ public class HalpBotCommands
 
     public static final TypeConverter<Unit> UNIT_CONVERTER = TypeConverter.builder(Unit.class)
         .convert(
-            ctx -> DefaultConverters.DOUBLE_CONVERTER.mapper()
-                .apply(ctx)
+            ctx -> DefaultConverters.DOUBLE_CONVERTER.apply(ctx)
                 .map(value -> {
-                    Exceptional<String> eUnit = DefaultConverters.STRING_CONVERTER.mapper().apply(ctx);
+                    Exceptional<String> eUnit = DefaultConverters.STRING_CONVERTER.apply(ctx);
                     if (eUnit.caught()) eUnit.rethrow();
                     String unit = eUnit.get();
                     if (1 < unit.length() && Prefix.isPrefix(unit.charAt(0)))
@@ -92,7 +91,7 @@ public class HalpBotCommands
             DefaultConverters.ENUM_CONVERTER.apply(ctx)
                 .map(prefix -> (Prefix) prefix)
                 .orExceptional(() ->
-                    DefaultConverters.CHARACTER_CONVERTER.mapper().apply(ctx)
+                    DefaultConverters.CHARACTER_CONVERTER.apply(ctx)
                         .map(prefix -> {
                             if (Prefix.isPrefix(prefix))
                                 return Prefix.getPrefix(prefix);

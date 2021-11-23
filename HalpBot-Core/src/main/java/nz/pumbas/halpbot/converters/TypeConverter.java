@@ -28,26 +28,25 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.exceptions.IllegalConverterException;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
-public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
-                               @NotNull TypeContext<? extends Annotation> annotationType,
-                               @NotNull Function<InvocationContext, Exceptional<T>> mapper,
+public record TypeConverter<T>(TypeContext<T> typeContext,
+                               TypeContext<? extends Annotation> annotationType,
+                               Function<InvocationContext, Exceptional<T>> mapper,
                                Priority priority,
-                               OptionType optionType)
+                               OptionType optionType,
+                               boolean requiresHalpbotEvent)
     implements Converter<T>
 {
-    public static <T> TypeConverterBuilder<T> builder(@NotNull Class<T> type) {
+    public static <T> TypeConverterBuilder<T> builder(Class<T> type) {
         return builder(TypeContext.of(type));
     }
 
@@ -61,20 +60,21 @@ public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
      *
      * @return A {@link TypeConverterBuilder}
      */
-    public static <T> TypeConverterBuilder<T> builder(@NotNull TypeContext<T> type) {
+    public static <T> TypeConverterBuilder<T> builder(TypeContext<T> type) {
         return new TypeConverterBuilder<>(type);
     }
 
     public static class TypeConverterBuilder<T>
     {
-        private final @NotNull TypeContext<T> typeContext;
+        private final TypeContext<T> typeContext;
         private @Nullable Function<InvocationContext, Exceptional<T>> converter;
         private @Nullable Class<? extends Annotation> annotation;
 
         private Priority priority = Priority.DEFAULT;
         private OptionType optionType = OptionType.STRING;
+        private boolean requiresHalpbotEvent;
 
-        protected TypeConverterBuilder(@NotNull TypeContext<T> type) {
+        protected TypeConverterBuilder(TypeContext<T> type) {
             this.typeContext = type;
         }
 
@@ -82,29 +82,19 @@ public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
          * Specifies the parsing {@link Function}. If an error is caught in the {@link Exceptional} returned by the
          * function, then it will automatically reset the current index of the {@link MethodContext}.
          *
-         * @param parser
+         * @param mapper
          *     The {@link Function} to be used to parse the type
          *
          * @return Itself for chaining
          */
-        public TypeConverterBuilder<T> convert(@NotNull Function<InvocationContext, Exceptional<T>> parser) {
-            this.converter = ctx -> {
-                //TODO: Refactor resetting context states to leverage new design
-                int currentIndex = ctx.currentIndex();
-                ContextState state = ctx.contextState().copyContextState();
-                Exceptional<T> result = parser.apply(ctx)
-                    .caught(t -> ctx.currentIndex(currentIndex));
-
-                // Always restore the state of parser back to what it was when it was called.
-                ctx.setContextState(state);
-                return result;
-            };
+        public TypeConverterBuilder<T> convert(Function<InvocationContext, Exceptional<T>> mapper) {
+            this.converter = mapper;
             return this;
         }
 
         /**
          * Specifies the {@link Priority} of this {@link TypeConverter}. A higher priority means that it will be choosen
-         * before other type parsers for the same type. By default this is {@link Priority#DEFAULT}, which will be
+         * before other type parsers for the same type. By default, this is {@link Priority#DEFAULT}, which will be
          * evaulated last.
          *
          * @param priority
@@ -112,7 +102,7 @@ public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
          *
          * @return Itself for chaining
          */
-        public TypeConverterBuilder<T> priority(@NotNull Priority priority) {
+        public TypeConverterBuilder<T> priority(Priority priority) {
             this.priority = priority;
             return this;
         }
@@ -127,7 +117,7 @@ public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
          *
          * @return Itself for chaining
          */
-        public TypeConverterBuilder<T> annotation(@NotNull Class<? extends Annotation> annotation) {
+        public TypeConverterBuilder<T> annotation(Class<? extends Annotation> annotation) {
             this.annotation = annotation;
             return this;
         }
@@ -147,6 +137,22 @@ public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
         }
 
         /**
+         * Specifies that this converter requires there to be a {@link nz.pumbas.halpbot.events.HalpbotEvent}. If
+         * this event is null in the {@link InvocationContext} then it will automatically return an exceptional
+         * containing a {@link NullPointerException} and the converter function will NOT be called. By default, this
+         * is false.
+         *
+         * @param isRequired
+         *      If the halpbot event is required to be present
+         *
+         * @return Itself for chaining
+         */
+        public TypeConverterBuilder<T> requiresHalpbotEvent(boolean isRequired) {
+            this.requiresHalpbotEvent = isRequired;
+            return this;
+        }
+
+        /**
          * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link HalpbotConverterHandler}.
          *
          * @return The built {@link TypeConverter}
@@ -160,7 +166,8 @@ public record TypeConverter<T>(@NotNull TypeContext<T> typeContext,
                     TypeContext.of(this.annotation),
                     this.converter,
                     this.priority,
-                    this.optionType);
+                    this.optionType,
+                    this.requiresHalpbotEvent);
         }
     }
 }

@@ -38,13 +38,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
-import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
@@ -58,7 +56,7 @@ public class InvocationContext implements ContextCarrier
 
     @Setter private int currentIndex;
     @Setter private int currentAnnotationIndex;
-    @Setter @Nullable private TypeContext<?> currentType;
+    @Setter private TypeContext<?> currentType = TypeContext.VOID;
     private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
     private List<Annotation> annotations = Collections.emptyList();
 
@@ -352,5 +350,13 @@ public class InvocationContext implements ContextCarrier
 
     public void incrementAnnotationIndex() {
         this.currentAnnotationIndex++;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Annotation> Exceptional<T> annotation(Class<T> annotationType) {
+        return Exceptional.of(this.annotations.stream()
+                .filter(annotation -> annotationType.isAssignableFrom(annotation.annotationType()))
+                .findFirst()
+                .map(annotation -> (T) annotation));
     }
 }

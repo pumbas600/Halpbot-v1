@@ -1,8 +1,6 @@
 package nz.pumbas.halpbot.commands.commandmethods.parsing;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -17,10 +15,11 @@ import nz.pumbas.halpbot.converters.tokens.Token;
 public class MessageParsingContext implements ParsingContext
 {
     @Override
-    public Exceptional<Object[]> parseParameters(@NotNull InvocationContext invocationContext,
-                                                 @NotNull Invokable invokable,
-                                                 @NotNull List<Token> tokens,
-                                                 boolean canHaveContextLeft) {
+    public Exceptional<Object[]> parseParameters(InvocationContext invocationContext,
+                                                 Invokable invokable,
+                                                 List<Token> tokens,
+                                                 boolean canHaveContextLeft)
+    {
         Object[] parsedTokens = new Object[invokable.executable().parameterCount()];
 
         int tokenIndex = 0;
@@ -53,9 +52,10 @@ public class MessageParsingContext implements ParsingContext
     }
 
     @Override
-    public Exceptional<Object> parseToken(@NotNull InvocationContext invocationContext,
-                                                   @NotNull Invokable invokable,
-                                                   @NotNull Token token) {
+    public Exceptional<Object> parseToken(InvocationContext invocationContext,
+                                          Invokable invokable,
+                                          Token token)
+    {
         if (token instanceof ParsingToken parsingToken) {
             invocationContext.update(parsingToken.parameterContext(), parsingToken.sortedAnnotations());
             int currentIndex = invocationContext.currentIndex();
@@ -78,7 +78,4 @@ public class MessageParsingContext implements ParsingContext
         }
         return Exceptional.of(new CommandException("Unable to parse the parameter"));
     }
-}
-
-
 }
