@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
@@ -31,16 +30,16 @@ public record HalpbotParsingToken(ParameterContext<?> parameterContext,
         final ConverterHandler converterHandler = applicationContext.get(ConverterHandler.class);
         final ParameterAnnotationService annotationService = applicationContext.get(ParameterAnnotationService.class);
 
-        Converter<?> converter = converterHandler.from(parameterContext);
         boolean isCommandParameter = converterHandler.isCommandParameter(parameterContext);
         boolean isOptional = false;
         @Nullable Object defaultValue = null;
 
-        List<TypeContext<? extends Annotation>> sortedAnnotations = parameterContext.annotations()
-                .stream()
-                .map(annotation -> TypeContext.of(annotation.annotationType()))
-                .collect(Collectors.toList());
-        annotationService.sort(sortedAnnotations);
+        List<TypeContext<? extends Annotation>> sortedAnnotations =
+                annotationService.sortAndFilter(
+                        parameterContext.annotations()
+                        .stream()
+                        .map(annotation -> TypeContext.of(annotation.annotationType())));
+        Converter<?> converter = converterHandler.from(parameterContext, sortedAnnotations);
 
         Exceptional<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
 

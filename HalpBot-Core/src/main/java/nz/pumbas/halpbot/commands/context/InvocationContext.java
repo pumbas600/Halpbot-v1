@@ -349,7 +349,8 @@ public class InvocationContext implements ContextCarrier
     }
 
     public void incrementAnnotationIndex() {
-        this.currentAnnotationIndex++;
+        if (this.currentAnnotationIndex < this.sortedAnnotations.size())
+            this.currentAnnotationIndex++;
     }
 
     @SuppressWarnings("unchecked")

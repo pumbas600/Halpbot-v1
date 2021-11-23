@@ -76,6 +76,8 @@ allprojects {
             implementation 'org.dockbox.hartshorn:hartshorn-config:4.2.4'
             implementation 'org.dockbox.hartshorn:hartshorn-events:4.2.4'
             implementation 'org.dockbox.hartshorn:hartshorn-persistence:4.2.4'
+
+            testImplementation 'org.dockbox.hartshorn:hartshorn-core:4.2.4'
         }
 
         test {

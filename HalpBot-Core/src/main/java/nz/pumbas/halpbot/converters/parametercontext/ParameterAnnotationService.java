@@ -67,12 +67,21 @@ public interface ParameterAnnotationService extends ContextCarrier
     
     ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType);
 
+    boolean isRegisteredParameterAnnotation(TypeContext<? extends Annotation> annotationType);
+
     void add(TypeContext<? extends Annotation> annotationType,
              ParameterAnnotationContext annotationContext);
 
     boolean contains(TypeContext<? extends Annotation> annotationType);
 
-    default void sort(List<TypeContext<? extends Annotation>> annotations) {
-        annotations.sort(this.comparator());
+    default List<TypeContext<? extends Annotation>> sortAndFilter(List<TypeContext<? extends Annotation>> annotations) {
+        return this.sortAndFilter(annotations.stream());
+    }
+
+    default List<TypeContext<? extends Annotation>> sortAndFilter(Stream<TypeContext<? extends Annotation>> annotations) {
+        return annotations
+                .filter(this::isRegisteredParameterAnnotation)
+                .sorted(this.comparator())
+                .collect(Collectors.toList());
     }
 }

@@ -24,77 +24,81 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
-import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ConverterTests
 {
+    @Inject private ApplicationContext applicationContext;
+    @Inject private ConverterHandler converterHandler;
+
 
     @Test
     public void retrievingArrayConverterTest() {
-        Converter<Object[]> arrayConverter = HalpbotUtils.context().get(ConverterHandler.class)
-            .from(MethodContext.of(Object[].class));
+        Converter<Object[]> arrayConverter = this.converterHandler.from(Object[].class);
 
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, arrayConverter);
     }
 
     @Test
     public void retrievingIntegerConverterTest() {
-        Converter<Integer> integerConverter = HalpbotUtils.context().get(ConverterHandler.class)
-            .from(MethodContext.of(Integer.class));
+        Converter<Integer> integerConverter = this.converterHandler.from(Integer.class);
 
         Assertions.assertEquals(DefaultConverters.INTEGER_CONVERTER, integerConverter);
     }
 
     @Test
     public void retrievingListConverterTest() {
-        Converter<List<?>> listConverter = HalpbotUtils.context().get(ConverterHandler.class)
-            .from(MethodContext.of(List.class));
+        Converter<List> listConverter = this.converterHandler.from(List.class);
 
         Assertions.assertEquals(DefaultConverters.LIST_CONVERTER, listConverter);
     }
 
     @Test
     public void retrievingSetConverterTest() {
-        Converter<Set<?>> setConverter = HalpbotUtils.context().get(ConverterHandler.class)
-            .from(MethodContext.of(Set.class));
+        Converter<Set> setConverter = this.converterHandler.from(Set.class);
 
         Assertions.assertEquals(DefaultConverters.SET_CONVERTER, setConverter);
     }
 
     @Test
     public void retrievingUnmodifiableListConverterTest() {
-        Converter<List<?>> listConverter = HalpbotUtils.context().get(ConverterHandler.class)
-            .from(MethodContext.of(List.class, Unmodifiable.class));
+        Converter<List> listConverter = this.converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
 
         Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, listConverter);
     }
 
     @Test
     public void retrievingRemainingStringsConverterTest() {
-        Converter<String> remainingStringsConverter = HalpbotUtils.context().get(ConverterHandler.class)
-            .from(MethodContext.of(String.class, Remaining.class));
+        Converter<String> remainingStringsConverter = this.converterHandler
+                .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
 
         Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, remainingStringsConverter);
     }
 
     @Test
     public void parsingRemainingStringsTest() {
-        MethodContext ctx = MethodContext.of("This is a test sentence.", String.class, Remaining.class);
-        Converter<String> converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
+        InvocationContext invocationContext = new InvocationContext(this.applicationContext, "This is a test sentence.");
 
-        Exceptional<String> sentence = converter.mapper().apply(ctx);
+        Converter<String> converter = this.converterHandler
+                .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
+
+        Exceptional<String> sentence = converter.apply(invocationContext);
 
         Assertions.assertTrue(sentence.present());
         Assertions.assertEquals("This is a test sentence.", sentence.get());
@@ -102,14 +106,14 @@ public class ConverterTests
 
     @Test
     public void parsingArrayTest() {
-        MethodContext ctx = MethodContext.of("[5 1 3 12 20]", Integer[].class);
-        Converter<Integer[]> converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
+        InvocationContext invocationContext = new InvocationContext(this.applicationContext, "[5 1 3 12 20]");
+        Converter<Integer[]> converter = this.converterHandler.from(Integer[].class);
 
-        Integer[] array = converter.mapper().apply(ctx).get();
+        Integer[] array = converter.apply(invocationContext).get();
 
-        Assertions.assertEquals(5, array[0]);
-        Assertions.assertEquals(1, array[1]);
-        Assertions.assertEquals(3, array[2]);
+        Assertions.assertEquals(5,  array[0]);
+        Assertions.assertEquals(1,  array[1]);
+        Assertions.assertEquals(3,  array[2]);
         Assertions.assertEquals(12, array[3]);
         Assertions.assertEquals(20, array[4]);
     }

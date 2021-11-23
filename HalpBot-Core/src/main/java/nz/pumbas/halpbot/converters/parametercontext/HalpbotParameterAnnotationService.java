@@ -50,6 +50,11 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
     }
 
     @Override
+    public boolean isRegisteredParameterAnnotation(TypeContext<? extends Annotation> annotationType) {
+        return this.parameterAnnotationContextMap.containsKey(annotationType);
+    }
+
+    @Override
     public void add(TypeContext<? extends Annotation> annotationType,
                     ParameterAnnotationContext annotationContext)
     {

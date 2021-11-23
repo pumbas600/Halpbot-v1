@@ -29,6 +29,7 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
@@ -38,13 +39,28 @@ import nz.pumbas.halpbot.commands.context.MethodContext;
 public interface ConverterHandler
 {
 
-    
-    <T> Converter<T> from(ParameterContext<T> parameterContext);
+    default <T> Converter<T> from(Class<T> type) {
+        return this.from(TypeContext.of(type), TypeContext.VOID);
+    }
 
+    default <T> Converter<T> from(ParameterContext<T> parameterContext,
+                                  List<TypeContext<? extends Annotation>> sortedAnnotations)
+    {
+        TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
+        return this.from(parameterContext.type(), targetAnnotationType);
+    }
     
     default <T> Converter<T> from(TypeContext<T> typeContext, InvocationContext invocationContext) {
-        //TODO: Add support for TypeContext
-        return null;
+        int annotationIndex = invocationContext.currentAnnotationIndex();
+        List<TypeContext<? extends Annotation>> sortedAnnotations = invocationContext.sortedAnnotations();
+
+        TypeContext<?> targetAnnotationType = annotationIndex < sortedAnnotations.size()
+                ? sortedAnnotations.get(annotationIndex)
+                : TypeContext.VOID;
+
+        invocationContext.incrementAnnotationIndex();
+
+        return this.from(typeContext, targetAnnotationType);
     }
 
     /**
@@ -64,25 +80,10 @@ public interface ConverterHandler
         return this.from(TypeContext.of(type), invocationContext);
     }
 
-    /**
-     * Registers a {@link Converter} against the {@link Class type} with the specified {@link Class annotation type}.
-     *
-     * @param type
-     *      The type of the {@link TypeConverter}
-     * @param annotationType
-     *      The {@link Class type} of the annotation
-     * @param converter
-     *      The {@link Converter} to register
-     */
+    <T> Converter<T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType);
+
     void registerConverter(Converter<?> converter);
 
-    /**
-     * Specifies a type that shouldn't be treated as a command parameter. This means it won't show up in the command
-     * usage or try to be parsed.
-     *
-     * @param type
-     *      The {@link Class} to specify as a non-command parameter type
-     */
     void addNonCommandTypes(Set<TypeContext<?>> types);
 
     void addNonCammandAnnotations(Set<TypeContext<? extends Annotation>> types);

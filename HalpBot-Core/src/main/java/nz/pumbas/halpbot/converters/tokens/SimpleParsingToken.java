@@ -67,7 +67,7 @@ public class SimpleParsingToken implements ParsingToken
         String defaultValue = this.isOptional ? unrequired.value() : "${Default}";
         MethodContext ctx = MethodContext.of(defaultValue, this);
 
-        this.converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx);
+        this.converter = HalpbotUtils.context().get(ConverterHandler.class).from(ctx, sd);
         this.defaultValue = parseDefaultValue(ctx);
 
         this.isCommandParameter = CommandManager.isCommandParameter(type, annotations);
