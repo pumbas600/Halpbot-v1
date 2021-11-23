@@ -33,7 +33,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
@@ -111,7 +111,7 @@ public final class CommandManager
                 String.format("The custom class %s, must define a constructor", customClass.getSimpleName()));
 
         List<Constructor<?>> customConstructors = Reflect.filterReflections(constructors,
-            c -> c.isAnnotationPresent(ParameterConstruction.class));
+            c -> c.isAnnotationPresent(CustomConstructor.class));
 
         if (customConstructors.isEmpty()) {
             customConstructors.add(constructors[0]);
@@ -135,8 +135,8 @@ public final class CommandManager
     private static List<Token> parseConstructor(Constructor<?> constructor) {
         constructor.setAccessible(true);
         String constructorCommand = Reflect.getAnnotationFieldElse(
-            constructor, ParameterConstruction.class,
-            ParameterConstruction::constructor, "");
+            constructor, CustomConstructor.class,
+            CustomConstructor::constructor, "");
 
         if (constructorCommand.isEmpty())
             return generateTokens(constructor);

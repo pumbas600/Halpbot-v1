@@ -10,11 +10,11 @@ public interface ActionHandler
     default void handle(ActionCallback actionCallback, HalpbotEvent event) {
         long userId = event.getUser().getIdLong();
 
-        if (!actionCallback.hasPermission(event.getUser())) {
-            this.getHalpbotCore().getDisplayConfiguration()
-                .displayTemporary(event, "You don't have permission to use this action", 30);
-            return;
-        }
+//        if (!actionCallback.hasPermission(event.getUser())) {
+//            this.getHalpbotCore().getDisplayConfiguration()
+//                .displayTemporary(event, "You don't have permission to use this action", 30);
+//            return;
+//        }
 
         if (!this.getHalpbotCore().hasCooldown(event, userId, this.getActionId(event))) {
 

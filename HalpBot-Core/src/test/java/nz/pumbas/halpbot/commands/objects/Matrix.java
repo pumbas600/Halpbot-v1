@@ -26,7 +26,7 @@ package nz.pumbas.halpbot.commands.objects;
 
 import java.util.Arrays;
 
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
@@ -44,7 +44,7 @@ public class Matrix
 
     private final double[][] values;
 
-    @ParameterConstruction(constructor = "#Integer <x> #Integer #Double[]")
+    @CustomConstructor(constructor = "#Integer <x> #Integer #Double[]")
     public Matrix(int rows, int columns, @Unrequired("[]") @Implicit double... values) {
         this.rows = rows;
         this.columns = columns;
@@ -64,7 +64,7 @@ public class Matrix
         }
     }
 
-    @ParameterConstruction
+    @CustomConstructor
     public Matrix(@Unrequired("[]") @Implicit double[]... values) {
         this.rows = values.length;
         this.columns = 0 < values.length ? values[0].length : 0;

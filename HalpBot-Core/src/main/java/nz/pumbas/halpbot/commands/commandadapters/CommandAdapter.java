@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
+import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
 @Service
@@ -44,7 +44,9 @@ public interface CommandAdapter extends HalpbotAdapter
 
     Map<String, CommandContext> registeredCommands();
 
-    Collection<Invokable> customConstructors(TypeContext<?> typeContext);
+    Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext);
+
+    void registerCustomConstructors(TypeContext<?> typeContext);
 
     default boolean parameterAnnotationsAreValid(ExecutableElementContext<?> executable) {
         for (ParameterContext<?> parameterContext : executable.parameters()) {

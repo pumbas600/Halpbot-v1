@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.customparameters;
 
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
@@ -35,7 +35,7 @@ public class Shape
     private final double xPos;
     private final double yPos;
 
-    @ParameterConstruction
+    @CustomConstructor
     public Shape(ShapeType shapeType, double length, double xPos, double yPos)
     {
         this.shapeType = shapeType;
@@ -54,7 +54,7 @@ public class Shape
 
     }
 
-    @ParameterConstruction
+    @CustomConstructor
     public Shape(ShapeType shapeType, double width, double height, double xPos, double yPos)
     {
         this.shapeType = shapeType;

@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.DefaultConverters;

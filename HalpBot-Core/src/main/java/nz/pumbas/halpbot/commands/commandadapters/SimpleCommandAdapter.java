@@ -82,8 +82,8 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
     protected Exceptional<Object> handleCommandMethodCall(@NotNull HalpbotEvent event,
                                                           @NotNull CommandContext commandContext,
                                                           @NotNull String content) throws OutputException {
-        if (!commandContext.hasPermission(event.getUser()))
-                return Exceptional.of(new CommandException("You do not have permission to use this command"));
+        //if (!commandContext.hasPermission(event.getUser()))
+        //        return Exceptional.of(new CommandException("You do not have permission to use this command"));
 
         MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, commandContext.reflections());
 

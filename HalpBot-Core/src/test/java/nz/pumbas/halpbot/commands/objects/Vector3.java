@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.commands.objects;
 
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
 public class Vector3
 {
@@ -36,14 +36,14 @@ public class Vector3
 
     private final double x, y, z;
 
-    @ParameterConstruction
+    @CustomConstructor
     public Vector3(double x, double y) {
         this.x = x;
         this.y = y;
         this.z = 0;
     }
 
-    @ParameterConstruction
+    @CustomConstructor
     public Vector3(double x, double y, double z) {
         this.x = x;
         this.y = y;

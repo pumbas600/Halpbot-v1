@@ -16,7 +16,6 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,17 +27,19 @@ import javax.inject.Inject;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContextFactory;
 import nz.pumbas.halpbot.commands.commandmethods.parsing.MessageParsingContext;
 import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
+import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFactory;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
+import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.VariableNameBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
@@ -46,6 +47,7 @@ import nz.pumbas.halpbot.common.annotations.Bot;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
+import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.permissions.exceptions.InsufficientPermissionException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 
@@ -53,7 +55,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 @Binds(CommandAdapter.class)
 public class HalpbotCommandAdapter implements CommandAdapter
 {
-    private final MultiMap<TypeContext<?>, Invokable> customConstructors = new ArrayListMultiMap<>();
+    private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
 
     @Getter private final String prefix;
@@ -63,7 +65,9 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
 
     @Inject private HalpbotCore halpbotCore;
+    @Inject private PermissionManager permissionManager;
     @Inject private CommandContextFactory commandContextFactory;
+    @Inject private CustomConstructorContextFactory customConstructorContextFactory;
 
     @SneakyThrows
     public HalpbotCommandAdapter() {
@@ -114,7 +118,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                                         CommandContext commandContext,
                                                         String content)
     {
-        if (!commandContext.hasPermission(event.getUser()))
+        if (!commandContext.hasPermission(this.permissionManager, event.getUser()))
             return Exceptional.of(new InsufficientPermissionException("You do not have permission to use this command"));
 
         InvocationContext invocationContext = new InvocationContext(
@@ -210,6 +214,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         else return this.usageBuilder.buildUsage(this.applicationContext, executable);
     }
 
+    //TODO: Retrieve some details from the class itself if annotated with @Command
     private <T> CommandContext createCommand(List<String> aliases,
                                              T instance,
                                              Command command,
@@ -228,29 +233,24 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     @Override
-    public Collection<Invokable> customConstructors(TypeContext<?> typeContext) {
+    public Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext) {
         if (!this.customConstructors.containsKey(typeContext))
-            this.parseCustomConstructors(typeContext);
+            throw new MissingResourceException(
+                    "There is no custom constructor registered for the type %s".formatted(typeContext.qualifiedName()))
         return this.customConstructors.get(typeContext);
 
     }
 
-    //TODO: Make an annotation processing service for this
-    //TODO: Maybe also its own CustomConstructorContext so it doesn't need to contain permission data
-    private void parseCustomConstructors(TypeContext<?> typeContext) {
-        List<Invokable> constructors = typeContext.constructors()
+    @Override
+    public void registerCustomConstructors(TypeContext<?> typeContext) {
+        List<CustomConstructorContext> constructors = typeContext.constructors()
                 .stream()
-                .filter(constructor -> constructor.annotation(ParameterConstruction.class).present())
+                .filter(constructor -> constructor.annotation(CustomConstructor.class).present())
                 .map(constructor -> {
-                    ParameterConstruction construction = constructor.annotation(ParameterConstruction.class).get();
-                    return this.commandContextFactory.create(
-                            List.of(typeContext.name()),
-                            construction.description(),
+                    CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
+                    return this.customConstructorContextFactory.create(
                             this.usage(construction.usage(), constructor),
-                            null,
                             constructor,
-                            Collections.emptyList(),
-                            Collections.emptySet(),
                             new MessageParsingContext());
                 })
                 .collect(Collectors.toList());

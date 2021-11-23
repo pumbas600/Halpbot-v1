@@ -24,13 +24,13 @@
 
 package nz.pumbas.halpbot.customparameters.electrical;
 
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
 public class Resistor extends ElectricalComponent {
 
     protected double resistance;
 
-    @ParameterConstruction
+    @CustomConstructor
     public Resistor(double resistance) {
         this.resistance = resistance;
     }

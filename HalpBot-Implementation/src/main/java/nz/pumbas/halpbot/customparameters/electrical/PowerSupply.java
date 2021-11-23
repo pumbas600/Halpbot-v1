@@ -24,11 +24,11 @@
 
 package nz.pumbas.halpbot.customparameters.electrical;
 
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
 public class PowerSupply extends ElectricalComponent {
 
-    @ParameterConstruction
+    @CustomConstructor
     public PowerSupply(double rating) {
         this.voltageDrop = -rating;
     }

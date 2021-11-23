@@ -27,7 +27,7 @@ package nz.pumbas.halpbot.customparameters.math;
 import java.util.Arrays;
 
 import nz.pumbas.halpbot.commands.DiscordString;
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
@@ -44,7 +44,7 @@ public class Matrix implements DiscordString
 
     private final double[][] values;
 
-    @ParameterConstruction(constructor = "#Integer <x> #Integer #Double[]")
+    @CustomConstructor(constructor = "#Integer <x> #Integer #Double[]")
     public Matrix(int rows, int columns, @Unrequired("[]") @Implicit double... values)
     {
         this.rows = rows;
@@ -65,7 +65,7 @@ public class Matrix implements DiscordString
         }
     }
 
-    @ParameterConstruction
+    @CustomConstructor
     public Matrix(@Unrequired("[]") @Implicit double[]... values)
     {
         this.rows = values.length;

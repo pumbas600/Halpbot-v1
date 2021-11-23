@@ -31,11 +31,9 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
-public @interface ParameterConstruction
+public @interface CustomConstructor
 {
     String constructor() default "";
-
-    String description() default "A custom object constructor";
 
     String usage() default "";
 }

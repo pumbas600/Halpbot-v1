@@ -24,14 +24,14 @@
 
 package nz.pumbas.halpbot.customparameters.math;
 
-import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
 public class Line {
 
     private final Vector3 point;
     private final Vector3 gradient;
 
-    @ParameterConstruction
+    @CustomConstructor
     public Line(Vector3 point, Vector3 gradient) {
         this.point = point;
         this.gradient = gradient;
