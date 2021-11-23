@@ -149,51 +149,56 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     @Override
-    public <T> void registerCommands(TypeContext<T> typeContext)     {
-        T instance = this.applicationContext.get(typeContext);
-        this.registerCommandContext(
-            instance,
-            typeContext.methods(Command.class));
-    }
-
-    @Override
     @Nullable
     public CommandContext commandContext(String alias) {
         return this.registeredCommands.get(alias);
     }
 
-    private <T> void registerCommandContext(T instance, List<MethodContext<?, T>> annotatedMethods)
-    {
-        for (MethodContext<?, T> methodContext : annotatedMethods) {
-            if (!methodContext.isPublic()) {
-                this.applicationContext.log().warn("The command method %s should be public if its annotated with @Command"
-                        .formatted(methodContext.qualifiedName()));
-                continue;
-            }
+    @Override
+    public Exceptional<CommandContext> reflectiveCommandContext(TypeContext<?> Type, String methodName) {
+        return Exceptional.empty(); //TODO: Retrieve reflective command
+    }
 
-            if (!this.parameterAnnotationsAreValid(methodContext))
-                continue;
+    @Override
+    public <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext) {
+        if (!methodContext.isPublic()) {
+            this.applicationContext.log().warn("The command method %s should be public if its annotated with @Command"
+                    .formatted(methodContext.qualifiedName()));
+            return;
+        }
 
-            Command command = methodContext.annotation(Command.class).get();
-            List<String> aliases = this.aliases(command, methodContext);
-            CommandContext commandContext = this.createCommand(
-                    aliases,
-                    instance,
-                    command,
-                    methodContext,
-                    new MessageParsingContext());
+        if (!this.parameterAnnotationsAreValid(methodContext))
+            return;
 
-            for (String alias : aliases) {
-                if (this.registeredCommands.containsKey(alias)) {
-                    this.applicationContext.log().warn(
+        Command command = methodContext.annotation(Command.class).get();
+        List<String> aliases = this.aliases(command, methodContext);
+        CommandContext commandContext = this.createCommand(
+                aliases,
+                instance,
+                command,
+                methodContext,
+                new MessageParsingContext());
+
+        for (String alias : aliases) {
+            if (this.registeredCommands.containsKey(alias)) {
+                this.applicationContext.log().warn(
                         "The alias %s is already being used by the command [%s]. The command [%s] will not be registered under this alias"
                                 .formatted(alias, this.registeredCommands.get(alias).usage(), commandContext.usage()));
-                    continue;
-                }
-
-                this.registeredCommands.put(alias, commandContext);
+                continue;
             }
+
+            this.registeredCommands.put(alias, commandContext);
         }
+    }
+
+    @Override
+    public <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext) {
+        //TODO: Slash Commands
+    }
+
+    @Override
+    public void registerReflectiveCommand(MethodContext<?, ?> methodContext) {
+        //TODO: Reflective Commands
     }
 
     private List<String> aliases(Command command, MethodContext<?, ?> methodContext) {

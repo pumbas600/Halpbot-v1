@@ -33,7 +33,11 @@ public interface CommandAdapter extends HalpbotAdapter
 
     String prefix();
 
-    <T> void registerCommands(TypeContext<T> typeContext);
+    <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext);
+
+    <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext);
+
+    void registerReflectiveCommand(MethodContext<?, ?> methodContext);
 
     default Exceptional<CommandContext> commandContextSafely(String alias) {
         return Exceptional.of(this.commandContext(alias));
@@ -41,6 +45,8 @@ public interface CommandAdapter extends HalpbotAdapter
 
     @Nullable
     CommandContext commandContext(String alias);
+
+    Exceptional<CommandContext> reflectiveCommandContext(TypeContext<?> Type, String methodName);
 
     Map<String, CommandContext> registeredCommands();
 

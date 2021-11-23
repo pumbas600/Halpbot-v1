@@ -24,10 +24,13 @@
 
 package nz.pumbas.halpbot.commands;
 
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
+import org.dockbox.hartshorn.core.context.element.AccessModifier;
+import org.dockbox.hartshorn.core.context.element.MethodContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
@@ -38,7 +41,6 @@ import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
-import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.SimpleParsingToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
@@ -386,34 +388,34 @@ public final class CommandManager
         return restrictedToList;
     }
 
-    //TODO: Move this somewhere else and make it accept InvocationContext
+    //TODO: Move this somewhere else and rework it
     /**
      * Retrieves an {@link Exceptional} containing the result of any reflection syntax.
      *
-     * @param ctx
+     * @param invocationContext
      *     The {@link MethodContext}
      *
      * @return An {@link Exceptional} containing the result of any reflection syntax.
      */
-    public static Exceptional<Object> handleReflectionSyntax(@NotNull MethodContext ctx) {
-        if (ctx.getReflections().isEmpty()) return Exceptional.empty();
+    public static Exceptional<Object> handleReflectionSyntax(InvocationContext invocationContext) {
+        if (invocationContext.reflections().isEmpty()) return Exceptional.empty();
 
-        Exceptional<String> type = ctx.next(".");
+        Exceptional<String> type = invocationContext.next(".");
         if (type.present()) {
 
-            Optional<Class<?>> oClass = ctx.getReflections()
+            Optional<TypeContext<?>> oClass = invocationContext.reflections()
                 .stream()
-                .filter(c -> CommandManager.getTypeAlias(c).equalsIgnoreCase(type.get()))
+                .filter(typeContext -> CommandManager.getTypeAlias(typeContext.type()).equalsIgnoreCase(type.get()))
                 .findFirst();
 
             if (oClass.isPresent()) {
-                Class<?> reflectionClass = oClass.get();
+                TypeContext<?> reflectionType = oClass.get();
 
-                Exceptional<String> methodName = ctx.next("[", false);
+                Exceptional<String> methodName = invocationContext.next("[", false);
 
                 return methodName
-                    .flatMap(name -> handleMethodReflectionSyntax(ctx, name, reflectionClass))
-                    .orElse(() -> handleFieldReflectionSyntax(ctx, reflectionClass));
+                    .flatMap(name -> handleMethodReflectionSyntax(invocationContext, name, reflectionType))
+                    .orElse(() -> handleFieldReflectionSyntax(invocationContext, reflectionType));
             }
         }
 
@@ -423,40 +425,41 @@ public final class CommandManager
     /**
      * Handles {@link Method} reflection syntax invocation and parsing. Note: Only public, static methods may be invoked.
      *
-     * @param ctx
+     * @param invocationContext
      *     The {@link MethodContext}
      * @param methodName
      *     The {@link String name} of the method
-     * @param reflectionClass
+     * @param reflectionType
      *     The {@link Class} that is being referenced in the reflection syntax
      *
      * @return An {@link Exceptional} containing the result of the invoked method
      */
-    private static Exceptional<Object> handleMethodReflectionSyntax(@NotNull MethodContext ctx,
-                                                                    @NotNull String methodName,
-                                                                    @NotNull Class<?> reflectionClass) {
-        if (!ctx.isNext('[', true))
+    private static Exceptional<Object> handleMethodReflectionSyntax(InvocationContext invocationContext,
+                                                                    String methodName,
+                                                                    TypeContext<?> reflectionType) {
+        if (!invocationContext.isNext('[', true))
             return Exceptional.of(new IllegalFormatException("Expected the character ["));
 
-        List<SimpleCommand> simpleCommands =
-            Reflect.getMethods(reflectionClass, methodName, true)
-                .stream()
-                .filter(m -> ctx.getContextState().getClazz().isAssignableFrom(m.getReturnType()))
-                .filter(m -> Reflect.hasModifiers(m, Modifiers.PUBLIC, Modifiers.STATIC))
-                .map(m -> generateCommandMethod(null, m, ctx.getReflections()))
-                .collect(Collectors.toList());
+        Exceptional<? extends MethodContext<?, ?>> eMethodContext = reflectionType.method(methodName);
+        if (eMethodContext.absent())
+            return Exceptional.of(new CommandException("There were no methods with the name " + methodName));
 
-        if (simpleCommands.isEmpty())
-            return Exceptional.of(() -> new CommandException("There were no methods with the name " + methodName));
+        MethodContext<?, ?> methodContext = eMethodContext.get();
+        if (methodContext.isPublic() && methodContext.has(AccessModifier.STATIC)
+                && methodContext.returnType().childOf(invocationContext.currentType()))
+        {
+
+        }
+
 
         Exceptional<Object> result = Exceptional.empty();
         for (SimpleCommand simpleCommand : simpleCommands) {
-            result = simpleCommand.parse(ctx, true);
+            result = simpleCommand.parse(invocationContext, true);
             if (result.present())
                 break;
         }
 
-        if (!ctx.isNext(']', true))
+        if (!invocationContext.isNext(']', true))
             return Exceptional.of(new IllegalFormatException("Expected the character ]"));
         return result;
     }
@@ -513,12 +516,6 @@ public final class CommandManager
 
         return defaultAlias;
     }
-
-    //TODO: Replace usages with ConverterHandler#isCommandParameter
-    public static boolean isCommandParameter(@NotNull ParameterContext<?> parameterContext) {
-        return true; //TODO: Add support for determining if its a command parameter from a parameter context
-    }
-
 
     /**
      * Returns true if the specified type is a command parameter (Something that can be specified when invoking the
