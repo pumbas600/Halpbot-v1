@@ -236,7 +236,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     public Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext) {
         if (!this.customConstructors.containsKey(typeContext))
             throw new MissingResourceException(
-                    "There is no custom constructor registered for the type %s".formatted(typeContext.qualifiedName()))
+                    "There is no custom constructor registered for the type %s".formatted(typeContext.qualifiedName()));
         return this.customConstructors.get(typeContext);
 
     }
