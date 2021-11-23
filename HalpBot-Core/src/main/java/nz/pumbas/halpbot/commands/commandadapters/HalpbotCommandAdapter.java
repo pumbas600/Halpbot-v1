@@ -1,20 +1,22 @@
 package nz.pumbas.halpbot.commands.commandadapters;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
+import org.dockbox.hartshorn.core.ArrayListMultiMap;
 import org.dockbox.hartshorn.core.HartshornUtils;
+import org.dockbox.hartshorn.core.MultiMap;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.ContextCarrier;
+import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,13 +28,16 @@ import javax.inject.Inject;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.ParameterConstruction;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContextFactory;
 import nz.pumbas.halpbot.commands.commandmethods.parsing.MessageParsingContext;
 import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
 import nz.pumbas.halpbot.commands.usage.VariableNameBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
@@ -48,6 +53,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 @Binds(CommandAdapter.class)
 public class HalpbotCommandAdapter implements CommandAdapter
 {
+    private final MultiMap<TypeContext<?>, Invokable> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
 
     @Getter private final String prefix;
@@ -198,10 +204,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
         return aliases;
     }
 
-    private String usage(Command command, MethodContext<?, ?> methodContext) {
-        if (!command.usage().isBlank())
-            return command.usage();
-        else return this.usageBuilder.buildUsage(this.applicationContext, methodContext);
+    private String usage(String usage, ExecutableElementContext<?> executable) {
+        if (!usage.isBlank())
+            return usage;
+        else return this.usageBuilder.buildUsage(this.applicationContext, executable);
     }
 
     private <T> CommandContext createCommand(List<String> aliases,
@@ -213,12 +219,48 @@ public class HalpbotCommandAdapter implements CommandAdapter
         return this.commandContextFactory.create(
             aliases,
             command.description(),
-            this.usage(command, methodContext),
+            this.usage(command.usage(), methodContext),
             instance,
             methodContext,
             List.of(command.permissions()),
             Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
             parsingContext);
+    }
+
+    @Override
+    public Collection<Invokable> customConstructors(TypeContext<?> typeContext) {
+        if (!this.customConstructors.containsKey(typeContext))
+            this.parseCustomConstructors(typeContext);
+        return this.customConstructors.get(typeContext);
+
+    }
+
+    //TODO: Make an annotation processing service for this
+    //TODO: Maybe also its own CustomConstructorContext so it doesn't need to contain permission data
+    private void parseCustomConstructors(TypeContext<?> typeContext) {
+        List<Invokable> constructors = typeContext.constructors()
+                .stream()
+                .filter(constructor -> constructor.annotation(ParameterConstruction.class).present())
+                .map(constructor -> {
+                    ParameterConstruction construction = constructor.annotation(ParameterConstruction.class).get();
+                    return this.commandContextFactory.create(
+                            List.of(typeContext.name()),
+                            construction.description(),
+                            this.usage(construction.usage(), constructor),
+                            null,
+                            constructor,
+                            Collections.emptyList(),
+                            Collections.emptySet(),
+                            new MessageParsingContext());
+                })
+                .collect(Collectors.toList());
+
+        if (constructors.isEmpty())
+            throw new IllegalCustomParameterException(
+                    "The custom class %s, must define a constructor annotated with @ParameterConstructor"
+                            .formatted(typeContext.qualifiedName()));
+
+        this.customConstructors.putAll(typeContext, constructors);
     }
 
     @Override

@@ -42,9 +42,11 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
@@ -67,6 +69,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 
@@ -81,7 +85,6 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
 public final class DefaultConverters
 {
-
     private DefaultConverters() {}
 
     //region Converters
@@ -191,15 +194,16 @@ public final class DefaultConverters
                 invocationContext.assertNext('[');
                 int currentIndex = invocationContext.currentIndex();
                 Exceptional<Object> result = Exceptional.empty();
-                //TODO: Refactor to utilise Invokable and HalpbotCommandContext
-                for (SimpleCommand simpleCommand : CommandManager.getParsedConstructors(typeContext.type())) {
+
+                CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
+
+                for (Invokable invokable : commandAdapter.customConstructors(typeContext)) {
                     invocationContext.currentIndex(currentIndex);
-                    result = simpleCommand.parse(invocationContext, true);
+                    result = invokable.invoke(invocationContext, true);
                     if (result.present() && invocationContext.isNext(']', true)) break;
 
                     else if (!result.caught()) result = Exceptional.of(
                             new CommandException("There seems to have been an error when constructing the object " + expectedTypeAlias));
-
                 }
                 return result;
             }).build();

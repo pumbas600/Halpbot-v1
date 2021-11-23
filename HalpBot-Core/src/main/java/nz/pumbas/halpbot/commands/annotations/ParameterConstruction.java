@@ -34,4 +34,8 @@ import java.lang.annotation.Target;
 public @interface ParameterConstruction
 {
     String constructor() default "";
+
+    String description() default "A custom object constructor";
+
+    String usage() default "";
 }
