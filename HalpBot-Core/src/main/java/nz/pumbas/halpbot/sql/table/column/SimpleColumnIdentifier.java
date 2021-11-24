@@ -17,16 +17,21 @@
 
 package nz.pumbas.halpbot.sql.table.column;
 
+import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.persistence.table.ColumnIdentifier;
+
 import java.util.Objects;
 
-public class SimpleColumnIdentifier<T> implements ColumnIdentifier<T> {
+//TODO: Remove
+public class SimpleColumnIdentifier<T> implements ColumnIdentifier<T>
+{
 
     private final String name;
-    private final Class<T> type;
+    private final TypeContext<T> type;
 
     public SimpleColumnIdentifier(String name, Class<T> type) {
         this.name = name;
-        this.type = type;
+        this.type = TypeContext.of(type);
     }
 
 
@@ -55,7 +60,7 @@ public class SimpleColumnIdentifier<T> implements ColumnIdentifier<T> {
     }
 
     @Override
-    public Class<T> type() {
+    public TypeContext<T> type() {
         return this.type;
     }
 }

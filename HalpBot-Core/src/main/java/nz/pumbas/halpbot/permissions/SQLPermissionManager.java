@@ -24,6 +24,13 @@
 
 package nz.pumbas.halpbot.permissions;
 
+import org.dockbox.hartshorn.persistence.exceptions.EmptyEntryException;
+import org.dockbox.hartshorn.persistence.exceptions.IdentifierMismatchException;
+import org.dockbox.hartshorn.persistence.table.ColumnIdentifier;
+import org.dockbox.hartshorn.persistence.table.Merge;
+import org.dockbox.hartshorn.persistence.table.Table;
+import org.dockbox.hartshorn.persistence.table.TableRow;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,15 +41,11 @@ import java.util.Locale;
 
 import nz.pumbas.halpbot.sql.SQLDriver;
 import nz.pumbas.halpbot.sql.SQLUtils;
-import nz.pumbas.halpbot.sql.table.Table;
-import nz.pumbas.halpbot.sql.table.TableRow;
-import nz.pumbas.halpbot.sql.table.column.ColumnIdentifier;
 import nz.pumbas.halpbot.sql.table.column.SimpleColumnIdentifier;
-import nz.pumbas.halpbot.sql.table.exceptions.IdentifierMismatchException;
-import nz.pumbas.halpbot.sql.table.exceptions.ValueMismatchException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.context.LateInit;
 
+//TODO: Replace with HH persistent service
 public class SQLPermissionManager implements PermissionManager, LateInit
 {
     private static final ColumnIdentifier<String> PERMISSION = new SimpleColumnIdentifier<>("permission", String.class);
@@ -71,8 +74,9 @@ public class SQLPermissionManager implements PermissionManager, LateInit
         Table userPermissions = SQLUtils.asTable(userPermissionsRS, USER_ID, PERMISSION_ID);
 
         try {
-            this.joinedUserPermissions = userPermissions.joinOn(this.permissions, PERMISSION_ID, false);
-        } catch (IdentifierMismatchException | ValueMismatchException e) {
+            this.joinedUserPermissions = userPermissions.join(this.permissions, PERMISSION_ID, Merge.PREFER_ORIGINAL,
+                    false);
+        } catch (IdentifierMismatchException | EmptyEntryException e) {
             ErrorManager.handle(e);
         }
     }

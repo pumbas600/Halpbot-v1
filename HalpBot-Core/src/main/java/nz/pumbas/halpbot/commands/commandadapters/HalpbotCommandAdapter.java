@@ -30,6 +30,7 @@ import lombok.SneakyThrows;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
+import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContextFactory;
 import nz.pumbas.halpbot.commands.commandmethods.parsing.MessageParsingContext;
@@ -57,6 +58,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
+    private final Map<TypeContext<?>, String> cachedTypeAliases = HartshornUtils.emptyMap();
 
     @Getter private final String prefix;
     @Getter private final UsageBuilder usageBuilder;
@@ -271,5 +273,17 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Override
     public Map<String, CommandContext> registeredCommands() {
         return HartshornUtils.asUnmodifiableMap(this.registeredCommands);
+    }
+
+    //TODO: Check if primatives's are displayed as int or Integer
+    @Override
+    public String typeAlias(TypeContext<?> typeContext) {
+        if (!this.cachedTypeAliases.containsKey(typeContext)) {
+            this.cachedTypeAliases.put(typeContext,
+                    typeContext.annotation(CustomParameter.class).map(CustomParameter::identifier)
+                            .or(typeContext.name()));
+        }
+
+        return this.cachedTypeAliases.get(typeContext);
     }
 }

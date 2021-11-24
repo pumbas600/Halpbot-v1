@@ -47,7 +47,6 @@ public class ConverterTests
     @Inject private ApplicationContext applicationContext;
     @Inject private ConverterHandler converterHandler;
 
-
     @Test
     public void retrievingArrayConverterTest() {
         Converter<Object[]> arrayConverter = this.converterHandler.from(Object[].class);

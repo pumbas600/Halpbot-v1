@@ -178,8 +178,9 @@ public final class DefaultConverters
     public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(Object.class)
             .priority(Priority.DEFAULT)
             .convert(invocationContext -> {
+                CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
                 TypeContext<?> typeContext = invocationContext.currentType();
-                String expectedTypeAlias = CommandManager.getTypeAlias(typeContext.type());
+                String expectedTypeAlias = commandAdapter.typeAlias(typeContext);
                 Exceptional<String> typeAlias = invocationContext.next("[", false);
 
                 if (typeAlias.caught())
@@ -194,8 +195,6 @@ public final class DefaultConverters
                 invocationContext.assertNext('[');
                 int currentIndex = invocationContext.currentIndex();
                 Exceptional<Object> result = Exceptional.empty();
-
-                CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
 
                 for (Invokable invokable : commandAdapter.customConstructors(typeContext)) {
                     invocationContext.currentIndex(currentIndex);

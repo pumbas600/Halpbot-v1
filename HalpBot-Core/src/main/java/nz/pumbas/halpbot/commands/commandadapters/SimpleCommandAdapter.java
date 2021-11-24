@@ -35,7 +35,6 @@ import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 
@@ -61,7 +60,7 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
     protected CommandContext createCommandMethod(@NotNull Object instance,
                                                  @NotNull Method method,
                                                  @NotNull Command command) {
-        return CommandManager.generateCommandMethod(instance, method, command);
+        return null;
     }
 
     /**
@@ -84,9 +83,10 @@ public class SimpleCommandAdapter extends AbstractCommandAdapter
                                                           @NotNull String content) throws OutputException {
         //if (!commandContext.hasPermission(event.getUser()))
         //        return Exceptional.of(new CommandException("You do not have permission to use this command"));
-
-        MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, commandContext.reflections());
-
-        return commandContext.parse(ctx, false);
+//
+//        MethodContext ctx = MethodContext.of(content, this.halpBotCore, event, commandContext.reflections());
+//
+//        return commandContext.parse(ctx, false);
+        return Exceptional.empty();
     }
 }

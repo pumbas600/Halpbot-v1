@@ -142,7 +142,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
         for (CommandContext commandMethod : this.registeredSlashCommands.values()) {
             SlashCommand slashCommand = commandMethod.executable().annotation(SlashCommand.class).get();
             if (slashCommand.remove()) {
-                this.deleteSlashCommandById(jda, this.formatSlashCommandIdentifiers(commandMethod.aliases()));
+                //this.deleteSlashCommandById(jda, this.formatSlashCommandIdentifiers(commandMethod.aliases()));
             }
             else if (slashCommand.register()) {
                 jda.upsertCommand(this.generateSlashCommandData(commandMethod))
@@ -175,27 +175,27 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
      */
     public CommandData generateSlashCommandData(CommandContext commandMethod) {
         CommandData data = new CommandData(
-            this.formatSlashCommandIdentifiers(commandMethod.aliases()),
+            "Alias",//this.formatSlashCommandIdentifiers(commandMethod.aliases()),
             commandMethod.description());
 
-        for (Token token : commandMethod.tokens()) {
-            if (token instanceof ParsingToken) {
-                ParsingToken parsingToken = (ParsingToken) token;
-                if (!parsingToken.isCommandParameter()) continue;
-
-                Description description = parsingToken.annotation(Description.class);
-                String optionDescription = null == description ? "N/A" : description.value();
-                String name = this.formatSlashCommandIdentifiers(parsingToken.getParameterName());
-
-                data.addOption(parsingToken.converter().optionType(), name,
-                    optionDescription, !token.isOptional());
-            }
-            else if (token instanceof PlaceholderToken){
-                PlaceholderToken placeholderToken = (PlaceholderToken) token;
-                data.addOption(OptionType.STRING, placeholderToken.getPlaceHolder(),
-                    placeholderToken.getPlaceHolder(), !token.isOptional());
-            }
-        }
+//        for (Token token : commandMethod.tokens()) {
+//            if (token instanceof ParsingToken) {
+//                ParsingToken parsingToken = (ParsingToken) token;
+//                if (!parsingToken.isCommandParameter()) continue;
+//
+//                Description description = parsingToken.annotation(Description.class);
+//                String optionDescription = null == description ? "N/A" : description.value();
+//                String name = this.formatSlashCommandIdentifiers(parsingToken.getParameterName());
+//
+//                data.addOption(parsingToken.converter().optionType(), name,
+//                    optionDescription, !token.isOptional());
+//            }
+//            else if (token instanceof PlaceholderToken){
+//                PlaceholderToken placeholderToken = (PlaceholderToken) token;
+//                data.addOption(OptionType.STRING, placeholderToken.getPlaceHolder(),
+//                    placeholderToken.getPlaceHolder(), !token.isOptional());
+//            }
+//        }
         return data;
     }
 
@@ -341,8 +341,8 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
      * {@link AbstractPersistantUserData#setCommandAdapter(AbstractCommandAdapter)} to set itself as the registering
      * data holder.
      *
-     * @param type
-     *      The {@link Class} of the persistant data
+     * @param typeContext
+     *      The {@link TypeContext} of the persistant data
      * @param userId
      *      The id of the user to retrieve the data for
      * @param <T>
@@ -364,21 +364,22 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
         else mappings = this.persistantUserData.get(userId);
 
 
-        if (!mappings.containsKey(typeContext)) {
-            T userData = Reflect.createInstance(typeContext, userId);
-            if (null == userData)
-                throw new IllegalPersistantDataConstructor(
-                    "Persistant user data can only have a user id as a parameter for its constructor");
-
-            if (userData instanceof AbstractPersistantUserData)
-                ((AbstractPersistantUserData) userData).setCommandAdapter(this);
-
-            mappings.put(typeContext, userData);
-            return userData;
-        }
-        T userData = (T) mappings.get(typeContext);
-        userData.setAlreadyExisted();
-        return userData;
+//        if (!mappings.containsKey(typeContext)) {
+//            T userData = Reflect.createInstance(typeContext, userId);
+//            if (null == userData)
+//                throw new IllegalPersistantDataConstructor(
+//                    "Persistant user data can only have a user id as a parameter for its constructor");
+//
+//            if (userData instanceof AbstractPersistantUserData)
+//                ((AbstractPersistantUserData) userData).setCommandAdapter(this);
+//
+//            mappings.put(typeContext, userData);
+//            return userData;
+//        }
+//        T userData = (T) mappings.get(typeContext);
+//        userData.setAlreadyExisted();
+//        return userData;
+        return null;
     }
 
     /**
@@ -413,23 +414,23 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
      *     The {@link Object instance's} {@link Method methods} which are annotated with {@link Command}
      */
     protected void registerCommandMethods(@NotNull Object instance, @NotNull List<Method> annotatedMethods) {
-        for (Method method : annotatedMethods) {
-            method.setAccessible(true);
-            Command command = method.getAnnotation(Command.class);
-
-            String commandAlias = CommandManager.getCommandAlias(command, method);
-            if (this.registeredCommands.containsKey(commandAlias))
-                throw new IllegalCommandException(
-                    String.format("The alias %s has already been defined and so it can't be used by the method %s",
-                        commandAlias, method.getName()));
-
-            CommandContext commandContext = this.createCommandMethod(instance, method, command);
-            if (method.isAnnotationPresent(SlashCommand.class) ||
-                instance.getClass().isAnnotationPresent(SlashCommand.class))
-                    this.registeredSlashCommands.put(commandAlias, commandContext);
-            else
-                this.registeredCommands.put(this.getCommandPrefix() + commandAlias, commandContext);
-        }
+//        for (Method method : annotatedMethods) {
+//            method.setAccessible(true);
+//            Command command = method.getAnnotation(Command.class);
+//
+//            String commandAlias = CommandManager.getCommandAlias(command, method);
+//            if (this.registeredCommands.containsKey(commandAlias))
+//                throw new IllegalCommandException(
+//                    String.format("The alias %s has already been defined and so it can't be used by the method %s",
+//                        commandAlias, method.getName()));
+//
+//            CommandContext commandContext = this.createCommandMethod(instance, method, command);
+//            if (method.isAnnotationPresent(SlashCommand.class) ||
+//                instance.getClass().isAnnotationPresent(SlashCommand.class))
+//                    this.registeredSlashCommands.put(commandAlias, commandContext);
+//            else
+//                this.registeredCommands.put(this.getCommandPrefix() + commandAlias, commandContext);
+//        }
     }
 
     /**

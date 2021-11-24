@@ -24,6 +24,12 @@
 
 package nz.pumbas.halpbot.sql;
 
+import org.dockbox.hartshorn.core.annotations.Property;
+import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.persistence.exceptions.IdentifierMismatchException;
+import org.dockbox.hartshorn.persistence.table.ColumnIdentifier;
+import org.dockbox.hartshorn.persistence.table.Table;
+import org.dockbox.hartshorn.persistence.table.TableRow;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,14 +42,10 @@ import java.util.Set;
 
 import nz.pumbas.halpbot.sql.functionalinterfaces.SQLBiFunction;
 import nz.pumbas.halpbot.sql.functionalinterfaces.SQLTriConsumer;
-import nz.pumbas.halpbot.sql.table.Table;
-import nz.pumbas.halpbot.sql.table.TableRow;
-import nz.pumbas.halpbot.sql.table.annotations.Property;
-import nz.pumbas.halpbot.sql.table.column.ColumnIdentifier;
-import nz.pumbas.halpbot.sql.table.exceptions.IdentifierMismatchException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.Reflect;
 
+//TODO: Remove this
 public final class SQLUtils
 {
     private static final Map<Class<?>, SQLTriConsumer<PreparedStatement, Integer, Object>> setValueMappings
@@ -108,7 +110,7 @@ public final class SQLUtils
             while (resultSet.next()) {
                 TableRow row = new TableRow();
                 for (ColumnIdentifier<?> identifier : columns) {
-                    Object value = getValueMappings.get(identifier.type()).accept(resultSet, identifier.name());
+                    Object value = getValueMappings.get(identifier.type().type()).accept(resultSet, identifier.name());
                     row.add(identifier, value);
                 }
                 table.addRow(row);
@@ -129,7 +131,7 @@ public final class SQLUtils
         for (Field field : type.getDeclaredFields()) {
             field.setAccessible(true);
             final Exceptional<Property> annotation = Reflect.annotation(field, Property.class);
-            if (annotation.isEmpty() || !annotation.get().ignore()) {
+            if (annotation.absent() || !annotation.get().ignore()) {
                 try {
                     String fieldName;
                     if (annotation.present() && !annotation.get().value().isEmpty())
