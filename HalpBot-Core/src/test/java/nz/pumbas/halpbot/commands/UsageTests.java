@@ -27,35 +27,51 @@ package nz.pumbas.halpbot.commands;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import javax.inject.Inject;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
+import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
+import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-public class CommandManagerTests
+public class UsageTests
 {
+    private static final TypeContext<UsageTests> TYPE = TypeContext.of(UsageTests.class);
+    @Inject private ApplicationContext applicationContext;
+
     @Test
     public void generateUsageTest() {
-        String usage = CommandManager.generateUsage(Reflect.getMethod(this, "testMethod1"));
+        UsageBuilder usageBuilder = new TypeUsageBuilder();
+        String usage = usageBuilder.buildUsage(this.applicationContext,
+                TYPE.method("testMethod1").get());
 
-        Assertions.assertEquals("<first{String}> <second{Integer}>", usage);
+        Assertions.assertEquals("<String> <Integer>", usage);
     }
 
     @Test
     public void generateUsageExcludeEventTest() {
-        String usage = CommandManager.generateUsage(Reflect.getMethod(this, "testMethod2"));
+        UsageBuilder usageBuilder = new TypeUsageBuilder();
+        String usage = usageBuilder.buildUsage(this.applicationContext,
+                TYPE.method("testMethod2").get());
 
-        Assertions.assertEquals("<number{Float}>", usage);
+        Assertions.assertEquals("<Float>", usage);
     }
 
     @Test
     public void generateUsageExcludeSourceTest() {
-        String usage = CommandManager.generateUsage(Reflect.getMethod(this, "testMethod3"));
+        UsageBuilder usageBuilder = new TypeUsageBuilder();
+        String usage = usageBuilder.buildUsage(this.applicationContext,
+                TYPE.method("testMethod3").get());
 
         Assertions.assertEquals("", usage);
     }
@@ -66,16 +82,16 @@ public class CommandManagerTests
 
     private void testMethod3(@Source User author) {}
 
-    @Test
-    public void commandUsesMethodNameIfAliasUndefinedTest() {
-        Method method = Reflect.getMethod(this, "add");
-
-        SimpleCommand command = CommandManager.generateCommandMethod(this, method, method.getAnnotation(Command.class));
-        Assertions.assertEquals("add", command.alias());
-    }
-
-    @Command(description = "Adds two numbers together")
-    private int add(int a, int b) {
-        return a + b;
-    }
+//    @Test
+//    public void commandUsesMethodNameIfAliasUndefinedTest() {
+//        Method method = Reflect.getMethod(this, "add");
+//
+//        SimpleCommand command = CommandManager.generateCommandMethod(this, method, method.getAnnotation(Command.class));
+//        Assertions.assertEquals("add", command.alias());
+//    }
+//
+//    @Command(description = "Adds two numbers together")
+//    private int add(int a, int b) {
+//        return a + b;
+//    }
 }

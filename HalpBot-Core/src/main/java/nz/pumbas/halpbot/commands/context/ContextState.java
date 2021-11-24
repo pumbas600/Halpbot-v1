@@ -35,6 +35,7 @@ import java.util.List;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.utilities.Reflect;
 
+//TODO: Remove
 public class ContextState
 {
     public static final ContextState EMPTY = new ContextState(null, new Annotation[0], Collections.emptyList());

@@ -41,7 +41,7 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 
 //TODO: Remove MethodContext -> Combine it with InvocationContext
-public class MethodContext extends InvocationContext
+public class MethodContext
 {
     private @NotNull ContextState contextState;
     private @Nullable final HalpbotEvent event;
@@ -53,7 +53,6 @@ public class MethodContext extends InvocationContext
                             @Nullable HalpbotCore halpbotCore,
                             @Nullable HalpbotEvent event,
                             @NotNull Set<Class<?>> reflections) {
-        super(context);
         this.contextState = contextState;
         this.event = event;
         this.halpbotCore = halpbotCore;
@@ -78,7 +77,8 @@ public class MethodContext extends InvocationContext
 
     public static MethodContext of(@NotNull String context, @NotNull ParsingToken parsingToken) {
         return new MethodContext(
-            context, new ContextState(parsingToken.type(), parsingToken.annotations(), parsingToken.annotationTypes()),
+            context, new ContextState(parsingToken.converter().type().type(), new Annotation[0],
+                Collections.emptyList()),
             null, null, Collections.emptySet());
     }
 
@@ -100,7 +100,8 @@ public class MethodContext extends InvocationContext
     }
 
     public void update(@NotNull ParsingToken parsingToken) {
-        this.contextState = new ContextState(parsingToken.type(), parsingToken.annotations(), parsingToken.annotationTypes());
+        this.contextState = new ContextState(parsingToken.converter().type().type(), new Annotation[0],
+                Collections.emptyList());
     }
 
     public @Nullable HalpbotEvent getEvent() {

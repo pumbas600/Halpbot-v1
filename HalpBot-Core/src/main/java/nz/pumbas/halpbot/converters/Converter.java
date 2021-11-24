@@ -41,7 +41,7 @@ import nz.pumbas.halpbot.utilities.enums.Priority;
 //TODO: Make converters support use of $Default
 public interface Converter<T>
 {
-    TypeContext<T> typeContext();
+    TypeContext<T> type();
 
     TypeContext<? extends Annotation> annotationType();
 

@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+//TODO Remove
 /**
  * A container for the data of an {@link Token} command.
  */
@@ -242,11 +243,11 @@ public class SimpleCommand
      *     Any {@link OutputException} thrown within the {@link Executable} when parsing
      */
     public Exceptional<Object> parse(@NotNull MethodContext ctx, boolean canHaveTokensLeft) {
-        int currentIndex = ctx.getCurrentIndex();
+//        int currentIndex = ctx.currentIndex();
         Exceptional<Object> result = this.parseParameters(ctx, canHaveTokensLeft)
             .flatMap((CheckedFunction<? super Object[], Exceptional<Object>>) this::invoke);
 
-        if (result.caught()) ctx.setCurrentIndex(currentIndex);
+//        if (result.caught()) ctx.currentIndex(currentIndex);
         return result;
     }
 
@@ -260,76 +261,77 @@ public class SimpleCommand
      * @return An {@link Exceptional} containing the parsed parameters
      */
     public Exceptional<Object[]> parseParameters(@NotNull MethodContext ctx, boolean canHaveTokensLeft) {
-        Object[] parsedTokens = new Object[this.executable.getParameterCount()];
+        return Exceptional.empty();
+        //        Object[] parsedTokens = new Object[this.executable.getParameterCount()];
+//
+//        int tokenIndex = 0;
+//        int parameterIndex = 0;
+//        Exceptional<Object[]> firstMismatch = Exceptional.empty();
+//
+//        while (parameterIndex < parsedTokens.length) {
+//            if (tokenIndex >= this.tokens.size())
+//                return firstMismatch.errorAbsent()
+//                    ? Exceptional.of(new CommandException("There appears to be too many parameters for this command"))
+//                    : firstMismatch;
+//
+//            Token currentToken = this.tokens.get(tokenIndex++);
+//            Exceptional<Object[]> mismatchResult = Exceptional.empty();
+//            int currentIndex = ctx.currentIndex();
+//
+//            if (currentToken instanceof ParsingToken parsingToken) {
+//                ctx.update(parsingToken);
+//
+//                Exceptional<Object> result = CommandManager.handleReflectionSyntax(ctx);
+//                if (result.present()) {
+//                    parsedTokens[parameterIndex++] = result.get();
+//                    continue;
+//                } else if (result.caught())
+//                    return result.map(o -> new Object[0]);
+//                else {
+//                    ctx.currentIndex(currentIndex);
 
-        int tokenIndex = 0;
-        int parameterIndex = 0;
-        Exceptional<Object[]> firstMismatch = Exceptional.empty();
+//                    result = parsingToken.converter()
+//                        .mapper()
+//                        .apply(ctx)
+//                        .map(o -> o);
 
-        while (parameterIndex < parsedTokens.length) {
-            if (tokenIndex >= this.tokens.size())
-                return firstMismatch.errorAbsent()
-                    ? Exceptional.of(new CommandException("There appears to be too many parameters for this command"))
-                    : firstMismatch;
-
-            Token currentToken = this.tokens.get(tokenIndex++);
-            Exceptional<Object[]> mismatchResult = Exceptional.empty();
-            int currentIndex = ctx.getCurrentIndex();
-
-            if (currentToken instanceof ParsingToken parsingToken) {
-                ctx.update(parsingToken);
-
-                Exceptional<Object> result = CommandManager.handleReflectionSyntax(ctx);
-                if (result.present()) {
-                    parsedTokens[parameterIndex++] = result.get();
-                    continue;
-                } else if (result.caught())
-                    return result.map(o -> new Object[0]);
-                else {
-                    ctx.setCurrentIndex(currentIndex);
-
-                    result = parsingToken.converter()
-                        .mapper()
-                        .apply(ctx)
-                        .map(o -> o);
-
-                    if (result.caught())
-                        mismatchResult = result.map(o -> new Object[0]);
-                    else {
-                        if (firstMismatch.present() || firstMismatch.caught())
-                            firstMismatch = Exceptional.empty();
-
-                        parsedTokens[parameterIndex++] = result.orNull();
-                        continue;
-                    }
-                }
-            } else if (currentToken instanceof PlaceholderToken) {
-                PlaceholderToken placeholderToken = (PlaceholderToken) currentToken;
-
-                if (placeholderToken.matches(ctx)) {
-                    if (firstMismatch.present() || firstMismatch.caught())
-                        firstMismatch = Exceptional.empty();
-                    continue;
-                }
-                mismatchResult = Exceptional.of(
-                    new CommandException("Expected the placeholder " + placeholderToken.getPlaceHolder()));
-            }
-
-
-            if (firstMismatch.absent() && firstMismatch.errorAbsent())
-                firstMismatch = mismatchResult;
-
-            if (currentToken.isOptional()) {
-                if (currentToken instanceof ParsingToken)
-                    parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
-            } else return firstMismatch;
-        }
-
-        if (ctx.hasNext() && !canHaveTokensLeft)
-            return firstMismatch.caught()
-                ? firstMismatch : Exceptional.of(
-                new CommandException("There appears to be too many parameters for this command"));
-
-        return Exceptional.of(parsedTokens);
+//                    if (result.caught())
+//                        mismatchResult = result.map(o -> new Object[0]);
+//                    else {
+//                        if (firstMismatch.present() || firstMismatch.caught())
+//                            firstMismatch = Exceptional.empty();
+//
+//                        parsedTokens[parameterIndex++] = result.orNull();
+//                        continue;
+//                    }
+//                }
+//            } else if (currentToken instanceof PlaceholderToken) {
+//                PlaceholderToken placeholderToken = (PlaceholderToken) currentToken;
+//
+//                if (placeholderToken.matches(ctx)) {
+//                    if (firstMismatch.present() || firstMismatch.caught())
+//                        firstMismatch = Exceptional.empty();
+//                    continue;
+//                }
+//                mismatchResult = Exceptional.of(
+//                    new CommandException("Expected the placeholder " + placeholderToken.placeholder()));
+//            }
+//
+//
+//            if (firstMismatch.absent() && firstMismatch.errorAbsent())
+//                firstMismatch = mismatchResult;
+//
+//            if (currentToken.isOptional()) {
+//                if (currentToken instanceof ParsingToken)
+//                    parsedTokens[parameterIndex++] = ((ParsingToken) currentToken).defaultValue();
+//            } else return firstMismatch;
+//        }
+//
+//        if (ctx.hasNext() && !canHaveTokensLeft)
+//            return firstMismatch.caught()
+//                ? firstMismatch : Exceptional.of(
+//                new CommandException("There appears to be too many parameters for this command"));
+//
+//        return Exceptional.of(parsedTokens);
     }
 }

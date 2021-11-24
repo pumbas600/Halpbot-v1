@@ -29,18 +29,12 @@ import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.MultiMap;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.service.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
-
-import javax.inject.Inject;
-
-import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.MethodContext;
 
 @Service
 @Binds(ConverterHandler.class)
@@ -60,7 +54,7 @@ public class HalpbotConverterHandler implements ConverterHandler
 
     @Override
     public void registerConverter(Converter<?> converter) {
-        this.converters.put(converter.typeContext(), converter);
+        this.converters.put(converter.type(), converter);
     }
 
     @Override

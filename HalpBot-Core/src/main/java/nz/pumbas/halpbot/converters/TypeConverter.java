@@ -38,7 +38,7 @@ import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.exceptions.IllegalConverterException;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
-public record TypeConverter<T>(TypeContext<T> typeContext,
+public record TypeConverter<T>(TypeContext<T> type,
                                TypeContext<? extends Annotation> annotationType,
                                Function<InvocationContext, Exceptional<T>> mapper,
                                Priority priority,
@@ -66,7 +66,7 @@ public record TypeConverter<T>(TypeContext<T> typeContext,
 
     public static class TypeConverterBuilder<T>
     {
-        private final TypeContext<T> typeContext;
+        private final TypeContext<T> type;
         private @Nullable Function<InvocationContext, Exceptional<T>> converter;
         private @Nullable Class<? extends Annotation> annotation;
 
@@ -75,7 +75,7 @@ public record TypeConverter<T>(TypeContext<T> typeContext,
         private boolean requiresHalpbotEvent;
 
         protected TypeConverterBuilder(TypeContext<T> type) {
-            this.typeContext = type;
+            this.type = type;
         }
 
         /**
@@ -162,7 +162,7 @@ public record TypeConverter<T>(TypeContext<T> typeContext,
                 throw new IllegalConverterException(
                         "You must specify a converting function before building the converter");
             return new TypeConverter<>(
-                    this.typeContext,
+                    this.type,
                     TypeContext.of(this.annotation),
                     this.converter,
                     this.priority,
