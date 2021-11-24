@@ -11,7 +11,9 @@ import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(chain = false)
 @Getter
 @Binds(ParameterAnnotationContext.class)
 @AllArgsConstructor(onConstructor_ = @Bound)
