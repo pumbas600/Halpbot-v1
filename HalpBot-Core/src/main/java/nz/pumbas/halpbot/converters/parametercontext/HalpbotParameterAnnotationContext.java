@@ -13,8 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Accessors(chain = false)
 @Getter
+@Accessors(chain = false)
 @Binds(ParameterAnnotationContext.class)
 @AllArgsConstructor(onConstructor_ = @Bound)
 public class HalpbotParameterAnnotationContext implements ParameterAnnotationContext

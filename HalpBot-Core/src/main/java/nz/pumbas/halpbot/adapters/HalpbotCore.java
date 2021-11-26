@@ -207,12 +207,17 @@ public class HalpbotCore implements ContextCarrier
         return this.ownerId;
     }
 
+    public <T extends HalpbotAdapter> HalpbotCore registerAdapter(T adapter) {
+        this.adapters.add(adapter);
+        return this;
+    }
+
     public <T extends HalpbotAdapter> T getAndRegister(TypeContext<T> adapterType) {
         Exceptional<T> registeredInstance = this.getSafely(adapterType);
         if (registeredInstance.present())
             return registeredInstance.get();
         T instance = this.applicationContext.get(adapterType);
-        this.adapters.add(instance);
+        this.registerAdapter(instance);
         return instance;
     }
 

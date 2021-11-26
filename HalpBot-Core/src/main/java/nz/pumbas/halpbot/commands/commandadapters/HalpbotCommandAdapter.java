@@ -78,6 +78,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
             throw new IllegalPrefixException("The prefix defined in @Bot cannot be blank");
 
         this.usageBuilder = this.determineUsageBuilder();
+        this.halpbotCore.registerAdapter(this);
     }
 
     //TODO: Guild specific prefixes

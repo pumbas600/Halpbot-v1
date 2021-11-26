@@ -12,6 +12,8 @@ dependencies {
     implementation 'javax.inject:javax.inject:1'
     implementation 'org.checkerframework:checkerframework-maven-plugin:1.8.2'
     implementation 'org.checkerframework:checker-qual:3.18.1'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    implementation 'org.mockito:mockito-core:4.0.0'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:2.5.4'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.4'
     implementation 'org.apache.derby:derby:10.15.2.0'
