@@ -42,7 +42,7 @@ public class ButtonAdapter extends AbstractHalpbotAdapter implements ActionHandl
 
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
         if (this.expiredButtonCallbacks.contains(event.getComponentId())) {
-            this.halpBotCore.getDisplayConfiguration()
+            this.halpBotCore.displayConfiguration()
                 .displayTemporary(halpbotEvent, "This button is no longer being used to save resources sorry :)", -1);
             event.getMessage()
                 .editMessageComponents(ActionRow.of(

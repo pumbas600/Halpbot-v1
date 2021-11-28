@@ -98,16 +98,16 @@ public class HalpbotCommandAdapter implements CommandAdapter
         if (commandAlias.startsWith(this.prefix())) {
             String alias = commandAlias.substring(this.prefix.length());
             this.commandContextSafely(alias)
-                .absent(() -> this.halpbotCore.getDisplayConfiguration()
+                .absent(() -> this.halpbotCore.displayConfiguration()
                     .displayTemporary(halpbotEvent,
                         "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling",
                         30))
                 .flatMap(commandContext ->
                     this.handleCommandInvocation(halpbotEvent, commandContext, content))
-                .present(output -> this.halpbotCore.getDisplayConfiguration().display(halpbotEvent, output))
+                .present(output -> this.halpbotCore.displayConfiguration().display(halpbotEvent, output))
                 .caught(exception -> {
                     ErrorManager.handle(event, exception);
-                    this.halpbotCore.getDisplayConfiguration()
+                    this.halpbotCore.displayConfiguration()
                         .displayTemporary(
                             halpbotEvent,
                             "There was the following error trying to invoke this command: " + exception.getMessage(),

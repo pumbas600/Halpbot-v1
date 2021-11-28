@@ -75,10 +75,8 @@ public class Halpbot extends ListenerAdapter
 
         ErrorManager.setLoggerUserId(CREATOR_ID);
 
-        HalpbotCore halpbotCore = new HalpbotCore()
-                .setOwner(CREATOR_ID);
-
-        halpbotCore.build(builder);
+        this.halpbotCore.setOwner(CREATOR_ID)
+                .build(builder);
     }
 
     @Override

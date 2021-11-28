@@ -21,7 +21,7 @@ public interface ActionHandler
             actionCallback.invokeCallback(event)
                 .present(value ->
                     {
-                        DisplayConfiguration displayConfiguration = this.getHalpbotCore().getDisplayConfiguration();
+                        DisplayConfiguration displayConfiguration = this.getHalpbotCore().displayConfiguration();
 
                         if (this.displayTemporarily(actionCallback))
                                 displayConfiguration.displayTemporary(event, value, actionCallback.getDisplayDuration());

@@ -244,7 +244,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
 
             try {
                 this.handleCommandMethodCall(halpbotEvent, commandMethod, content)
-                    .present(value -> this.halpBotCore.getDisplayConfiguration().display(halpbotEvent, value))
+                    .present(value -> this.halpBotCore.displayConfiguration().display(halpbotEvent, value))
                     .caught(exception -> event.getChannel()
                         .sendMessageEmbeds(
                             buildHelpMessage(commandAlias, commandMethod, exception.getMessage()))
@@ -255,7 +255,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
             }
         }
         else if (commandAlias.startsWith(this.commandPrefix)) {
-            this.halpBotCore.getDisplayConfiguration()
+            this.halpBotCore.displayConfiguration()
                 .displayTemporary(
                     halpbotEvent,
                     "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling",
@@ -276,7 +276,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
 
         if(!this.registeredSlashCommands.containsKey(event.getName())) {
-            this.halpBotCore.getDisplayConfiguration()
+            this.halpBotCore.displayConfiguration()
                 .displayTemporary(
                     halpbotEvent,
                     "There doesn't appear to be a command method backing this slash command",
@@ -291,7 +291,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
         }
 
         this.handleCommandMethodCall(new InteractionEvent(event), commandMethod, builder.toString())
-            .present(value -> this.halpBotCore.getDisplayConfiguration().display(halpbotEvent, value))
+            .present(value -> this.halpBotCore.displayConfiguration().display(halpbotEvent, value))
             .caught(exception -> {
                 ErrorManager.handle(exception);
                 event.getChannel()
