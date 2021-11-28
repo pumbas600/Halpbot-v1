@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.commands.chemmat;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;

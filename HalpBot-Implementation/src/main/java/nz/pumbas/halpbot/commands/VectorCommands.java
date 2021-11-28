@@ -24,9 +24,12 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.customparameters.math.Vector3;
 
+@Service
 public class VectorCommands
 {
 

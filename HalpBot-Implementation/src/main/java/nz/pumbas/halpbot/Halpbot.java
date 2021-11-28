@@ -24,7 +24,6 @@
 
 package nz.pumbas.halpbot;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
@@ -33,82 +32,65 @@ import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
-import org.jetbrains.annotations.NotNull;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
+import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.IOException;
+
+import javax.inject.Inject;
 import javax.security.auth.login.LoginException;
 
-import nz.pumbas.halpbot.adapters.ButtonAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
-import nz.pumbas.halpbot.adapters.ReactionAdapter;
-import nz.pumbas.halpbot.commands.MatrixCommands;
-import nz.pumbas.halpbot.commands.SimpleCommands;
-import nz.pumbas.halpbot.commands.chemmat.ChemmatCommands;
-import nz.pumbas.halpbot.commands.NumberSystemConverters;
-import nz.pumbas.halpbot.commands.chemmat.QuestionConfirmationCommands;
-import nz.pumbas.halpbot.commands.chemmat.QuestionStatisticCommands;
-import nz.pumbas.halpbot.commands.commandadapters.SimpleCommandAdapter;
-import nz.pumbas.halpbot.commands.ElectricalCommands;
-import nz.pumbas.halpbot.commands.HalpBotCommands;
-import nz.pumbas.halpbot.commands.VectorCommands;
+import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
+import nz.pumbas.halpbot.common.annotations.Bot;
 import nz.pumbas.halpbot.configurations.EmbedStringsDisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
+@Service
+@Activator
+@UseCommands
+@Bot(prefix = "$", displayConfiguration = EmbedStringsDisplayConfiguration.class)
 public class Halpbot extends ListenerAdapter
 {
     public static final long CREATOR_ID = 260930648330469387L;
-    private final JDA jda;
-    private static HalpbotCore halpbotCore;
-    private final ApplicationContext context;
 
-    public Halpbot(ApplicationContext context, String token) throws LoginException, UndefinedActivatorException {
-        this.context = context;
+    @Inject private ApplicationContext applicationContext;
+    @Inject private HalpbotCore halpbotCore;
+
+    public Halpbot() throws LoginException, UndefinedActivatorException, IOException {
+        this.create();
+    }
+
+    private void create() throws LoginException, UndefinedActivatorException, IOException {
+        String token = HalpbotUtils.getFirstLine(new ClassPathResource("static/Token.txt").getInputStream());
+
         JDABuilder builder = JDABuilder.createDefault(token)
-            .disableIntents(GatewayIntent.GUILD_PRESENCES)
-            .addEventListeners(this);
+                .disableIntents(GatewayIntent.GUILD_PRESENCES)
+                .addEventListeners(this);
 
         ErrorManager.setLoggerUserId(CREATOR_ID);
 
-        halpbotCore = new HalpbotCore(builder)
-            .setOwner(CREATOR_ID)
-            .addAdapters(
-                new SimpleCommandAdapter("$"),
-                new ReactionAdapter(),
-                new ButtonAdapter())
-            .displayConfiguration(new EmbedStringsDisplayConfiguration())
-            .register(
-                new SimpleCommands(),
-                new MatrixCommands(),
-                new VectorCommands(),
-                new ElectricalCommands(),
-                new HalpBotCommands(),
-                new NumberSystemConverters(),
-                context.getBean(ChemmatCommands.class),
-                context.getBean(QuestionConfirmationCommands.class),
-                context.getBean(QuestionStatisticCommands.class))
-            .registerAdapters();
+        HalpbotCore halpbotCore = new HalpbotCore()
+                .setOwner(CREATOR_ID);
 
-        this.jda = halpbotCore.build();
-    }
-
-    public static ReactionAdapter getReactionAdapter() {
-        return halpbotCore.get(ReactionAdapter.class);
+        halpbotCore.build(builder);
     }
 
     @Override
-    public void onReady(@NotNull ReadyEvent event)
-    {
-        this.jda.getPresence().setPresence(Activity.of(ActivityType.WATCHING, "Trying to halp everyone"), false);
-        HalpbotUtils.logger().info("The bot is initialised and running in {} servers", event.getGuildTotalCount());
+    public void onReady(ReadyEvent event) {
+        this.halpbotCore.jda().getPresence()
+                .setPresence(Activity.of(ActivityType.WATCHING, "Trying to halp everyone"), false);
+        this.applicationContext.log()
+                .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
     }
 
     @Override
-    public void onShutdown(@NotNull ShutdownEvent event)
-    {
-        HalpbotUtils.logger().info("Shutting down the bot!");
-        ((ConfigurableApplicationContext) this.context).close();
+    public void onShutdown(ShutdownEvent event) {
+        this.applicationContext.log().info("Shutting down the bot!");
     }
 }

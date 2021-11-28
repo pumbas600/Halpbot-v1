@@ -36,7 +36,6 @@ import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-@Service
 public class QuestionConfirmationCommands
 {
     private static final int DISPLAY_QUESTION_GROUPING_AMOUNT = 8;
@@ -59,16 +58,16 @@ public class QuestionConfirmationCommands
     }
 
     private void checkForNewChanges() {
-        if (-1 == this.displayChangesChannel) return;
-
-        final TextChannel channel = HalpbotCore.getJDA().getTextChannelById(this.displayChangesChannel);
-
-        this.questionService.getAllWaitingConfirmationNotIn(this.waitingConfirmationIds)
-            .forEach(question -> {
-                this.waitingConfirmationIds.add(question.getId());
-                channel.sendMessageEmbeds(this.createMessageEmbed(question))
-                    .queue(m -> this.addReactionCallbacks(m, question));
-            });
+//        if (-1 == this.displayChangesChannel) return;
+//
+//        final TextChannel channel = HalpbotCore.getJDA().getTextChannelById(this.displayChangesChannel);
+//
+//        this.questionService.getAllWaitingConfirmationNotIn(this.waitingConfirmationIds)
+//            .forEach(question -> {
+//                this.waitingConfirmationIds.add(question.getId());
+//                channel.sendMessageEmbeds(this.createMessageEmbed(question))
+//                    .queue(m -> this.addReactionCallbacks(m, question));
+//            });
     }
 
     @Command(description = "Sets the current channel to be the location where new changes are automatically sent",
@@ -113,14 +112,14 @@ public class QuestionConfirmationCommands
     }
 
     private void addReactionCallbacks(Message message, Question question) {
-        ReactionAdapter reactionAdapter = Halpbot.getReactionAdapter();
-
-        reactionAdapter.registerCallback(message, this.callbackBuilder.setEmoji("U+2705")
-            .setRunnable(() -> this.acceptChange(question))
-            .buildReactionCallback());
-        reactionAdapter.registerCallback(message, this.callbackBuilder.setEmoji("U+274C")
-            .setRunnable(() -> this.deleteChange(question.getId()))
-            .buildReactionCallback());
+//        ReactionAdapter reactionAdapter = Halpbot.getReactionAdapter();
+//
+//        reactionAdapter.registerCallback(message, this.callbackBuilder.setEmoji("U+2705")
+//            .setRunnable(() -> this.acceptChange(question))
+//            .buildReactionCallback());
+//        reactionAdapter.registerCallback(message, this.callbackBuilder.setEmoji("U+274C")
+//            .setRunnable(() -> this.deleteChange(question.getId()))
+//            .buildReactionCallback());
     }
 
     private void acceptChange(Question question) {

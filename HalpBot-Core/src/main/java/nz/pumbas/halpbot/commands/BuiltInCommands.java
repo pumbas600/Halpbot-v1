@@ -29,10 +29,14 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+
 import java.awt.Color;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
@@ -44,11 +48,12 @@ import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
+@Service
 public class BuiltInCommands
 {
     private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
-    @Command(description = "Displays the help information for the specified command")
+    @Command(alias = {"help", "halp"}, description = "Displays the help information for the specified command")
     public Object halp(AbstractCommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
         if (commandAlias.isEmpty()) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -99,7 +104,7 @@ public class BuiltInCommands
     }
 
     @Command(description = "Retrieves the permissions that the specified user has, or the author if no user is specified")
-    public MessageEmbed permissions(@Source User author, @Unrequired User user) {
+    public MessageEmbed permissions(@Source User author, @Unrequired @Nullable User user) {
         if (null == user) user = author;
 
         EmbedBuilder embedBuilder = new EmbedBuilder();

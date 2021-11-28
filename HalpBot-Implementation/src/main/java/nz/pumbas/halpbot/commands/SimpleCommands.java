@@ -24,25 +24,30 @@
 
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.events.ReadyEvent;
-
-import org.jetbrains.annotations.NotNull;
+import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class SimpleCommands implements OnReady
+@Service
+public class SimpleCommands
 {
+    @Inject private ApplicationContext applicationContext;
+
     private List<String> comfortingMessages;
     private List<String> insultJokes;
 
-    public void onReady(@NotNull ReadyEvent event) {
+    public SimpleCommands() {
         try {
             this.comfortingMessages =
                 HalpbotUtils.getAllLinesFromFile((new ClassPathResource("static/ComfortingMessages.txt")).getInputStream());
@@ -50,6 +55,10 @@ public class SimpleCommands implements OnReady
                 HalpbotUtils.getAllLinesFromFile((new ClassPathResource("static/InsultJokes.txt")).getInputStream());
         } catch (IOException e) {
             ErrorManager.handle(e);
+            this.comfortingMessages = Collections.emptyList();
+            this.insultJokes = Collections.emptyList();
+            this.applicationContext.log()
+                    .error("There was an error loading the comforting messages and insulting jokes");
         }
     }
 

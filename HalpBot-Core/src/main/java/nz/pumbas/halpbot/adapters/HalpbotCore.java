@@ -3,15 +3,17 @@ package nz.pumbas.halpbot.adapters;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 
+import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,7 @@ import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.actions.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.common.annotations.Bot;
+import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionManager;
@@ -37,34 +40,23 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 public class HalpbotCore implements ContextCarrier
 {
-    private static JDA jda;
-    private long ownerId = -1;
-    private final JDABuilder jdaBuilder;
+    @Getter private long ownerId = -1;
 
     @Inject
     @Getter private ApplicationContext applicationContext;
+    @Getter private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
+
+    @Nullable private JDA jda;
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
     private final Map<Long, UserCooldowns> userCooldownsMap = new ConcurrentHashMap<>();
 
     private final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
-    private DisplayConfiguration displayConfiguration;
-
-    public HalpbotCore(final JDABuilder jdaBuilder) {
-        this.jdaBuilder = jdaBuilder.setEventManager(new AnnotatedEventManager());
-    }
-
-    /**
-     * @return The {@link JDA} instance
-     */
-    public static JDA getJDA() {
-        return jda;
-    }
 
     /**
      * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke
-     * {@link HalpbotCore#registerAdapters()}. Note that the Halpbot adapters will also need to extend
+     * {@link HalpbotCore#registerAdapter(HalpbotAdapter)}. Note that the Halpbot adapters will also need to extend
      * {@link ListenerAdapter}.
      *
      * @param adapters
@@ -77,31 +69,6 @@ public class HalpbotCore implements ContextCarrier
     @SafeVarargs
     public final <T extends HalpbotAdapter> HalpbotCore addAdapters(T... adapters) {
         this.adapters.addAll(List.of(adapters));
-        return this;
-    }
-
-    /**
-     * Registers the {@link AbstractHalpbotAdapter} to the {@link JDABuilder}. Note that this also invokes
-     * {@link AbstractHalpbotAdapter#setHalpBotCore(HalpbotCore)}.
-     *
-     * @return Itself for chaining
-     */
-    public HalpbotCore registerAdapters() {
-        this.adapters.forEach(this.jdaBuilder::addEventListeners);
-        return this;
-    }
-
-    /**
-     * Specifies the display configuration that should be used when displaying messages in discord. if no
-     * configuration is specified then {@link nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration} is used.
-     *
-     * @param displayConfiguration
-     *      The display configuration to use
-     *
-     * @return Itself for chaining
-     */
-    public HalpbotCore displayConfiguration(DisplayConfiguration displayConfiguration) {
-        this.displayConfiguration = displayConfiguration;
         return this;
     }
 
@@ -131,11 +98,12 @@ public class HalpbotCore implements ContextCarrier
         this.adapters.forEach(adapter -> adapter.onCreation(jda));
     }
 
-    public JDA build() throws LoginException, UndefinedActivatorException {
-        jda = this.jdaBuilder.build();
-        this.onCreation(jda);
+    public JDA build(JDABuilder jdaBuilder) throws LoginException, UndefinedActivatorException {
+        this.adapters.forEach(jdaBuilder::addEventListeners);
+        this.jda = jdaBuilder.build();
+        this.onCreation(this.jda);
         this.concurrentManager.scheduleRegularly(20, 20, TimeUnit.MINUTES, this::clearEmptyCooldowns);
-        return jda;
+        return this.jda;
     }
 
     public void addCooldown(long userId, String actionId, Cooldown cooldown) {
@@ -179,10 +147,10 @@ public class HalpbotCore implements ContextCarrier
 
                 event.safelyGetEvent(Interaction.class)
                     .present(interaction ->
-                        this.getDisplayConfiguration().displayTemporary(event, remainingTimeEmbed, -1))
+                        this.displayConfiguration().displayTemporary(event, remainingTimeEmbed, -1))
                     .absent(() -> {
                         if (userCooldowns.canSendCooldownMessage()) {
-                            this.getDisplayConfiguration().displayTemporary(event, remainingTimeEmbed, 10);
+                            this.displayConfiguration().displayTemporary(event, remainingTimeEmbed, 10);
                         }
                     });
                 return true;
@@ -196,29 +164,16 @@ public class HalpbotCore implements ContextCarrier
            .removeIf(entry -> entry.getValue().isEmpty());
     }
 
-    public DisplayConfiguration getDisplayConfiguration() {
-        return this.displayConfiguration;
-    }
-
-    /**
-     * @return The id of the owner for this bot, or -1 if no owner has been specified
-     */
-    public long getOwnerId() {
-        return this.ownerId;
-    }
-
     public <T extends HalpbotAdapter> HalpbotCore registerAdapter(T adapter) {
         this.adapters.add(adapter);
         return this;
     }
 
-    public <T extends HalpbotAdapter> T getAndRegister(TypeContext<T> adapterType) {
-        Exceptional<T> registeredInstance = this.getSafely(adapterType);
-        if (registeredInstance.present())
-            return registeredInstance.get();
-        T instance = this.applicationContext.get(adapterType);
-        this.registerAdapter(instance);
-        return instance;
+    @Provider
+    public JDA jda() {
+        if (this.jda == null)
+            throw new ApplicationException("You are trying to access the JDA instance before it has been created").runtime();
+        return this.jda;
     }
 
     public <T> T get(final Class<T> implementation) {

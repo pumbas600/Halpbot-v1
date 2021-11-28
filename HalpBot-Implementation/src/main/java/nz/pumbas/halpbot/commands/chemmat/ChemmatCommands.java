@@ -35,6 +35,8 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,7 +76,6 @@ import nz.pumbas.halpbot.hibernate.services.UserStatisticsService;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-@Service
 public class ChemmatCommands
 {
     private static final Emoji[] EMOJIS = {
@@ -315,9 +316,9 @@ public class ChemmatCommands
             .map(topicId -> {
                 List<Long> questionIds = this.questionService.getAllConfirmedIdsByTopicId(topicId);
                 if (questionIds.isEmpty()) {
-                    throw new ResourceNotFoundException(
-                        String.format("There appears to be no questions for the topic '%s'",
-                            HalpbotUtils.capitaliseWords(topic)));
+                    throw new ApplicationException(
+                            new ResourceNotFoundException(
+                                    "There appears to be no questions for the topic '%s'".formatted(topic)));
                 }
                 return this.getRandomQuestion(questionIds);
             });

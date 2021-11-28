@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.hibernate.services;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,6 @@ import java.util.Map;
 
 import nz.pumbas.halpbot.hibernate.models.Topic;
 import nz.pumbas.halpbot.hibernate.repositories.TopicRepository;
-;
 
 @Service
 public class TopicService

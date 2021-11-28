@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -24,7 +25,6 @@ import nz.pumbas.halpbot.objects.expiring.ConcurrentExpiringMap;
 import nz.pumbas.halpbot.objects.expiring.ExpiringMap;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-@Service
 public class QuestionStatisticCommands
 {
     private final ExpiringMap<Long, String> cachedUsernames = new ConcurrentExpiringMap<>(1, TimeUnit.HOURS);
@@ -100,7 +100,7 @@ public class QuestionStatisticCommands
     }
 
     @Command(description = "Returns the question statistics for a particular user")
-    public MessageEmbed stats(@Source User author, @Unrequired User user) {
+    public MessageEmbed stats(@Source User author, @Unrequired @Nullable User user) {
         return this.buildUserStatisticsEmbed(null == user ? author : user);
     }
 

@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.hibernate.repositories;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

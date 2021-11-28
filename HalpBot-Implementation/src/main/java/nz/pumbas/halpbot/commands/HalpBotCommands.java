@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -34,6 +35,7 @@ import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 
+@Service
 public class HalpBotCommands
 {
 
@@ -86,21 +88,21 @@ public class HalpBotCommands
                     else
                         return new Unit(value, Prefix.DEFAULT, unit);
                 }))
-        .register();
+        .build();
 
     public static final TypeConverter<Prefix> PREFIX_CONVERTER = TypeConverter.builder(Prefix.class)
         .convert(ctx ->
             DefaultConverters.ENUM_CONVERTER.apply(ctx)
                 .map(prefix -> (Prefix) prefix)
-                .orExceptional(() ->
+                .orElse(() ->
                     DefaultConverters.CHARACTER_CONVERTER.apply(ctx)
                         .map(prefix -> {
                             if (Prefix.isPrefix(prefix))
                                 return Prefix.getPrefix(prefix);
                             throw new IllegalArgumentException("That is not a valid prefix");
-                        })
+                        }).orNull()
                 ))
-        .register();
+        .build();
 
     @Command(alias = "convert", description = "Converts the number to the specified prefix")
     public Unit convert(Unit unit, Prefix toPrefix) {

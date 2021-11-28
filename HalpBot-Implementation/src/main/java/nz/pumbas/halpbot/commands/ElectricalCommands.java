@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+
 import java.util.List;
 
 import nz.pumbas.halpbot.converters.annotations.parameter.Children;
@@ -35,6 +37,7 @@ import nz.pumbas.halpbot.customparameters.electrical.ElectricalComponent;
 import nz.pumbas.halpbot.customparameters.electrical.PowerSupply;
 import nz.pumbas.halpbot.customparameters.electrical.Resistor;
 
+@Service
 public class ElectricalCommands
 {
     private final CircuitManager manager = new CircuitManager();
