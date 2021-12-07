@@ -247,7 +247,7 @@ public final class DefaultConverters
                     while (!invocationContext.isNext(']', true)) {
                         elementConverter.apply(invocationContext)
                                 .present(list::add)
-                                .rethrow();
+                                .rethrowUnchecked();
                     }
                     return list;
                 });

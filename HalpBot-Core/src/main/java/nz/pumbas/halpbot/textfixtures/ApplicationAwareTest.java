@@ -15,22 +15,29 @@
  * along with this library. If not, see {@literal<http://www.gnu.org/licenses/>}.
  */
 
-package nz.pumbas.halpbot.testfixtures;
+package nz.pumbas.halpbot.textfixtures;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ApplicationAwareTest {
+/**
+ * A test class that can be extended by test classes that need to access the {@link ApplicationContext}.
+ *
+ * @deprecated Use {@link HartshornTest} instead. If the {@link ApplicationContext} is needed, it should be
+ * added to the test class as an injected field.
+ */
+@Deprecated(since = "4.2.5", forRemoval = true)
+public abstract class ApplicationAwareTest {
 
     @RegisterExtension
-    final HartshornRunner runner = new HartshornRunner();
+    final HartshornExtension runner = new HartshornExtension();
 
+    @Deprecated(since = "4.2.5", forRemoval = true)
     protected ApplicationContext context() {
-        final ApplicationContext activeContext = this.runner.activeContext();
+        final ApplicationContext activeContext = null;
         if (activeContext == null) {
             throw new IllegalStateException("Active state was lost, was it modified externally?");
         }
         return activeContext;
     }
-
 }

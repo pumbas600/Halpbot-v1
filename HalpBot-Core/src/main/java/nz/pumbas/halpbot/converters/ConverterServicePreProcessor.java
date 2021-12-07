@@ -1,10 +1,11 @@
 package nz.pumbas.halpbot.converters;
 
+import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.FieldContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.services.ServiceOrder;
-import org.dockbox.hartshorn.core.services.ServiceProcessor;
+import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +15,8 @@ import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
 
-public class ConverterServiceScanner implements ServiceProcessor<UseCommands>
+@AutomaticActivation
+public class ConverterServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
     @Override
     public Class<UseCommands> activator() {

@@ -26,8 +26,10 @@ package nz.pumbas.halpbot;
 
 import org.dockbox.hartshorn.core.boot.HartshornApplication;
 
-public class Main
+public final class Main
 {
+    private Main() {}
+
     public static void main(String[] args) {
         HartshornApplication.create(Halpbot.class, args);
     }

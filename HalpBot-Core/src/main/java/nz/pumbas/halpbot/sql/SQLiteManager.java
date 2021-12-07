@@ -70,6 +70,6 @@ public class SQLiteManager implements SQLManager, LateInit
     public void reloadAllDrivers() {
         this.drivers.values()
             .forEach(SQLDriver::reload);
-        HalpbotUtils.logger().info("Reloaded SQL drivers");
+        //HalpbotUtils.logger().info("Reloaded SQL drivers");
     }
 }

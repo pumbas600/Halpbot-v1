@@ -147,7 +147,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
             else if (slashCommand.register()) {
                 jda.upsertCommand(this.generateSlashCommandData(commandMethod))
                     .queue();
-                HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.aliases());
+                //HalpbotUtils.logger().info("Registered the slash command: " + commandMethod.aliases());
             }
         }
     }
@@ -160,7 +160,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
                 .map(ISnowflake::getId)
                 .ifPresent(id ->
                     jda.deleteCommandById(id).queue(success ->
-                        HalpbotUtils.logger().info("Successfully deleted slash command: " + name))
+                            this.applicationContext.log().info("Successfully deleted slash command: " + name))
                 )
         );
     }
@@ -310,7 +310,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
      */
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        HalpbotUtils.logger().info("Joined the guild: " + event.getGuild().getName());
+        //HalpbotUtils.logger().info("Joined the guild: " + event.getGuild().getName());
         long ownerId = event.getGuild().getOwnerIdLong();
         if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.GUILD_OWNER)) {
             this.permissionManager.givePermission(ownerId, HalpbotPermissions.GIVE_PERMISSIONS);

@@ -15,27 +15,26 @@
  * along with this library. If not, see {@literal<http://www.gnu.org/licenses/>}.
  */
 
-//TODO: Remove test fixtures when this becomes available in gradle
-package nz.pumbas.halpbot.testfixtures;
+package nz.pumbas.halpbot.textfixtures;
+
+import org.dockbox.hartshorn.core.boot.ApplicationFSProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class JUnitInformation {
+import lombok.Getter;
 
-    private final Path filePath;
+/**
+ * A {@link ApplicationFSProvider} that uses a temporary directory for the application's files.
+ */
+public class JUnitFSProvider implements ApplicationFSProvider {
 
-    public JUnitInformation() {
-        try {
-            this.filePath = Files.createTempDirectory("hartshorn-");
-        }
-        catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    @Getter
+    private final Path applicationPath;
 
-    public Path path() {
-        return this.filePath;
+    public JUnitFSProvider() throws IOException {
+        this.applicationPath = Files.createTempDirectory("hartshorn");
+        this.applicationPath.toFile().deleteOnExit();
     }
 }

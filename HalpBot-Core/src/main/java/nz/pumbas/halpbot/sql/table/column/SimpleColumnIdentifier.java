@@ -18,7 +18,7 @@
 package nz.pumbas.halpbot.sql.table.column;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.persistence.table.ColumnIdentifier;
+import org.dockbox.hartshorn.data.table.ColumnIdentifier;
 
 import java.util.Objects;
 

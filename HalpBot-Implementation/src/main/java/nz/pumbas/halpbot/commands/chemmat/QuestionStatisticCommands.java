@@ -121,7 +121,7 @@ public class QuestionStatisticCommands
 
     @PreDestroy
     public void onShutDown() {
-        HalpbotUtils.logger().info("Saving modified statistics");
+        //HalpbotUtils.logger().info("Saving modified statistics");
         this.userStatisticsService.saveModifiedStatistics();
     }
 }

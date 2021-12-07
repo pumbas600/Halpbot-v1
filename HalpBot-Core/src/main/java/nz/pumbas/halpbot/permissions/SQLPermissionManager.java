@@ -24,12 +24,12 @@
 
 package nz.pumbas.halpbot.permissions;
 
-import org.dockbox.hartshorn.persistence.exceptions.EmptyEntryException;
-import org.dockbox.hartshorn.persistence.exceptions.IdentifierMismatchException;
-import org.dockbox.hartshorn.persistence.table.ColumnIdentifier;
-import org.dockbox.hartshorn.persistence.table.Merge;
-import org.dockbox.hartshorn.persistence.table.Table;
-import org.dockbox.hartshorn.persistence.table.TableRow;
+import org.dockbox.hartshorn.data.exceptions.EmptyEntryException;
+import org.dockbox.hartshorn.data.exceptions.IdentifierMismatchException;
+import org.dockbox.hartshorn.data.table.ColumnIdentifier;
+import org.dockbox.hartshorn.data.table.Merge;
+import org.dockbox.hartshorn.data.table.Table;
+import org.dockbox.hartshorn.data.table.TableRow;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

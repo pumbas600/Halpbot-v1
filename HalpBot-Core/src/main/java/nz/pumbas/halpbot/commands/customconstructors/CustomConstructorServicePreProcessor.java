@@ -2,7 +2,7 @@ package nz.pumbas.halpbot.commands.customconstructors;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.services.ServiceProcessor;
+import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import javax.inject.Inject;
 
@@ -10,7 +10,7 @@ import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 
-public class CustomConstructorServiceScanner implements ServiceProcessor<UseCommands>
+public class CustomConstructorServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
     @Inject
     private CommandAdapter commandAdapter;

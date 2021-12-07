@@ -24,10 +24,10 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
@@ -39,65 +39,65 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
-import nz.pumbas.halpbot.testfixtures.ApplicationAwareTest;
+import nz.pumbas.halpbot.textfixtures.HartshornTest;
+import nz.pumbas.halpbot.textfixtures.InjectTest;
 
 @UseCommands
-public class ConverterTests extends ApplicationAwareTest
+@HartshornTest
+public class ConverterTests
 {
+    @InjectTest
+    public void injectionTest(ApplicationContext applicationContext) {
+        Assertions.assertNotNull(applicationContext);
+    }
 
-    @Test
-    public void retrievingArrayConverterTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
+
+    @InjectTest
+    public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
         Converter<Object[]> arrayConverter = converterHandler.from(Object[].class);
 
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, arrayConverter);
     }
 
-    @Test
-    public void retrievingIntegerConverterTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
+    @InjectTest
+    public void retrievingIntegerConverterTest(ConverterHandler converterHandler) {
         Converter<Integer> integerConverter = converterHandler.from(Integer.class);
 
         Assertions.assertEquals(DefaultConverters.INTEGER_CONVERTER, integerConverter);
     }
 
-    @Test
-    public void retrievingListConverterTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
+    @InjectTest
+    public void retrievingListConverterTest(ConverterHandler converterHandler) {
         Converter<List> listConverter = converterHandler.from(List.class);
 
         Assertions.assertEquals(DefaultConverters.LIST_CONVERTER, listConverter);
     }
 
-    @Test
-    public void retrievingSetConverterTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
+    @InjectTest
+    public void retrievingSetConverterTest(ConverterHandler converterHandler) {
         Converter<Set> setConverter = converterHandler.from(Set.class);
 
         Assertions.assertEquals(DefaultConverters.SET_CONVERTER, setConverter);
     }
 
-    @Test
-    public void retrievingUnmodifiableListConverterTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
+    @InjectTest
+    public void retrievingUnmodifiableListConverterTest(ConverterHandler converterHandler) {
         Converter<List> listConverter = converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
 
         Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, listConverter);
     }
 
-    @Test
-    public void retrievingRemainingStringsConverterTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
+    @InjectTest
+    public void retrievingRemainingStringsConverterTest(ConverterHandler converterHandler) {
         Converter<String> remainingStringsConverter = converterHandler
                 .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
 
         Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, remainingStringsConverter);
     }
 
-    @Test
-    public void parsingRemainingStringsTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
-        InvocationContext invocationContext = new InvocationContext(this.context(), "This is a test sentence.");
+    @InjectTest
+    public void parsingRemainingStringsTest(ApplicationContext applicationContext, ConverterHandler converterHandler) {
+        InvocationContext invocationContext = new InvocationContext(applicationContext, "This is a test sentence.");
 
         Converter<String> converter = converterHandler
                 .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
@@ -108,10 +108,9 @@ public class ConverterTests extends ApplicationAwareTest
         Assertions.assertEquals("This is a test sentence.", sentence.get());
     }
 
-    @Test
-    public void parsingArrayTest() {
-        ConverterHandler converterHandler = this.context().get(ConverterHandler.class);
-        InvocationContext invocationContext = new InvocationContext(this.context(), "[5 1 3 12 20]");
+    @InjectTest
+    public void parsingArrayTest(ApplicationContext applicationContext, ConverterHandler converterHandler) {
+        InvocationContext invocationContext = new InvocationContext(applicationContext, "[5 1 3 12 20]");
         Converter<Integer[]> converter = converterHandler.from(Integer[].class);
 
         Integer[] array = converter.apply(invocationContext).get();

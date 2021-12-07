@@ -50,7 +50,7 @@ public final class ErrorManager
     }
 
     public static void handle(Throwable e, String message) {
-        HalpbotUtils.logger().error(message, e);
+        //HalpbotUtils.logger().error(message, e);
         sendToLoggerUser(null, e, message);
     }
 
@@ -65,7 +65,7 @@ public final class ErrorManager
         }
         else if (e instanceof ErrorMessageException) {
             String warningMessage = ":warning: " + e.getMessage();
-            HalpbotUtils.logger().warn(warningMessage);
+            //HalpbotUtils.logger().warn(warningMessage);
             event.getChannel().sendMessage(warningMessage).queue();
         }
         else {

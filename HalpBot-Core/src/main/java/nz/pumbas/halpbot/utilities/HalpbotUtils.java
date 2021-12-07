@@ -26,8 +26,6 @@ package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.JDA;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,7 +75,6 @@ public final class HalpbotUtils
     public static final float quarterRotation = 90F;
 
     private static final ContextManager contextManager = new ContextManagerImpl();
-    private static final Logger logger = LogManager.getLogger("HalpBot-Core-Bot");
 
     private static final int MAX_DESCRIPTION_LENGTH = 2048;
 
@@ -91,10 +88,6 @@ public final class HalpbotUtils
 
     public static ContextManager context() {
         return contextManager;
-    }
-
-    public static Logger logger() {
-        return logger;
     }
 
     public static JDA getJDA() {

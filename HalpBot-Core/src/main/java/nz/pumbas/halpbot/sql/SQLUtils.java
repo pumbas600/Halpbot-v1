@@ -26,10 +26,10 @@ package nz.pumbas.halpbot.sql;
 
 import org.dockbox.hartshorn.core.annotations.Property;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.persistence.exceptions.IdentifierMismatchException;
-import org.dockbox.hartshorn.persistence.table.ColumnIdentifier;
-import org.dockbox.hartshorn.persistence.table.Table;
-import org.dockbox.hartshorn.persistence.table.TableRow;
+import org.dockbox.hartshorn.data.exceptions.IdentifierMismatchException;
+import org.dockbox.hartshorn.data.table.ColumnIdentifier;
+import org.dockbox.hartshorn.data.table.Table;
+import org.dockbox.hartshorn.data.table.TableRow;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 

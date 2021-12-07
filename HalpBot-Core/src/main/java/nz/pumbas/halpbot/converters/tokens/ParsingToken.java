@@ -83,7 +83,7 @@ public interface ParsingToken extends Token
         if (invocationContext.currentType().childOf(String.class))
             return invocationContext.content();
         return converter.apply(invocationContext)
-            .rethrow()
+            .rethrowUnchecked()
             .get();
 
     }

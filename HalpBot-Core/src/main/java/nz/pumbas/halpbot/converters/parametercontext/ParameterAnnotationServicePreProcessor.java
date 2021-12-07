@@ -1,8 +1,9 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
+import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.services.ServiceProcessor;
+import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -10,7 +11,8 @@ import java.lang.annotation.Annotation;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
-public class ParameterAnnotationServiceScanner implements ServiceProcessor<UseCommands>
+@AutomaticActivation
+public class ParameterAnnotationServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
     @Override
     public boolean preconditions(@NotNull ApplicationContext context, @NotNull TypeContext<?> type) {
