@@ -3,8 +3,6 @@ package nz.pumbas.halpbot.commands.commandadapters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
-import org.dockbox.hartshorn.core.annotations.service.Service;
-import org.dockbox.hartshorn.core.context.element.ConstructorContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
@@ -23,7 +21,6 @@ import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-@Service
 public interface CommandAdapter extends HalpbotAdapter
 {
     ParameterAnnotationService parameterAnnotationService();
@@ -71,19 +68,10 @@ public interface CommandAdapter extends HalpbotAdapter
             if (!this.parameterAnnotationService().isValid(parameterType, parameterAnnotations)) {
                 this.applicationContext().log()
                         .error("There are conflicts regarding the annotations on the %s type in the executable %s"
-                                .formatted(parameterType.qualifiedName(), this.name(executable)));
+                                .formatted(parameterType.qualifiedName(), executable.name()));
                 return false;
             }
         }
         return true;
-    }
-
-    //TODO: Remove when this is added directly to ExecutableElementContext<?>
-    private String name(ExecutableElementContext<?> executable) {
-        if (executable instanceof MethodContext<?, ?> methodContext) {
-            return methodContext.name();
-        }
-        ConstructorContext<?> constructorContext = (ConstructorContext<?>) executable;
-        return constructorContext.name();
     }
 }

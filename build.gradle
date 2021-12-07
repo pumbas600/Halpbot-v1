@@ -61,6 +61,9 @@ allprojects {
             implementation 'net.dv8tion:JDA:4.3.0_333'
             implementation 'org.checkerframework:checker-qual:3.18.1'
             implementation fileTree(dir: 'libs', include: '*.jar')
+            implementation 'org.reflections:reflections:0.9.11'
+            implementation "javax.persistence:javax.persistence-api:2.2"
+            implementation 'org.javassist:javassist:3.28.0-GA'
 
             implementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'

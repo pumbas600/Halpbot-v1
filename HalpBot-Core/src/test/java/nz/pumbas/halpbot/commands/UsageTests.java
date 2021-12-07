@@ -42,8 +42,10 @@ import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
+import nz.pumbas.halpbot.textfixtures.HartshornTest;
 import nz.pumbas.halpbot.utilities.Reflect;
 
+@HartshornTest
 public class UsageTests
 {
     private static final TypeContext<UsageTests> TYPE = TypeContext.of(UsageTests.class);

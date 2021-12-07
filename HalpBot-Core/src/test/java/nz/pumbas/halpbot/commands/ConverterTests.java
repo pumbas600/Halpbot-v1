@@ -34,6 +34,7 @@ import java.util.Set;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.converters.HalpbotConverterHandler;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.converters.Converter;
@@ -51,9 +52,8 @@ public class ConverterTests
         Assertions.assertNotNull(applicationContext);
     }
 
-
     @InjectTest
-    public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
+    public void retrievingArrayConverterTest(HalpbotConverterHandler converterHandler) {
         Converter<Object[]> arrayConverter = converterHandler.from(Object[].class);
 
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, arrayConverter);
