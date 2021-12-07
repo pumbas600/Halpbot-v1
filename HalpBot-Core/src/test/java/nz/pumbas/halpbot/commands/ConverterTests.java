@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -45,6 +46,7 @@ import nz.pumbas.halpbot.textfixtures.InjectTest;
 
 @UseCommands
 @HartshornTest
+@Activator(scanPackages = "nz.pumbas.halpbot")
 public class ConverterTests
 {
     @InjectTest

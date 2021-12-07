@@ -24,11 +24,6 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
     }
 
     @Override
-    public ServiceOrder order() {
-        return ServiceOrder.EARLY;
-    }
-
-    @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
         return type.annotation(NonCommandParameters.class).present()
             || !type.fieldsOf(Converter.class).isEmpty();

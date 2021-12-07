@@ -16,7 +16,7 @@ public class ArrayTypeContext extends TypeContext<Object>
         if (o == null)
             return false;
         // Return true if this equals any array
-        return TYPE.equals(o) || o instanceof TypeContext<?> typeContext && typeContext.type().isArray();
+        return o instanceof TypeContext<?> typeContext && typeContext.type().isArray();
     }
 
     @Override

@@ -63,7 +63,7 @@ public class SQLPermissionManager implements PermissionManager, LateInit
     @Override
     public void lateInitialisation() {
         this.driver = SQLDriver.of("halpbotcore", this::populateDatabaseWithDefaultPermissions);
-        this.driver.onLoad(this::cacheData);
+        //this.driver.onLoad(this::cacheData);
     }
 
     private void cacheData(Connection connection) throws SQLException {

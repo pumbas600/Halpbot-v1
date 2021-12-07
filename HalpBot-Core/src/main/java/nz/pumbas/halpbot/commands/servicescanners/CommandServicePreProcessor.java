@@ -7,8 +7,6 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.services.ServiceOrder;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
-import javax.inject.Inject;
-
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
@@ -18,9 +16,6 @@ import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 @AutomaticActivation
 public class CommandServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
-    @Inject
-    private CommandAdapter commandAdapter;
-
     @Override
     public ServiceOrder order() {
         return ServiceOrder.LATE;
@@ -38,6 +33,7 @@ public class CommandServicePreProcessor implements ServicePreProcessor<UseComman
 
     @Override
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
+        CommandAdapter commandAdapter = context.get(CommandAdapter.class);
         T instance = context.get(type);
 
         int messageCommands = 0;
@@ -47,15 +43,15 @@ public class CommandServicePreProcessor implements ServicePreProcessor<UseComman
         for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
             if (methodContext.annotation(SlashCommand.class).present()) {
                 slashCommands++;
-                this.commandAdapter.registerSlashCommand(instance, methodContext);
+                commandAdapter.registerSlashCommand(instance, methodContext);
             }
             else if (methodContext.annotation(ReflectiveCommand.class).present()) {
                 reflectiveCommands++;
-                this.commandAdapter.registerReflectiveCommand(methodContext);
+                commandAdapter.registerReflectiveCommand(methodContext);
             }
             else {
                 messageCommands++;
-                this.commandAdapter.registerMessageCommand(instance, methodContext);
+                commandAdapter.registerMessageCommand(instance, methodContext);
             }
         }
 
