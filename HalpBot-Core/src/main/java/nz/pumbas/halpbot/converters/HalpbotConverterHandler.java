@@ -91,7 +91,7 @@ public class HalpbotConverterHandler implements ConverterHandler
 
     @Override
     public boolean isCommandParameter(ParameterContext<?> parameterContext) {
-        return !this.isCommandParameter(parameterContext.type()) &&
+        return this.isCommandParameter(parameterContext.type()) &&
                 this.nonCommandAnnotations
                         .stream()
                         .noneMatch(annotation -> parameterContext.annotation(annotation.type()).present());

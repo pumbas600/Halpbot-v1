@@ -121,6 +121,7 @@ public class ConverterTests
     @InjectTest
     public void parsingArrayTest(ApplicationContext applicationContext, ConverterHandler converterHandler) {
         InvocationContext invocationContext = new InvocationContext(applicationContext, "[5 1 3 12 20]");
+        invocationContext.currentType(TypeContext.of(Integer[].class));
         Converter<Integer[]> converter = converterHandler.from(Integer[].class);
 
         Integer[] array = converter.apply(invocationContext).get();

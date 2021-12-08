@@ -26,6 +26,8 @@ package nz.pumbas.halpbot.commands;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.testsuite.HartshornTest;
+import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -41,15 +43,13 @@ import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
-//TODO: Confirm what I need to @ExtendWith to use HH injections
+@HartshornTest
 public class InvocationContextTests
 {
-    @Inject
-    private ApplicationContext applicationContext;
 
-    @Test
-    public void getNextSurroundedTest() {
-        InvocationContext tokenInfo = new InvocationContext(this.applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
+    @InjectTest
+    public void getNextSurroundedTest(ApplicationContext applicationContext) {
+        InvocationContext tokenInfo = new InvocationContext(applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
 
         Exceptional<String> oArray1 = tokenInfo.nextSurrounded("[", "]");
         Exceptional<String> oArray2 = tokenInfo.nextSurrounded("[", "]");
@@ -63,10 +63,10 @@ public class InvocationContextTests
         Assertions.assertEquals("#Block[1 2 3] #Block[2 3 4]", oArray2.get());
     }
 
-    @Test
-    public void getNextSurroundedIncompleteTest() {
-        InvocationContext tokenInfo1 = new InvocationContext(this.applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
-        InvocationContext tokenInfo2 = new InvocationContext(this.applicationContext, "#Block[1 2 3]]");
+    @InjectTest
+    public void getNextSurroundedIncompleteTest(ApplicationContext applicationContext) {
+        InvocationContext tokenInfo1 = new InvocationContext(applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
+        InvocationContext tokenInfo2 = new InvocationContext(applicationContext, "#Block[1 2 3]]");
 
         Exceptional<String> oArray1 = tokenInfo1.nextSurrounded("[", "]");
         Exceptional<String> oArray2 = tokenInfo1.nextSurrounded("[", "]");
@@ -79,9 +79,9 @@ public class InvocationContextTests
         Assertions.assertEquals("1 2 3", oArray1.get());
     }
 
-    @Test
-    public void getNextSurroundedStepPastTest() {
-        InvocationContext tokenInfo = new InvocationContext(this.applicationContext, "#Block[1 2 3]");
+    @InjectTest
+    public void getNextSurroundedStepPastTest(ApplicationContext applicationContext) {
+        InvocationContext tokenInfo = new InvocationContext(applicationContext, "#Block[1 2 3]");
 
         Exceptional<String> oType = tokenInfo.nextSurrounded("#", "[", false);
         Exceptional<String> oParameters = tokenInfo.nextSurrounded("[", "]");
@@ -92,22 +92,5 @@ public class InvocationContextTests
 
         Assertions.assertEquals("Block", oType.get());
         Assertions.assertEquals("1 2 3", oParameters.get());
-    }
-
-    @Test
-    public void contextStateCopyTest() {
-        ContextState contextState = new ContextState(Integer.class, new Annotation[0], new ArrayList<>(
-            Arrays.asList(Unrequired.class, Children.class, Implicit.class)));
-
-        ContextState copy = contextState.copyContextState();
-        contextState.setType(Float.class);
-        contextState.getAnnotationTypes().remove(Children.class);
-
-        Assertions.assertFalse(contextState.getAnnotationTypes().contains(Children.class));
-        Assertions.assertTrue(copy.getAnnotationTypes().contains(Children.class));
-
-        Assertions.assertEquals(Float.class, contextState.getType());
-        Assertions.assertEquals(Integer.class, copy.getType());
-
     }
 }

@@ -233,8 +233,9 @@ public final class DefaultConverters
 
     public static final TypeConverter<List> LIST_CONVERTER = TypeConverter.builder(List.class)
             .convert(invocationContext -> {
-                //TODO: Test for arrays
-                TypeContext<?> genericType = invocationContext.currentType().typeParameters(List.class).get(0);
+                TypeContext<?> genericType = invocationContext.currentType().isArray()
+                        ? invocationContext.currentType().elementType().get()
+                        : invocationContext.currentType().typeParameters(List.class).get(0);
                 Converter<?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);

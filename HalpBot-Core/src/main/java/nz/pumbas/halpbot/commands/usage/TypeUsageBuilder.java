@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.commands.usage;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class TypeUsageBuilder implements UsageBuilder
 
             if (token instanceof ParsingToken parsingToken && parsingToken.isCommandParameter())
                 stringBuilder.append(
-                    HalpbotUtils.variableNameToSplitLowercase(parsingToken.converter().type().name()));
+                        HalpbotUtils.variableNameToSplitLowercase(parsingToken.converter().type().type().getSimpleName()));
 
             else if (token instanceof PlaceholderToken placeholderToken)
                 stringBuilder.append(placeholderToken.placeholder());
