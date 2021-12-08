@@ -36,6 +36,9 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
+import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
+import nz.pumbas.halpbot.utilities.Reflect;
+
 @Service
 @Binds(ConverterHandler.class)
 public class HalpbotConverterHandler implements ConverterHandler
@@ -60,9 +63,15 @@ public class HalpbotConverterHandler implements ConverterHandler
     @Override
     @SuppressWarnings("unchecked")
     public <T> Converter<T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
-        if (!this.converters.containsKey(typeContext))
-            return (Converter<T>) DefaultConverters.OBJECT_CONVERTER;
-
+        if (!this.converters.containsKey(typeContext)) {
+            // Check in case there is a key that equals the type context (E.g: ArrayTypeContext will equal any arrays)
+            return (Converter<T>) this.converters.keySet()
+                    .stream()
+                    .filter(type -> type.equals(typeContext))
+                    .findFirst()
+                    .map(type -> this.from(type, targetAnnotationType))
+                    .orElse(Reflect.cast(DefaultConverters.OBJECT_CONVERTER));
+        }
         return (Converter<T>) this.converters.get(typeContext)
                 .stream()
                 .filter(converter -> converter.annotationType().equals(targetAnnotationType))

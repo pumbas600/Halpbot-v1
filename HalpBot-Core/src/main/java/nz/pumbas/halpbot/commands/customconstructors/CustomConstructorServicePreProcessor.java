@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.commands.customconstructors;
 
+import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
@@ -10,10 +11,10 @@ import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 
+//@AutomaticActivation
 public class CustomConstructorServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
-    @Inject
-    private CommandAdapter commandAdapter;
+    @Inject private CommandAdapter commandAdapter;
 
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {

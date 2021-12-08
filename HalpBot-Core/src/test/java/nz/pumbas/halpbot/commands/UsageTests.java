@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,14 +37,9 @@ import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
-import nz.pumbas.halpbot.textfixtures.HartshornTest;
-import nz.pumbas.halpbot.utilities.Reflect;
 
 @HartshornTest
 public class UsageTests

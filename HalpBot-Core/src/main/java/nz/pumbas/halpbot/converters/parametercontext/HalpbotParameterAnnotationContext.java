@@ -1,11 +1,11 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -34,8 +34,8 @@ public class HalpbotParameterAnnotationContext implements ParameterAnnotationCon
 
     public static HalpbotParameterAnnotationContext generic() {
         return new HalpbotParameterAnnotationContext(
-                HartshornUtils.emptySet(),
-                HartshornUtils.emptySet(),
-                HartshornUtils.asSet(TypeContext.of(Object.class)));
+                Collections.emptySet(),
+                Collections.emptySet(),
+                Set.of(TypeContext.of(Object.class)));
     }
 }

@@ -16,6 +16,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -273,7 +274,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
     @Override
     public Map<String, CommandContext> registeredCommands() {
-        return HartshornUtils.asUnmodifiableMap(this.registeredCommands);
+        return Collections.unmodifiableMap(this.registeredCommands);
     }
 
     //TODO: Check if primatives's are displayed as int or Integer

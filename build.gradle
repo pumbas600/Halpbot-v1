@@ -64,6 +64,8 @@ allprojects {
             implementation 'org.reflections:reflections:0.9.11'
             implementation "javax.persistence:javax.persistence-api:2.2"
             implementation 'org.javassist:javassist:3.28.0-GA'
+            implementation 'javax.inject:javax.inject:1'
+            implementation 'org.mockito:mockito-core:4.0.0'
 
             implementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -82,10 +84,4 @@ allprojects {
 
 configurations.implementation {
     exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
-}
-
-dependencies {
-    implementation 'javax.inject:javax.inject:1'
-    implementation 'org.mockito:mockito-core:4.0.0'
-
 }

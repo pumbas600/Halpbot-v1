@@ -9,6 +9,7 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -19,7 +20,7 @@ import lombok.Getter;
 public class HalpbotParameterAnnotationService implements ParameterAnnotationService
 {
     private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
-            = HartshornUtils.emptyConcurrentMap();
+            = new ConcurrentHashMap<>();
 
     @Inject
     @Getter private ApplicationContext applicationContext;

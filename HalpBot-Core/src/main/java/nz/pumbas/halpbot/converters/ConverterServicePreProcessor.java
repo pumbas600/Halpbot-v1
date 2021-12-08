@@ -32,7 +32,6 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
     @SuppressWarnings("rawtypes")
     @Override
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
-        final T instance = context.get(type);
         final ConverterHandler handler = context.get(ConverterHandler.class);
 
         type.annotation(NonCommandParameters.class)
@@ -59,7 +58,7 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
                     .formatted(fieldContext.name(), type.qualifiedName()));
 
             else {
-                fieldContext.get(instance).present(handler::registerConverter);
+                fieldContext.get(null).present(handler::registerConverter);
                 count++;
             }
         }

@@ -28,21 +28,22 @@ import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.testsuite.HartshornTest;
+import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.converters.HalpbotConverterHandler;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
-import nz.pumbas.halpbot.textfixtures.HartshornTest;
-import nz.pumbas.halpbot.textfixtures.InjectTest;
+import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 
 @UseCommands
 @HartshornTest
@@ -54,8 +55,15 @@ public class ConverterTests
         Assertions.assertNotNull(applicationContext);
     }
 
+    @Test
+    public void arrayTypeContextEqualityTests() {
+        Assertions.assertEquals(ArrayTypeContext.TYPE, ArrayTypeContext.TYPE);
+        Assertions.assertEquals(ArrayTypeContext.TYPE, TypeContext.of(Object[].class));
+        Assertions.assertEquals(ArrayTypeContext.TYPE, TypeContext.of(Integer[].class));
+    }
+
     @InjectTest
-    public void retrievingArrayConverterTest(HalpbotConverterHandler converterHandler) {
+    public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
         Converter<Object[]> arrayConverter = converterHandler.from(Object[].class);
 
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, arrayConverter);

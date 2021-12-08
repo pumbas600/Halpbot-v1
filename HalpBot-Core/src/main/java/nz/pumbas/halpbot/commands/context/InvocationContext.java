@@ -58,7 +58,7 @@ public class InvocationContext implements ContextCarrier
     @Setter private int currentAnnotationIndex;
     @Setter private TypeContext<?> currentType = TypeContext.VOID;
     private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
-    private List<Annotation> annotations = Collections.emptyList();
+    private Set<Annotation> annotations = Collections.emptySet();
 
     public InvocationContext(ApplicationContext applicationContext, String content) {
         this(applicationContext, content, null, Collections.emptySet());

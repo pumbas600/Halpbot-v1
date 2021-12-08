@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 
 import nz.pumbas.halpbot.utilities.Reflect;
 
+//TODO: Remove
 public class ContextManagerImpl implements ContextManager
 {
     Map<Class<?>, Object> instances = new HashMap<>();

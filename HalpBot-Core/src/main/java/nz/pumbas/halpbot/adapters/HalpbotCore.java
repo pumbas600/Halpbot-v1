@@ -170,9 +170,9 @@ public class HalpbotCore implements ContextCarrier
     }
 
     @Provider
-    public JDA jda() {
+    public JDA jda() throws ApplicationException {
         if (this.jda == null)
-            throw new ApplicationException("You are trying to access the JDA instance before it has been created").runtime();
+            throw new ApplicationException("You are trying to access the JDA instance before it has been created");
         return this.jda;
     }
 
