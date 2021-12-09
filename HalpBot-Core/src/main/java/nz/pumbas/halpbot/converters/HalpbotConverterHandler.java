@@ -48,6 +48,8 @@ public class HalpbotConverterHandler implements ConverterHandler
     private final Set<TypeContext<?>> nonCommandTypes = HartshornUtils.emptyConcurrentSet();
     private final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = HartshornUtils.emptyConcurrentSet();
 
+    private final TypeContext<?> objectType = TypeContext.of(Object.class);
+
     @Override
     public <T> Converter<T> from(ParameterContext<T> parameterContext,
                                  List<TypeContext<? extends Annotation>> sortedAnnotations) {
@@ -67,7 +69,7 @@ public class HalpbotConverterHandler implements ConverterHandler
             // Check in case there is a key that equals the type context (E.g: ArrayTypeContext will equal any arrays)
             return (Converter<T>) this.converters.keySet()
                     .stream()
-                    .filter(type -> type.equals(typeContext))
+                    .filter(type -> this.filterConverterType(type, typeContext))
                     .findFirst()
                     .map(type -> this.from(type, targetAnnotationType))
                     .orElse(Reflect.cast(DefaultConverters.OBJECT_CONVERTER));
@@ -77,6 +79,11 @@ public class HalpbotConverterHandler implements ConverterHandler
                 .filter(converter -> converter.annotationType().equals(targetAnnotationType))
                 .findFirst()
                 .orElse(DefaultConverters.OBJECT_CONVERTER);
+    }
+
+    // TypeContext cannot be reflected on???
+    private boolean filterConverterType(TypeContext<?> keyContext, TypeContext<?> typeContext) {
+        return keyContext.equals(this.objectType) ? keyContext.equals(typeContext) : typeContext.childOf(keyContext);
     }
 
     @Override

@@ -24,14 +24,15 @@
 
 package nz.pumbas.halpbot.commands;
 
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
@@ -43,30 +44,23 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
-import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 
 @UseCommands
 @HartshornTest
-@Activator(scanPackages = "nz.pumbas.halpbot")
 public class ConverterTests
 {
-    @InjectTest
-    public void injectionTest(ApplicationContext applicationContext) {
-        Assertions.assertNotNull(applicationContext);
-    }
-
-    @Test
-    public void arrayTypeContextEqualityTests() {
-        Assertions.assertEquals(ArrayTypeContext.TYPE, ArrayTypeContext.TYPE);
-        Assertions.assertEquals(ArrayTypeContext.TYPE, TypeContext.of(Object[].class));
-        Assertions.assertEquals(ArrayTypeContext.TYPE, TypeContext.of(Integer[].class));
-    }
-
     @InjectTest
     public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
         Converter<Object[]> arrayConverter = converterHandler.from(Object[].class);
 
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, arrayConverter);
+    }
+
+    @InjectTest
+    public void retrievingMessageReceivedEventConverterTest(ConverterHandler converterHandler) {
+        Converter<MessageReceivedEvent> eventConverter = converterHandler.from(MessageReceivedEvent.class);
+
+        Assertions.assertEquals(DefaultConverters.EVENT_CONVERTER, eventConverter);
     }
 
     @InjectTest

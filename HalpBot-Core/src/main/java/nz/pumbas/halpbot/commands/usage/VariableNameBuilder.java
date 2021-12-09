@@ -4,6 +4,8 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.methods.Invokable;
@@ -17,20 +19,22 @@ public class VariableNameBuilder implements UsageBuilder
     @Override
     public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext) {
         StringBuilder stringBuilder = new StringBuilder();
-        List<Token> tokens = Invokable.tokens(applicationContext, executableContext);
-        List<ParameterContext<?>> parameters = executableContext.parameters();
-        int parameterIndex = 0;
+        Deque<ParameterContext<?>> parameters = executableContext.parameters();
 
+        List<Token> tokens = Invokable.tokens(applicationContext, executableContext);
         for (Token token : tokens) {
+            if (token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter()) {
+                parameters.removeFirst();
+                continue;
+            }
+
             stringBuilder.append(token.isOptional() ? '[' : '<');
 
-            if (token instanceof ParsingToken parsingToken) {
-                if (parsingToken.isCommandParameter()) {
-                    stringBuilder.append(
-                        HalpbotUtils.variableNameToSplitLowercase(parameters.get(parameterIndex).name()));
-                }
-                parameterIndex++;
+            if (token instanceof ParsingToken) {
+                ParameterContext<?> parameterContext = parameters.removeFirst();
+                stringBuilder.append(HalpbotUtils.variableNameToSplitLowercase(parameterContext.name()));
             }
+
             else if (token instanceof PlaceholderToken placeholderToken)
                 stringBuilder.append(placeholderToken.placeholder());
 

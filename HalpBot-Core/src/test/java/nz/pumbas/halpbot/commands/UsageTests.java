@@ -27,8 +27,8 @@ package nz.pumbas.halpbot.commands;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
@@ -37,50 +37,109 @@ import org.junit.jupiter.api.Assertions;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
+import nz.pumbas.halpbot.commands.usage.VariableNameBuilder;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
 @UseCommands
 @HartshornTest
-@Activator(scanPackages = "nz.pumbas.halpbot")
 public class UsageTests
 {
-    private static final TypeContext<UsageTests> TYPE = TypeContext.of(UsageTests.class);
-
-    @InjectTest
-    public void generateUsageTest(ApplicationContext applicationContext) {
-        UsageBuilder usageBuilder = new TypeUsageBuilder();
-        String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TYPE.method("testMethod1", String.class, int.class).get());
-
-        Assertions.assertEquals("<string> <integer>", usage);
+    private MethodContext<?, ?> method(String name) {
+        return TypeContext.of(UsageTests.class).methods()
+                .stream()
+                .filter(method -> method.name().equals(name))
+                .findFirst()
+                .get();
     }
 
     @InjectTest
-    public void generateUsageExcludeEventTest(ApplicationContext applicationContext) {
+    public void generateTypeUsageTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                TYPE.method("testMethod2", MessageReceivedEvent.class, float.class).get());
+                this.method("testMethod1"));
 
-        Assertions.assertEquals("<float>", usage);
+        Assertions.assertEquals("<String> <Integer>", usage);
     }
 
     @InjectTest
-    public void generateUsageExcludeSourceTest(ApplicationContext applicationContext) {
+    public void generateTypeUsageExcludeEventTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                TYPE.method("testMethod3", User.class).get());
+                this.method("testMethod2"));
+
+        Assertions.assertEquals("<Float>", usage);
+    }
+
+    @InjectTest
+    public void generateTypeUsageExcludeSourceTest(ApplicationContext applicationContext) {
+        UsageBuilder usageBuilder = new TypeUsageBuilder();
+        String usage = usageBuilder.buildUsage(
+                applicationContext,
+                this.method("testMethod3"));
 
         Assertions.assertEquals("", usage);
     }
 
-    public void testMethod1(String first, int second) {}
+    @InjectTest
+    public void generateTypeUsageWithOptionalParameterTest(ApplicationContext applicationContext) {
+        UsageBuilder usageBuilder = new TypeUsageBuilder();
+        String usage = usageBuilder.buildUsage(
+                applicationContext,
+                this.method("testMethod4"));
+
+        Assertions.assertEquals("[User]", usage);
+    }
+
+    @InjectTest
+    public void generateNameUsageTest(ApplicationContext applicationContext) {
+        UsageBuilder usageBuilder = new VariableNameBuilder();
+        String usage = usageBuilder.buildUsage(
+                applicationContext,
+                this.method("testMethod1"));
+
+        Assertions.assertEquals("<first> <second>", usage);
+    }
+
+    @InjectTest
+    public void generateNameUsageExcludeEventTest(ApplicationContext applicationContext) {
+        UsageBuilder usageBuilder = new VariableNameBuilder();
+        String usage = usageBuilder.buildUsage(
+                applicationContext,
+                this.method("testMethod2"));
+
+        Assertions.assertEquals("<number>", usage);
+    }
+
+    @InjectTest
+    public void generateNameUsageExcludeSourceTest(ApplicationContext applicationContext) {
+        UsageBuilder usageBuilder = new VariableNameBuilder();
+        String usage = usageBuilder.buildUsage(
+                applicationContext,
+                this.method("testMethod3"));
+
+        Assertions.assertEquals("", usage);
+    }
+
+    @InjectTest
+    public void generateNameUsageWithOptionalParameterTest(ApplicationContext applicationContext) {
+        UsageBuilder usageBuilder = new VariableNameBuilder();
+        String usage = usageBuilder.buildUsage(
+                applicationContext,
+                this.method("testMethod4"));
+
+        Assertions.assertEquals("[user]", usage);
+    }
+
+    private void testMethod1(String first, int second) {}
 
     private void testMethod2(MessageReceivedEvent event, float number) {}
 
     private void testMethod3(@Source User author) {}
+
+    private void testMethod4(@Unrequired User user) {}
 
 //    @Test
 //    public void commandUsesMethodNameIfAliasUndefinedTest() {

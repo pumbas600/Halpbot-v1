@@ -29,19 +29,8 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import javax.inject.Inject;
-
-import nz.pumbas.halpbot.converters.annotations.parameter.Children;
-import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
-import nz.pumbas.halpbot.commands.context.ContextState;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
 @HartshornTest
 public class InvocationContextTests

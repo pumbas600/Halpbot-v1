@@ -153,6 +153,18 @@ public final class Reflect
     }
 
     /**
+     * Returns the wrapper for a primative, or the passed in type if it has no primative type.
+     *
+     * @param type
+     *     The {@link TypeContext} to get the wrapper type of
+     *
+     * @return the wrapper for a primative, or the passed in type if it has no primative type
+     */
+    public static Class<?> wrapPrimative(TypeContext<?> type) {
+        return wrapPrimative(type.type());
+    }
+
+    /**
      * Returns the primative type of a wrapper type, or the passed in type if it has no primative type.
      *
      * @param type

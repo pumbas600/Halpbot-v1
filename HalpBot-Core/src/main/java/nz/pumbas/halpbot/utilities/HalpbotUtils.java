@@ -531,7 +531,19 @@ public final class HalpbotUtils
      * @return the converted text
      */
     public static String variableNameToSplitLowercase(String text) {
-        return text.replaceAll("([a-z][A-Z])", "$1 $2")
-            .toLowerCase(Locale.ROOT);
+        return splitVariableName(text).toLowerCase(Locale.ROOT);
+    }
+
+
+    /**
+     * Splits camelCase and PascalCase. For example camelCase would become 'camel Case'.
+     *
+     * @param text
+     *      The camelCase or PascalCase text to convert
+     *
+     * @return the converted text
+     */
+    public static String splitVariableName(String text) {
+        return text.replaceAll("([a-z])([A-Z])", "$1 $2");
     }
 }
