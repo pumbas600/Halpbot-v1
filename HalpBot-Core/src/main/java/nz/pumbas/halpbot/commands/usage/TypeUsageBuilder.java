@@ -21,19 +21,20 @@ public class TypeUsageBuilder implements UsageBuilder
     @Override
     public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext) {
         StringBuilder stringBuilder = new StringBuilder();
-        Deque<ParameterContext<?>> parameters = executableContext.parameters();
+        List<ParameterContext<?>> parameters = executableContext.parameters();
+        int parameterIndex = 0;
 
         List<Token> tokens = Invokable.tokens(applicationContext, executableContext);
         for (Token token : tokens) {
             if (token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter()) {
-                parameters.removeFirst();
+                parameterIndex++;
                 continue;
             }
 
             stringBuilder.append(token.isOptional() ? '[' : '<');
 
             if (token instanceof ParsingToken) {
-                Class<?> type = Reflect.wrapPrimative(parameters.removeFirst().type());
+                Class<?> type = Reflect.wrapPrimative(parameters.get(parameterIndex++).type());
                 stringBuilder.append(HalpbotUtils.splitVariableName(type.getSimpleName()));
             }
 

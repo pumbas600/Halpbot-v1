@@ -35,7 +35,6 @@ import java.util.Set;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.MethodContext;
 
-//TODO: Refactor to support HH
 public interface ConverterHandler
 {
 

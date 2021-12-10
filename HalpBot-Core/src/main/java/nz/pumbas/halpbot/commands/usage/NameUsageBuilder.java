@@ -14,24 +14,25 @@ import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class VariableNameBuilder implements UsageBuilder
+public class NameUsageBuilder implements UsageBuilder
 {
     @Override
     public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext) {
         StringBuilder stringBuilder = new StringBuilder();
-        Deque<ParameterContext<?>> parameters = executableContext.parameters();
+        List<ParameterContext<?>> parameters = executableContext.parameters();
+        int parameterIndex = 0;
 
         List<Token> tokens = Invokable.tokens(applicationContext, executableContext);
         for (Token token : tokens) {
             if (token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter()) {
-                parameters.removeFirst();
+                parameterIndex++;
                 continue;
             }
 
             stringBuilder.append(token.isOptional() ? '[' : '<');
 
             if (token instanceof ParsingToken) {
-                ParameterContext<?> parameterContext = parameters.removeFirst();
+                ParameterContext<?> parameterContext = parameters.get(parameterIndex++);
                 stringBuilder.append(HalpbotUtils.variableNameToSplitLowercase(parameterContext.name()));
             }
 

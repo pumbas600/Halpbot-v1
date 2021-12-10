@@ -48,8 +48,6 @@ public class HalpbotConverterHandler implements ConverterHandler
     private final Set<TypeContext<?>> nonCommandTypes = HartshornUtils.emptyConcurrentSet();
     private final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = HartshornUtils.emptyConcurrentSet();
 
-    private final TypeContext<?> objectType = TypeContext.of(Object.class);
-
     @Override
     public <T> Converter<T> from(ParameterContext<T> parameterContext,
                                  List<TypeContext<? extends Annotation>> sortedAnnotations) {
@@ -81,9 +79,10 @@ public class HalpbotConverterHandler implements ConverterHandler
                 .orElse(DefaultConverters.OBJECT_CONVERTER);
     }
 
-    // TypeContext cannot be reflected on???
     private boolean filterConverterType(TypeContext<?> keyContext, TypeContext<?> typeContext) {
-        return keyContext.equals(this.objectType) ? keyContext.equals(typeContext) : typeContext.childOf(keyContext);
+        return keyContext.type().equals(Object.class)
+                ? keyContext.equals(typeContext)
+                : typeContext.childOf(keyContext);
     }
 
     @Override
@@ -106,6 +105,8 @@ public class HalpbotConverterHandler implements ConverterHandler
 
     @Override
     public boolean isCommandParameter(TypeContext<?> typeContext) {
-        return !this.nonCommandTypes.contains(typeContext);
+        return !this.nonCommandTypes.contains(typeContext) &&
+                this.nonCommandTypes.stream()
+                        .noneMatch(typeContext::childOf);
     }
 }

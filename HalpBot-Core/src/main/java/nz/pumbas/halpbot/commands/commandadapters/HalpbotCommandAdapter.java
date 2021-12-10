@@ -42,7 +42,7 @@ import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFac
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
-import nz.pumbas.halpbot.commands.usage.VariableNameBuilder;
+import nz.pumbas.halpbot.commands.usage.NameUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.common.annotations.Bot;
@@ -149,7 +149,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         }
         this.applicationContext.log()
                 .info("Parameter names have been preserved. Using a variable name usage builder");
-        return new VariableNameBuilder();
+        return new NameUsageBuilder();
     }
 
     @Override

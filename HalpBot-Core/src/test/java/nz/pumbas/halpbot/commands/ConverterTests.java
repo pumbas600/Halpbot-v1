@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
@@ -39,6 +39,7 @@ import java.util.Set;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.converters.Converter;
@@ -51,52 +52,59 @@ public class ConverterTests
 {
     @InjectTest
     public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
-        Converter<Object[]> arrayConverter = converterHandler.from(Object[].class);
+        Converter<Object[]> converter = converterHandler.from(Object[].class);
 
-        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, arrayConverter);
+        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingMessageReceivedEventConverterTest(ConverterHandler converterHandler) {
-        Converter<MessageReceivedEvent> eventConverter = converterHandler.from(MessageReceivedEvent.class);
+        Converter<MessageReceivedEvent> converter = converterHandler.from(MessageReceivedEvent.class);
 
-        Assertions.assertEquals(DefaultConverters.EVENT_CONVERTER, eventConverter);
+        Assertions.assertEquals(DefaultConverters.EVENT_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingObjectConverterForUnknownTypesTest(ConverterHandler converterHandler) {
+        Converter<Vector3> converter = converterHandler.from(Vector3.class);
+
+        Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingIntegerConverterTest(ConverterHandler converterHandler) {
-        Converter<Integer> integerConverter = converterHandler.from(Integer.class);
+        Converter<Integer> converter = converterHandler.from(Integer.class);
 
-        Assertions.assertEquals(DefaultConverters.INTEGER_CONVERTER, integerConverter);
+        Assertions.assertEquals(DefaultConverters.INTEGER_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingListConverterTest(ConverterHandler converterHandler) {
-        Converter<List> listConverter = converterHandler.from(List.class);
+        Converter<List> converter = converterHandler.from(List.class);
 
-        Assertions.assertEquals(DefaultConverters.LIST_CONVERTER, listConverter);
+        Assertions.assertEquals(DefaultConverters.LIST_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingSetConverterTest(ConverterHandler converterHandler) {
-        Converter<Set> setConverter = converterHandler.from(Set.class);
+        Converter<Set> converter = converterHandler.from(Set.class);
 
-        Assertions.assertEquals(DefaultConverters.SET_CONVERTER, setConverter);
+        Assertions.assertEquals(DefaultConverters.SET_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingUnmodifiableListConverterTest(ConverterHandler converterHandler) {
-        Converter<List> listConverter = converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
+        Converter<List> converter = converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
 
-        Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, listConverter);
+        Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingRemainingStringsConverterTest(ConverterHandler converterHandler) {
-        Converter<String> remainingStringsConverter = converterHandler
+        Converter<String> converter = converterHandler
                 .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
 
-        Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, remainingStringsConverter);
+        Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, converter);
     }
 
     @InjectTest

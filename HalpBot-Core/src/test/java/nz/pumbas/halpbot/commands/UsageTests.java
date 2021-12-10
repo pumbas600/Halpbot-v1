@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Assertions;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
-import nz.pumbas.halpbot.commands.usage.VariableNameBuilder;
+import nz.pumbas.halpbot.commands.usage.NameUsageBuilder;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
@@ -95,7 +95,7 @@ public class UsageTests
 
     @InjectTest
     public void generateNameUsageTest(ApplicationContext applicationContext) {
-        UsageBuilder usageBuilder = new VariableNameBuilder();
+        UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
                 this.method("testMethod1"));
@@ -105,7 +105,7 @@ public class UsageTests
 
     @InjectTest
     public void generateNameUsageExcludeEventTest(ApplicationContext applicationContext) {
-        UsageBuilder usageBuilder = new VariableNameBuilder();
+        UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
                 this.method("testMethod2"));
@@ -115,7 +115,7 @@ public class UsageTests
 
     @InjectTest
     public void generateNameUsageExcludeSourceTest(ApplicationContext applicationContext) {
-        UsageBuilder usageBuilder = new VariableNameBuilder();
+        UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
                 this.method("testMethod3"));
@@ -125,7 +125,7 @@ public class UsageTests
 
     @InjectTest
     public void generateNameUsageWithOptionalParameterTest(ApplicationContext applicationContext) {
-        UsageBuilder usageBuilder = new VariableNameBuilder();
+        UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
                 this.method("testMethod4"));
