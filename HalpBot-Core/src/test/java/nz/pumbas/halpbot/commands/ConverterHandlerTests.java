@@ -25,7 +25,14 @@
 package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Invite.Channel;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -37,18 +44,23 @@ import org.junit.jupiter.api.Assertions;
 import java.util.List;
 import java.util.Set;
 
+import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.objects.Vector3;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
 @UseCommands
 @HartshornTest
-public class ConverterTests
+public class ConverterHandlerTests
 {
     @InjectTest
     public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
@@ -133,5 +145,65 @@ public class ConverterTests
         Assertions.assertEquals(3,  array[2]);
         Assertions.assertEquals(12, array[3]);
         Assertions.assertEquals(20, array[4]);
+    }
+
+    @InjectTest
+    public void isCommandParameterTests(ConverterHandler converterHandler) {
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(int.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(byte.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(double.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(long.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(float.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(boolean.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(short.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(String.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(Vector3.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(int[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(boolean[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(float[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(double[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(List.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(Set.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(User.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(MessageChannel.class)));
+    }
+
+    @InjectTest
+    public void isNotCommandParameterTests(ConverterHandler converterHandler) {
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(JDA.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(GenericEvent.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(MessageReceivedEvent.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(Interaction.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(HalpbotAdapter.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(HalpbotCore.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(ApplicationContext.class)));
+    }
+
+    @InjectTest
+    public void isNotCommandParameterWhenAnnotatedWithSourceTests(ConverterHandler converterHandler) {
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+                TypeContext.of(User.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+                TypeContext.of(Member.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+                TypeContext.of(MessageChannel.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+                TypeContext.of(Channel.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+                TypeContext.of(VoiceChannel.class), Set.of(TypeContext.of(Source.class))));
+    }
+
+    @InjectTest
+    public void isCommandParameterWhenAnnotated(ConverterHandler converterHandler) {
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+                TypeContext.of(int.class), Set.of(TypeContext.of(Unrequired.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+                TypeContext.of(User.class), Set.of(TypeContext.of(Unrequired.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+                TypeContext.of(String.class), Set.of(TypeContext.of(Remaining.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+                TypeContext.of(String[].class), Set.of(TypeContext.of(Implicit.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+                TypeContext.of(List.class), Set.of(TypeContext.of(Implicit.class))));
     }
 }

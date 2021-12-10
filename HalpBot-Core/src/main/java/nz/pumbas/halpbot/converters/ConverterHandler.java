@@ -89,5 +89,7 @@ public interface ConverterHandler
 
     boolean isCommandParameter(ParameterContext<?> parameterContext);
 
+    boolean isCommandParameter(TypeContext<?> typeContext, Set<TypeContext<? extends Annotation>> annotationTypes);
+
     boolean isCommandParameter(TypeContext<?> typeContext);
 }

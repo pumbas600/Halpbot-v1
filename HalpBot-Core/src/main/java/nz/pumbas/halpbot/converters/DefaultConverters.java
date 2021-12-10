@@ -78,7 +78,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 @NonCommandParameters(
         types = {
                 PersistantUserData.class, GenericEvent.class, Interaction.class, HalpbotCore.class,
-                AbstractHalpbotAdapter.class, JDA.class, ApplicationContext.class
+                AbstractHalpbotAdapter.class, JDA.class, ApplicationContext.class, HalpbotAdapter.class
         },
         annotations = Source.class
 )

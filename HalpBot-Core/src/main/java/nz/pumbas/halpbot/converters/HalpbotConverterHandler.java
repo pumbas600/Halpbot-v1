@@ -104,6 +104,14 @@ public class HalpbotConverterHandler implements ConverterHandler
     }
 
     @Override
+    public boolean isCommandParameter(TypeContext<?> typeContext, Set<TypeContext<? extends Annotation>> annotationTypes) {
+        return this.isCommandParameter(typeContext) &&
+                this.nonCommandAnnotations
+                        .stream()
+                        .noneMatch(annotationTypes::contains);
+    };
+
+    @Override
     public boolean isCommandParameter(TypeContext<?> typeContext) {
         return !this.nonCommandTypes.contains(typeContext) &&
                 this.nonCommandTypes.stream()
