@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.converters.tokens;
 
 import org.dockbox.hartshorn.core.annotations.Factory;
+import org.dockbox.hartshorn.core.annotations.proxy.Provided;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
@@ -20,6 +21,15 @@ import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 @Service
 public interface TokenFactory
 {
+    @Provided
+    ApplicationContext applicationContext();
+
+    @Provided
+    ConverterHandler converterHandler();
+
+    @Provided
+    ParameterAnnotationService parameterAnnotationService();
+
     @Factory
     PlaceholderToken createPlaceholder(boolean isOptional, String placeholder);
 
@@ -31,11 +41,10 @@ public interface TokenFactory
                                boolean isCommandParameter,
                                boolean isOptional);
 
-    default ParsingToken createParsing(ApplicationContext applicationContext,
-                                       ParameterContext<?> parameterContext)
+    default ParsingToken createParsing(ParameterContext<?> parameterContext)
     {
-        final ConverterHandler converterHandler = applicationContext.get(ConverterHandler.class);
-        final ParameterAnnotationService annotationService = applicationContext.get(ParameterAnnotationService.class);
+        final ConverterHandler converterHandler = this.converterHandler();
+        final ParameterAnnotationService annotationService = this.parameterAnnotationService();
 
         boolean isCommandParameter = converterHandler.isCommandParameter(parameterContext);
         boolean isOptional = false;
@@ -52,7 +61,7 @@ public interface TokenFactory
 
         if (unrequired.present()) {
             isOptional = true;
-            InvocationContext invocationContext = new InvocationContext(applicationContext, unrequired.get().value());
+            InvocationContext invocationContext = new InvocationContext(this.applicationContext(), unrequired.get().value());
             invocationContext.update(parameterContext, sortedAnnotations);
 
             defaultValue = ParsingToken.parseDefaultValue(converter, invocationContext);

@@ -33,7 +33,7 @@ public class HalpbotTokenService implements TokenService
 
         List<Token> tokens = executableContext.parameters()
                 .stream()
-                .map(parameterContext -> this.tokenFactory.createParsing(this.applicationContext, parameterContext))
+                .map(parameterContext -> this.tokenFactory.createParsing(parameterContext))
                 .collect(Collectors.toList());
 
         this.cache.put(executableContext, tokens);

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
+import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 
 public interface ParameterAnnotationService extends ContextCarrier
 {
@@ -37,7 +38,8 @@ public interface ParameterAnnotationService extends ContextCarrier
                                     .map(TypeContext::of)
                                     .collect(Collectors.toSet()),
                             Stream.of(parameterAnnotation.allowedType())
-                                    .map(TypeContext::of)
+                                    .map(type -> type.equals(ArrayTypeContext.class)
+                                            ? ArrayTypeContext.VOID : TypeContext.of(type))
                                     .collect(Collectors.toSet())
                     ));
 

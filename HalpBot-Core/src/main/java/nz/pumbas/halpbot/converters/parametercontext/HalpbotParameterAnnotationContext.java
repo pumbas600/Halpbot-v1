@@ -6,12 +6,14 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nz.pumbas.halpbot.converters.annotations.Any;
 
 @Getter
 @Accessors(chain = false)
@@ -24,7 +26,6 @@ public class HalpbotParameterAnnotationContext implements ParameterAnnotationCon
     private final Set<TypeContext<? extends Annotation>> afterAnnotations;
 
     @Setter private Set<TypeContext<? extends Annotation>> conflictingAnnotations;
-
     @Setter private Set<TypeContext<?>> allowedTypes;
 
     @Override

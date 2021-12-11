@@ -28,12 +28,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
-@ParameterAnnotation(after = Unrequired.class, allowedType = { List.class, Set.class })
+@ParameterAnnotation(after = Unrequired.class, allowedType = Collection.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Unmodifiable

@@ -6,8 +6,13 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
+import nz.pumbas.halpbot.converters.annotations.Any;
+
+@SuppressWarnings("ConstantDeclaredInInterface")
 public interface ParameterAnnotationContext
 {
+    TypeContext<Any> ANY = TypeContext.of(Any.class);
+
     Set<TypeContext<? extends Annotation>> afterAnnotations();
 
     default boolean comesAfter(TypeContext<? extends Annotation> annotationType) {
@@ -31,8 +36,8 @@ public interface ParameterAnnotationContext
     }
 
     default boolean noConflictingAnnotations(List<TypeContext<? extends Annotation>> annotationTypes) {
-        return annotationTypes
-                .stream()
-                .noneMatch(annotationType -> this.conflictingAnnotations().contains(annotationType));
+        return !this.conflictingAnnotations().contains(ANY) &&
+                annotationTypes.stream()
+                        .noneMatch(annotationType -> this.conflictingAnnotations().contains(annotationType));
     }
 }
