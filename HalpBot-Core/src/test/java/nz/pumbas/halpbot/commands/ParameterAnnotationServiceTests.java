@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.entities.User;
 
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
@@ -18,6 +19,7 @@ import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
 @UseCommands
 @HartshornTest
+@Activator(scanPackages = "nz.pumbas.halpbot")
 public class ParameterAnnotationServiceTests
 {
     @SafeVarargs

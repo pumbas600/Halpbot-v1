@@ -34,7 +34,6 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
@@ -59,7 +58,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
-import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
@@ -68,7 +66,6 @@ import nz.pumbas.halpbot.commands.exceptions.IllegalPersistantDataConstructor;
 import nz.pumbas.halpbot.commands.persistant.AbstractPersistantUserData;
 import nz.pumbas.halpbot.commands.persistant.PersistantData;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
-import nz.pumbas.halpbot.converters.annotations.parameter.Description;
 import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionManager;
@@ -77,11 +74,7 @@ import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.OnShutdown;
 import nz.pumbas.halpbot.commands.BuiltInCommands;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.exceptions.IllegalCommandException;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
-import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 

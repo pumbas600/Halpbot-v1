@@ -31,35 +31,20 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.converters.ConverterHandler;
-import nz.pumbas.halpbot.utilities.ErrorManager;
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.CustomParameter;
-import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
-import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
-import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
-import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.converters.tokens.HalpbotPlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
-import nz.pumbas.halpbot.utilities.Reflect;
-import nz.pumbas.halpbot.utilities.enums.Modifiers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -98,7 +83,7 @@ public final class CommandManager
             String item = splitCommand.get(itemIndex);
 
             if (item.startsWith("<")) {
-                tokens.add(new PlaceholderToken(true, item.substring(1, item.length() - 1)));
+                tokens.add(new HalpbotPlaceholderToken(true, item.substring(1, item.length() - 1)));
                 itemIndex++;
             } else if (item.startsWith("#")) {
                 String alias = item.substring(1);
@@ -111,7 +96,7 @@ public final class CommandManager
 //                    "The alias '" + alias + "', doesn't match the expected " + getTypeAlias(parameterClasses[parameterIndex]));
                 parameterIndex++;
             } else {
-                tokens.add(new PlaceholderToken(false, item));
+                tokens.add(new HalpbotPlaceholderToken(false, item));
                 itemIndex++;
             }
         }

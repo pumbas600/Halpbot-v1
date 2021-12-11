@@ -1,60 +1,33 @@
 package nz.pumbas.halpbot.actions.methods;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ConstructorContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.converters.tokens.HalpbotParsingToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
+import nz.pumbas.halpbot.converters.tokens.TokenService;
 
-@SuppressWarnings("ConstantDeclaredInInterface")
 public interface Invokable
 {
-    Map<ExecutableElementContext<?>, List<Token>> CACHE = HartshornUtils.emptyMap();
+    @Nullable Object instance();
 
-    static List<Token> tokens(@NotNull ApplicationContext applicationContext,
-                              @NotNull ExecutableElementContext<?> executable) {
-        if (CACHE.containsKey(executable))
-            return CACHE.get(executable);
-
-        List<Token> tokens = executable.parameters()
-            .stream()
-            .map(parameterContext -> HalpbotParsingToken.of(applicationContext, parameterContext))
-            .collect(Collectors.toList());
-
-        CACHE.put(executable, tokens);
-        return tokens;
-    }
-
-    @NotNull
     ExecutableElementContext<?> executable();
 
-    @Nullable
-    Object instance();
-
-    @NotNull
     ParsingContext parsingContext();
 
-    @NotNull
-    default List<Token> tokens(@NotNull ApplicationContext applicationContext) {
-        return tokens(applicationContext, this.executable());
+    default List<Token> tokens(ApplicationContext applicationContext) {
+        return applicationContext.get(TokenService.class).tokens(this.executable());
     }
 
-    @NotNull
-    default Exceptional<Object[]> parseParameters(@NotNull InvocationContext invocationContext,
-                                                  boolean canHaveContextLeft) {
-        final List<Token> tokens = tokens(invocationContext.applicationContext(), this.executable());
+    default Exceptional<Object[]> parseParameters(InvocationContext invocationContext, boolean canHaveContextLeft) {
+        final List<Token> tokens = this.tokens(invocationContext.applicationContext());
         return this.parsingContext().parseParameters(
                 invocationContext,
                 this,
@@ -63,7 +36,7 @@ public interface Invokable
     }
 
     @SuppressWarnings("unchecked")
-    default <R> Exceptional<R> invoke(@NotNull InvocationContext invocationContext, boolean canHaveContextLeft) {
+    default <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
         final ExecutableElementContext<?> executable = this.executable();
         final Exceptional<Object[]> parameters = this.parseParameters(invocationContext, canHaveContextLeft);
 

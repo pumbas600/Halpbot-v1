@@ -9,7 +9,7 @@ import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.converters.tokens.HalpbotPlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 public class MessageParsingContext implements ParsingContext
@@ -70,7 +70,7 @@ public class MessageParsingContext implements ParsingContext
                     .apply(invocationContext)
                     .map(o -> o);
         }
-        else if (token instanceof PlaceholderToken placeholderToken) {
+        else if (token instanceof HalpbotPlaceholderToken placeholderToken) {
             if (placeholderToken.matches(invocationContext)) {
                 return Exceptional.of(IGNORE_RESULT);
             }

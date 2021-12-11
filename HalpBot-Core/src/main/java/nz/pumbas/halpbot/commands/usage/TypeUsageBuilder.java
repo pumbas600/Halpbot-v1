@@ -3,16 +3,14 @@ package nz.pumbas.halpbot.commands.usage;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
 
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
+import nz.pumbas.halpbot.converters.tokens.HalpbotPlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
+import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
@@ -20,11 +18,12 @@ public class TypeUsageBuilder implements UsageBuilder
 {
     @Override
     public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext) {
+        TokenService tokenService = applicationContext.get(TokenService.class);
         StringBuilder stringBuilder = new StringBuilder();
         List<ParameterContext<?>> parameters = executableContext.parameters();
         int parameterIndex = 0;
 
-        List<Token> tokens = Invokable.tokens(applicationContext, executableContext);
+        List<Token> tokens = tokenService.tokens(executableContext);
         for (Token token : tokens) {
             if (token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter()) {
                 parameterIndex++;
@@ -38,7 +37,7 @@ public class TypeUsageBuilder implements UsageBuilder
                 stringBuilder.append(HalpbotUtils.splitVariableName(type.getSimpleName()));
             }
 
-            else if (token instanceof PlaceholderToken placeholderToken)
+            else if (token instanceof HalpbotPlaceholderToken placeholderToken)
                 stringBuilder.append(placeholderToken.placeholder());
 
             stringBuilder.append(token.isOptional() ? ']' : '>')
