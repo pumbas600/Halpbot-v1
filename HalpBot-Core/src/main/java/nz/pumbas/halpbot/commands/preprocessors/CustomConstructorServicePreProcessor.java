@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.customconstructors;
+package nz.pumbas.halpbot.commands.preprocessors;
 
 import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;

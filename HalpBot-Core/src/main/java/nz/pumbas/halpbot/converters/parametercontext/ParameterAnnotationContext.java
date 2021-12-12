@@ -36,7 +36,7 @@ public interface ParameterAnnotationContext
     }
 
     default boolean noConflictingAnnotations(List<TypeContext<? extends Annotation>> annotationTypes) {
-        return !this.conflictingAnnotations().contains(ANY) &&
+        return (!this.conflictingAnnotations().contains(ANY) && annotationTypes.size() == 1) &&
                 annotationTypes.stream()
                         .noneMatch(annotationType -> this.conflictingAnnotations().contains(annotationType));
     }

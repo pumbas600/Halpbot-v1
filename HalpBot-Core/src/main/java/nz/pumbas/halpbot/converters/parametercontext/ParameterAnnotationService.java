@@ -1,10 +1,13 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
+import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,12 +15,27 @@ import java.util.stream.Stream;
 
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
+import nz.pumbas.halpbot.utilities.Reflect;
 
-public interface ParameterAnnotationService extends ContextCarrier
+public interface ParameterAnnotationService extends ContextCarrier, Enableable
 {
     Comparator<TypeContext<? extends Annotation>> comparator();
 
     ParameterAnnotationContextFactory factory();
+
+    @Override
+    @SuppressWarnings("unchecked")
+    default void enable() {
+        Collection<TypeContext<?>> parameterAnnotations = this.applicationContext().environment()
+                .types(ParameterAnnotation.class)
+                .stream()
+                .filter(type -> type.childOf(Annotation.class))
+                .toList();
+        for (TypeContext<?> parameterAnnotation : parameterAnnotations) {
+            this.register((TypeContext<? extends Annotation>) parameterAnnotation);
+        }
+        this.applicationContext().log().info("Registered %d parameter annotations".formatted(parameterAnnotations.size()));
+    }
 
     default void register(TypeContext<? extends Annotation> annotationType) {
         Exceptional<ParameterAnnotation> eParameterAnnotation = annotationType.annotation(ParameterAnnotation.class);
@@ -61,10 +79,12 @@ public interface ParameterAnnotationService extends ContextCarrier
 
     default boolean isValid(TypeContext<?> parameterType,
                             List<TypeContext<? extends Annotation>> parameterAnnotations) {
+        TypeContext<?> wrappedParameterType = Reflect.wrapPrimative(parameterType);
+
         return parameterAnnotations.stream()
                 .map(this::get)
                 .allMatch(annotationContext ->
-                        annotationContext.isValidType(parameterType) && annotationContext.noConflictingAnnotations(parameterAnnotations));
+                        annotationContext.isValidType(wrappedParameterType) && annotationContext.noConflictingAnnotations(parameterAnnotations));
     }
     
     ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType);

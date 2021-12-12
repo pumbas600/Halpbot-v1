@@ -1,11 +1,16 @@
 package nz.pumbas.halpbot.converters.annotations;
 
+import org.dockbox.hartshorn.core.ComponentType;
+import org.dockbox.hartshorn.core.annotations.Extends;
+import org.dockbox.hartshorn.core.annotations.component.Component;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Extends(Component.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface ParameterAnnotation

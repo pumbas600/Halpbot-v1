@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import org.dockbox.hartshorn.core.ArrayListMultiMap;
+import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.MultiMap;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
@@ -13,6 +14,7 @@ import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -55,14 +57,14 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
 @Binds(CommandAdapter.class)
-public class HalpbotCommandAdapter implements CommandAdapter
+public class HalpbotCommandAdapter implements CommandAdapter, Enableable
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
     private final Map<TypeContext<?>, String> cachedTypeAliases = HartshornUtils.emptyMap();
 
-    @Getter private final String prefix;
-    @Getter private final UsageBuilder usageBuilder;
+    @Getter private String prefix = "";
+    @Getter private UsageBuilder usageBuilder = new TypeUsageBuilder();
 
     @Inject @Getter private ApplicationContext applicationContext;
     @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
@@ -72,11 +74,11 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject private CommandContextFactory commandContextFactory;
     @Inject private CustomConstructorContextFactory customConstructorContextFactory;
 
-    @SneakyThrows
-    public HalpbotCommandAdapter() {
+    @Override
+    public void enable() throws ApplicationException {
         this.prefix = this.applicationContext.activator(Bot.class).prefix();
         if (this.prefix.isBlank())
-            throw new IllegalPrefixException("The prefix defined in @Bot cannot be blank");
+            throw new ApplicationException("The prefix defined in @Bot cannot be blank");
 
         this.usageBuilder = this.determineUsageBuilder();
         this.halpbotCore.registerAdapter(this);
@@ -137,18 +139,16 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
     private UsageBuilder determineUsageBuilder() {
         if ("arg0".equals(TypeContext.of(this)
-                .method("hasMethodParameterNamesVerifier")
+                .method("hasMethodParameterNamesVerifier", String.class)
                 .get()
                 .parameters()
                 .get(0)
                 .name()))
         {
-            this.applicationContext.log()
-                    .info("Parameter names have not been preserved. Using a type usage builder");
+            this.applicationContext.log().info("Parameter names have not been preserved. Using a type usage builder");
             return new TypeUsageBuilder();
         }
-        this.applicationContext.log()
-                .info("Parameter names have been preserved. Using a variable name usage builder");
+        this.applicationContext.log().info("Parameter names have been preserved. Using a variable name usage builder");
         return new NameUsageBuilder();
     }
 

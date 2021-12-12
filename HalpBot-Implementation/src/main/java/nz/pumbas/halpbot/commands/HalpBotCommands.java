@@ -81,7 +81,7 @@ public class HalpBotCommands
             ctx -> DefaultConverters.DOUBLE_CONVERTER.apply(ctx)
                 .map(value -> {
                     Exceptional<String> eUnit = DefaultConverters.STRING_CONVERTER.apply(ctx);
-                    if (eUnit.caught()) eUnit.rethrow();
+                    if (eUnit.caught()) eUnit.rethrowUnchecked();
                     String unit = eUnit.get();
                     if (1 < unit.length() && Prefix.isPrefix(unit.charAt(0)))
                         return new Unit(value, Prefix.getPrefix(unit.charAt(0)), unit.substring(1));

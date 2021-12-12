@@ -82,15 +82,15 @@ public final class Reflect
     /**
      * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
      */
-    private static final Map<Class<?>, Class<?>> PrimativeWrappers = Map.of(
-        byte.class, Byte.class,
-        short.class, Short.class,
-        int.class, Integer.class,
-        long.class, Long.class,
-        float.class, Float.class,
-        double.class, Double.class,
-        char.class, Character.class,
-        boolean.class, Boolean.class
+    private static final Map<TypeContext<?>, TypeContext<?>> PrimativeWrappers = Map.of(
+            TypeContext.of(byte.class), TypeContext.of(Byte.class),
+            TypeContext.of(short.class), TypeContext.of(Short.class),
+            TypeContext.of(int.class), TypeContext.of(Integer.class),
+            TypeContext.of(long.class), TypeContext.of(Long.class),
+            TypeContext.of(float.class), TypeContext.of(Float.class),
+            TypeContext.of(double.class), TypeContext.of(Double.class),
+            TypeContext.of(char.class), TypeContext.of(Character.class),
+            TypeContext.of(boolean.class), TypeContext.of(Boolean.class)
     );
 
     private static final Map<Class<?>, Object> DefaultValues = Map.of(
@@ -115,7 +115,7 @@ public final class Reflect
      * @return If the string matches the syntax of the type
      */
     public static boolean matches(String s, Class<?> type) {
-        Class<?> wrappedType = wrapPrimative(type);
+        Class<?> wrappedType = Void.class; //wrapPrimative(type);
 
         if (!TypeParsers.containsKey(wrappedType))
             throw new IllegalArgumentException("You can only match strings of simple types");
@@ -160,19 +160,7 @@ public final class Reflect
      *
      * @return the wrapper for a primative, or the passed in type if it has no primative type
      */
-    public static Class<?> wrapPrimative(TypeContext<?> type) {
-        return wrapPrimative(type.type());
-    }
-
-    /**
-     * Returns the primative type of a wrapper type, or the passed in type if it has no primative type.
-     *
-     * @param type
-     *     The {@link Class} to get the primative of
-     *
-     * @return the primative type of a wrapper type, or the passed in type if it has no primative type
-     */
-    public static Class<?> wrapPrimative(Class<?> type) {
+    public static TypeContext<?> wrapPrimative(TypeContext<?> type) {
         return PrimativeWrappers.getOrDefault(type, type);
     }
 
@@ -186,7 +174,7 @@ public final class Reflect
      */
     @Nullable
     public static Object getDefaultValue(Class<?> type) { //TODO: Make this accept TypeContext
-        return DefaultValues.getOrDefault(wrapPrimative(type), null);
+        return DefaultValues.getOrDefault(wrapPrimative(TypeContext.of(type)).type(), null);
     }
 
     /**

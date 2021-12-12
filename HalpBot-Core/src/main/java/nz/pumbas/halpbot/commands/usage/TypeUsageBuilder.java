@@ -3,6 +3,7 @@ package nz.pumbas.halpbot.commands.usage;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class TypeUsageBuilder implements UsageBuilder
             stringBuilder.append(token.isOptional() ? '[' : '<');
 
             if (token instanceof ParsingToken) {
-                Class<?> type = Reflect.wrapPrimative(parameters.get(parameterIndex++).type());
-                stringBuilder.append(HalpbotUtils.splitVariableName(type.getSimpleName()));
+                TypeContext<?> type = Reflect.wrapPrimative(parameters.get(parameterIndex++).type());
+                stringBuilder.append(HalpbotUtils.splitVariableName(type.name()));
             }
 
             else if (token instanceof HalpbotPlaceholderToken placeholderToken)

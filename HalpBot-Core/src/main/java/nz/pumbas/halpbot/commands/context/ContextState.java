@@ -119,6 +119,6 @@ public class ContextState
      * @return The {@link Type} wrapped as a class
      */
     public @NotNull Class<?> getClazz() {
-        return Reflect.wrapPrimative(Reflect.asClass(this.type));
+        return Void.class; //Reflect.wrapPrimative(Reflect.asClass(this.type));
     }
 }

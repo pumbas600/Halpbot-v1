@@ -1,6 +1,5 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
@@ -22,11 +21,8 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
     private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
             = new ConcurrentHashMap<>();
 
-    @Inject
-    @Getter private ApplicationContext applicationContext;
-
-    @Inject
-    @Getter private ParameterAnnotationContextFactory factory;
+    @Inject @Getter private ApplicationContext applicationContext;
+    @Inject @Getter private ParameterAnnotationContextFactory factory;
 
     @Getter
     private final Comparator<TypeContext<? extends Annotation>> comparator = (typeA, typeB) -> {

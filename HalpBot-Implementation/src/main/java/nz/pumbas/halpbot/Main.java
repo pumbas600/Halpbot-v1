@@ -24,13 +24,15 @@
 
 package nz.pumbas.halpbot;
 
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.boot.HartshornApplication;
 
+@Activator
 public final class Main
 {
     private Main() {}
 
     public static void main(String[] args) {
-        HartshornApplication.create(Halpbot.class, args);
+        HartshornApplication.create(Main.class, args);
     }
 }

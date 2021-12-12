@@ -91,7 +91,8 @@ public final class SQLUtils
      * @return The {@link SQLTriConsumer} to set the resultset value with
      */
     public static SQLTriConsumer<PreparedStatement, Integer, Object> getResultSetter(Class<?> type) {
-        return setValueMappings.getOrDefault(Reflect.wrapPrimative(type), PreparedStatement::setObject);
+        //return setValueMappings.getOrDefault(Reflect.wrapPrimative(type), PreparedStatement::setObject);
+        return (x, y, z) -> {};
     }
 
     /**

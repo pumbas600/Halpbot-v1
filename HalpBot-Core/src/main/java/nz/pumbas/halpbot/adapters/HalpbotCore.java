@@ -3,11 +3,15 @@ package nz.pumbas.halpbot.adapters;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 
+import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.boot.ExceptionHandler;
+import org.dockbox.hartshorn.core.boot.HartshornExceptionHandler;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -170,9 +174,10 @@ public class HalpbotCore implements ContextCarrier
     }
 
     @Provider
-    public JDA jda() throws ApplicationException {
+    public JDA jda() {
         if (this.jda == null)
-            throw new ApplicationException("You are trying to access the JDA instance before it has been created");
+            ExceptionHandler.unchecked(
+                    new ApplicationException("You are trying to access the JDA instance before it has been created"));
         return this.jda;
     }
 
