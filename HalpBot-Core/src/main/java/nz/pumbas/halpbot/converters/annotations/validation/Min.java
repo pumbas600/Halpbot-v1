@@ -22,9 +22,19 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands;
+package nz.pumbas.halpbot.converters.annotations.validation;
 
-public enum CommandType
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface Min
 {
-    MESSAGE, SLASH
+
+    double value();
+
+    boolean inclusive() default false;
 }

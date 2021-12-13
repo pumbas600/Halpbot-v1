@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.validation;
+package nz.pumbas.halpbot.converters.annotations.validation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

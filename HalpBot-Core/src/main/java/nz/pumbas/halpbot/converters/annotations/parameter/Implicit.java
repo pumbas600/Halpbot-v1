@@ -34,7 +34,7 @@ import java.util.Collection;
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 
-@ParameterAnnotation(allowedType = { ArrayTypeContext.class, Collection.class })
+@ParameterAnnotation(after = Unmodifiable.class, allowedType = { ArrayTypeContext.class, Collection.class })
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Implicit

@@ -26,7 +26,7 @@ package nz.pumbas.halpbot.customparameters.math;
 
 import java.util.Arrays;
 
-import nz.pumbas.halpbot.commands.DiscordString;
+import nz.pumbas.halpbot.objects.DiscordString;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;

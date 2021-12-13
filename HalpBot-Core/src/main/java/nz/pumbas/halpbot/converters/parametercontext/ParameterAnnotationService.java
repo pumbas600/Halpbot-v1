@@ -57,13 +57,12 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
                                     .collect(Collectors.toSet()),
                             Stream.of(parameterAnnotation.allowedType())
                                     .map(type -> type.equals(ArrayTypeContext.class)
-                                            ? ArrayTypeContext.VOID : TypeContext.of(type))
+                                            ? ArrayTypeContext.TYPE : TypeContext.of(type))
                                     .collect(Collectors.toSet())
                     ));
 
             // I've made sure to add the parameter annotation context to the map before checking these, in case
-            // there's a circular reference, so that this doesn't get stuck in an infinite loop. The circular
-            // reference will be identified at a later point when it goes to order the parameter annotations.
+            // there's a circular reference, so that this doesn't get stuck in an infinite loop.
             for (Class<? extends Annotation> before : parameterAnnotation.before()) {
                 this.getAndRegister(TypeContext.of(before))
                         .addAfterAnnotation(annotationType);
@@ -79,12 +78,11 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
 
     default boolean isValid(TypeContext<?> parameterType,
                             List<TypeContext<? extends Annotation>> parameterAnnotations) {
-        TypeContext<?> wrappedParameterType = Reflect.wrapPrimative(parameterType);
-
         return parameterAnnotations.stream()
                 .map(this::get)
                 .allMatch(annotationContext ->
-                        annotationContext.isValidType(wrappedParameterType) && annotationContext.noConflictingAnnotations(parameterAnnotations));
+                        annotationContext.isValidType(Reflect.wrapPrimative(parameterType)) &&
+                        annotationContext.noConflictingAnnotations(parameterAnnotations));
     }
     
     ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType);

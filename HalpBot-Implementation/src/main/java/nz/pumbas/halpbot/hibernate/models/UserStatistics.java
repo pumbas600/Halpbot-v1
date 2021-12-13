@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import nz.pumbas.halpbot.commands.DiscordString;
+import nz.pumbas.halpbot.objects.DiscordString;
 
 @Entity
 @Table(name = "USER_STATISTICS")

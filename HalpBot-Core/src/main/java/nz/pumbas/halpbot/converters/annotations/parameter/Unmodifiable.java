@@ -32,7 +32,7 @@ import java.util.Collection;
 
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
-@ParameterAnnotation(after = Unrequired.class, allowedType = Collection.class)
+@ParameterAnnotation(allowedType = Collection.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Unmodifiable
