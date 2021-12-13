@@ -25,6 +25,7 @@
 package nz.pumbas.halpbot.commands;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
@@ -35,7 +36,11 @@ import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.objects.Vector3;
+import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Service
 @HartshornTest
@@ -43,7 +48,9 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 public class SimpleCommandTests
 {
     @InjectTest
-    public void commandContextParsesTest(CommandAdapter commandAdapter, InvocationContextFactory invocationContextFactory) {
+    public void commandContextParsedValuesPresentTest(CommandAdapter commandAdapter,
+                                                      InvocationContextFactory invocationContextFactory)
+    {
         CommandContext commandContext = commandAdapter.commandContext("containedWithinArrayTest");
 
         Assertions.assertNotNull(commandContext);
@@ -53,31 +60,59 @@ public class SimpleCommandTests
         Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("abc [1 3 2]")).absent());
         Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 agf")).absent());
     }
-//
-//    @Test
-//    public void simpleTokenCommandInvokeTest() {
-//        SimpleCommand simpleCommand = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "containedWithinArrayTestMethod"));
-//
-//        Exceptional<Boolean> result1 = simpleCommand.parse(MethodContext.of("1 [2 1 4 3]")).map(o -> (Boolean) o);
-//        Exceptional<Boolean> result2 = simpleCommand.parse(MethodContext.of("2 [9 5 4 3]")).map(o -> (Boolean) o);
-//        Assertions.assertTrue(result1.present());
-//        Assertions.assertTrue(result2.present());
-//        Assertions.assertTrue(result1.get());
-//        Assertions.assertFalse(result2.get());
-//    }
-//
-//    @Test
-//    public void testDefaultValueForLastElementTest() {
-//        SimpleCommand simpleCommand = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "containedWithinArrayTestMethod"));
-//
-//        Exceptional<Boolean> result = simpleCommand.parse(MethodContext.of("1")).map(o -> (Boolean) o);
-//
-//        Assertions.assertTrue(result.present());
-//        Assertions.assertFalse(result.get());
-//    }
-//
+
+    @InjectTest
+    public void commandContextParsingTest(CommandAdapter commandAdapter,
+                                          InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("containedWithinArrayTest");
+
+        Assertions.assertNotNull(commandContext);
+
+        Exceptional<Boolean> result1 = commandContext.invoke(invocationContextFactory.create("1 [2 1 4 3]"));
+        Exceptional<Boolean> result2 = commandContext.invoke(invocationContextFactory.create("2 [9 5 4 3]"));
+
+        Assertions.assertTrue(result1.present());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertTrue(result1.get());
+        Assertions.assertFalse(result2.get());
+    }
+
+    @InjectTest
+    public void commandContextUsesDefaultValueIfNotPresent(CommandAdapter commandAdapter,
+                                                           InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("containedWithinArrayTest");
+
+        Assertions.assertNotNull(commandContext);
+
+        Exceptional<Boolean> result = commandContext.invoke(invocationContextFactory.create("1"));
+
+        Assertions.assertTrue(result.present());
+        Assertions.assertFalse(result.get());
+    }
+
+
+    @InjectTest
+    public void commandContextParsingAndValuesPresentTest(CommandAdapter commandAdapter,
+                                                          InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("containedWithinArrayTest");
+
+        Assertions.assertNotNull(commandContext);
+
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 [1 3 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("3")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("alpha")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 [1 4 c]")).absent());
+
+        Exceptional<Boolean> result = commandContext.invoke(invocationContextFactory.create("2 [1 2 3]"));
+        Assertions.assertTrue(result.present());
+        Assertions.assertTrue(result.get());
+
+    }
+
     @Command(alias = "containedWithinArrayTest", description = "Returns if the item is within the specified elements")
     public boolean containedWithinArrayTestMethod(int num, @Unrequired("[]") int[] numbers) {
         for (int element : numbers) {
@@ -86,47 +121,34 @@ public class SimpleCommandTests
         }
         return false;
     }
-//
-//    @Test
-//    public void tokenCommandTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "containedWithinArrayTestMethod"));
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 [1 3 3]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("3")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("")).absent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("alpha")).absent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 [1 4 c]")).absent());
-//
-//        Exceptional<Boolean> result = command.parse(MethodContext.of("2 [1 2 3]")).map(o -> (Boolean) o);
-//        Assertions.assertTrue(result.present());
-//        Assertions.assertTrue(result.get());
-//
-//    }
-//
-//    @Test
-//    public void customObjectTokenCommandTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "customObjectTokenCommandMethodTest"));
-//
-//        Assertions.assertEquals(
-//            DefaultConverters.OBJECT_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("Vector3[1 2 3]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Vector3[3 1]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("#Vector3[3 1]")).absent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("[3 1 2]")).absent());
-//
-//        Exceptional<Double> result = command.parse(MethodContext.of("Vector3[1 2 3]")).map(o -> (Double) o);
-//        Assertions.assertTrue(result.present());
-//        Assertions.assertEquals(2, result.get());
-//
-//    }
-//
-//    @Command(alias = "CustomObject", description = "Tests if it successfully parses a custom object")
-//    private double customObjectTokenCommandMethodTest(Vector3 vector3) {
-//        return vector3.getY();
-//    }
+
+    @InjectTest
+    public void customObjectParameterCommandTest(CommandAdapter commandAdapter,
+                                                 InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("customObjectParameterTest");
+
+        Assertions.assertNotNull(commandContext);
+        Token token = commandContext.tokens(commandAdapter.applicationContext()).get(0);
+
+        Assertions.assertTrue(token instanceof ParsingToken);
+        Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER,((ParsingToken) token).converter());
+
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Vector3[1 2 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Vector3[3 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("#Vector3[3 1]")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("[3 1 2]")).absent());
+
+        Exceptional<Double> result = commandContext.invoke(invocationContextFactory.create("Vector3[1 2 3]"));
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals(2, result.get());
+
+    }
+
+    @Command(alias = "customObjectParameterTest", description = "Tests if it successfully parses a custom object")
+    public double customObjectParameterTestMethod(Vector3 vector3) {
+        return vector3.getY();
+    }
 //
 //    @Test
 //    public void implicitArrayTokenTest() {

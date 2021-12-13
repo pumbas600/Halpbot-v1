@@ -267,6 +267,8 @@ public class HalpbotCommandAdapter implements CommandAdapter, Enableable
                     "The custom class %s, must define a constructor annotated with @ParameterConstructor"
                             .formatted(typeContext.qualifiedName()));
 
+        this.applicationContext.log().info("Registered %d custom constructors found in %s"
+                .formatted(constructors.size(), typeContext.qualifiedName()));
         this.customConstructors.putAll(typeContext, constructors);
     }
 

@@ -24,7 +24,6 @@ public class CustomConstructorServicePreProcessor implements ServicePreProcessor
     @Override
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
         context.get(CommandAdapter.class).registerCustomConstructors(type);
-        context.log().info("Registering custom constructors found in %s".formatted(type.qualifiedName()));
     }
 
     @Override
