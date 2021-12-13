@@ -79,7 +79,7 @@ public class SimpleCommandTests
 //    }
 //
     @Command(alias = "containedWithinArrayTest", description = "Returns if the item is within the specified elements")
-    private boolean containedWithinArrayTestMethod(int num, @Unrequired("[]") int[] numbers) {
+    public boolean containedWithinArrayTestMethod(int num, @Unrequired("[]") int[] numbers) {
         for (int element : numbers) {
             if (num == element)
                 return true;
