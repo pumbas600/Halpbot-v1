@@ -24,25 +24,27 @@
 
 package nz.pumbas.halpbot.commands;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 
 @HartshornTest
+@Activator(scanPackages = "nz.pumbas.halpbot")
 public class InvocationContextTests
 {
 
     @InjectTest
-    public void getNextSurroundedTest(ApplicationContext applicationContext) {
-        InvocationContext tokenInfo = new InvocationContext(applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
+    public void getNextSurroundedTest(InvocationContextFactory invocationContextFactory) {
+        InvocationContext invocationContext = invocationContextFactory.create("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
 
-        Exceptional<String> oArray1 = tokenInfo.nextSurrounded("[", "]");
-        Exceptional<String> oArray2 = tokenInfo.nextSurrounded("[", "]");
-        Exceptional<String> oArray3 = tokenInfo.nextSurrounded("[", "]");
+        Exceptional<String> oArray1 = invocationContext.nextSurrounded("[", "]");
+        Exceptional<String> oArray2 = invocationContext.nextSurrounded("[", "]");
+        Exceptional<String> oArray3 = invocationContext.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertTrue(oArray2.present());
@@ -53,13 +55,13 @@ public class InvocationContextTests
     }
 
     @InjectTest
-    public void getNextSurroundedIncompleteTest(ApplicationContext applicationContext) {
-        InvocationContext tokenInfo1 = new InvocationContext(applicationContext, "[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
-        InvocationContext tokenInfo2 = new InvocationContext(applicationContext, "#Block[1 2 3]]");
+    public void getNextSurroundedIncompleteTest(InvocationContextFactory invocationContextFactory) {
+        InvocationContext invocationContext1 = invocationContextFactory.create("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
+        InvocationContext invocationContext2 = invocationContextFactory.create("#Block[1 2 3]]");
 
-        Exceptional<String> oArray1 = tokenInfo1.nextSurrounded("[", "]");
-        Exceptional<String> oArray2 = tokenInfo1.nextSurrounded("[", "]");
-        Exceptional<String> oArray3 = tokenInfo2.nextSurrounded("[", "]");
+        Exceptional<String> oArray1 = invocationContext1.nextSurrounded("[", "]");
+        Exceptional<String> oArray2 = invocationContext1.nextSurrounded("[", "]");
+        Exceptional<String> oArray3 = invocationContext2.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertFalse(oArray2.present());
@@ -69,15 +71,15 @@ public class InvocationContextTests
     }
 
     @InjectTest
-    public void getNextSurroundedStepPastTest(ApplicationContext applicationContext) {
-        InvocationContext tokenInfo = new InvocationContext(applicationContext, "#Block[1 2 3]");
+    public void getNextSurroundedStepPastTest(InvocationContextFactory invocationContextFactory) {
+        InvocationContext invocationContext = invocationContextFactory.create("#Block[1 2 3]");
 
-        Exceptional<String> oType = tokenInfo.nextSurrounded("#", "[", false);
-        Exceptional<String> oParameters = tokenInfo.nextSurrounded("[", "]");
+        Exceptional<String> oType = invocationContext.nextSurrounded("#", "[", false);
+        Exceptional<String> oParameters = invocationContext.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oType.present());
         Assertions.assertTrue(oParameters.present());
-        Assertions.assertFalse(tokenInfo.hasNext());
+        Assertions.assertFalse(invocationContext.hasNext());
 
         Assertions.assertEquals("Block", oType.get());
         Assertions.assertEquals("1 2 3", oParameters.get());

@@ -28,26 +28,26 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
 
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
-import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
-import nz.pumbas.halpbot.commands.commandmethods.CommandContextFactory;
-import nz.pumbas.halpbot.commands.commandmethods.parsing.MessageParsingContext;
-import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.commands.context.CommandContext;
+import nz.pumbas.halpbot.commands.context.CommandContextFactory;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.context.parsing.MessageParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFactory;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
-import nz.pumbas.halpbot.commands.exceptions.IllegalPrefixException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.NameUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
-import nz.pumbas.halpbot.common.annotations.Bot;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
@@ -72,13 +72,14 @@ public class HalpbotCommandAdapter implements CommandAdapter, Enableable
     @Inject private HalpbotCore halpbotCore;
     @Inject private PermissionManager permissionManager;
     @Inject private CommandContextFactory commandContextFactory;
+    @Inject private InvocationContextFactory invocationContextFactory;
     @Inject private CustomConstructorContextFactory customConstructorContextFactory;
 
     @Override
     public void enable() throws ApplicationException {
-        this.prefix = this.applicationContext.activator(Bot.class).prefix();
+        this.prefix = this.applicationContext.activator(UseCommands.class).value();
         if (this.prefix.isBlank())
-            throw new ApplicationException("The prefix defined in @Bot cannot be blank");
+            throw new ApplicationException("The prefix defined in @UseCommands cannot be blank");
 
         this.usageBuilder = this.determineUsageBuilder();
         this.halpbotCore.registerAdapter(this);
@@ -127,11 +128,8 @@ public class HalpbotCommandAdapter implements CommandAdapter, Enableable
         if (!commandContext.hasPermission(this.permissionManager, event.getUser()))
             return Exceptional.of(new InsufficientPermissionException("You do not have permission to use this command"));
 
-        InvocationContext invocationContext = new InvocationContext(
-                this.applicationContext,
-                content,
-                event,
-                commandContext.reflections());
+        InvocationContext invocationContext = this.invocationContextFactory.create(
+                content, event, commandContext.reflections());
         return commandContext.invoke(invocationContext, false);
     }
 

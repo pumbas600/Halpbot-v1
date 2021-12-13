@@ -39,7 +39,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
+import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;

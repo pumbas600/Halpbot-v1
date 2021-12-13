@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import nz.pumbas.halpbot.adapters.HalpbotCore;
-import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 

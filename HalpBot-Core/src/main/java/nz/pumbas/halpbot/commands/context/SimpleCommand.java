@@ -22,12 +22,11 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands.commandmethods;
+package nz.pumbas.halpbot.commands.context;
 
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;

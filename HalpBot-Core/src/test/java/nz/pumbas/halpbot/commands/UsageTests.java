@@ -41,7 +41,7 @@ import nz.pumbas.halpbot.commands.usage.NameUsageBuilder;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
-@UseCommands
+@UseCommands("$")
 @HartshornTest
 public class UsageTests
 {

@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
-import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
+import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 

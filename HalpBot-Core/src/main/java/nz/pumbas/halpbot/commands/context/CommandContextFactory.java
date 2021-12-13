@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.commandmethods;
+package nz.pumbas.halpbot.commands.context;
 
 import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.service.Service;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 
 @Service
 public interface CommandContextFactory

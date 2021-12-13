@@ -53,7 +53,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 @Activator
-//@UseCommands
+@UseCommands("$")
 @Bot(prefix = "$", displayConfiguration = EmbedStringsDisplayConfiguration.class)
 public class Halpbot extends ListenerAdapter
 {

@@ -11,11 +11,9 @@ import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 
-//@AutomaticActivation
+@AutomaticActivation
 public class CustomConstructorServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
-    @Inject private CommandAdapter commandAdapter;
-
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
         return type.constructors()
@@ -25,7 +23,7 @@ public class CustomConstructorServicePreProcessor implements ServicePreProcessor
 
     @Override
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
-        this.commandAdapter.registerCustomConstructors(type);
+        context.get(CommandAdapter.class).registerCustomConstructors(type);
         context.log().info("Registering custom constructors found in %s".formatted(type.qualifiedName()));
     }
 

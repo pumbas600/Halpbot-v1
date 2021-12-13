@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.commandmethods.parsing;
+package nz.pumbas.halpbot.commands.context.parsing;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
 

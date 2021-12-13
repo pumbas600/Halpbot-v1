@@ -16,11 +16,9 @@ import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 
-//@AutomaticActivation
+@AutomaticActivation
 public class CommandServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
-    @Inject private CommandAdapter commandAdapter;
-
     @Override
     public ServiceOrder order() {
         return ServiceOrder.LATE;
@@ -37,31 +35,25 @@ public class CommandServicePreProcessor implements ServicePreProcessor<UseComman
     }
 
     @Override
-    public <T> T process(ApplicationContext context, TypeContext<T> type, @Nullable T instance) {
-        if (instance != null) {
-            int messageCommands = 0;
-            int slashCommands = 0;
-            int reflectiveCommands = 0;
+    public <T> void process(ApplicationContext context, TypeContext<T> type) {
+        T instance = context.get(type);
+        CommandAdapter commandAdapter = context.get(CommandAdapter.class);
+        int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
 
-            for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
-                if (methodContext.annotation(SlashCommand.class).present()) {
-                    slashCommands++;
-                    this.commandAdapter.registerSlashCommand(instance, methodContext);
-                } else if (methodContext.annotation(ReflectiveCommand.class).present()) {
-                    reflectiveCommands++;
-                    this.commandAdapter.registerReflectiveCommand(methodContext);
-                } else {
-                    messageCommands++;
-                    this.commandAdapter.registerMessageCommand(instance, methodContext);
-                }
+        for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
+            if (methodContext.annotation(SlashCommand.class).present()) {
+                slashCommands++;
+                commandAdapter.registerSlashCommand(instance, methodContext);
+            } else if (methodContext.annotation(ReflectiveCommand.class).present()) {
+                reflectiveCommands++;
+                commandAdapter.registerReflectiveCommand(methodContext);
+            } else {
+                messageCommands++;
+                commandAdapter.registerMessageCommand(instance, methodContext);
             }
-
-            context.log().info("Commands found in %s - Message: %d; Slash: %d; Reflective: %d"
-                    .formatted(type.qualifiedName(), messageCommands, slashCommands, reflectiveCommands));
         }
-        return ServicePreProcessor.super.process(context, type, instance);
-    }
 
-    @Override
-    public <T> void process(ApplicationContext context, TypeContext<T> type) { }
+        context.log().info("Registered %d message; %d slash; %d reflective commands found in %s"
+                .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+    }
 }

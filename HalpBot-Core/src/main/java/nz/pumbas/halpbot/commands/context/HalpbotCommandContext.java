@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.commandmethods;
+package nz.pumbas.halpbot.commands.context;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 
 @Binds(CommandContext.class)
 public record HalpbotCommandContext(List<String> aliases,

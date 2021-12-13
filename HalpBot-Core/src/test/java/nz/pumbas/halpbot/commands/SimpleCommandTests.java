@@ -24,39 +24,35 @@
 
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.testsuite.HartshornTest;
+import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
+import nz.pumbas.halpbot.commands.context.CommandContext;
+import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
+import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
-import nz.pumbas.halpbot.commands.commandmethods.SimpleCommand;
-import nz.pumbas.halpbot.commands.context.MethodContext;
-import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
-import nz.pumbas.halpbot.commands.objects.Matrix;
-import nz.pumbas.halpbot.commands.objects.Vector3;
-import nz.pumbas.halpbot.commands.objects.Shape;
-import nz.pumbas.halpbot.converters.DefaultConverters;
-import nz.pumbas.halpbot.utilities.Reflect;
 
+@Service
+@HartshornTest
+@UseCommands("$")
 public class SimpleCommandTests
 {
-//    @Test
-//    public void tokenCommandMatchesTest() {
-//        SimpleCommand simpleCommand = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "containedWithinArrayTestMethod"));
-//
-//        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("1 [2 3 4 1]")).present());
-//        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("2")).present());
-//        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("2 [1 a 2]")).absent());
-//        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("abc [1 3 2]")).absent());
-//        Assertions.assertTrue(simpleCommand.parse(MethodContext.of("2 agf")).absent());
-//    }
+    @InjectTest
+    public void commandContextParsesTest(CommandAdapter commandAdapter, InvocationContextFactory invocationContextFactory) {
+        CommandContext commandContext = commandAdapter.commandContext("containedWithinArrayTest");
+
+        Assertions.assertNotNull(commandContext);
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1 [2 3 4 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 [1 a 2]")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("abc [1 3 2]")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 agf")).absent());
+    }
 //
 //    @Test
 //    public void simpleTokenCommandInvokeTest() {
@@ -82,14 +78,14 @@ public class SimpleCommandTests
 //        Assertions.assertFalse(result.get());
 //    }
 //
-//    @Command(alias = "contained", description = "Returns if the item is within the specified elements")
-//    private boolean containedWithinArrayTestMethod(int num, @Unrequired("[]") int[] numbers) {
-//        for (int element : numbers) {
-//            if (num == element)
-//                return true;
-//        }
-//        return false;
-//    }
+    @Command(alias = "containedWithinArrayTest", description = "Returns if the item is within the specified elements")
+    private boolean containedWithinArrayTestMethod(int num, @Unrequired("[]") int[] numbers) {
+        for (int element : numbers) {
+            if (num == element)
+                return true;
+        }
+        return false;
+    }
 //
 //    @Test
 //    public void tokenCommandTest() {

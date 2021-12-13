@@ -9,8 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.commandmethods.parsing.ParsingContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
 
@@ -33,6 +33,10 @@ public interface Invokable
                 this,
                 tokens,
                 canHaveContextLeft);
+    }
+
+    default <R> Exceptional<R> invoke(InvocationContext invocationContext) {
+        return this.invoke(invocationContext, false);
     }
 
     @SuppressWarnings("unchecked")

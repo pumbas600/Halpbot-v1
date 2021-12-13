@@ -1,12 +1,11 @@
 package nz.pumbas.halpbot.commands.factory;
 
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 
+@Demo
 @HartshornTest
-@Activator(scanPackages = "nz.pumbas.halpbot")
 public class PersonFactoryTests
 {
     @InjectTest

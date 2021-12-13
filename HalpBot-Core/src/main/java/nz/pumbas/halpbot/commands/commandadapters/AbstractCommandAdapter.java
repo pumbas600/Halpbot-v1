@@ -66,7 +66,7 @@ import nz.pumbas.halpbot.commands.exceptions.IllegalPersistantDataConstructor;
 import nz.pumbas.halpbot.commands.persistant.AbstractPersistantUserData;
 import nz.pumbas.halpbot.commands.persistant.PersistantData;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
-import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
+import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;

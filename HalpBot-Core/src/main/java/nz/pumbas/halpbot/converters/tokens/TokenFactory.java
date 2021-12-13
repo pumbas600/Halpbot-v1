@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
@@ -22,13 +24,13 @@ import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 public interface TokenFactory
 {
     @Provided
-    ApplicationContext applicationContext();
-
-    @Provided
     ConverterHandler converterHandler();
 
     @Provided
     ParameterAnnotationService parameterAnnotationService();
+
+    @Provided
+    InvocationContextFactory invocationContexFactory();
 
     @Factory
     PlaceholderToken createPlaceholder(boolean isOptional, String placeholder);
@@ -61,7 +63,7 @@ public interface TokenFactory
 
         if (unrequired.present()) {
             isOptional = true;
-            InvocationContext invocationContext = new InvocationContext(this.applicationContext(), unrequired.get().value());
+            InvocationContext invocationContext = this.invocationContexFactory().create(unrequired.get().value());
             invocationContext.update(parameterContext, sortedAnnotations);
 
             defaultValue = ParsingToken.parseDefaultValue(converter, invocationContext);

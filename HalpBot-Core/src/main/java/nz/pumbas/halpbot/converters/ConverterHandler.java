@@ -26,14 +26,12 @@ package nz.pumbas.halpbot.converters;
 
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.MethodContext;
 
 public interface ConverterHandler
 {
@@ -62,19 +60,6 @@ public interface ConverterHandler
         return this.from(typeContext, targetAnnotationType);
     }
 
-    /**
-     * Retrieves the {@link Converter} for the specified {@link Class type} and {@link MethodContext}.
-     *
-     * @param type
-     *      The {@link Class type} of the {@link TypeConverter}
-     * @param invocationContext
-     *      The {@link InvocationContext}
-     * @param <T>
-     *      The type of the {@link TypeConverter}
-     *
-     * @return The retrieved {@link Converter}
-     */
-    
     default <T> Converter<T> from(Class<T> type, InvocationContext invocationContext) {
         return this.from(TypeContext.of(type), invocationContext);
     }

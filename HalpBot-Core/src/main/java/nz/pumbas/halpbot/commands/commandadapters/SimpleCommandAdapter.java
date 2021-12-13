@@ -31,12 +31,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-import nz.pumbas.halpbot.commands.commandmethods.CommandContext;
+import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
-import nz.pumbas.halpbot.commands.CommandManager;
-import nz.pumbas.halpbot.commands.context.MethodContext;
 
 public class SimpleCommandAdapter extends AbstractCommandAdapter
 {
