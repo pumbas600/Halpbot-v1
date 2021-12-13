@@ -153,7 +153,7 @@ public class HalpbotCommandAdapter implements CommandAdapter, Enableable
     @Override
     @Nullable
     public CommandContext commandContext(String alias) {
-        return this.registeredCommands.get(alias);
+        return this.registeredCommands.get(alias.toLowerCase(Locale.ROOT));
     }
 
     @Override

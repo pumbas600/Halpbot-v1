@@ -31,6 +31,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.tokens.HalpbotPlaceholderToken;
@@ -189,28 +190,30 @@ public final class CommandManager
      * @return An {@link Exceptional} containing the result of any reflection syntax.
      */
     public static Exceptional<Object> handleReflectionSyntax(InvocationContext invocationContext) {
-        if (invocationContext.reflections().isEmpty()) return Exceptional.empty();
+        return Exceptional.of(ParsingContext.IGNORE_RESULT);
 
-        Exceptional<String> type = invocationContext.next(".");
-        if (type.present()) {
-
-            Optional<TypeContext<?>> oClass = invocationContext.reflections()
-                .stream()
-                //.filter(typeContext -> CommandManager.getTypeAlias(typeContext.type()).equalsIgnoreCase(type.get()))
-                .findFirst();
-
-            if (oClass.isPresent()) {
-                TypeContext<?> reflectionType = oClass.get();
-
-                Exceptional<String> methodName = invocationContext.next("[", false);
-
-                return methodName
-                    .flatMap(name -> handleMethodReflectionSyntax(invocationContext, name, reflectionType))
-                    .orElse(() -> handleFieldReflectionSyntax(invocationContext, reflectionType));
-            }
-        }
-
-        return Exceptional.empty();
+//        if (invocationContext.reflections().isEmpty()) return Exceptional.empty();
+//
+//        Exceptional<String> type = invocationContext.next(".");
+//        if (type.present()) {
+//
+//            Optional<TypeContext<?>> oClass = invocationContext.reflections()
+//                .stream()
+//                //.filter(typeContext -> CommandManager.getTypeAlias(typeContext.type()).equalsIgnoreCase(type.get()))
+//                .findFirst();
+//
+//            if (oClass.isPresent()) {
+//                TypeContext<?> reflectionType = oClass.get();
+//
+//                Exceptional<String> methodName = invocationContext.next("[", false);
+//
+//                return methodName
+//                    .flatMap(name -> handleMethodReflectionSyntax(invocationContext, name, reflectionType))
+//                    .orElse(() -> handleFieldReflectionSyntax(invocationContext, reflectionType));
+//            }
+//        }
+//
+//        return Exceptional.empty();
     }
 
     /**

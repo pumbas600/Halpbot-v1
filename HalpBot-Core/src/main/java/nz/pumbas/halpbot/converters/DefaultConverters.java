@@ -317,7 +317,7 @@ public final class DefaultConverters
                     invocationContext.applicationContext().get(ConverterHandler.class)
                             .from(List.class, invocationContext)
                             .apply(invocationContext)
-                            .map(list -> HartshornUtils.toArray(
+                            .map(list -> Reflect.toArray(
                                     invocationContext.currentType().elementType().get().type(), list)))
             .build();
 

@@ -218,20 +218,19 @@ public class ParameterAnnotationServiceTests
         Assertions.assertTrue(parameterAnnotationService.isRegisteredParameterAnnotation(TypeContext.of(Remaining.class)));
         Assertions.assertTrue(parameterAnnotationService.isRegisteredParameterAnnotation(TypeContext.of(Source.class)));
         Assertions.assertTrue(parameterAnnotationService.isRegisteredParameterAnnotation(TypeContext.of(Unmodifiable.class)));
-        Assertions.assertTrue(parameterAnnotationService.isRegisteredParameterAnnotation(TypeContext.of(Unrequired.class)));
+        Assertions.assertFalse(parameterAnnotationService.isRegisteredParameterAnnotation(TypeContext.of(Unrequired.class)));
         Assertions.assertFalse(parameterAnnotationService.isRegisteredParameterAnnotation(TypeContext.of(Any.class)));
         Assertions.assertFalse(parameterAnnotationService.isRegisteredParameterAnnotation(TypeContext.of(ParameterAnnotation.class)));
     }
 
     @InjectTest
     public void sortAndFilterTest(ParameterAnnotationService parameterAnnotationService) {
-        Stream<TypeContext<? extends Annotation>> types = Stream.of(Any.class, Unmodifiable.class, Unrequired.class, Implicit.class)
+        Stream<TypeContext<? extends Annotation>> types = Stream.of(Unrequired.class, Unmodifiable.class, Implicit.class)
                 .map(TypeContext::of);
         List<TypeContext<? extends Annotation>> processed = parameterAnnotationService.sortAndFilter(types);
 
-        Assertions.assertEquals(3, processed.size());
+        Assertions.assertEquals(2, processed.size());
         Assertions.assertEquals(Unmodifiable.class,processed.get(0).type());
-        Assertions.assertEquals(Unrequired.class,processed.get(1).type());
-        Assertions.assertEquals(Implicit.class,processed.get(2).type());
+        Assertions.assertEquals(Implicit.class,processed.get(1).type());
     }
 }

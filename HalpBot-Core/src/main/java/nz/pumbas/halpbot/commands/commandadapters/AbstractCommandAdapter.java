@@ -108,8 +108,8 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
      */
     public AbstractCommandAdapter registerCommands(@NotNull Object... instances) {
         for (Object instance : instances) {
-            this.registerCommandMethods(instance, Reflect.getAnnotatedMethods(
-                instance.getClass(), Command.class, false));
+//            this.registerCommandMethods(instance, Reflect.getAnnotatedMethods(
+//                instance.getClass(), Command.class, false));
         }
         return this;
     }
