@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import org.dockbox.hartshorn.core.ArrayListMultiMap;
-import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.MultiMap;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
@@ -14,7 +13,6 @@ import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -29,24 +27,22 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
-import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.CommandContextFactory;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.context.parsing.MessageParsingContext;
 import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
-import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFactory;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
-import nz.pumbas.halpbot.commands.usage.NameUsageBuilder;
-import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
@@ -57,33 +53,23 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
 @Binds(CommandAdapter.class)
-public class HalpbotCommandAdapter implements CommandAdapter, Enableable
+@Accessors(chain = false)
+public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
     private final Map<TypeContext<?>, String> cachedTypeAliases = HartshornUtils.emptyMap();
 
-    @Getter private String prefix = "";
-    @Getter private UsageBuilder usageBuilder = new TypeUsageBuilder();
-
+    @Setter @Getter private String defaultPrefix;
+    @Setter @Getter private UsageBuilder usageBuilder;
     @Inject @Getter private ApplicationContext applicationContext;
     @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
+    @Inject @Getter private HalpbotCore halpbotCore;
 
-    @Inject private HalpbotCore halpbotCore;
     @Inject private PermissionManager permissionManager;
     @Inject private CommandContextFactory commandContextFactory;
     @Inject private InvocationContextFactory invocationContextFactory;
     @Inject private CustomConstructorContextFactory customConstructorContextFactory;
-
-    @Override
-    public void enable() throws ApplicationException {
-        this.prefix = this.applicationContext.activator(UseCommands.class).value();
-        if (this.prefix.isBlank())
-            throw new ApplicationException("The prefix defined in @UseCommands cannot be blank");
-
-        this.usageBuilder = this.determineUsageBuilder();
-        this.halpbotCore.registerAdapter(this);
-    }
 
     //TODO: Guild specific prefixes
     @SubscribeEvent
@@ -99,8 +85,8 @@ public class HalpbotCommandAdapter implements CommandAdapter, Enableable
 
         HalpbotEvent halpbotEvent = new MessageEvent(event);
 
-        if (commandAlias.startsWith(this.prefix())) {
-            String alias = commandAlias.substring(this.prefix.length());
+        if (commandAlias.startsWith(this.defaultPrefix())) {
+            String alias = commandAlias.substring(this.defaultPrefix.length());
             this.commandContextSafely(alias)
                 .absent(() -> this.halpbotCore.displayConfiguration()
                     .displayTemporary(halpbotEvent,
@@ -131,23 +117,6 @@ public class HalpbotCommandAdapter implements CommandAdapter, Enableable
         InvocationContext invocationContext = this.invocationContextFactory.create(
                 content, event, commandContext.reflections());
         return commandContext.invoke(invocationContext, false);
-    }
-
-    private void hasMethodParameterNamesVerifier(String sampleParameter) { }
-
-    private UsageBuilder determineUsageBuilder() {
-        if ("arg0".equals(TypeContext.of(this)
-                .method("hasMethodParameterNamesVerifier", String.class)
-                .get()
-                .parameters()
-                .get(0)
-                .name()))
-        {
-            this.applicationContext.log().info("Parameter names have not been preserved. Using a type usage builder");
-            return new TypeUsageBuilder();
-        }
-        this.applicationContext.log().info("Parameter names have been preserved. Using a variable name usage builder");
-        return new NameUsageBuilder();
     }
 
     @Override

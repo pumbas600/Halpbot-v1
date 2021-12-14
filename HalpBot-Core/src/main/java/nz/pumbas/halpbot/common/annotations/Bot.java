@@ -15,7 +15,5 @@ import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 @Target(ElementType.TYPE)
 public @interface Bot
 {
-    String prefix();
-
     Class<? extends DisplayConfiguration> displayConfiguration() default SimpleDisplayConfiguration.class;
 }

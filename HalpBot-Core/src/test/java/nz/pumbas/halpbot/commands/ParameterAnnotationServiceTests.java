@@ -27,7 +27,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-@UseCommands("$")
+@UseCommands
 @HartshornTest
 public class ParameterAnnotationServiceTests
 {

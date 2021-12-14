@@ -24,20 +24,23 @@
 
 package nz.pumbas.halpbot.commands.objects;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+
 import java.util.Arrays;
 
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
+import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
+@Service
 public class Matrix
 {
     public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);
     public static final Matrix XReflection = new Matrix(2, 2, 1, 0, 0, -1);
     public static final Matrix YReflection = new Matrix(2, 2, -1, 0, 0, 1);
-
 
     private final int rows;
     private final int columns;
@@ -122,7 +125,7 @@ public class Matrix
 
     public double getDeterminant() {
         if (this.isSquare(2))
-            //ad - bc
+            // ad - bc
             return this.values[0][0] * this.values[1][1] - this.values[0][1] * this.values[1][0];
 
         throw new UnimplementedFeatureException("Still implementing finding the determinant of matrixes larger than 2x2");
@@ -161,26 +164,32 @@ public class Matrix
         return stringBuilder.toString();
     }
 
+    @ReflectiveCommand
     public static Matrix scale(double scaleFactor) {
         return new Matrix(2, 2, scaleFactor, 0, 0, scaleFactor);
     }
 
+    @ReflectiveCommand
     public static Matrix xStretch(double stretchFactor) {
         return new Matrix(2, 2, stretchFactor, 0, 0, 1);
     }
 
+    @ReflectiveCommand
     public static Matrix yStretch(double stretchFactor) {
         return new Matrix(2, 2, 1, 0, 0, stretchFactor);
     }
 
+    @ReflectiveCommand
     public static Matrix xShear(double shearFactor) {
         return new Matrix(2, 2, 1, shearFactor, 0, 1);
     }
 
+    @ReflectiveCommand
     public static Matrix yShear(double shearFactor) {
         return new Matrix(2, 2, 1, 0, shearFactor, 1);
     }
 
+    @ReflectiveCommand
     public static Matrix rotate(double degrees) {
         double radians = Math.toRadians(degrees);
         double cos = Math.cos(radians);

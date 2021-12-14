@@ -34,14 +34,15 @@ import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Shape;
 import nz.pumbas.halpbot.commands.objects.TestMessageEvent;
 import nz.pumbas.halpbot.commands.objects.Vector3;
@@ -54,8 +55,8 @@ import nz.pumbas.halpbot.events.MessageEvent;
 
 @Service
 @HartshornTest
-@UseCommands("$")
-public class SimpleCommandTests
+@UseCommands
+public class CommandContextTests
 {
     @InjectTest
     public void commandContextParsedValuesPresentTest(CommandAdapter commandAdapter,
@@ -101,7 +102,6 @@ public class SimpleCommandTests
         Assertions.assertTrue(result.present());
         Assertions.assertFalse(result.get());
     }
-
 
     @InjectTest
     public void commandContextParsingAndValuesPresentTest(CommandAdapter commandAdapter,
@@ -196,7 +196,6 @@ public class SimpleCommandTests
         Exceptional<Double> result3 = commandContext.invoke(invocationContextFactory.create(
                 "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150] Shape[Rectangle 200 50 100 275]"));
 
-        System.out.println(result2);
         Assertions.assertTrue(result3.present());
         Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create(
             "Shape[Rectangle 200 50 100 25]")).present());
@@ -261,46 +260,73 @@ public class SimpleCommandTests
     public boolean commandWithMessageReceivedEventParameterTestMethod(MessageReceivedEvent event) {
         return true;
     }
-//
-//    @Test
-//    public void commandWithMultipleAnnotationsTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithMultipleAnnotationsMethodTest"));
-//
-//        Assertions.assertEquals(1, command.getCommandTokens().size());
-//        Assertions.assertEquals(2, ((ParsingToken) command.getCommandTokens().get(0)).annotations().length);
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("1 2 3")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("1.0 2 3")).absent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3")).absent());
-//    }
-//
-//    @Command(alias = "test")
-//    private int commandWithMultipleAnnotationsMethodTest(@Unrequired("[]") @Implicit int[] array) {
-//        return -1;
-//    }
-//
-//    @Test
-//    public void commandWithVarargsTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithVarargsMethodTest"));
-//
-//        Assertions.assertEquals(1, command.getCommandTokens().size());
-//        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, ((ParsingToken) command.getCommandTokens().get(0)).converter());
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3]")).errorAbsent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("")).caught());
-//        Assertions.assertTrue(command.parse(MethodContext.of("1 2 3")).caught());
-//        Assertions.assertTrue(command.parse(MethodContext.of("1.0 2 3")).caught());
-//        Assertions.assertTrue(command.parse(MethodContext.of("[1 2 3")).caught());
-//    }
-//
-//    @Command(alias = "test")
-//    private void commandWithVarargsMethodTest(int... values) {
-//    }
-//
+
+    @InjectTest
+    public void commandContextWithMultipleAnnotationsTest(CommandAdapter commandAdapter,
+                                                          InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithMultipleAnnotationsTest");
+
+        Assertions.assertNotNull(commandContext);
+        List<Token> tokens = commandContext.tokens(commandAdapter.applicationContext());
+
+        Assertions.assertEquals(1, tokens.size());
+        Assertions.assertTrue(tokens.get(0) instanceof ParsingToken);
+        Assertions.assertEquals(1, ((ParsingToken) tokens.get(0)).sortedAnnotations().size());
+
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1 2 3")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("[1 2 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1.0 2 3")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("[1 2 3")).absent());
+    }
+
+    @Command(alias = "commandWithMultipleAnnotationsTest")
+    public int commandWithMultipleAnnotationsTestMethod(@Unrequired("[]") @Implicit int[] array) {
+        return -1;
+    }
+
+    @InjectTest
+    public void commandContextWithVarargsTest(CommandAdapter commandAdapter,
+                                              InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithVarargsTest");
+
+        Assertions.assertNotNull(commandContext);
+        List<Token> tokens = commandContext.tokens(commandAdapter.applicationContext());
+
+        Assertions.assertEquals(1,tokens.size());
+        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, ((ParsingToken) tokens.get(0)).converter());
+
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("[1 2 3]")).errorAbsent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("")).caught());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1 2 3")).caught());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1.0 2 3")).caught());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("[1 2 3")).caught());
+    }
+
+    @Command(alias = "commandWithVarargsTest")
+    public void commandWithVarargsTestMethod(int... values) {
+    }
+
+    @InjectTest
+    public void commandContextMultipleAliasesTest(CommandAdapter commandAdapter,
+                                                  InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext1 = commandAdapter.commandContext("commandWithMultipleAliases1");
+        CommandContext commandContext2 = commandAdapter.commandContext("commandWithMultipleAliases2");
+
+        Assertions.assertNotNull(commandContext1);
+        Assertions.assertNotNull(commandContext2);
+        Assertions.assertEquals(commandContext1, commandContext2);
+        Assertions.assertTrue(commandContext1.invoke(invocationContextFactory.create("")).errorAbsent());
+        Assertions.assertTrue(commandContext1.invoke(invocationContextFactory.create("1")).caught());
+    }
+
+    @Command(alias = {"commandWithMultipleAliases1", "CommandWithMultipleAliases2"})
+    public void commandWithMultipleAliasesTestMethod() {
+    }
+
 //    @Test
 //    public void commandStringWithMultipleAnnotationsTest() {
 //        SimpleCommand command = CommandManager.generateCommandMethod(this,
@@ -354,18 +380,20 @@ public class SimpleCommandTests
 //        Assertions.assertEquals("There seems to have been an error when constructing the Matrix",
 //            result3.error().getMessage());
 //    }
-//
-//    @Test
-//    public void commandWithComplexCustomParameterInvocationTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
-//
-//        Exceptional<Object> result = command.parse(MethodContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]"));
-//
-//        Assertions.assertTrue(result.present());
-//        Assertions.assertEquals(3, result.get());
-//    }
-//
+
+    @InjectTest
+    public void commandContentWithComplexParameterInvocationTest(CommandAdapter commandAdapter,
+                                                                 InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithComplexParameterTest");
+
+        Assertions.assertNotNull(commandContext);
+        Exceptional<Integer> result = commandContext.invoke(invocationContextFactory.create("Matrix[2 3 [1 2 3 4 5 6]]"));
+
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals(3, result.get());
+    }
+
 //    @Test
 //    public void commandWith2DArrayTest() {
 //        SimpleCommand command = CommandManager.generateCommandMethod(this,
@@ -400,9 +428,9 @@ public class SimpleCommandTests
 //        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.uNiTsquAre", command)).present());
 //        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.unitSquare[]", command)).absent());
 //    }
-//
-//    @Command(alias = "test", reflections = Matrix.class)
-//    private int commandWithComplexCustomParameterMethodTest(Matrix matrix) {
-//        return matrix.getColumns();
-//    }
+
+    @Command(alias = "commandWithComplexParameterTest", reflections = Matrix.class)
+    public int commandWithComplexCustomParameterTestMethod(Matrix matrix) {
+        return matrix.getColumns();
+    }
 }

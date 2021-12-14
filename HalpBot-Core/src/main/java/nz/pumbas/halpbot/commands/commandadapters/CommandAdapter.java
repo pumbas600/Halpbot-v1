@@ -3,11 +3,13 @@ package nz.pumbas.halpbot.commands.commandadapters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
+import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -17,21 +19,69 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
+import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
+import nz.pumbas.halpbot.commands.usage.UsageBuilder;
+import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-public interface CommandAdapter extends HalpbotAdapter
+public interface CommandAdapter extends HalpbotAdapter, Enableable
 {
     ParameterAnnotationService parameterAnnotationService();
 
     @SubscribeEvent
     void onMessageReceived(MessageReceivedEvent event);
 
-    String prefix();
+    HalpbotCore halpbotCore();
+
+    String defaultPrefix();
+
+    void defaultPrefix(String defaultPrefix);
+
+    UsageBuilder usageBuilder();
+
+    void usageBuilder(UsageBuilder usageBuilder);
+
+    @Override
+    default void enable() throws ApplicationException {
+        BotConfiguration config = this.applicationContext().get(BotConfiguration.class);
+        this.defaultPrefix(config.defaultPrefix());
+        if (this.defaultPrefix().isBlank())
+            throw new ApplicationException(
+                    "A 'defaultPrefix' must be defined in the bot-config.properties file if you're using commands");
+
+        this.determineUsageBuilder(config);
+        this.halpbotCore().registerAdapter(this);
+    }
+
+    default void determineUsageBuilder(BotConfiguration config) {
+        TypeContext<?> typeContext = TypeContext.lookup(config.usageBuilder());
+        if (typeContext.childOf(UsageBuilder.class)) {
+            UsageBuilder usageBuilder = (UsageBuilder) this.applicationContext().get(typeContext);
+            if (usageBuilder.isValid(this.applicationContext())) {
+                this.usageBuilder(usageBuilder);
+                return;
+            }
+
+            else this.applicationContext().log()
+                    .warn("The usage builder %s defined in bot-config.properties is not valid"
+                            .formatted(typeContext.qualifiedName()));
+        }
+
+        else this.applicationContext().log()
+                .warn("The usage builder %s defined in bot-config.properties must implement UsageBuilder"
+                        .formatted(config.displayConfiguration()));
+
+        this.applicationContext().log().warn("Falling back to usage builder %s"
+                .formatted(TypeUsageBuilder.class.getCanonicalName()));
+        this.usageBuilder(new TypeUsageBuilder());
+    }
+
 
     default <T> void registerCommands(T instance) {
         TypeContext<T> type = TypeContext.of(instance);

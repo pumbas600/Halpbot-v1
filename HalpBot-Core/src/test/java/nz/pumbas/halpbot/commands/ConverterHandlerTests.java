@@ -47,7 +47,6 @@ import java.util.Set;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.ShapeType;
@@ -61,7 +60,7 @@ import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
-@UseCommands("$")
+@UseCommands
 @HartshornTest
 public class ConverterHandlerTests
 {

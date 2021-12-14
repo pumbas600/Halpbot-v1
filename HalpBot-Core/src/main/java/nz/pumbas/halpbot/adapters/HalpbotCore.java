@@ -102,10 +102,16 @@ public class HalpbotCore implements ContextCarrier
         this.adapters.forEach(adapter -> adapter.onCreation(jda));
     }
 
-    public JDA build(JDABuilder jdaBuilder) throws LoginException, UndefinedActivatorException {
+    public JDA build(JDABuilder jdaBuilder) throws ApplicationException {
         this.adapters.forEach(jdaBuilder::addEventListeners);
-        this.jda = jdaBuilder.build();
-        this.onCreation(this.jda);
+
+        try {
+            this.jda = jdaBuilder.build();
+            this.onCreation(this.jda);
+        } catch (LoginException | UndefinedActivatorException e) {
+            throw new ApplicationException(e);
+        }
+
         this.concurrentManager.scheduleRegularly(20, 20, TimeUnit.MINUTES, this::clearEmptyCooldowns);
         return this.jda;
     }

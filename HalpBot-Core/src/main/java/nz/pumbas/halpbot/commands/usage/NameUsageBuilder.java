@@ -3,6 +3,7 @@ package nz.pumbas.halpbot.commands.usage;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.util.List;
 
@@ -15,6 +16,29 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class NameUsageBuilder implements UsageBuilder
 {
+    @Override
+    public boolean isValid(ApplicationContext applicationContext) {
+        if ("applicationContext".equals(TypeContext.of(this)
+                .method("isValid", ApplicationContext.class)
+                .get()
+                .parameters()
+                .get(0)
+                .name()))
+        {
+            return true;
+        }
+        applicationContext.log()
+                .warn("""
+                      Parameter names have not been preserved so a %s cannot be used. To preserve parameter names
+                      add the following to your gradle.build file:
+                                              
+                      tasks.withType(JavaCompile) {
+                            options.compilerArgs << '-parameters'
+                      }
+                      """.formatted(NameUsageBuilder.class.getCanonicalName()));
+        return false;
+    }
+
     @Override
     public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext) {
         TokenService tokenService = applicationContext.get(TokenService.class);

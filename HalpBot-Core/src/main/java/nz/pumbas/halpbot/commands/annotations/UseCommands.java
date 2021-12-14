@@ -12,8 +12,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface UseCommands
 {
-    /**
-     * The default prefix that should be used by commands if there's not a guild-specific one set.
-     */
-    String value();
+
 }
