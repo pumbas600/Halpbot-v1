@@ -259,8 +259,9 @@ public final class DefaultConverters
                 if (listExceptional.errorAbsent() && listExceptional.present())
                     return listExceptional;
 
-                //TODO: Test for arrays
-                TypeContext<?> genericType = invocationContext.currentType().typeParameters(List.class).get(0);
+                TypeContext<?> genericType = invocationContext.currentType().isArray()
+                        ? invocationContext.currentType().elementType().get()
+                        : invocationContext.currentType().typeParameters(List.class).get(0);
                 Converter<?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);

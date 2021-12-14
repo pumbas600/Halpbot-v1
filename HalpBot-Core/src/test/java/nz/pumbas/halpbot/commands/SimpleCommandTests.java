@@ -24,23 +24,33 @@
 
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.objects.Shape;
+import nz.pumbas.halpbot.commands.objects.TestMessageEvent;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.converters.DefaultConverters;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
+import nz.pumbas.halpbot.events.MessageEvent;
 
 @Service
 @HartshornTest
@@ -149,91 +159,108 @@ public class SimpleCommandTests
     public double customObjectParameterTestMethod(Vector3 vector3) {
         return vector3.getY();
     }
-//
-//    @Test
-//    public void implicitArrayTokenTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "implicitArrayTokenMethodTest"));
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 3 2 1 4 Heyo")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 3 Hi")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 [2 3 8] Hi")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 Hi")).absent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("a 1 2 Hi")).absent());
-//
-//        Exceptional<Object> result = command.parse(MethodContext.of("2 3 2 1 4 Heyo"));
-//        Assertions.assertTrue(result.present());
-//        Assertions.assertEquals("2: [3, 2, 1, 4]: Heyo", result.get());
-//    }
-//
-//
-//    @Command(alias = "ImplicitArray", description = "Tests the @Implicit attribute on arrays")
-//    private String implicitArrayTokenMethodTest(int num, @Implicit int[] array, String stop) {
-//        return String.format("%s: %s: %s", num, Arrays.toString(array), stop);
-//    }
-//
-//    @Test
-//    public void implicitArrayTokenAtEndTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "implicitArrayTokenAtEndMethodTest"));
-//
-//        Exceptional<Object> result1 = command.parse(MethodContext.of(""));
-//        Exceptional<Double> result2 = command.parse(MethodContext.of(
-//            "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150]")).map(o -> (Double) o);
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of(
-//            "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150] Shape[Rectangle 200 50 100 275]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of(
-//            "Shape[Rectangle 200 50 100 25]")).present());
-//
-//        Assertions.assertTrue(result1.absent());
-//        Assertions.assertTrue(result2.present());
-//        Assertions.assertEquals(20000D, result2.get());
-//    }
-//
-//    @Command(alias = "ImplicitArrayTest2", description = "Tests the @Implicit attribute with no parameter after it")
-//    private double implicitArrayTokenAtEndMethodTest(@Implicit Shape[] shapes) {
-//        double totalArea = 0;
-//        for (Shape shape : shapes) {
-//            totalArea += shape.getArea();
-//        }
-//
-//        return totalArea;
-//    }
-//
-//    @Test
-//    public void stringDefaultValueTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "stringDefaultValueMethodTest"));
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Hi")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("-1")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("a -1")).absent());
-//
-//        Exceptional<Object> result = command.parse(MethodContext.of(""));
-//        Assertions.assertTrue(result.present());
-//        Assertions.assertEquals("default value", result.get());
-//    }
-//
-//    @Command(alias = "test")
-//    private String stringDefaultValueMethodTest(@Unrequired("default value") String string) {
-//        return string;
-//    }
-//
-//    @Test
-//    public void commandWithMessageReceivedEventParameterTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithMessageReceivedEventParameterMethodTest"));
-//
-//        Assertions.assertEquals(1, command.getCommandTokens().size());
-//        Assertions.assertTrue(command.parse(MethodContext.of("")).present());
-//    }
-//
-//    @Command(alias = "test")
-//    private boolean commandWithMessageReceivedEventParameterMethodTest(MessageReceivedEvent event) {
-//        return true;
-//    }
+
+    @InjectTest
+    public void commandContextImplicitArrayTokenTest(CommandAdapter commandAdapter,
+                                                     InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("implicitArrayTest");
+
+        Assertions.assertNotNull(commandContext);
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 3 2 1 4 Heyo")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 3 Hi")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 [2 3 8] Hi")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 Hi")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("a 1 2 Hi")).absent());
+
+        Exceptional<Object> result = commandContext.invoke(invocationContextFactory.create("2 3 2 1 4 Heyo"));
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals("2 - [3, 2, 1, 4] - Heyo", result.get());
+    }
+
+    @Command(alias = "implicitArrayTest", description = "Tests the @Implicit attribute on arrays")
+    public String implicitArrayTokenTestMethod(int num, @Implicit int[] array, String stop) {
+        return "%s - %s - %s".formatted(num, Arrays.toString(array), stop);
+    }
+
+    @InjectTest
+    public void commandContextImplicitArrayTokenAtEndTest(CommandAdapter commandAdapter,
+                                                          InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("implicitArrayAtEndTest");
+
+        Assertions.assertNotNull(commandContext);
+        Exceptional<Double> result1 = commandContext.invoke(invocationContextFactory.create(""));
+        Exceptional<Double> result2 = commandContext.invoke(invocationContextFactory.create(
+                "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150]"));
+        Exceptional<Double> result3 = commandContext.invoke(invocationContextFactory.create(
+                "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150] Shape[Rectangle 200 50 100 275]"));
+
+        System.out.println(result2);
+        Assertions.assertTrue(result3.present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create(
+            "Shape[Rectangle 200 50 100 25]")).present());
+
+        Assertions.assertTrue(result1.absent());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertEquals(20000D, result2.get());
+    }
+
+    @Command(alias = "implicitArrayAtEndTest",
+             description = "Tests the @Implicit attribute with no parameter after it")
+    public double implicitArrayTokenAtEndTestMethod(@Implicit Shape[] shapes) {
+        double totalArea = 0;
+        for (Shape shape : shapes) {
+            totalArea += shape.getArea();
+        }
+
+        return totalArea;
+    }
+
+    @InjectTest
+    public void commandContextStringDefaultValueTest(CommandAdapter commandAdapter,
+                                                     InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("stringDefaultValueTest");
+
+        Assertions.assertNotNull(commandContext);
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Hi")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("-1")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("a -1")).absent());
+
+        Exceptional<String> result = commandContext.invoke(invocationContextFactory.create(""));
+        Assertions.assertTrue(result.present());
+        Assertions.assertEquals("default value", result.get());
+    }
+
+    @Command(alias = "stringDefaultValueTest")
+    public String stringDefaultValueTestMethod(@Unrequired("default value") String string) {
+        return string;
+    }
+
+    @InjectTest
+    public void commandContextWithMessageReceivedEventParameterTest(CommandAdapter commandAdapter,
+                                                                    InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithMessageReceivedEventParameterTest");
+        InvocationContext invocationContext = invocationContextFactory.create(
+                "", new MessageEvent(new TestMessageEvent()), Collections.emptySet());
+
+        Assertions.assertNotNull(commandContext);
+        Exceptional<Boolean> result1 = commandContext.invoke(invocationContextFactory.create(""));
+        Exceptional<Boolean> result2 = commandContext.invoke(invocationContext);
+
+        Assertions.assertEquals(1, commandContext.tokens(commandAdapter.applicationContext()).size());
+        Assertions.assertTrue(result1.caught());
+        Assertions.assertThrows(NullPointerException.class, result1::rethrow);
+        Assertions.assertTrue(result2.present());
+    }
+
+    @Command(alias = "commandWithMessageReceivedEventParameterTest")
+    public boolean commandWithMessageReceivedEventParameterTestMethod(MessageReceivedEvent event) {
+        return true;
+    }
 //
 //    @Test
 //    public void commandWithMultipleAnnotationsTest() {

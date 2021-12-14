@@ -341,8 +341,8 @@ public final class Reflect
      *
      * @return if the {@link String value} is a valid value of the {@link Enum}
      */
-    public static Exceptional<Enum<?>> parseEnumValue(@NotNull TypeContext<Enum<?>> enumType,
-                                                      @NotNull String value)
+    public static Exceptional<Enum<?>> parseEnumValue(TypeContext<Enum<?>> enumType,
+                                                      String value)
     {
         return Exceptional.of(
             enumType.enumConstants().stream()

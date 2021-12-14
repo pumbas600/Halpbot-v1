@@ -76,7 +76,10 @@ public class HalpbotConverterHandler implements ConverterHandler
                 .stream()
                 .filter(converter -> converter.annotationType().equals(targetAnnotationType))
                 .findFirst()
-                .orElse(DefaultConverters.OBJECT_CONVERTER);
+                .orElse(targetAnnotationType.equals(TypeContext.VOID)
+                        ? DefaultConverters.OBJECT_CONVERTER
+                        : this.from(typeContext, TypeContext.VOID)
+                );
     }
 
     private boolean filterConverterType(TypeContext<?> keyContext, TypeContext<?> typeContext) {

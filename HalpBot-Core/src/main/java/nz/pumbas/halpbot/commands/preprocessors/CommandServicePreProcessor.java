@@ -38,22 +38,6 @@ public class CommandServicePreProcessor implements ServicePreProcessor<UseComman
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
         T instance = context.get(type);
         CommandAdapter commandAdapter = context.get(CommandAdapter.class);
-        int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
-
-        for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
-            if (methodContext.annotation(SlashCommand.class).present()) {
-                slashCommands++;
-                commandAdapter.registerSlashCommand(instance, methodContext);
-            } else if (methodContext.annotation(ReflectiveCommand.class).present()) {
-                reflectiveCommands++;
-                commandAdapter.registerReflectiveCommand(methodContext);
-            } else {
-                messageCommands++;
-                commandAdapter.registerMessageCommand(instance, methodContext);
-            }
-        }
-
-        context.log().info("Registered %d message; %d slash; %d reflective commands found in %s"
-                .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+        commandAdapter.registerCommands(instance);
     }
 }

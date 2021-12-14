@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
+import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
@@ -29,6 +32,27 @@ public interface CommandAdapter extends HalpbotAdapter
     void onMessageReceived(MessageReceivedEvent event);
 
     String prefix();
+
+    default <T> void registerCommands(T instance) {
+        TypeContext<T> type = TypeContext.of(instance);
+        int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
+
+        for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
+            if (methodContext.annotation(SlashCommand.class).present()) {
+                slashCommands++;
+                this.registerSlashCommand(instance, methodContext);
+            } else if (methodContext.annotation(ReflectiveCommand.class).present()) {
+                reflectiveCommands++;
+                this.registerReflectiveCommand(methodContext);
+            } else {
+                messageCommands++;
+                this.registerMessageCommand(instance, methodContext);
+            }
+        }
+
+        this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands found in %s"
+                .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+    }
 
     <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext);
 

@@ -50,6 +50,7 @@ import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.objects.ShapeType;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
@@ -111,6 +112,13 @@ public class ConverterHandlerTests
         Converter<List> converter = converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
 
         Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingEnumConverterTest(ConverterHandler converterHandler) {
+        Converter<ShapeType> converter = converterHandler.from(ShapeType.class);
+
+        Assertions.assertEquals(DefaultConverters.ENUM_CONVERTER, converter);
     }
 
     @InjectTest

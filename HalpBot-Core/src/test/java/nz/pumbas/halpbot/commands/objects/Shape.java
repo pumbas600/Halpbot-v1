@@ -24,10 +24,13 @@
 
 package nz.pumbas.halpbot.commands.objects;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
+@Service
 public class Shape
 {
     private final ShapeType shapeType;
