@@ -87,8 +87,8 @@ public class HalpbotCore implements ContextCarrier
      */
     public HalpbotCore setOwner(long ownerId) {
         this.ownerId = ownerId;
-        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.BOT_OWNER))
-            this.permissionManager.givePermission(ownerId, HalpbotPermissions.BOT_OWNER);
+//        if (!this.permissionManager.hasPermissions(ownerId, HalpbotPermissions.BOT_OWNER))
+//            this.permissionManager.givePermission(ownerId, HalpbotPermissions.BOT_OWNER);
         return this;
     }
 

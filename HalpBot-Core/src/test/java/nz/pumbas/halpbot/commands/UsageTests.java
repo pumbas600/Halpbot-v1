@@ -27,9 +27,13 @@ package nz.pumbas.halpbot.commands;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import org.dockbox.hartshorn.config.annotations.UseConfigurations;
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
+import org.dockbox.hartshorn.core.annotations.activate.UseServiceProvision;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.data.annotations.UsePersistence;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
@@ -38,10 +42,13 @@ import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.commands.usage.NameUsageBuilder;
+import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
 @UseCommands
+@UseConfigurations
+@Activator(scanPackages = "nz.pumbas.halpbot")
 @HartshornTest
 public class UsageTests
 {
@@ -51,6 +58,12 @@ public class UsageTests
                 .filter(method -> method.name().equals(name))
                 .findFirst()
                 .get();
+    }
+
+    @InjectTest
+    public void test(ApplicationContext applicationContext) {
+        BotConfiguration config = applicationContext.get(BotConfiguration.class);
+        Assertions.assertEquals("$", config.defaultPrefix());
     }
 
     @InjectTest

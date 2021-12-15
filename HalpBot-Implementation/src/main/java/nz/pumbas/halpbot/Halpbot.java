@@ -50,6 +50,7 @@ import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.common.annotations.Bot;
+import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.configurations.EmbedStringsDisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
