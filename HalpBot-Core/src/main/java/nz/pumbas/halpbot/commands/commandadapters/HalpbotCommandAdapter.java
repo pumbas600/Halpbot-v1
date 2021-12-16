@@ -153,8 +153,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
         for (String alias : aliases) {
             if (this.registeredCommands.containsKey(alias)) {
                 this.applicationContext.log().warn(
-                        "The alias %s is already being used by the command [%s]. The command [%s] will not be registered under this alias"
-                                .formatted(alias, this.registeredCommands.get(alias).usage(), commandContext.usage()));
+                        "The alias %s is already being used by the command %s. The command %s will not be registered under this alias"
+                                .formatted(alias, this.registeredCommands.get(alias).toString(), commandContext.toString()));
                 continue;
             }
 

@@ -4,6 +4,7 @@ import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -30,6 +31,8 @@ public interface InvocationContext extends ContextCarrier
 
     TypeContext<?> currentType();
 
+    ParameterContext<?> parameterContext();
+
     List<TypeContext<? extends Annotation>> sortedAnnotations();
 
     Set<Annotation> annotations();
@@ -43,6 +46,8 @@ public interface InvocationContext extends ContextCarrier
     InvocationContext sortedAnnotations(List<TypeContext<? extends Annotation>> sortedAnnotations);
 
     InvocationContext annotations(Set<Annotation> annotations);
+
+    InvocationContext parameterContext(@Nullable ParameterContext<?> parameterContext);
 
     /**
      * @return If there is any more content left
@@ -262,10 +267,11 @@ public interface InvocationContext extends ContextCarrier
      * @param sortedAnnotations
      *      The new sorted annotations to use
      */
-    default void update(ParameterContext<?> parameterContext, List<TypeContext<? extends Annotation>> sortedAnnotations) {
-        this.currentType(parameterContext.type());
+    default void update(ParameterContext<?> parameterContext,
+                        List<TypeContext<? extends Annotation>> sortedAnnotations)
+    {
+        this.parameterContext(parameterContext);
         this.sortedAnnotations(sortedAnnotations);
-        this.annotations(parameterContext.annotations());
         this.currentAnnotationIndex(0);
     }
 

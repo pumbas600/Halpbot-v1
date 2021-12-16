@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import org.dockbox.hartshorn.config.annotations.UseConfigurations;
 import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.service.Service;
@@ -58,6 +59,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 @Activator
 @UseCommands
+@UseConfigurations
 @Bot(displayConfiguration = EmbedStringsDisplayConfiguration.class)
 public class Halpbot extends ListenerAdapter implements Enableable
 {
@@ -74,6 +76,9 @@ public class Halpbot extends ListenerAdapter implements Enableable
         JDABuilder builder = JDABuilder.createDefault(token)
                 .disableIntents(GatewayIntent.GUILD_PRESENCES)
                 .addEventListeners(this);
+
+        BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
+        this.applicationContext.log().info(botConfiguration.defaultPrefix());
 
         ErrorManager.setLoggerUserId(CREATOR_ID);
 

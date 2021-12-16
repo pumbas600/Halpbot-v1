@@ -27,6 +27,7 @@ package nz.pumbas.halpbot.commands.context;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
@@ -61,6 +62,17 @@ public class HalpbotInvocationContext implements InvocationContext
     @Setter private TypeContext<?> currentType = TypeContext.VOID;
     @Setter private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
     @Setter private Set<Annotation> annotations = Collections.emptySet();
+    @Nullable private ParameterContext<?> parameterContext;
+
+    @Override
+    public InvocationContext parameterContext(@Nullable ParameterContext<?> parameterContext) {
+        if (parameterContext != null) {
+            this.currentType(parameterContext.type());
+            this.annotations(parameterContext.annotations());
+        }
+        this.parameterContext = parameterContext;
+        return this;
+    }
 
     @Override
     public Exceptional<String> nextSafe() {

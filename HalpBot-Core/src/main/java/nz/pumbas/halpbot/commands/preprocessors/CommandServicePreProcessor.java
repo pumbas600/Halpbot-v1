@@ -36,6 +36,7 @@ public class CommandServicePreProcessor implements ServicePreProcessor<UseComman
 
     @Override
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
+        context.log().debug("Processing %s".formatted(type.qualifiedName()));
         T instance = context.get(type);
         CommandAdapter commandAdapter = context.get(CommandAdapter.class);
         commandAdapter.registerCommands(instance);

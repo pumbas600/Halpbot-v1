@@ -53,6 +53,7 @@ import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.events.MessageEvent;
 
+//TODO: Test parameters like: List<List<String>>
 @Service
 @HartshornTest
 @UseCommands
@@ -325,6 +326,31 @@ public class CommandContextTests
 
     @Command(alias = {"commandWithMultipleAliases1", "CommandWithMultipleAliases2"})
     public void commandWithMultipleAliasesTestMethod() {
+    }
+
+    @InjectTest
+    public void commandContextWithAListTest(CommandAdapter commandAdapter,
+                                            InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithAListTest");
+
+        Assertions.assertNotNull(commandContext);
+        Exceptional<Integer> result1 = commandContext.invoke(invocationContextFactory.create("[]"));
+        Exceptional<Integer> result2 = commandContext.invoke(invocationContextFactory.create("[1 5 3 4]"));
+
+        Assertions.assertTrue(result1.present());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertEquals(0, result1.get());
+        Assertions.assertEquals(13, result2.get());
+    }
+
+    @Command(alias = "commandWithAListTest")
+    public int commandWithAListTestMethod(List<Integer> values) {
+        int sum = 0;
+        for (int value : values) {
+            sum += value;
+        }
+        return sum;
     }
 
 //    @Test

@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.converters;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
@@ -64,14 +65,14 @@ public interface Converter<T>
 
         int currentIndex = invocationContext.currentIndex();
         int currentAnnotationIndex = invocationContext.currentAnnotationIndex();
-        TypeContext<?> currentType = invocationContext.currentType();
+        TypeContext<?> typeContext = invocationContext.currentType();
 
         Exceptional<T> result = this.mapper().apply(invocationContext)
                 .caught(throwable -> invocationContext.currentIndex(currentIndex));
 
         // Always restore the state of parser back to what it was when it was called.
         invocationContext.currentAnnotationIndex(currentAnnotationIndex);
-        invocationContext.currentType(currentType);
+        invocationContext.currentType(typeContext);
         return result;
     }
 }

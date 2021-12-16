@@ -61,6 +61,7 @@ import nz.pumbas.halpbot.utilities.enums.Priority;
 import nz.pumbas.halpbot.converters.annotations.parameter.Children;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -232,7 +233,7 @@ public final class DefaultConverters
             .convert(invocationContext -> {
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
-                        : invocationContext.currentType().typeParameters(List.class).get(0);
+                        : invocationContext.parameterContext().typeParameters().get(0);
                 Converter<?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);
