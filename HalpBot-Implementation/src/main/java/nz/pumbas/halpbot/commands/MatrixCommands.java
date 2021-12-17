@@ -26,7 +26,11 @@ package nz.pumbas.halpbot.commands;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
 
+import java.util.List;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.customparameters.math.Matrix;
 
 @Service
@@ -44,7 +48,11 @@ public class MatrixCommands {
     }
 
     @Command(description = "Multiplies two or more matrices")
-    public Matrix multiply(Matrix matrix, Matrix other) {
-        return matrix.multiply(other);
+    public Matrix multiply(Matrix matrixA, Matrix matrixB, @Unrequired("[]") @Implicit List<Matrix> otherMatricies) {
+        Matrix matrix =  matrixA.multiply(matrixB);
+        for (Matrix other : otherMatricies) {
+            matrix = matrix.multiply(other);
+        }
+        return matrix;
     }
 }

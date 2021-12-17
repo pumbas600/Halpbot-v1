@@ -37,24 +37,24 @@ public interface CommandContext extends Invokable, Permissive
     /**
      * @return The {@link String alias} for this command.
      */
-    @NotNull
     List<String> aliases();
+
+    default String aliasesString() {
+        return String.join(" | ", this.aliases());
+    }
 
     /**
      * @return The {@link String description} if present, otherwise null
      */
-    @NotNull
     String description();
 
     /**
      * @return The {@link String usage} for this command
      */
-    @NotNull
     String usage();
 
     /**
      * @return The {@link Class classes} that can have static methods invoked from
      */
-    @NotNull
     Set<TypeContext<?>> reflections();
 }

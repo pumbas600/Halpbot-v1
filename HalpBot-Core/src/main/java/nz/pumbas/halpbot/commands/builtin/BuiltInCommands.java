@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands;
+package nz.pumbas.halpbot.commands.builtin;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
@@ -35,15 +36,13 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.awt.Color;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
@@ -56,38 +55,26 @@ public class BuiltInCommands
 {
     private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
-    @Command(alias = {"help", "halp"}, description = "Displays the help information for the specified command")
-    public Object halp(CommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
+    @Inject private HelpService helpService;
+
+    @Command(alias = { "help", "halp" }, description = "Displays the help information for the specified command")
+    public Object halp(@Source Guild guild, CommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
         if (commandAlias.isEmpty()) {
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setColor(Color.ORANGE)
-                .setTitle("HALP - Commands");
-
-            Map<String, CommandContext> registeredCommands = commandAdapter.registeredCommands();
-            for (var command : registeredCommands.entrySet()) {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("\n**Usage**\n")
-                    .append(command.getKey()).append(" ").append(command.getValue().usage())
-                    .append("\n**Description**\n")
-                    .append(command.getValue().description());
-
-                embedBuilder.addField(command.getKey(), stringBuilder.toString(), true);
-            }
-
-            return embedBuilder.build();
+            return this.helpService.build(commandAdapter);
         }
 
+        String prefix = commandAdapter.prefix(guild.getIdLong());
         String alias = commandAlias.toLowerCase(Locale.ROOT);
-        if (alias.startsWith(commandAdapter.defaultPrefix()))
-            alias = alias.substring(commandAdapter.defaultPrefix().length()).stripLeading();
+        if (alias.startsWith(prefix))
+            alias = alias.substring(prefix.length()).stripLeading();
 
         Exceptional<CommandContext> commandContext = commandAdapter.commandContextSafely(alias);
         if (commandContext.absent())
             return "That doesn't seem to be a registered command :sob:";
 
-        return this.buildHelpMessage(commandContext.get());
+        return this.helpService.build(guild, commandAdapter, commandContext.get());
     }
-    
+
     // Move to CommandAdapter
     private MessageEmbed buildHelpMessage(CommandContext commandContext) {
         return new EmbedBuilder().build();

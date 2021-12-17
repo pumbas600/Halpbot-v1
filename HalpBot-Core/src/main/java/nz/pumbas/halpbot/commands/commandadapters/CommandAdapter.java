@@ -43,6 +43,8 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
 
     void defaultPrefix(String defaultPrefix);
 
+    String prefix(long guildId);
+
     UsageBuilder usageBuilder();
 
     void usageBuilder(UsageBuilder usageBuilder);

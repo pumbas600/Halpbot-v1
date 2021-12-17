@@ -28,6 +28,6 @@ public record HalpbotCommandContext(List<String> aliases,
 
     @Override
     public String toString() {
-        return "'%s %s'".formatted(String.join("|",this.aliases), this.usage).trim();
+        return "%s %s".formatted(this.aliasesString(), this.usage).trim();
     }
 }

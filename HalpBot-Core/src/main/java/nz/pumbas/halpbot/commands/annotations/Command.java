@@ -40,7 +40,7 @@ public @interface Command
 
     String command() default "";
 
-    String description() default "N/A";
+    String description() default "";
 
     String usage() default "";
 

@@ -50,6 +50,7 @@ import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.permissions.exceptions.InsufficientPermissionException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 @Binds(CommandAdapter.class)
@@ -59,6 +60,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
     private final Map<TypeContext<?>, String> cachedTypeAliases = HartshornUtils.emptyMap();
+    private final Map<Long, String> guildPrefixes = HartshornUtils.emptyMap();
 
     @Setter @Getter private String defaultPrefix;
     @Setter @Getter private UsageBuilder usageBuilder;
@@ -78,19 +80,20 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
         // Remove all the additional whitespace
         String message = event.getMessage().getContentRaw().replaceAll("\\s+", " ");
-
-        String[] splitText  = message.split(" ", 2);
-        String commandAlias = splitText[0].toLowerCase();
-        String content      = (2 == splitText.length) ? splitText[1] : "";
+        String prefix = this.prefix(event.getGuild().getIdLong());
 
         HalpbotEvent halpbotEvent = new MessageEvent(event);
 
-        if (commandAlias.startsWith(this.defaultPrefix())) {
-            String alias = commandAlias.substring(this.defaultPrefix.length());
+        if (message.startsWith(prefix)) {
+            message = message.substring(prefix.length()).stripLeading();
+            String[] splitText = message.split(" ", 2);
+            String alias       = splitText[0];
+            String content     = (2 == splitText.length) ? splitText[1] : "";
+
             this.commandContextSafely(alias)
                 .absent(() -> this.halpbotCore.displayConfiguration()
                     .displayTemporary(halpbotEvent,
-                        "The command **" + commandAlias + "** doesn't seem to exist, you may want to check your spelling",
+                        "The command **" + alias + "** doesn't seem to exist, you may want to check your spelling",
                         30))
                 .flatMap(commandContext ->
                     this.handleCommandInvocation(halpbotEvent, commandContext, content))
@@ -153,7 +156,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         for (String alias : aliases) {
             if (this.registeredCommands.containsKey(alias)) {
                 this.applicationContext.log().warn(
-                        "The alias %s is already being used by the command %s. The command %s will not be registered under this alias"
+                        "The alias '%s' is already being used by the command '%s'. The command %s will not be registered under this alias"
                                 .formatted(alias, this.registeredCommands.get(alias).toString(), commandContext.toString()));
                 continue;
             }
@@ -170,6 +173,11 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Override
     public void registerReflectiveCommand(MethodContext<?, ?> methodContext) {
         //TODO: Reflective Commands
+    }
+
+    @Override
+    public String prefix(long guildId) {
+        return this.guildPrefixes.getOrDefault(guildId, this.defaultPrefix);
     }
 
     private List<String> aliases(Command command, MethodContext<?, ?> methodContext) {

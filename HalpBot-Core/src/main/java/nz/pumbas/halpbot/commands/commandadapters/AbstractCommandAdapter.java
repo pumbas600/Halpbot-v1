@@ -72,11 +72,10 @@ import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.OnShutdown;
-import nz.pumbas.halpbot.commands.BuiltInCommands;
+import nz.pumbas.halpbot.commands.builtin.BuiltInCommands;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.exceptions.OutputException;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
-import nz.pumbas.halpbot.utilities.Reflect;
 
 @Service
 public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
