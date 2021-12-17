@@ -33,7 +33,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import org.dockbox.hartshorn.config.annotations.UseConfigurations;
-import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
@@ -44,15 +43,10 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 
 import javax.inject.Inject;
-import javax.security.auth.login.LoginException;
 
-import lombok.SneakyThrows;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
-import nz.pumbas.halpbot.common.annotations.Bot;
-import nz.pumbas.halpbot.configurations.BotConfiguration;
-import nz.pumbas.halpbot.configurations.EmbedStringsDisplayConfiguration;
+import nz.pumbas.halpbot.common.Bot;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -60,42 +54,40 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Activator
 @UseCommands
 @UseConfigurations
-@Bot(displayConfiguration = EmbedStringsDisplayConfiguration.class)
-public class Halpbot extends ListenerAdapter implements Enableable
+public class Halpbot extends ListenerAdapter implements Bot
 {
     public static final long CREATOR_ID = 260930648330469387L;
 
     @Inject private ApplicationContext applicationContext;
     @Inject private HalpbotCore halpbotCore;
 
-    @SneakyThrows
-    @Override
-    public void enable() throws ApplicationException {
-        String token = HalpbotUtils.getFirstLine(new ClassPathResource("static/Token.txt").getInputStream());
-
-        JDABuilder builder = JDABuilder.createDefault(token)
-                .disableIntents(GatewayIntent.GUILD_PRESENCES)
-                .addEventListeners(this);
-
-        BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
-        this.applicationContext.log().info(botConfiguration.defaultPrefix());
-
-        ErrorManager.setLoggerUserId(CREATOR_ID);
-
-        this.halpbotCore.setOwner(CREATOR_ID)
-                .build(builder);
-    }
-
     @Override
     public void onReady(ReadyEvent event) {
-        this.halpbotCore.jda().getPresence()
-                .setPresence(Activity.of(ActivityType.WATCHING, "Trying to halp everyone"), false);
+        this.halpbotCore.jda().getPresence().setPresence(
+                Activity.of(ActivityType.COMPETING, "The best way to help everyone"), false);
+
         this.applicationContext.log()
                 .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
+
+        ErrorManager.setLoggerUserId(CREATOR_ID);
+        this.halpbotCore.setOwner(CREATOR_ID);
     }
 
     @Override
     public void onShutdown(ShutdownEvent event) {
         this.applicationContext.log().info("Shutting down the bot!");
+    }
+
+    @Override
+    public JDABuilder initialise() throws ApplicationException {
+        try {
+            String token = HalpbotUtils.getFirstLine(new ClassPathResource("static/Token.txt").getInputStream());
+            return JDABuilder.createDefault(token)
+                    .disableIntents(GatewayIntent.GUILD_PRESENCES)
+                    .addEventListeners(this);
+        }
+        catch (IOException e) {
+            throw new ApplicationException(e);
+        }
     }
 }

@@ -24,8 +24,11 @@
 
 package nz.pumbas.halpbot.customparameters.math;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
+
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
+@Service
 public class Vector3
 {
     public static final Vector3 Zero = new Vector3(0, 0, 0);

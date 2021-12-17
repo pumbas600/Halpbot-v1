@@ -24,13 +24,14 @@
 
 package nz.pumbas.halpbot;
 
-import org.dockbox.hartshorn.core.boot.HartshornApplication;
+
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 public final class Main
 {
     private Main() {}
 
-    public static void main(String[] args) {
-        HartshornApplication.create(Halpbot.class, args);
+    public static void main(String[] args) throws ApplicationException {
+        HalpbotBuilder.build(Halpbot.class, args);
     }
 }

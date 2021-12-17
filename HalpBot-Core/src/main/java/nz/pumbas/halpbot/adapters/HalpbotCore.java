@@ -3,15 +3,13 @@ package nz.pumbas.halpbot.adapters;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.boot.ExceptionHandler;
-import org.dockbox.hartshorn.core.boot.HartshornExceptionHandler;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -32,7 +30,7 @@ import lombok.Getter;
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.actions.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
-import nz.pumbas.halpbot.common.annotations.Bot;
+import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
@@ -93,23 +91,33 @@ public class HalpbotCore implements ContextCarrier
     }
 
     private void onCreation(JDA jda) throws UndefinedActivatorException {
-        if (!this.applicationContext.hasActivator(Bot.class)) {
-            throw new UndefinedActivatorException("The @Bot activator must be present on the main class");
-        }
-        Bot bot = this.applicationContext.activator(Bot.class);
+        BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
 
-        this.displayConfiguration = this.applicationContext.get(bot.displayConfiguration());
+        TypeContext<?> typeContext = TypeContext.lookup(config.displayConfiguration());
+        if (!typeContext.childOf(DisplayConfiguration.class)) {
+            this.applicationContext.log()
+                    .warn("The display configuration %s specified in bot-config.properties must implement DisplayConfiguration"
+                            .formatted(config.displayConfiguration()));
+            this.applicationContext.log().warn("Falling back to %s display configuration"
+                    .formatted(SimpleDisplayConfiguration.class.getCanonicalName()));
+            this.displayConfiguration = new SimpleDisplayConfiguration();
+        }
+        else {
+            this.displayConfiguration = (DisplayConfiguration) this.applicationContext.get(typeContext);
+        }
+
         this.adapters.forEach(adapter -> adapter.onCreation(jda));
     }
 
-    public JDA build(JDABuilder jdaBuilder) throws ApplicationException {
+    public JDA build(JDABuilder jdaBuilder) {
+        jdaBuilder.setEventManager(new AnnotatedEventManager());
         this.adapters.forEach(jdaBuilder::addEventListeners);
 
         try {
             this.jda = jdaBuilder.build();
             this.onCreation(this.jda);
         } catch (LoginException | UndefinedActivatorException e) {
-            throw new ApplicationException(e);
+            ExceptionHandler.unchecked(e);
         }
 
         this.concurrentManager.scheduleRegularly(20, 20, TimeUnit.MINUTES, this::clearEmptyCooldowns);

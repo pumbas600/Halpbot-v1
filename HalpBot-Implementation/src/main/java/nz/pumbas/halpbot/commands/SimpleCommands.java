@@ -64,7 +64,7 @@ public class SimpleCommands
 
     @Command(description = "Allows you to praise the bot")
     public String goodBot() {
-        return HalpbotUtils.randomChoice(new String[]{ "Thank you!", "I try my best :)", ":heart:" });
+        return HalpbotUtils.randomChoice(new String[]{ "Thank you!", "I try my best :)", ":heart:", "No worries >~<" });
     }
 
     @Command(alias = "Is", command = "#Integer <in> #List",
