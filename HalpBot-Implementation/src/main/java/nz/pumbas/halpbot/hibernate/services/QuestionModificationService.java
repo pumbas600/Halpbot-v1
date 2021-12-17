@@ -1,10 +1,7 @@
 package nz.pumbas.halpbot.hibernate.services;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,7 +25,7 @@ public class QuestionModificationService
 
     private final QuestionModificationRepository questionModificationRepository;
 
-    @Autowired
+    //@Autowired
     public QuestionModificationService(QuestionModificationRepository questionModificationRepository) {
         this.questionModificationRepository = questionModificationRepository;
         this.ids.addAll(this.questionModificationRepository.getAllIds());
@@ -36,13 +33,14 @@ public class QuestionModificationService
     }
 
     public boolean existsById(@Nullable Long id) {
-        return null != id && this.questionModificationRepository.existsById(id);
+        //return null != id && this.questionModificationRepository.existsById(id);
+        return false;
     }
 
     public List<QuestionModification> listFirstAmount(int amount) {
         List<QuestionModification> questions = new ArrayList<>();
-        Pageable pageable = PageRequest.of(1, amount);
-        this.questionModificationRepository.findAll(pageable).forEach(questions::add);
+//        Pageable pageable = PageRequest.of(1, amount);
+//        this.questionModificationRepository.findAll(pageable).forEach(questions::add);
         return questions;
     }
 
@@ -50,21 +48,23 @@ public class QuestionModificationService
         if (!this.existsById(id)) {
             throw new ResourceNotFoundException("Cannot find question modification with id: " + id);
         }
-        this.questionModificationRepository.deleteById(id);
+        //this.questionModificationRepository.deleteById(id);
         this.ids.remove(id);
     }
 
     public void deleteAll() {
-        this.questionModificationRepository.deleteAll();
+        //this.questionModificationRepository.deleteAll();
         this.ids.clear();
     }
 
     public List<QuestionModification> list() {
-        return this.questionModificationRepository.findAll();
+        //return this.questionModificationRepository.findAll();
+        return new ArrayList<>();
     }
 
     public long count() {
-        return this.questionModificationRepository.count();
+        //return this.questionModificationRepository.count();
+        return 0;
     }
 
     private void startRepositoryChecks() {

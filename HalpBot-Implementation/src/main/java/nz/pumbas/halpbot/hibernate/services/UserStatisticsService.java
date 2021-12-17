@@ -1,14 +1,11 @@
 package nz.pumbas.halpbot.hibernate.services;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.hibernate.models.UserStatistics;
 import nz.pumbas.halpbot.hibernate.repositories.UserStatisticsRepository;
@@ -23,7 +20,7 @@ public class UserStatisticsService
 
     private final UserStatisticsRepository userStatisticsRepository;
 
-    @Autowired
+    //@Autowired
     public UserStatisticsService(UserStatisticsRepository userStatisticsRepository) {
         this.userStatisticsRepository = userStatisticsRepository;
     }
@@ -33,36 +30,35 @@ public class UserStatisticsService
             this.userStatistics.renewKey(userId);
             return this.userStatistics.get(userId);
         }
-        UserStatistics userStatistics = this.userStatisticsRepository.findById(userId)
-            .orElse(new UserStatistics(userId));
-        this.userStatistics.put(userId, userStatistics);
-        return userStatistics;
+//        UserStatistics userStatistics = this.userStatisticsRepository.findById(userId)
+//            .orElse(new UserStatistics(userId));
+//        this.userStatistics.put(userId, userStatistics);
+//        return userStatistics;
+        return new UserStatistics();
     }
 
     public List<UserStatistics> getTop(int amount, String column) {
-        PageRequest pageRequest = PageRequest.of(0, amount, Sort.by(column).descending());
-        return this.userStatisticsRepository.findAll(pageRequest).getContent();
+//        PageRequest pageRequest = PageRequest.of(0, amount, Sort.by(column).descending());
+//        return this.userStatisticsRepository.findAll(pageRequest).getContent();
+        return new ArrayList<>();
     }
 
     public List<UserStatistics> list() {
-        return this.userStatisticsRepository.findAll();
-    }
-
-    public Long getPosition(@NotNull Long userId) {
-        return this.userStatisticsRepository.getPosition(userId, "QUESTIONSANSWERED");
+        //return this.userStatisticsRepository.findAll();
+        return new ArrayList<>();
     }
 
     private void saveModifiedStatistic(Long userId, UserStatistics userStatistic) {
         if (!userStatistic.isEmpty()) {
-            this.userStatisticsRepository.save(userStatistic);
+            //this.userStatisticsRepository.save(userStatistic);
         }
     }
 
     public void saveModifiedStatistics() {
-        this.userStatisticsRepository.saveAll(
-            this.userStatistics.values()
-                .stream()
-                .filter(userStatistic -> !userStatistic.isEmpty())
-                .collect(Collectors.toList()));
+//        this.userStatisticsRepository.saveAll(
+//            this.userStatistics.values()
+//                .stream()
+//                .filter(userStatistic -> !userStatistic.isEmpty())
+//                .collect(Collectors.toList()));
     }
 }

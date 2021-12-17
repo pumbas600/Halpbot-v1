@@ -8,9 +8,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.awt.Color;
 import java.util.HashSet;
@@ -49,7 +46,7 @@ public class QuestionConfirmationCommands
         .setSingleUse()
         .setDeleteAfter(-1, TimeUnit.MINUTES);
 
-    @Autowired
+    //@Autowired
     public QuestionConfirmationCommands(QuestionService questionService,
                                         TopicService topicService)
     {
@@ -161,7 +158,7 @@ public class QuestionConfirmationCommands
             }
         }
 
-        if (StringUtils.hasLength(question.getImage()))
+        if (this.hasLength(question.getImage()))
             builder.setImage(question.getImage());
 
         builder.setFooter("ID: " + question.getId() + " - " + question.getStatus());
@@ -205,13 +202,13 @@ public class QuestionConfirmationCommands
             .append(question).append("\n\n")
             .append(":regional_indicator_a: : ").append(answer).append("\n")
             .append(":regional_indicator_b: : ").append(optionB).append("\n");
-        if (StringUtils.hasLength(optionC))
+        if (this.hasLength(optionC))
             builder.append(":regional_indicator_c: : ").append(optionC).append("\n");
-        if (StringUtils.hasLength(optionD))
+        if (this.hasLength(optionD))
             builder.append(":regional_indicator_d: : ").append(optionD).append("\n");
-        if (StringUtils.hasLength(explanation))
+        if (this.hasLength(explanation))
             builder.append("\n**Explanation:**\n").append(explanation).append("\n");
-        if (StringUtils.hasLength(image))
+        if (this.hasLength(image))
             builder.append("\n**Image:**\n").append(image);
         return builder.toString();
     }
@@ -221,5 +218,9 @@ public class QuestionConfirmationCommands
             return original;
         }
         else return "**EDITED:** " + edited + "\n**ORIGINAL:** " + original;
+    }
+
+    private boolean hasLength(@Nullable String str) {
+        return str != null && !str.isBlank();
     }
 }

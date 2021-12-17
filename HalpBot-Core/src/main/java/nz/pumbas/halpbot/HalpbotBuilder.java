@@ -14,9 +14,7 @@ public final class HalpbotBuilder
 {
     private HalpbotBuilder() {}
 
-    public static ApplicationContext build(Class<? extends Bot> bot,
-                                           String[] args,
-                                           Modifier... modifiers)
+    public static ApplicationContext build(Class<? extends Bot> bot, String[] args, Modifier... modifiers)
             throws ApplicationException
     {
         ApplicationContext applicationContext = HartshornApplication.create(bot, args, modifiers);

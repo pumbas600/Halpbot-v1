@@ -1,10 +1,9 @@
 package nz.pumbas.halpbot.hibernate.services;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,17 +18,19 @@ public class QuestionService
 {
     private final QuestionRepository questionRepository;
 
-    @Autowired
+    //@Autowired
     public QuestionService(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
     }
 
     public boolean existsById(@Nullable Long id) {
-        return null != id && this.questionRepository.existsById(id);
+        //return null != id && this.questionRepository.existsById(id);
+        return false;
     }
 
     public List<Question> list() {
-        return this.questionRepository.findAll();
+        //return this.questionRepository.findAll();
+        return new ArrayList<>();
     }
 
     public List<Question> getAllWaitingConfirmation() {
@@ -37,7 +38,8 @@ public class QuestionService
     }
 
     public List<Question> getAmountWaitingConfirmation(int amount) {
-        return this.questionRepository.getAllWaitingConfirmation(PageRequest.of(0, amount));
+        //return this.questionRepository.getAllWaitingConfirmation(PageRequest.of(0, amount));
+        return new ArrayList<>();
     }
 
     public List<Long> getAllConfirmedIds() {
@@ -71,38 +73,40 @@ public class QuestionService
     }
 
     public Question getById(Long id) throws ResourceNotFoundException {
-        Question question = this.questionRepository.findById(id).orElse(null);
-        if (null == question) {
-            throw new ResourceNotFoundException("Cannot find Question with the id: " + id);
-        }
-        return question;
+        //Question question = this.questionRepository.findById(id).orElse(null);
+//        if (null == question) {
+//            throw new ResourceNotFoundException("Cannot find Question with the id: " + id);
+//        }
+//        return question;
+        return new Question();
     }
 
     public Question save(Question question) throws ResourceAlreadyExistsException {
         if (this.existsById(question.getId())) {
             throw new ResourceAlreadyExistsException("Question with id: " + question.getId() + " Already exists");
         }
-        return this.questionRepository.save(question);
+//        return this.questionRepository.save(question);
+        return new Question();
     }
 
     public void bulkSave(List<Question> questions) {
         List<Question> filteredQuestions = questions.stream()
             .filter(q -> !this.existsById(q.getId()))
             .collect(Collectors.toList());
-        this.questionRepository.saveAll(filteredQuestions);
+        //this.questionRepository.saveAll(filteredQuestions);
     }
 
     public void update(Question question) throws ResourceNotFoundException {
         if (!this.existsById(question.getId())) {
             throw new ResourceNotFoundException("Cannot find Question with the id: " + question.getId());
         }
-        this.questionRepository.save(question);
+        //this.questionRepository.save(question);
     }
 
     public void deleteById(@Nullable Long id) throws ResourceNotFoundException {
         if (!this.existsById(id)) {
             throw new ResourceNotFoundException("Cannot find a Question with the id: " + id);
         }
-        this.questionRepository.deleteById(id);
+        //this.questionRepository.deleteById(id);
     }
 }

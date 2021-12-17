@@ -38,8 +38,6 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -112,7 +110,7 @@ public class ChemmatCommands
     private final QuestionHandler defaultQuestionHandler;
     private final Map<Long, QuestionHandler> questionHandlers = new HashMap<>();
 
-    @Autowired
+    //@Autowired
     public ChemmatCommands(QuestionService questionService, TopicService topicService, UserStatisticsService userStatisticsService) {
         this.questionService = questionService;
         this.topicService = topicService;

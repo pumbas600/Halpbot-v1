@@ -24,10 +24,10 @@
 
 package nz.pumbas.halpbot.hibernate.services;
 
+import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -42,18 +42,20 @@ public class TopicService
     private final Map<Long, String> topicMappings = new HashMap<>();
     private final TopicRepository topicRepository;
 
-    @Autowired
+    //@Autowired
     public TopicService(TopicRepository topicRepository) {
         this.topicRepository = topicRepository;
         this.list().forEach(topic -> this.topicMappings.put(topic.getId(), topic.getTopic()));
     }
 
     public boolean existsById(Long id) {
-        return null != id && this.topicRepository.existsById(id);
+        //return null != id && this.topicRepository.existsById(id);
+        return false;
     }
 
     public List<Topic> list() {
-        return this.topicRepository.findAll();
+        //return this.topicRepository.findAll();
+        return new ArrayList<>();
     }
 
     public String topicFromId(Long id) {

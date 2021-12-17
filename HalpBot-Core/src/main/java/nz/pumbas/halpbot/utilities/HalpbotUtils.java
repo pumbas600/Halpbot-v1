@@ -208,7 +208,7 @@ public final class HalpbotUtils
      *
      * @return The InputStream, if there were no errors retrieving it
      */
-    private static Optional<InputStream> retrieveReader(String filename) {
+    public static Optional<InputStream> retrieveReader(String filename) {
         InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(filename);
 
         if (null == in) {

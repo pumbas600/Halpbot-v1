@@ -6,15 +6,12 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
-import org.springframework.stereotype.Service;
-
 import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
-import javax.annotation.PreDestroy;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
@@ -114,14 +111,9 @@ public class QuestionStatisticCommands
             .build();
     }
 
-    @Command
-    public Long position(@Source User author) {
-        return this.userStatisticsService.getPosition(author.getIdLong());
-    }
-
-    @PreDestroy
-    public void onShutDown() {
-        //HalpbotUtils.logger().info("Saving modified statistics");
-        this.userStatisticsService.saveModifiedStatistics();
-    }
+//    @PreDestroy
+//    public void onShutDown() {
+//        //HalpbotUtils.logger().info("Saving modified statistics");
+//        this.userStatisticsService.saveModifiedStatistics();
+//    }
 }

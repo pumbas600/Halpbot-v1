@@ -32,13 +32,11 @@ import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
-import org.dockbox.hartshorn.config.annotations.UseConfigurations;
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
@@ -53,7 +51,6 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 @Activator
 @UseCommands
-@UseConfigurations
 public class Halpbot extends ListenerAdapter implements Bot
 {
     public static final long CREATOR_ID = 260930648330469387L;
@@ -68,9 +65,6 @@ public class Halpbot extends ListenerAdapter implements Bot
 
         this.applicationContext.log()
                 .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
-
-        ErrorManager.setLoggerUserId(CREATOR_ID);
-        this.halpbotCore.setOwner(CREATOR_ID);
     }
 
     @Override
@@ -80,14 +74,12 @@ public class Halpbot extends ListenerAdapter implements Bot
 
     @Override
     public JDABuilder initialise() throws ApplicationException {
-        try {
-            String token = HalpbotUtils.getFirstLine(new ClassPathResource("static/Token.txt").getInputStream());
-            return JDABuilder.createDefault(token)
-                    .disableIntents(GatewayIntent.GUILD_PRESENCES)
-                    .addEventListeners(this);
-        }
-        catch (IOException e) {
-            throw new ApplicationException(e);
-        }
+        ErrorManager.setLoggerUserId(CREATOR_ID);
+        this.halpbotCore.setOwner(CREATOR_ID);
+
+        String token = HalpbotUtils.getFirstLine(HalpbotUtils.retrieveReader("Token.txt").get());
+        return JDABuilder.createDefault(token)
+                .disableIntents(GatewayIntent.GUILD_PRESENCES)
+                .addEventListeners(this);
     }
 }

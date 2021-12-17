@@ -26,7 +26,6 @@ package nz.pumbas.halpbot.commands;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -48,18 +47,10 @@ public class SimpleCommands
     private List<String> insultJokes;
 
     public SimpleCommands() {
-        try {
-            this.comfortingMessages =
-                HalpbotUtils.getAllLinesFromFile((new ClassPathResource("static/ComfortingMessages.txt")).getInputStream());
-            this.insultJokes =
-                HalpbotUtils.getAllLinesFromFile((new ClassPathResource("static/InsultJokes.txt")).getInputStream());
-        } catch (IOException e) {
-            ErrorManager.handle(e);
-            this.comfortingMessages = Collections.emptyList();
-            this.insultJokes = Collections.emptyList();
-            this.applicationContext.log()
-                    .error("There was an error loading the comforting messages and insulting jokes");
-        }
+        this.comfortingMessages =
+            HalpbotUtils.getAllLinesFromFile((HalpbotUtils.retrieveReader("ComfortingMessages.txt")).get());
+        this.insultJokes =
+            HalpbotUtils.getAllLinesFromFile((HalpbotUtils.retrieveReader("InsultJokes.txt")).get());
     }
 
     @Command(description = "Allows you to praise the bot")
