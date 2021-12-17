@@ -19,4 +19,7 @@ public class BotConfiguration
     @Value("usageBuilder")
     private String usageBuilder = "nz.pumbas.halpbot.commands.usage.TypeUsageBuilder";
 
+    @Value("ownerId")
+    private long ownerId = -1;
+
 }

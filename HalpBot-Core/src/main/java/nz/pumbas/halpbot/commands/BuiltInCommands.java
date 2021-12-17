@@ -30,14 +30,17 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.awt.Color;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
@@ -54,13 +57,13 @@ public class BuiltInCommands
     private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
 
     @Command(alias = {"help", "halp"}, description = "Displays the help information for the specified command")
-    public Object halp(AbstractCommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
+    public Object halp(CommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
         if (commandAlias.isEmpty()) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Color.ORANGE)
                 .setTitle("HALP - Commands");
 
-            var registeredCommands = commandAdapter.getRegisteredCommands();
+            Map<String, CommandContext> registeredCommands = commandAdapter.registeredCommands();
             for (var command : registeredCommands.entrySet()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("\n**Usage**\n")
@@ -75,14 +78,19 @@ public class BuiltInCommands
         }
 
         String alias = commandAlias.toLowerCase(Locale.ROOT);
-        if (!alias.startsWith(commandAdapter.getCommandPrefix()))
-            alias = commandAdapter.getCommandPrefix() + alias;
+        if (alias.startsWith(commandAdapter.defaultPrefix()))
+            alias = alias.substring(commandAdapter.defaultPrefix().length()).stripLeading();
 
-        Optional<CommandContext> commandMethod = commandAdapter.getCommandMethod(alias);
-        if (commandMethod.isEmpty())
+        Exceptional<CommandContext> commandContext = commandAdapter.commandContextSafely(alias);
+        if (commandContext.absent())
             return "That doesn't seem to be a registered command :sob:";
 
-        return AbstractCommandAdapter.buildHelpMessage(alias, commandMethod.get(), "Here's the overview");
+        return this.buildHelpMessage(commandContext.get());
+    }
+    
+    // Move to CommandAdapter
+    private MessageEmbed buildHelpMessage(CommandContext commandContext) {
+        return new EmbedBuilder().build();
     }
 
     @Command(description = "Shuts the bot down. Any existing RestActions will be completed first.",

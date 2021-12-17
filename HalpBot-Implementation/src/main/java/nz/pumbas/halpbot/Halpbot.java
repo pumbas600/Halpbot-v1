@@ -45,7 +45,6 @@ import javax.inject.Inject;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.common.Bot;
-import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
@@ -74,8 +73,6 @@ public class Halpbot extends ListenerAdapter implements Bot
 
     @Override
     public JDABuilder initialise() throws ApplicationException {
-        this.halpbotCore.setOwner(CREATOR_ID);
-
         String token = HalpbotUtils.getFirstLine(HalpbotUtils.retrieveReader("Token.txt").get());
         return JDABuilder.createDefault(token)
                 .disableIntents(GatewayIntent.GUILD_PRESENCES)

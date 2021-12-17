@@ -90,9 +90,18 @@ public class HalpbotCore implements ContextCarrier
         return this;
     }
 
-    private void onCreation(JDA jda) throws UndefinedActivatorException {
+    private void onCreation(JDA jda) throws ApplicationException {
         BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
 
+        this.determineDisplayConfiguration(config);
+        if (config.ownerId() == -1)
+            throw new ApplicationException("You must specify the id of the bot owner in bot-config.properties");
+
+        this.setOwner(config.ownerId());
+        this.adapters.forEach(adapter -> adapter.onCreation(jda));
+    }
+
+    private void determineDisplayConfiguration(BotConfiguration config) {
         TypeContext<?> typeContext = TypeContext.lookup(config.displayConfiguration());
         if (!typeContext.childOf(DisplayConfiguration.class)) {
             this.applicationContext.log()
@@ -105,18 +114,16 @@ public class HalpbotCore implements ContextCarrier
         else {
             this.displayConfiguration = (DisplayConfiguration) this.applicationContext.get(typeContext);
         }
-
-        this.adapters.forEach(adapter -> adapter.onCreation(jda));
     }
 
-    public JDA build(JDABuilder jdaBuilder) {
+    public JDA build(JDABuilder jdaBuilder) throws ApplicationException {
         jdaBuilder.setEventManager(new AnnotatedEventManager());
         this.adapters.forEach(jdaBuilder::addEventListeners);
 
         try {
             this.jda = jdaBuilder.build();
             this.onCreation(this.jda);
-        } catch (LoginException | UndefinedActivatorException e) {
+        } catch (LoginException e) {
             ExceptionHandler.unchecked(e);
         }
 
