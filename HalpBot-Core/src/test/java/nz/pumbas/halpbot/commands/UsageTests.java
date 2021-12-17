@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.config.annotations.UseConfigurations;
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -142,17 +143,4 @@ public class UsageTests
     private void testMethod3(@Source User author) {}
 
     private void testMethod4(@Unrequired User user) {}
-
-//    @Test
-//    public void commandUsesMethodNameIfAliasUndefinedTest() {
-//        Method method = Reflect.getMethod(this, "add");
-//
-//        SimpleCommand command = CommandManager.generateCommandMethod(this, method, method.getAnnotation(Command.class));
-//        Assertions.assertEquals("add", command.alias());
-//    }
-//
-//    @Command(description = "Adds two numbers together")
-//    private int add(int a, int b) {
-//        return a + b;
-//    }
 }

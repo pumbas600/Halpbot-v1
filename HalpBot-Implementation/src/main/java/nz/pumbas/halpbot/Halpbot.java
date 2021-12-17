@@ -74,7 +74,6 @@ public class Halpbot extends ListenerAdapter implements Bot
 
     @Override
     public JDABuilder initialise() throws ApplicationException {
-        ErrorManager.setLoggerUserId(CREATOR_ID);
         this.halpbotCore.setOwner(CREATOR_ID);
 
         String token = HalpbotUtils.getFirstLine(HalpbotUtils.retrieveReader("Token.txt").get());

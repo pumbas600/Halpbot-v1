@@ -5,21 +5,20 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
-import javax.inject.Inject;
-
 @AutomaticActivation
-public class PersonServicePreProcessor implements ServicePreProcessor<Demo>
+public class DemoServicePreProcessor implements ServicePreProcessor<Demo>
 {
-    //@Inject PersonFactory factory;
+    private TypeContext<DemoTests> target = TypeContext.of(DemoTests.class);
 
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
-        return false;
+        // Only process the test class
+        return type.equals(this.target);
     }
 
     @Override
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
-
+        context.log().info("Processing %s".formatted(type.qualifiedName()));
     }
 
     @Override

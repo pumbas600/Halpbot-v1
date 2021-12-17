@@ -38,7 +38,7 @@ public class VectorCommands
         return a.add(b);
     }
 
-    @Command(alias = "VSubtract", description = "Subtracts a vector from another")
+    @Command(alias = { "VSubtract", "VSub" }, description = "Subtracts a vector from another")
     public Vector3 onSubtract(Vector3 a, Vector3 b) {
         return a.subtract(b);
     }
