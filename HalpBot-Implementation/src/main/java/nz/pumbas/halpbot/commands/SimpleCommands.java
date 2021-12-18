@@ -43,8 +43,8 @@ public class SimpleCommands
 {
     @Inject private ApplicationContext applicationContext;
 
-    private List<String> comfortingMessages;
-    private List<String> insultJokes;
+    private final List<String> comfortingMessages;
+    private final List<String> insultJokes;
 
     public SimpleCommands() {
         this.comfortingMessages =

@@ -47,7 +47,7 @@ public class MatrixCommands {
         return matrix.transpose();
     }
 
-    @Command(description = "Multiplies two or more matrices")
+    @Command(alias = { "multiply", "mult" }, description = "Multiplies two or more matrices")
     public Matrix multiply(Matrix matrixA, Matrix matrixB, @Unrequired("[]") @Implicit List<Matrix> otherMatricies) {
         Matrix matrix =  matrixA.multiply(matrixB);
         for (Matrix other : otherMatricies) {

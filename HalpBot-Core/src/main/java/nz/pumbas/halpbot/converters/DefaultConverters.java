@@ -262,7 +262,7 @@ public final class DefaultConverters
 
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
-                        : invocationContext.currentType().typeParameters(List.class).get(0);
+                        : invocationContext.parameterContext().typeParameters().get(0);
                 Converter<?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);
