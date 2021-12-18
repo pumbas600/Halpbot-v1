@@ -50,7 +50,7 @@ import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.permissions.PermissionManager;
 import nz.pumbas.halpbot.permissions.exceptions.InsufficientPermissionException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
+import nz.pumbas.halpbot.utilities.Reflect;
 
 @Service
 @Binds(CommandAdapter.class)
@@ -59,7 +59,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
-    private final Map<TypeContext<?>, String> cachedTypeAliases = HartshornUtils.emptyMap();
+    private final Map<TypeContext<?>, String> typeAliases = HartshornUtils.emptyMap();
     private final Map<Long, String> guildPrefixes = HartshornUtils.emptyMap();
 
     @Setter @Getter private String defaultPrefix;
@@ -254,15 +254,21 @@ public class HalpbotCommandAdapter implements CommandAdapter
         return Collections.unmodifiableMap(this.registeredCommands);
     }
 
-    //TODO: Check if primatives's are displayed as int or Integer
     @Override
     public String typeAlias(TypeContext<?> typeContext) {
-        if (!this.cachedTypeAliases.containsKey(typeContext)) {
-            this.cachedTypeAliases.put(typeContext,
-                    typeContext.annotation(CustomParameter.class).map(CustomParameter::identifier)
-                            .or(typeContext.name()));
+        if (!this.typeAliases.containsKey(typeContext)) {
+            String alias;
+            if (typeContext.annotation(CustomParameter.class).present())
+                alias = typeContext.annotation(CustomParameter.class).get().identifier();
+            else if (typeContext.isArray())
+                alias = this.typeAlias(typeContext.elementType().get()) + "[]";
+            else if (typeContext.isPrimitive())
+                alias = Reflect.wrapPrimative(typeContext).name();
+            else
+                alias = typeContext.name();
+            this.typeAliases.put(typeContext, alias);
         }
 
-        return this.cachedTypeAliases.get(typeContext);
+        return this.typeAliases.get(typeContext);
     }
 }

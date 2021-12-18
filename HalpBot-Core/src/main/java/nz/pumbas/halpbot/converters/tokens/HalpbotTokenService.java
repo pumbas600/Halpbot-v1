@@ -9,7 +9,6 @@ import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +19,11 @@ import javax.inject.Inject;
 import lombok.Getter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
+import nz.pumbas.halpbot.utilities.HalpbotStringTraverser;
+import nz.pumbas.halpbot.utilities.Reflect;
+import nz.pumbas.halpbot.utilities.StringTraverser;
 
 @Service
 @Binds(TokenService.class)
@@ -34,10 +35,9 @@ public class HalpbotTokenService implements TokenService
     @Getter private ApplicationContext applicationContext;
 
     @Inject private TokenFactory tokenFactory;
-    @Inject private InvocationContextFactory invocationContextFactory;
+    @Inject private CommandAdapter commandAdapter;
     @Inject private ConverterHandler converterHandler;
 
-    //TODO: Support placeholder tokens
     @Override
     public List<Token> tokens(ExecutableElementContext<?> executableContext) {
         if (this.cache.containsKey(executableContext))
@@ -47,50 +47,44 @@ public class HalpbotTokenService implements TokenService
         List<ParameterContext<?>> parameters = executableContext.parameters();
         int parameterIndex = 0;
 
-        Exceptional<String> eCommand = this.command(executableContext);
-        if (eCommand.present() && !eCommand.get().isBlank())
+        Exceptional<String> command = this.command(executableContext);
+        if (command.present() && !command.get().isBlank())
         {
-            String command = eCommand.get();
-            //TODO: String utils to separate interface
-            InvocationContext invocationContext = this.invocationContextFactory.create(command);
+            StringTraverser stringTraverser = new HalpbotStringTraverser(command.get());
 
-            while (invocationContext.hasNext()) {
-                ParameterContext<?> currentParameter = parameters.get(parameterIndex);
+            while (stringTraverser.hasNext()) {
+                if (parameterIndex < parameters.size()) {
+                    ParameterContext<?> currentParameter = parameters.get(parameterIndex);
+                    int currentIndex = stringTraverser.currentIndex();
 
-                if (!this.converterHandler.isCommandParameter(currentParameter)) {
-                    tokens.add(this.tokenFactory.createParsing(currentParameter));
-                    parameterIndex++;
-                    continue;
+                    if (!this.converterHandler.isCommandParameter(currentParameter) ||
+                       stringTraverser.next().equalsIgnoreCase(this.commandAdapter.typeAlias(currentParameter.type())))
+                    {
+                        tokens.add(this.tokenFactory.createParsing(currentParameter));
+                        parameterIndex++;
+                        continue;
+                    }
+
+                    stringTraverser.currentIndex(currentIndex);
                 }
-
-                String next = invocationContext.next();
-                if (next.equalsIgnoreCase(currentParameter.type().name())) {
-                    tokens.add(this.tokenFactory.createParsing(currentParameter));
-                    parameterIndex++;
-                    continue;
-                }
-
-                //TODO: Clean this up
-                if (!next.startsWith("[") && !next.startsWith("<"))
-                    ExceptionHandler.unchecked(new ApplicationException(
-                            "The placeholders in the %s command must start with either '<' or '['"
-                                    .formatted(executableContext.qualifiedName())));
-
-                boolean isOptional = next.startsWith("[");
-                String placeholder = next;;
-                if (!next.endsWith("]") && !next.endsWith(">")) {
-                    Exceptional<String> ending = invocationContext.next(isOptional ? "]" : ">");
-                    if (ending.absent())
-                        ExceptionHandler.unchecked(new ApplicationException(
-                                "The placeholders in the %s command must end with either '>' or ']'"
+                PlaceholderToken placeholderToken = stringTraverser.nextSurrounded("[", "]")
+                        .map(placeholder -> this.tokenFactory.createPlaceholder(true, placeholder))
+                        .orElse(() -> stringTraverser.nextSurrounded("<", ">")
+                                .map(placeholder -> this.tokenFactory.createPlaceholder(false, placeholder))
+                                .orNull())
+                        .orThrowUnchecked(() -> new ApplicationException(
+                                "Placeholders must be surrounded by either '[...]' or '<...>' in the command %s"
                                         .formatted(executableContext.qualifiedName())));
-                    placeholder += " " + ending.get();
-                    placeholder = placeholder.substring(1);
-                }
-                else placeholder = placeholder.substring(1, placeholder.length() - 1);
 
-                tokens.add(this.tokenFactory.createPlaceholder(isOptional, placeholder));
+                tokens.add(placeholderToken);
             }
+            if (parameterIndex < parameters.size())
+                while (parameterIndex < parameters.size()) {
+                    if (this.converterHandler.isCommandParameter(parameters.get(parameterIndex++)))
+                        ExceptionHandler.unchecked(new ApplicationException(
+                                "All command parameters must be specified in the command"));
+                }
+
         }
         else tokens.addAll(executableContext.parameters()
                 .stream()

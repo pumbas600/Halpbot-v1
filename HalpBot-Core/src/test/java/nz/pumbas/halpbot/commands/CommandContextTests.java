@@ -56,8 +56,8 @@ import nz.pumbas.halpbot.events.MessageEvent;
 
 //TODO: Test parameters like: List<List<String>>
 @Service
-@HartshornTest
 @UseCommands
+@HartshornTest
 public class CommandContextTests
 {
     @InjectTest
@@ -135,8 +135,8 @@ public class CommandContextTests
     }
 
     @InjectTest
-    public void customObjectParameterCommandTest(CommandAdapter commandAdapter,
-                                                 InvocationContextFactory invocationContextFactory)
+    public void commandContextCustomObjectParameterCommandTest(CommandAdapter commandAdapter,
+                                                               InvocationContextFactory invocationContextFactory)
     {
         CommandContext commandContext = commandAdapter.commandContext("customObjectParameterTest");
 
@@ -420,59 +420,95 @@ public class CommandContextTests
         return name;
     }
 
-//    @Test
-//    public void commandStringWithMultipleAnnotationsTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandStringWithMultipleAnnotationsMethodTest"));
-//
-//        Assertions.assertEquals(4, command.getCommandTokens().size());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 x 3")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 x 2 [1 0 0 1]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 2 [1 0 0 1]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 x 2 1 0 0 1")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 2 1 0 0 1")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 2 x 1 0 0 1")).absent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 2 1.2")).absent());
-//        Assertions.assertTrue(command.parse(MethodContext.of("2 2 [1 2 0.0 3]")).absent());
-//    }
-//
-//    @Command(alias = "test", command = "#Integer <x> #Integer #Integer[]")
-//    private int commandStringWithMultipleAnnotationsMethodTest(int rows, int columns, @Unrequired(
-//        "[]") @Implicit int... values) {
-//        return rows;
-//    }
-//
-//    @Test
-//    public void commandWithComplexCustomParameterMatchesTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
-//
-//        Exceptional<Object> result1 = command.parse(MethodContext.of("Matrix[2 2 x 1 0 0 1]"));
-//        Exceptional<Object> result2 = command.parse(MethodContext.of("Matr[2 2 [1 2 0.0 3]]"));
-//        Exceptional<Object> result3 = command.parse(MethodContext.of("Matrix[2 2 [1 2 1 3]"));
-//
-//        Assertions.assertEquals(1, command.getCommandTokens().size());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 x 3]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 x 2 [1 0 0 1]]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 2 [1 0 0 1]]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 x 2 1 0 0 1]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 2 1 0 0 1]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 2 1.2]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 2 [1 2 0.0 3]]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[2 x 3 [1 2 3 4 5 6]]")).present());
-//
-//        Assertions.assertFalse(result1.present());
-//        Assertions.assertEquals("There seems to have been an error when constructing the Matrix",
-//            result1.error().getMessage());
-//
-//        Assertions.assertFalse(result2.present());
-//        Assertions.assertEquals("Expected the alias Matrix but got Matr",
-//            result2.error().getMessage());
-//
-//        Assertions.assertFalse(result3.present());
-//        Assertions.assertEquals("There seems to have been an error when constructing the Matrix",
-//            result3.error().getMessage());
-//    }
+    @InjectTest
+    public void commandContextWithPlaceholdersAndPrimativeTypesTest(CommandAdapter commandAdapter,
+                                                                    InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithPlaceholdersAndPrimativeTypesTest");
+
+        Assertions.assertNotNull(commandContext);
+        List<Token> tokens = commandContext.tokens(commandAdapter.applicationContext());
+
+        Assertions.assertEquals(6, tokens.size());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1 2 [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("add 1 2 [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("add 1 and 2 [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("add 1 and 2 and [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1 and 2 and [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1 2 1 2 3 4")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("hi 1 2 [1 2 3 4]")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("1 2 add [1 2 3 4]")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("add 1 and 2 not [1 2 3 4]")).absent());
+    }
+
+    @Command(alias = "commandWithPlaceholdersAndPrimativeTypesTest",
+             command = "[add] Integer [and] Byte [and] Integer[]")
+    public int commandWithPlaceholdersAndPrimativeTypesTestMethod(int a, byte b, int[] nums) {
+        int sum = a + b;
+        for (int num : nums) {
+            sum += num;
+        }
+        return sum;
+    }
+
+    @InjectTest
+    public void commandContextCommandStringWithMultipleAnnotationsTest(CommandAdapter commandAdapter,
+                                                                       InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandStringWithMultipleAnnotationsTest");
+
+        Assertions.assertNotNull(commandContext);
+        List<Token> tokens = commandContext.tokens(commandAdapter.applicationContext());
+
+        Assertions.assertEquals(4, tokens.size());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 x 3")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 x 2 [1 0 0 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 2 [1 0 0 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 x 2 1 0 0 1")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 2 1 0 0 1")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 2 x 1 0 0 1")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 2 1.2")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("2 2 [1 2 0.0 3]")).absent());
+    }
+
+    @Command(alias = "commandStringWithMultipleAnnotationsTest", command = "Integer [x] Integer Integer[]")
+    public int commandStringWithMultipleAnnotationsTestMethod(int rows, int columns,
+                                                              @Unrequired("[]") @Implicit int... values) {
+        return rows;
+    }
+
+    @InjectTest
+    public void commandContextWithComplexCustomParameterMatchesTest(CommandAdapter commandAdapter,
+                                                                    InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithComplexParameterTest");
+
+        Assertions.assertNotNull(commandContext);
+        Exceptional<Object> result1 = commandContext.invoke(invocationContextFactory.create("Matrix[2 2 x 1 0 0 1]"));
+        Exceptional<Object> result2 = commandContext.invoke(invocationContextFactory.create("Matr[2 2 [1 2 0.0 3]]"));
+        Exceptional<Object> result3 = commandContext.invoke(invocationContextFactory.create("Matrix[2 2 [1 2 1 3]"));
+
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 2 [1 0 0 1]]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 [1 0 0 1]]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 2 1 0 0 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 1 0 0 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 1.2]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 [1 2 0.0 3]]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 3 [1 2 3 4 5 6]]")).present());
+
+        Assertions.assertFalse(result1.present());
+        Assertions.assertEquals("There seems to have been an error when constructing the object Matrix",
+            result1.error().getMessage());
+
+        Assertions.assertFalse(result2.present());
+        Assertions.assertEquals("Expected the alias 'Matrix' but got 'Matr'",
+            result2.error().getMessage());
+
+        Assertions.assertFalse(result3.present());
+        Assertions.assertEquals("There seems to have been an error when constructing the object Matrix",
+            result3.error().getMessage());
+    }
 
     @InjectTest
     public void commandContentWithComplexParameterInvocationTest(CommandAdapter commandAdapter,
@@ -487,17 +523,19 @@ public class CommandContextTests
         Assertions.assertEquals(3, result.get());
     }
 
-//    @Test
-//    public void commandWith2DArrayTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[[1 0 0 1]]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[[1 0] [0 1]]")).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix[[0 1] 0 1 2]")).absent());
-//    }
-//
+    @InjectTest
+    public void commandContextWith2DArrayTest(CommandAdapter commandAdapter,
+                                              InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithComplexParameterTest");
+
+        Assertions.assertNotNull(commandContext);
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[[1 0 0 1]]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[[1 0] [0 1]]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[[0 1] 0 1 2]")).absent());
+    }
+
 //    @Test
 //    public void commandMethodMatchesTest() {
 //        SimpleCommand command = CommandManager.generateCommandMethod(this,
