@@ -58,7 +58,7 @@ public class SimpleCommands
         return HalpbotUtils.randomChoice(new String[]{ "Thank you!", "I try my best :)", ":heart:", "No worries >~<" });
     }
 
-    @Command(alias = "Is", command = "#Integer <in> #List",
+    @Command(alias = "is", command = "Integer [in] List",
              description = "Tests if the element is contained within the array")
     public String testing(int num, @Unrequired("[]") List<Integer> array) {
         return array.contains(num)

@@ -59,9 +59,6 @@ public class Halpbot extends ListenerAdapter implements Bot
 
     @Override
     public void onReady(ReadyEvent event) {
-        this.halpbotCore.jda().getPresence().setPresence(
-                Activity.of(ActivityType.COMPETING, "The best way to help everyone"), false);
-
         this.applicationContext.log()
                 .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
     }
@@ -72,10 +69,11 @@ public class Halpbot extends ListenerAdapter implements Bot
     }
 
     @Override
-    public JDABuilder initialise() throws ApplicationException {
+    public JDABuilder initialise() {
         String token = HalpbotUtils.getFirstLine(HalpbotUtils.retrieveReader("Token.txt").get());
         return JDABuilder.createDefault(token)
                 .disableIntents(GatewayIntent.GUILD_PRESENCES)
-                .addEventListeners(this);
+                .addEventListeners(this)
+                .setActivity(Activity.of(ActivityType.COMPETING, "The best way to help everyone"));
     }
 }
