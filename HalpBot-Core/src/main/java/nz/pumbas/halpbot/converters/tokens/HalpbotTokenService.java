@@ -71,20 +71,25 @@ public class HalpbotTokenService implements TokenService
                     continue;
                 }
 
+                //TODO: Clean this up
                 if (!next.startsWith("[") && !next.startsWith("<"))
                     ExceptionHandler.unchecked(new ApplicationException(
                             "The placeholders in the %s command must start with either '<' or '['"
                                     .formatted(executableContext.qualifiedName())));
 
                 boolean isOptional = next.startsWith("[");
-                Exceptional<String> ending = invocationContext.next(isOptional ? "]" : ">");
-                if (ending.absent())
-                    ExceptionHandler.unchecked(new ApplicationException(
-                            "The placeholders in the %s command must end with either '>' or ']'"
-                                    .formatted(executableContext.qualifiedName())));
+                String placeholder = next;;
+                if (!next.endsWith("]") && !next.endsWith(">")) {
+                    Exceptional<String> ending = invocationContext.next(isOptional ? "]" : ">");
+                    if (ending.absent())
+                        ExceptionHandler.unchecked(new ApplicationException(
+                                "The placeholders in the %s command must end with either '>' or ']'"
+                                        .formatted(executableContext.qualifiedName())));
+                    placeholder += " " + ending.get();
+                    placeholder = placeholder.substring(1);
+                }
+                else placeholder = placeholder.substring(1, placeholder.length() - 1);
 
-                String placeholder = next + " " +  ending.get();
-                placeholder = placeholder.substring(1);
                 tokens.add(this.tokenFactory.createPlaceholder(isOptional, placeholder));
             }
         }

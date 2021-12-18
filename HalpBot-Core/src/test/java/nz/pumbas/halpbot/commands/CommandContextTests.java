@@ -355,8 +355,8 @@ public class CommandContextTests
     }
 
     @InjectTest
-    public void commandContextWithPlaceholderTest(CommandAdapter commandAdapter,
-                                                  InvocationContextFactory invocationContextFactory)
+    public void commandContextWithOptionalPlaceholderTest(CommandAdapter commandAdapter,
+                                                          InvocationContextFactory invocationContextFactory)
     {
         CommandContext commandContext = commandAdapter.commandContext("commandWithOptionalPlaceholderTest");
 
@@ -385,6 +385,38 @@ public class CommandContextTests
     @Command(alias = "commandWithOptionalPlaceholderTest",
              command = "[My name is] String")
     public String commandWithOptionalPlaceholderTestMethod(String name) {
+        return name;
+    }
+
+    @InjectTest
+    public void commandContextWithMultiplePlaceholdersTest(CommandAdapter commandAdapter,
+                                                           InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithMultiplePlaceholdersTest");
+
+        Assertions.assertNotNull(commandContext);
+        List<Token> tokens = commandContext.tokens(commandAdapter.applicationContext());
+
+        Assertions.assertEquals(4, tokens.size());
+        Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(0));
+        Assertions.assertEquals("Hi", ((PlaceholderToken) tokens.get(0)).placeholder());
+        Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(1));
+        Assertions.assertEquals(",", ((PlaceholderToken) tokens.get(1)).placeholder());
+        Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(2));
+        Assertions.assertEquals("my name is", ((PlaceholderToken) tokens.get(2)).placeholder());
+        Assertions.assertInstanceOf(ParsingToken.class, tokens.get(3));
+
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Hi, my name is pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Hi my NaMe IS pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("hi my name is pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("My NaMe is")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create(", My pumbas600")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("hi, NaMe IS pumbas600")).absent());
+    }
+
+    @Command(alias = "commandWithMultiplePlaceholdersTest",
+             command = "[Hi] [,] <my name is> String")
+    public String commandWithMultiplePlaceholdersTestMethod(String name) {
         return name;
     }
 
