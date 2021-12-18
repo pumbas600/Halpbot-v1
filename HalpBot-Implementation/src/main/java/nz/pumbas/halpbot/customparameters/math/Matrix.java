@@ -47,7 +47,7 @@ public class Matrix implements DiscordString
 
     private final double[][] values;
 
-    @CustomConstructor(constructor = "#Integer <x> #Integer #Double[]")
+    @CustomConstructor(command = "#Integer <x> #Integer #Double[]")
     public Matrix(int rows, int columns, @Unrequired("[]") @Implicit double... values)
     {
         this.rows = rows;

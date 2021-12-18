@@ -11,7 +11,6 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,10 +19,10 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.ConverterHandler;
-import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
 @Service
 @Binds(TokenService.class)
@@ -48,10 +47,10 @@ public class HalpbotTokenService implements TokenService
         List<ParameterContext<?>> parameters = executableContext.parameters();
         int parameterIndex = 0;
 
-        if (executableContext.annotation(Command.class).present() &&
-            !executableContext.annotation(Command.class).map(Command::command).or("").isBlank())
+        Exceptional<String> eCommand = this.command(executableContext);
+        if (eCommand.present() && !eCommand.get().isBlank())
         {
-            String command = executableContext.annotation(Command.class).map(Command::command).get();
+            String command = eCommand.get();
             //TODO: String utils to separate interface
             InvocationContext invocationContext = this.invocationContextFactory.create(command);
 
@@ -102,9 +101,9 @@ public class HalpbotTokenService implements TokenService
         return tokens;
     }
 
-    private String next(int commandIndex, String command) {
-        return command.substring(commandIndex, command.indexOf(' ', commandIndex));
-
+    private Exceptional<String> command(ExecutableElementContext<?> executableContext) {
+        return executableContext.annotation(Command.class).map(Command::command)
+                .orElse(() -> executableContext.annotation(CustomConstructor.class).map(CustomConstructor::command).orNull());
 
     }
 }

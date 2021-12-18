@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.CONSTRUCTOR)
 public @interface CustomConstructor
 {
-    String constructor() default "";
+    String command() default "";
 
     String usage() default "";
 }
