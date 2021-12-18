@@ -28,10 +28,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.config.annotations.UseConfigurations;
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
@@ -48,20 +45,12 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 @HartshornTest
 public class UsageTests
 {
-    private MethodContext<?, ?> method(String name) {
-        return TypeContext.of(UsageTests.class).methods()
-                .stream()
-                .filter(method -> method.name().equals(name))
-                .findFirst()
-                .get();
-    }
-
     @InjectTest
     public void generateTypeUsageTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod1"));
+                TestUtil.method(UsageTests.class, "testMethod1"));
 
         Assertions.assertEquals("<String> <Integer>", usage);
     }
@@ -71,7 +60,7 @@ public class UsageTests
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod2"));
+                TestUtil.method(UsageTests.class, "testMethod2"));
 
         Assertions.assertEquals("<Float>", usage);
     }
@@ -81,7 +70,7 @@ public class UsageTests
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod3"));
+                TestUtil.method(UsageTests.class, "testMethod3"));
 
         Assertions.assertEquals("", usage);
     }
@@ -91,7 +80,7 @@ public class UsageTests
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod4"));
+                TestUtil.method(UsageTests.class, "testMethod4"));
 
         Assertions.assertEquals("[User]", usage);
     }
@@ -101,7 +90,7 @@ public class UsageTests
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod1"));
+                TestUtil.method(UsageTests.class, "testMethod1"));
 
         Assertions.assertEquals("<first> <second>", usage);
     }
@@ -111,7 +100,7 @@ public class UsageTests
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod2"));
+                TestUtil.method(UsageTests.class, "testMethod2"));
 
         Assertions.assertEquals("<number>", usage);
     }
@@ -121,7 +110,7 @@ public class UsageTests
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod3"));
+                TestUtil.method(UsageTests.class, "testMethod3"));
 
         Assertions.assertEquals("", usage);
     }
@@ -131,7 +120,7 @@ public class UsageTests
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
                 applicationContext,
-                this.method("testMethod4"));
+                TestUtil.method(UsageTests.class, "testMethod4"));
 
         Assertions.assertEquals("[user]", usage);
     }

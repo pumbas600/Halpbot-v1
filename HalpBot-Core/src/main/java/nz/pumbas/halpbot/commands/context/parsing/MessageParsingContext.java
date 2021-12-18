@@ -43,7 +43,8 @@ public class MessageParsingContext implements ParsingContext
                 if (currentToken instanceof ParsingToken parsingToken)
                     parsedTokens[parameterIndex++] = parsingToken.defaultValue();
             }
-            else parsedTokens[parameterIndex++] = parameter.orNull();
+            else if (parameter.orNull() != IGNORE_RESULT)
+                parsedTokens[parameterIndex++] = parameter.orNull();
         }
 
         if (invocationContext.hasNext() && !canHaveContextLeft)

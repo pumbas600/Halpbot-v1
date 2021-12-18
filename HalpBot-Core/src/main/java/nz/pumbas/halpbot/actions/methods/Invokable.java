@@ -26,15 +26,6 @@ public interface Invokable
         return applicationContext.get(TokenService.class).tokens(this.executable());
     }
 
-    default Exceptional<Object[]> parseParameters(InvocationContext invocationContext, boolean canHaveContextLeft) {
-        final List<Token> tokens = this.tokens(invocationContext.applicationContext());
-        return this.parsingContext().parseParameters(
-                invocationContext,
-                this,
-                tokens,
-                canHaveContextLeft);
-    }
-
     default <R> Exceptional<R> invoke(InvocationContext invocationContext) {
         return this.invoke(invocationContext, false);
     }
@@ -42,7 +33,12 @@ public interface Invokable
     @SuppressWarnings("unchecked")
     default <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
         final ExecutableElementContext<?> executable = this.executable();
-        final Exceptional<Object[]> parameters = this.parseParameters(invocationContext, canHaveContextLeft);
+        final List<Token> tokens = this.tokens(invocationContext.applicationContext());
+        final Exceptional<Object[]> parameters = this.parsingContext().parseParameters(
+                invocationContext,
+                this,
+                tokens,
+                canHaveContextLeft);
 
         if (parameters.caught())
             return Exceptional.of(parameters.error());

@@ -50,6 +50,7 @@ import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.events.MessageEvent;
 
@@ -351,6 +352,40 @@ public class CommandContextTests
             sum += value;
         }
         return sum;
+    }
+
+    @InjectTest
+    public void commandContextWithPlaceholderTest(CommandAdapter commandAdapter,
+                                                  InvocationContextFactory invocationContextFactory)
+    {
+        CommandContext commandContext = commandAdapter.commandContext("commandWithOptionalPlaceholderTest");
+
+        Assertions.assertNotNull(commandContext);
+
+        List<Token> tokens = commandContext.tokens(commandAdapter.applicationContext());
+        Assertions.assertEquals(2, tokens.size());
+        Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(0));
+        Assertions.assertEquals("My name is", ((PlaceholderToken) tokens.get(0)).placeholder());
+        Assertions.assertInstanceOf(ParsingToken.class, tokens.get(1));
+
+        Exceptional<String> result1 = commandContext.invoke(invocationContextFactory.create("pumbas600"));
+        Exceptional<String> result2 = commandContext.invoke(invocationContextFactory.create("My name is pumbas600"));;
+
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("my name is pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("My NaMe IS pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("My pumbas600")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("NaMe IS pumbas600")).absent());
+
+        Assertions.assertTrue(result1.present());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertEquals("pumbas600", result1.get());
+        Assertions.assertEquals("pumbas600", result2.get());
+    }
+
+    @Command(alias = "commandWithOptionalPlaceholderTest",
+             command = "[My name is] String")
+    public String commandWithOptionalPlaceholderTestMethod(String name) {
+        return name;
     }
 
 //    @Test

@@ -161,7 +161,7 @@ public interface InvocationContext extends ContextCarrier
      */
     default boolean nextMatches(String next) {
         int endIndex = this.currentIndex() + next.length();
-        if (this.content().substring(this.currentIndex(), endIndex).equalsIgnoreCase(next)) {
+        if (endIndex < this.content().length() && this.content().substring(this.currentIndex(), endIndex).equalsIgnoreCase(next)) {
             this.currentIndex(endIndex);
             if (this.currentlyOnSpace())
                 this.incrementIndex();
