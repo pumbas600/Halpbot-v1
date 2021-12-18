@@ -178,26 +178,26 @@ public final class DefaultConverters
                 CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
                 TypeContext<?> typeContext = invocationContext.currentType();
                 String expectedTypeAlias = commandAdapter.typeAlias(typeContext);
-                Exceptional<String> typeAlias = invocationContext.next("[", false);
+                Exceptional<String> typeAlias = invocationContext.next("(", true);
 
                 if (typeAlias.caught())
                     return Exceptional.of(typeAlias.error());
                 if (typeAlias.absent())
-                    return Exceptional.of(new CommandException("Missing opening '[' when creating the object " + expectedTypeAlias));
+                    return Exceptional.of(new CommandException("Missing opening '(' when creating the object " + expectedTypeAlias));
 
                 if (!typeAlias.get().equalsIgnoreCase(expectedTypeAlias))
                     return Exceptional.of(
                             new CommandException("Expected the alias '%s' but got '%s'"
                                     .formatted(expectedTypeAlias, typeAlias.get())));
 
-                invocationContext.assertNext('[');
+                //invocationContext.assertNext('(');
                 int currentIndex = invocationContext.currentIndex();
                 Exceptional<Object> result = Exceptional.empty();
 
                 for (Invokable invokable : commandAdapter.customConstructors(typeContext)) {
                     invocationContext.currentIndex(currentIndex);
                     result = invokable.invoke(invocationContext, true);
-                    if (result.present() && invocationContext.isNext(']', true)) break;
+                    if (result.present() && invocationContext.isNext(')', true)) break;
 
                     else if (!result.caught()) result = Exceptional.of(
                             new CommandException("There seems to have been an error when constructing the object " + expectedTypeAlias));

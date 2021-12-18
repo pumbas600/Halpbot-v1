@@ -28,6 +28,7 @@ import org.dockbox.hartshorn.core.annotations.service.Service;
 
 import java.util.Arrays;
 
+import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
 import nz.pumbas.halpbot.objects.DiscordString;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
@@ -174,31 +175,37 @@ public class Matrix implements DiscordString
         return stringBuilder.toString();
     }
 
+    @ReflectiveCommand
     public static Matrix scale(double scaleFactor)
     {
         return new Matrix(2, 2, scaleFactor, 0, 0, scaleFactor);
     }
 
+    @ReflectiveCommand
     public static Matrix xStretch(double stretchFactor)
     {
         return new Matrix(2, 2, stretchFactor, 0, 0, 1);
     }
 
+    @ReflectiveCommand
     public static Matrix yStretch(double stretchFactor)
     {
         return new Matrix(2, 2, 1, 0, 0, stretchFactor);
     }
 
+    @ReflectiveCommand
     public static Matrix xShear(double shearFactor)
     {
         return new Matrix(2, 2, 1, shearFactor, 0, 1);
     }
 
+    @ReflectiveCommand
     public static Matrix yShear(double shearFactor)
     {
         return new Matrix(2, 2, 1, 0, shearFactor, 1);
     }
 
+    @ReflectiveCommand
     public static Matrix rotate(double degrees)
     {
         double radians = Math.toRadians(degrees);

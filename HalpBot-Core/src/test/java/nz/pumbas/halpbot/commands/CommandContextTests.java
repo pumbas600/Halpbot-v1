@@ -146,12 +146,12 @@ public class CommandContextTests
         Assertions.assertTrue(token instanceof ParsingToken);
         Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER,((ParsingToken) token).converter());
 
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Vector3[1 2 3]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Vector3[3 1]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("#Vector3[3 1]")).absent());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("[3 1 2]")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Vector3(1 2 3)")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Vector3(3 1)")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("#Vector3(3 1)")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("(3 1 2)")).absent());
 
-        Exceptional<Double> result = commandContext.invoke(invocationContextFactory.create("Vector3[1 2 3]"));
+        Exceptional<Double> result = commandContext.invoke(invocationContextFactory.create("Vector3(1 2 3)"));
         Assertions.assertTrue(result.present());
         Assertions.assertEquals(2, result.get());
 
@@ -194,13 +194,13 @@ public class CommandContextTests
         Assertions.assertNotNull(commandContext);
         Exceptional<Double> result1 = commandContext.invoke(invocationContextFactory.create(""));
         Exceptional<Double> result2 = commandContext.invoke(invocationContextFactory.create(
-                "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150]"));
+                "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150)"));
         Exceptional<Double> result3 = commandContext.invoke(invocationContextFactory.create(
-                "Shape[Rectangle 200 50 100 25] Shape[Rectangle 50 200 25 150] Shape[Rectangle 200 50 100 275]"));
+                "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150) Shape(Rectangle 200 50 100 275)"));
 
         Assertions.assertTrue(result3.present());
         Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create(
-            "Shape[Rectangle 200 50 100 25]")).present());
+            "Shape(Rectangle 200 50 100 25)")).present());
 
         Assertions.assertTrue(result1.absent());
         Assertions.assertTrue(result2.present());
@@ -484,18 +484,18 @@ public class CommandContextTests
         CommandContext commandContext = commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Exceptional<Object> result1 = commandContext.invoke(invocationContextFactory.create("Matrix[2 2 x 1 0 0 1]"));
-        Exceptional<Object> result2 = commandContext.invoke(invocationContextFactory.create("Matr[2 2 [1 2 0.0 3]]"));
-        Exceptional<Object> result3 = commandContext.invoke(invocationContextFactory.create("Matrix[2 2 [1 2 1 3]"));
+        Exceptional<Object> result1 = commandContext.invoke(invocationContextFactory.create("Matrix(2 2 x 1 0 0 1)"));
+        Exceptional<Object> result2 = commandContext.invoke(invocationContextFactory.create("Matr(2 2 [1 2 0.0 3])"));
+        Exceptional<Object> result3 = commandContext.invoke(invocationContextFactory.create("Matrix(2 2 [1 2 1 3]"));
 
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 3]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 2 [1 0 0 1]]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 [1 0 0 1]]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 2 1 0 0 1]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 1 0 0 1]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 1.2]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 2 [1 2 0.0 3]]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[2 x 3 [1 2 3 4 5 6]]")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 x 3)")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 x 2 [1 0 0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 2 [1 0 0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 x 2 1 0 0 1)")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 2 1 0 0 1)")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 2 1.2)")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 2 [1 2 0.0 3])")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix(2 x 3 [1 2 3 4 5 6])")).present());
 
         Assertions.assertFalse(result1.present());
         Assertions.assertEquals("There seems to have been an error when constructing the object Matrix",
@@ -517,7 +517,7 @@ public class CommandContextTests
         CommandContext commandContext = commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Exceptional<Integer> result = commandContext.invoke(invocationContextFactory.create("Matrix[2 3 [1 2 3 4 5 6]]"));
+        Exceptional<Integer> result = commandContext.invoke(invocationContextFactory.create("Matrix(2 3 [1 2 3 4 5 6])"));
 
         Assertions.assertTrue(result.present());
         Assertions.assertEquals(3, result.get());
@@ -530,10 +530,10 @@ public class CommandContextTests
         CommandContext commandContext = commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[[1 0 0 1]]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[[1 0] [0 1]]")).present());
-        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix[[0 1] 0 1 2]")).absent());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix()")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix([1 0 0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix([1 0] [0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(invocationContextFactory.create("Matrix([0 1] 0 1 2)")).absent());
     }
 
 //    @Test
