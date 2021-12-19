@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
+import nz.pumbas.halpbot.commands.annotations.Reflective;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
@@ -85,15 +85,15 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
     }
 
 
-    default <T> void registerCommands(T instance) {
-        TypeContext<T> type = TypeContext.of(instance);
+    default <T> void registerCommands(TypeContext<T> type) {
+        T instance = this.applicationContext().get(type);
         int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
 
         for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
             if (methodContext.annotation(SlashCommand.class).present()) {
                 slashCommands++;
                 this.registerSlashCommand(instance, methodContext);
-            } else if (methodContext.annotation(ReflectiveCommand.class).present()) {
+            } else if (methodContext.annotation(Reflective.class).present()) {
                 reflectiveCommands++;
                 this.registerReflectiveCommand(methodContext);
             } else {
@@ -119,7 +119,12 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
     @Nullable
     CommandContext commandContext(String alias);
 
-    Exceptional<CommandContext> reflectiveCommandContext(TypeContext<?> Type, String methodName);
+    default Exceptional<CommandContext> reflectiveCommandContextSafely(TypeContext<?> type, String methodName) {
+        return Exceptional.of(this.reflectiveCommandContext(type, methodName));
+    }
+
+    @Nullable
+    CommandContext reflectiveCommandContext(TypeContext<?> type, String methodName);
 
     Map<String, CommandContext> registeredCommands();
 

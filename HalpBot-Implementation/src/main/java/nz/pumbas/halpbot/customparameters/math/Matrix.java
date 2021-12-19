@@ -31,7 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.commands.annotations.Reflective;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.TypeConverter;
@@ -45,8 +46,11 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 @Service
 public class Matrix implements DiscordString
 {
+    @Reflective
     public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);
+    @Reflective
     public static final Matrix XReflection = new Matrix(2, 2, 1, 0, 0, -1);
+    @Reflective
     public static final Matrix YReflection = new Matrix(2, 2, -1, 0, 0, 1);
 
     private final int rows;
@@ -55,8 +59,7 @@ public class Matrix implements DiscordString
     private final double[][] values;
 
     @CustomConstructor(command = "Integer [x] Integer Double[]")
-    public Matrix(int rows, int columns, @Unrequired("[]") @Implicit double... values)
-    {
+    public Matrix(int rows, int columns, @Unrequired("[]") @Implicit double... values) {
         this.rows = rows;
         this.columns = columns;
 
@@ -64,8 +67,8 @@ public class Matrix implements DiscordString
 
         if (this.rows * this.columns < values.length)
             throw new ErrorMessageException(
-                String.format("You have too many values (%s), the matrix is only %s x %s.",
-                    values.length, this.rows, this.columns));
+                    String.format("You have too many values (%s), the matrix is only %s x %s.",
+                            values.length, this.rows, this.columns));
 
         for (int i = 0; i < values.length; i++) {
             int row = i / this.columns;
@@ -76,8 +79,7 @@ public class Matrix implements DiscordString
     }
 
     @CustomConstructor
-    public Matrix(@Unrequired("[]") @Implicit double[]... values)
-    {
+    public Matrix(@Unrequired("[]") @Implicit double[]... values) {
         this.rows = values.length;
         this.columns = 0 < values.length ? values[0].length : 0;
 
@@ -110,28 +112,23 @@ public class Matrix implements DiscordString
             }))
             .build();
 
-    public int getRows()
-    {
+    public int getRows() {
         return this.rows;
     }
 
-    public int getColumns()
-    {
+    public int getColumns() {
         return this.columns;
     }
 
-    public double[][] getValues()
-    {
+    public double[][] getValues() {
         return this.values;
     }
 
-    public Vector getRow(int row)
-    {
+    public Vector getRow(int row) {
         return new Vector(this.values[row]);
     }
 
-    public Vector getColumn(int column)
-    {
+    public Vector getColumn(int column) {
         double[] values = new double[this.rows];
         for (int row = 0; row < this.getRows(); row++) {
             values[row] = this.values[row][column];
@@ -140,8 +137,7 @@ public class Matrix implements DiscordString
         return new Vector(values);
     }
 
-    public Matrix transpose()
-    {
+    public Matrix transpose() {
         double[][] transposedValues = new double[this.columns][this.rows];
         for (int row = 0; row < this.getRows(); row++) {
             for (int column = 0; column < this.getColumns(); column++) {
@@ -152,13 +148,11 @@ public class Matrix implements DiscordString
         return new Matrix(transposedValues);
     }
 
-    public boolean isSquare(int size)
-    {
+    public boolean isSquare(int size) {
         return size == this.getColumns() && size == this.getRows();
     }
 
-    public boolean isSquare()
-    {
+    public boolean isSquare() {
         return this.getColumns() == this.getRows();
     }
 
@@ -173,8 +167,8 @@ public class Matrix implements DiscordString
     public Matrix multiply(Matrix other) {
         if (this.getColumns() != other.getRows())
             throw new IllegalArgumentException(
-                String.format("The matrix %s doesn't have the same number of columns as the matrix %s has rows",
-                    this, other));
+                    String.format("The matrix %s doesn't have the same number of columns as the matrix %s has rows",
+                            this, other));
 
         double[][] newValues = new double[this.rows][other.columns];
         for (int row = 0; row < this.getRows(); row++) {
@@ -187,55 +181,53 @@ public class Matrix implements DiscordString
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(this.rows)
-            .append(" x ")
-            .append(this.columns)
-            .append("\n");
+                .append(" x ")
+                .append(this.columns)
+                .append("\n");
 
-        for (double[] row : this.values)
-        {
+        for (double[] row : this.values) {
             stringBuilder.append(Arrays.toString(row)).append("\n");
         }
 
         return stringBuilder.toString();
     }
 
-    @ReflectiveCommand
-    public static Matrix scale(double scaleFactor)
-    {
+    @Reflective
+    @Command
+    public static Matrix scale(double scaleFactor) {
         return new Matrix(2, 2, scaleFactor, 0, 0, scaleFactor);
     }
 
-    @ReflectiveCommand
-    public static Matrix xStretch(double stretchFactor)
-    {
+    @Reflective
+    @Command
+    public static Matrix xStretch(double stretchFactor) {
         return new Matrix(2, 2, stretchFactor, 0, 0, 1);
     }
 
-    @ReflectiveCommand
-    public static Matrix yStretch(double stretchFactor)
-    {
+    @Reflective
+    @Command
+    public static Matrix yStretch(double stretchFactor) {
         return new Matrix(2, 2, 1, 0, 0, stretchFactor);
     }
 
-    @ReflectiveCommand
-    public static Matrix xShear(double shearFactor)
-    {
+    @Reflective
+    @Command
+    public static Matrix xShear(double shearFactor) {
         return new Matrix(2, 2, 1, shearFactor, 0, 1);
     }
 
-    @ReflectiveCommand
-    public static Matrix yShear(double shearFactor)
-    {
+    @Reflective
+    @Command
+    public static Matrix yShear(double shearFactor) {
         return new Matrix(2, 2, 1, 0, shearFactor, 1);
     }
 
-    @ReflectiveCommand
-    public static Matrix rotate(double degrees)
-    {
+    @Reflective
+    @Command
+    public static Matrix rotate(double degrees) {
         double radians = Math.toRadians(degrees);
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);

@@ -9,6 +9,7 @@ import org.dockbox.hartshorn.core.MultiMap;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.AccessModifier;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -59,6 +60,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
+    private final Map<TypeContext<?>, Map<String, CommandContext>> registeredReflectiveCommands = HartshornUtils.emptyMap();
+
     private final Map<TypeContext<?>, String> typeAliases = HartshornUtils.emptyMap();
     private final Map<Long, String> guildPrefixes = HartshornUtils.emptyMap();
 
@@ -129,8 +132,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     @Override
-    public Exceptional<CommandContext> reflectiveCommandContext(TypeContext<?> Type, String methodName) {
-        return Exceptional.empty(); //TODO: Retrieve reflective command
+    @Nullable
+    public CommandContext reflectiveCommandContext(TypeContext<?> type, String methodName) {
+        return this.registeredReflectiveCommands.getOrDefault(type, Collections.emptyMap())
+                .get(methodName);
     }
 
     @Override
@@ -172,7 +177,40 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
     @Override
     public void registerReflectiveCommand(MethodContext<?, ?> methodContext) {
-        //TODO: Reflective Commands
+        if (!methodContext.isPublic() && !methodContext.has(AccessModifier.STATIC)) {
+            this.applicationContext.log().warn(
+                    "The reflective method %s should be public and static if its annotated with @Reflective"
+                            .formatted(methodContext.qualifiedName()));
+            return;
+        }
+
+        if (!this.parameterAnnotationsAreValid(methodContext)) return;
+
+        Command command = methodContext.annotation(Command.class).get();
+        List<String> aliases = this.aliases(command, methodContext);
+        CommandContext commandContext = this.createCommand(
+                aliases,
+                null,
+                command,
+                methodContext,
+                new MessageParsingContext());
+
+        TypeContext<?> returnType = methodContext.genericReturnType();
+        if (!this.registeredReflectiveCommands.containsKey(returnType))
+            this.registeredReflectiveCommands.put(returnType, HartshornUtils.emptyMap());
+
+        Map<String, CommandContext> aliasMappings = this.registeredReflectiveCommands.get(returnType);
+
+        for (String alias : aliases) {
+            if (aliasMappings.containsKey(alias)) {
+                this.applicationContext.log().warn(
+                        "The alias '%s' is already being used by the reflective method '%s'. '%s' will not be registered under this alias"
+                                .formatted(alias, aliasMappings.get(alias).toString(), commandContext.toString()));
+                continue;
+            }
+
+            aliasMappings.put(alias, commandContext);
+        }
     }
 
     @Override
@@ -200,7 +238,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
     //TODO: Retrieve some details from the class itself if annotated with @Command
     private <T> CommandContext createCommand(List<String> aliases,
-                                             T instance,
+                                             @Nullable T instance,
                                              Command command,
                                              MethodContext<?, T> methodContext,
                                              ParsingContext parsingContext)
