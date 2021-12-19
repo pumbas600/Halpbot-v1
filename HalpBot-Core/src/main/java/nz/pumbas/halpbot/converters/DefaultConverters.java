@@ -189,7 +189,7 @@ public final class DefaultConverters
                     return Exceptional.of(
                             new CommandException("Expected the alias '%s' but got '%s'"
                                     .formatted(expectedTypeAlias, typeAlias.get())));
-                
+
                 int currentIndex = invocationContext.currentIndex();
                 Exceptional<Object> result = Exceptional.empty();
 

@@ -25,10 +25,16 @@
 package nz.pumbas.halpbot.customparameters.math;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import nz.pumbas.halpbot.commands.annotations.ReflectiveCommand;
+import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
+import nz.pumbas.halpbot.converters.DefaultConverters;
+import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.objects.DiscordString;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
@@ -77,10 +83,32 @@ public class Matrix implements DiscordString
 
         for (double[] row : values)
             if (this.getColumns() != row.length)
-                throw new ErrorMessageException("The matrix should be a uniform size");
+                throw new IllegalFormatException(
+                        "The rows in a matrix should have the same number of columns. Expected %d columns but found %d"
+                                .formatted(this.getColumns(), row.length));
 
         this.values = values;
     }
+
+    public static final TypeConverter<Matrix> MATRIX_CONVERTER = TypeConverter.builder(Matrix.class)
+            .convert(invocationContext -> Exceptional.of(() -> {
+                invocationContext.assertNext('[');
+                List<double[]> matrix = new ArrayList<>();
+
+                while (!invocationContext.isNext(']')) {
+                    List<Double> matrixRow = new ArrayList<>();
+                    while (!invocationContext.isNext(';') && !invocationContext.isNext(']', false)) {
+                        Exceptional<Double> value = DefaultConverters.DOUBLE_CONVERTER.apply(invocationContext);
+                        if (value.caught())
+                            value.rethrowUnchecked();
+                        matrixRow.add(value.get());
+                    }
+                    matrix.add(matrixRow.stream().mapToDouble(d -> d).toArray());
+                }
+
+                return new Matrix(matrix.toArray(new double[0][]));
+            }))
+            .build();
 
     public int getRows()
     {
