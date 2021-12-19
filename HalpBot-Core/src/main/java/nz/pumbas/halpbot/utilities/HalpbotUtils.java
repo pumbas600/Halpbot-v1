@@ -60,7 +60,6 @@ import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.utilities.context.ContextManager;
 import nz.pumbas.halpbot.utilities.context.ContextManagerImpl;
-import nz.pumbas.halpbot.utilities.context.DefaultContext;
 import nz.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
 
 public final class HalpbotUtils
@@ -81,10 +80,6 @@ public final class HalpbotUtils
     private static JDA jda;
 
     private HalpbotUtils() {}
-
-    static {
-        DefaultContext.addAll();
-    }
 
     public static ContextManager context() {
         return contextManager;

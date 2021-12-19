@@ -24,6 +24,7 @@ import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Reflective;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
 import nz.pumbas.halpbot.commands.context.CommandContext;
+import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
@@ -83,7 +84,6 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
                 .formatted(TypeUsageBuilder.class.getCanonicalName()));
         this.usageBuilder(new TypeUsageBuilder());
     }
-
 
     default <T> void registerCommands(TypeContext<T> type) {
         T instance = this.applicationContext().get(type);

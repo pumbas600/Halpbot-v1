@@ -13,8 +13,8 @@ public @interface Cooldown
     long duration() default 5;
 
     /**
-     * NOTE: You can't use a time unit smaller than milliseconds. Trying to specify a time in microseconds or
-     * nanoseconds will result in an error.
+     * NOTE: cooldowns are measured in milliseconds. If you specify a cooldown of less than 1ms it will be treated as
+     * 0ms
      */
     TimeUnit unit() default TimeUnit.SECONDS;
 }

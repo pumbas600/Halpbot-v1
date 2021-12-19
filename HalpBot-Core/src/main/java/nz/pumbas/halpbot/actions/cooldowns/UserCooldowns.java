@@ -6,20 +6,20 @@ import java.util.concurrent.TimeUnit;
 
 public class UserCooldowns
 {
-    private Cooldown sendCooldownMessageCooldown;
-    private final Map<String, Cooldown> cooldowns = new HashMap<>();
+    private CooldownTimer sendCooldownMessageCooldown;
+    private final Map<String, CooldownTimer> cooldowns = new HashMap<>();
 
-    public void addCooldown(String actionId, Cooldown cooldown) {
+    public void addCooldown(String actionId, CooldownTimer cooldown) {
         this.cooldowns.put(actionId, cooldown);
     }
 
-    public Cooldown getCooldownFor(String actionId) {
+    public CooldownTimer getCooldownFor(String actionId) {
         return this.cooldowns.get(actionId);
     }
 
     public boolean hasCooldownFor(String actionId) {
         if (this.cooldowns.containsKey(actionId)) {
-            Cooldown cooldown = this.cooldowns.get(actionId);
+            CooldownTimer cooldown = this.cooldowns.get(actionId);
             if (cooldown.hasFinished()) {
                 this.cooldowns.remove(actionId);
             }
@@ -30,7 +30,7 @@ public class UserCooldowns
 
     public boolean canSendCooldownMessage() {
         if (null == this.sendCooldownMessageCooldown || this.sendCooldownMessageCooldown.hasFinished()) {
-            this.sendCooldownMessageCooldown = new Cooldown(10, TimeUnit.SECONDS);
+            this.sendCooldownMessageCooldown = new CooldownTimer(10_000);
             return true;
         }
         return false;

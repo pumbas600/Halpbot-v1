@@ -27,9 +27,8 @@ import javax.inject.Inject;
 import javax.security.auth.login.LoginException;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.actions.cooldowns.UserCooldowns;
-import nz.pumbas.halpbot.commands.exceptions.UndefinedActivatorException;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.events.HalpbotEvent;
@@ -131,7 +130,7 @@ public class HalpbotCore implements ContextCarrier
         return this.jda;
     }
 
-    public void addCooldown(long userId, String actionId, Cooldown cooldown) {
+    public void addCooldown(long userId, String actionId, CooldownTimer cooldown) {
        UserCooldowns userCooldowns;
         if (!this.userCooldownsMap.containsKey(userId)) {
             userCooldowns = new UserCooldowns();

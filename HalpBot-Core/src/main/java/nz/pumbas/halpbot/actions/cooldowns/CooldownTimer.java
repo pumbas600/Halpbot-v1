@@ -4,16 +4,17 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.Color;
-import java.util.concurrent.TimeUnit;
 
-public class Cooldown
+public class CooldownTimer
 {
+    public static final CooldownTimer Empty = new CooldownTimer(0);
+
     private final long startTimeMs;
     private final long durationMs;
 
-    public Cooldown(long duration, TimeUnit timeUnit) {
+    public CooldownTimer(long durationMs) {
         this.startTimeMs = System.currentTimeMillis();
-        this.durationMs = TimeUnit.MILLISECONDS.convert(duration, timeUnit);
+        this.durationMs = durationMs;
     }
 
     public boolean hasFinished() {

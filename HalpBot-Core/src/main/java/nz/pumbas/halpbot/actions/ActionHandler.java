@@ -34,10 +34,10 @@ public interface ActionHandler
                 return;
             }
 
-            if (actionCallback.hasCooldown()) {
-                this.getHalpbotCore()
-                    .addCooldown(userId, this.getActionId(event), actionCallback.createCooldown());
-            }
+//            if (actionCallback.hasCooldown()) {
+//                this.getHalpbotCore()
+//                    .addCooldown(userId, this.getActionId(event), actionCallback.createCooldown());
+//            }
         }
     }
 

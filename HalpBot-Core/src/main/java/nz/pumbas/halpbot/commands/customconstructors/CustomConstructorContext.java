@@ -2,7 +2,7 @@ package nz.pumbas.halpbot.commands.customconstructors;
 
 import org.jetbrains.annotations.Nullable;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
+import nz.pumbas.halpbot.commands.Invokable;
 
 public interface CustomConstructorContext extends Invokable
 {

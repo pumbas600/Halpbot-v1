@@ -7,7 +7,6 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.util.List;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.HalpbotPlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;

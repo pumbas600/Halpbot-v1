@@ -25,14 +25,17 @@
 package nz.pumbas.halpbot.commands.context;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.jetbrains.annotations.NotNull;
+import org.dockbox.hartshorn.core.domain.Exceptional;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
+import nz.pumbas.halpbot.actions.cooldowns.Coolable;
+import nz.pumbas.halpbot.commands.Invokable;
 import nz.pumbas.halpbot.permissions.Permissive;
 
-public interface CommandContext extends Invokable, Permissive
+public interface CommandContext extends Invokable, Permissive, Coolable
 {
     /**
      * @return The {@link String alias} for this command.
@@ -57,4 +60,14 @@ public interface CommandContext extends Invokable, Permissive
      * @return The {@link Class classes} that can have static methods invoked from
      */
     Set<TypeContext<?>> reflections();
+
+    @Override
+    @SuppressWarnings("unchecked")
+    default <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
+        if (this.hasFinishedCoolingDown()) {
+            this.resetTimer();
+            return Invokable.super.invoke(invocationContext, canHaveContextLeft);
+        }
+        return Exceptional.of((R) Objects.requireNonNull(this.cooldownTimer()).getRemainingTimeEmbed());
+    }
 }

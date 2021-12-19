@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 
@@ -22,5 +23,29 @@ public interface CommandContextFactory
                           ExecutableElementContext<?> executable,
                           List<String> permissions,
                           Set<TypeContext<?>> reflections,
-                          ParsingContext parsingContext);
+                          ParsingContext parsingContext,
+                          long cooldownDurationMs);
+
+    default CommandContext create(List<String> aliases,
+                                  String description,
+                                  String usage,
+                                  @Nullable Object instance,
+                                  ExecutableElementContext<?> executable,
+                                  List<String> permissions,
+                                  Set<TypeContext<?>> reflections,
+                                  ParsingContext parsingContext,
+                                  long cooldownDuration,
+                                  TimeUnit cooldownUnit)
+    {
+        return this.create(
+                aliases,
+                description,
+                usage,
+                instance,
+                executable,
+                permissions,
+                reflections,
+                parsingContext,
+                cooldownUnit.toMillis(cooldownDuration));
+    }
 }

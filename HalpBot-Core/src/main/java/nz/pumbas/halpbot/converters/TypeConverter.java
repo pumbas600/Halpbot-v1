@@ -34,7 +34,6 @@ import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.MethodContext;
 import nz.pumbas.halpbot.converters.exceptions.IllegalConverterException;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 

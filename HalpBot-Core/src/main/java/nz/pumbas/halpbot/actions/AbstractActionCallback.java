@@ -39,16 +39,6 @@ public abstract class AbstractActionCallback implements ActionCallback
     }
 
     @Override
-    public long getCooldownDuration() {
-        return this.cooldownDuration;
-    }
-
-    @Override
-    public TimeUnit getCooldownTimeUnit() {
-        return this.cooldownTimeUnit;
-    }
-
-    @Override
     public List<String> permissions() {
         return this.permissions;
     }
