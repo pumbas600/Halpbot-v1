@@ -32,10 +32,11 @@ import java.util.Objects;
 import java.util.Set;
 
 import nz.pumbas.halpbot.actions.cooldowns.Coolable;
-import nz.pumbas.halpbot.commands.Invokable;
+import nz.pumbas.halpbot.actions.methods.Invokable;
+import nz.pumbas.halpbot.commands.TokenInvokable;
 import nz.pumbas.halpbot.permissions.Permissive;
 
-public interface CommandContext extends Invokable, Permissive, Coolable
+public interface CommandContext extends TokenInvokable, Permissive, Coolable
 {
     /**
      * @return The {@link String alias} for this command.
@@ -66,7 +67,7 @@ public interface CommandContext extends Invokable, Permissive, Coolable
     default <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
         if (this.hasFinishedCoolingDown()) {
             this.resetTimer();
-            return Invokable.super.invoke(invocationContext, canHaveContextLeft);
+            return TokenInvokable.super.invoke(invocationContext, canHaveContextLeft);
         }
         return Exceptional.of((R) Objects.requireNonNull(this.cooldownTimer()).getRemainingTimeEmbed());
     }

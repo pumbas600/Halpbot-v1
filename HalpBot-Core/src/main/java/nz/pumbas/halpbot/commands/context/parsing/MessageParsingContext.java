@@ -4,7 +4,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.Invokable;
+import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.commands.CommandManager;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;

@@ -3,11 +3,14 @@ package nz.pumbas.halpbot.actions;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import nz.pumbas.halpbot.actions.cooldowns.Coolable;
+import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 public class ReactionActionCallback extends AbstractActionCallback
@@ -51,4 +54,18 @@ public class ReactionActionCallback extends AbstractActionCallback
         return this.codepointEmoji;
     }
 
+    @Override
+    public @Nullable CooldownTimer cooldownTimer() {
+        return null;
+    }
+
+    @Override
+    public Coolable cooldownTimer(CooldownTimer cooldownTimer) {
+        return null;
+    }
+
+    @Override
+    public long cooldownDurationMs() {
+        return 0;
+    }
 }

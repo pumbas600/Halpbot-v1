@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.commands.Invokable;
+import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;

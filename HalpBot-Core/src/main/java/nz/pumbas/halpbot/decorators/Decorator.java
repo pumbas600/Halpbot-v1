@@ -9,7 +9,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Decorator
 {
-    Class<?> value();
+    /**
+     * The factory that constructors the decorator
+     */
+    Class<? extends DecoratorFactory<?, ?, ?>> value();
 
     Order order() default Order.DEFAULT;
 }

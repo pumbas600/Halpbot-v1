@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import nz.pumbas.halpbot.actions.cooldowns.Coolable;
+import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.actions.methods.MethodCallback;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -69,5 +71,20 @@ public class ButtonActionCallback extends AbstractActionCallback implements Meth
         return new ActionCallbackBuilder()
             .setButtonAction(this.instance, this.callback)
             .setParameters(this.parameters);
+    }
+
+    @Override
+    public @Nullable CooldownTimer cooldownTimer() {
+        return null;
+    }
+
+    @Override
+    public Coolable cooldownTimer(CooldownTimer cooldownTimer) {
+        return null;
+    }
+
+    @Override
+    public long cooldownDurationMs() {
+        return 0;
     }
 }

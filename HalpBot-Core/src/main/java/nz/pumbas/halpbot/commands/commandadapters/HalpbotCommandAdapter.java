@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,6 +31,7 @@ import lombok.Getter;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
@@ -243,15 +245,25 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                              MethodContext<?, T> methodContext,
                                              ParsingContext parsingContext)
     {
+        long cooldownDuration = 0;
+        TimeUnit cooldownUnit = TimeUnit.SECONDS;
+        if (methodContext.annotation(Cooldown.class).present()) {
+            Cooldown cooldown = methodContext.annotation(Cooldown.class).get();
+            cooldownDuration = cooldown.duration();
+            cooldownUnit = cooldown.unit();
+        }
+
         return this.commandContextFactory.create(
-            aliases,
-            command.description(),
-            this.usage(command.usage(), methodContext),
-            instance,
-            methodContext,
-            List.of(command.permissions()),
-            Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
-            parsingContext);
+                aliases,
+                command.description(),
+                this.usage(command.usage(), methodContext),
+                instance,
+                methodContext,
+                List.of(command.permissions()),
+                Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
+                parsingContext,
+                cooldownDuration,
+                cooldownUnit);
     }
 
     @Override

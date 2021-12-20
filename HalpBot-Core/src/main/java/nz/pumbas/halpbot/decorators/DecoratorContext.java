@@ -1,7 +1,13 @@
 package nz.pumbas.halpbot.decorators;
 
-import org.dockbox.hartshorn.core.context.DefaultContext;
+import java.lang.annotation.Annotation;
 
-public class DecoratorContext extends DefaultContext
+import nz.pumbas.halpbot.actions.methods.Invokable;
+
+public interface DecoratorContext extends Invokable
 {
+    @SuppressWarnings("unchecked")
+    default <T, A extends Annotation> T decorate(T element, A annotation) {
+        return (T) this.invoke(element, annotation).get();
+    }
 }
