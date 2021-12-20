@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +31,10 @@ import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
+import nz.pumbas.halpbot.decorators.CommandDecoratorFactory;
+import nz.pumbas.halpbot.decorators.Decorator;
+import nz.pumbas.halpbot.decorators.DecoratorFactory;
+import nz.pumbas.halpbot.decorators.DecoratorService;
 
 public interface CommandAdapter extends HalpbotAdapter, Enableable
 {
@@ -47,6 +52,8 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
     String prefix(long guildId);
 
     UsageBuilder usageBuilder();
+
+    DecoratorService decoratorService();
 
     void usageBuilder(UsageBuilder usageBuilder);
 
@@ -137,6 +144,30 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
     }
 
     String typeAlias(TypeContext<?> typeContext);
+
+    @SuppressWarnings("unchecked")
+    default CommandContext decorate(CommandContext commandContext) {
+        List<? extends TypeContext<? extends Annotation>> decoratedAnnotations = commandContext.executable().annotations()
+                .stream()
+                .map(annotation -> TypeContext.of(annotation.annotationType()))
+                .filter(annotation -> annotation.annotation(Decorator.class).present())
+                .sorted(Comparator.comparing(annotation -> annotation.annotation(Decorator.class).get().order()))
+                .toList();
+
+        for (TypeContext<? extends Annotation> decoratedAnnotation : decoratedAnnotations) {
+            DecoratorFactory<?, ?, ?> factory = this.decoratorService().decorator(decoratedAnnotation);
+            if (factory instanceof CommandDecoratorFactory commandDecoratorFactory) {
+                commandContext = (CommandContext) commandDecoratorFactory.decorate(
+                        commandContext,
+                        commandContext.executable().annotation(decoratedAnnotation).get());
+            }
+            else this.applicationContext().log()
+                    .error("The command %s is annotated with the decorator %s, but this does not support commands"
+                            .formatted(commandContext.executable().qualifiedName(), decoratedAnnotation.qualifiedName()));
+        }
+
+        return commandContext;
+    }
 
     default boolean parameterAnnotationsAreValid(ExecutableElementContext<?> executable) {
         for (ParameterContext<?> parameterContext : executable.parameters()) {

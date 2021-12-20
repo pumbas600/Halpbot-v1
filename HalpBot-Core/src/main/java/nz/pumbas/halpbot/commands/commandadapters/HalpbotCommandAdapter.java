@@ -48,6 +48,8 @@ import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
+import nz.pumbas.halpbot.decorators.DecoratorContext;
+import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.permissions.PermissionManager;
@@ -72,6 +74,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject @Getter private ApplicationContext applicationContext;
     @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
     @Inject @Getter private HalpbotCore halpbotCore;
+    @Inject @Getter private DecoratorService decoratorService;
 
     @Inject private PermissionManager permissionManager;
     @Inject private CommandContextFactory commandContextFactory;
@@ -245,25 +248,17 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                              MethodContext<?, T> methodContext,
                                              ParsingContext parsingContext)
     {
-        long cooldownDuration = 0;
-        TimeUnit cooldownUnit = TimeUnit.SECONDS;
-        if (methodContext.annotation(Cooldown.class).present()) {
-            Cooldown cooldown = methodContext.annotation(Cooldown.class).get();
-            cooldownDuration = cooldown.duration();
-            cooldownUnit = cooldown.unit();
-        }
-
-        return this.commandContextFactory.create(
-                aliases,
-                command.description(),
-                this.usage(command.usage(), methodContext),
-                instance,
-                methodContext,
-                List.of(command.permissions()),
-                Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
-                parsingContext,
-                cooldownDuration,
-                cooldownUnit);
+        return this.decorate(
+                this.commandContextFactory.create(
+                        aliases,
+                        command.description(),
+                        this.usage(command.usage(), methodContext),
+                        instance,
+                        methodContext,
+                        List.of(command.permissions()),
+                        Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
+                        parsingContext
+                ));
     }
 
     @Override

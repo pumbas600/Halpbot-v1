@@ -18,20 +18,16 @@ import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 @Getter
 @Binds(CommandContext.class)
 @RequiredArgsConstructor(onConstructor_ = @Bound)
-public class HalpbotCommandContext implements CommandContext
+public record HalpbotCommandContext(List<String> aliases,
+                                    String description,
+                                    String usage,
+                                    @Nullable Object instance,
+                                    ExecutableElementContext<?> executable,
+                                    List<String> permissions,
+                                    Set<TypeContext<?>> reflections,
+                                    ParsingContext parsingContext)
+        implements CommandContext
 {
-
-    private final List<String> aliases;
-    private final String description;
-    private final String usage;
-    private final @Nullable Object instance;
-    private final ExecutableElementContext<?> executable;
-    private final  List<String> permissions;
-    private final Set<TypeContext<?>> reflections;
-    private final ParsingContext parsingContext;
-    private final long cooldownDurationMs;
-
-    @Setter private CooldownTimer cooldownTimer;
 
     @Override
     public String toString() {

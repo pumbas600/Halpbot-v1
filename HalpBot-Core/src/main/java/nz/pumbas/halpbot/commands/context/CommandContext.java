@@ -36,7 +36,7 @@ import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.commands.TokenInvokable;
 import nz.pumbas.halpbot.permissions.Permissive;
 
-public interface CommandContext extends TokenInvokable, Permissive, Coolable
+public interface CommandContext extends TokenInvokable, Permissive
 {
     /**
      * @return The {@link String alias} for this command.
@@ -61,14 +61,4 @@ public interface CommandContext extends TokenInvokable, Permissive, Coolable
      * @return The {@link Class classes} that can have static methods invoked from
      */
     Set<TypeContext<?>> reflections();
-
-    @Override
-    @SuppressWarnings("unchecked")
-    default <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
-        if (this.hasFinishedCoolingDown()) {
-            this.resetTimer();
-            return TokenInvokable.super.invoke(invocationContext, canHaveContextLeft);
-        }
-        return Exceptional.of((R) Objects.requireNonNull(this.cooldownTimer()).getRemainingTimeEmbed());
-    }
 }

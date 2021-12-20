@@ -19,21 +19,6 @@ public abstract class CommandContextDecorator implements CommandContext
     private final CommandContext commandContext;
 
     @Override
-    public @Nullable CooldownTimer cooldownTimer() {
-        return this.commandContext.cooldownTimer();
-    }
-
-    @Override
-    public Coolable cooldownTimer(CooldownTimer cooldownTimer) {
-        return null;
-    }
-
-    @Override
-    public long cooldownDurationMs() {
-        return 0;
-    }
-
-    @Override
     public @Nullable Object instance() {
         return this.commandContext.instance();
     }
