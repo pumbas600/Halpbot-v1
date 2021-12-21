@@ -1,7 +1,6 @@
 package nz.pumbas.halpbot.commands;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.List;
