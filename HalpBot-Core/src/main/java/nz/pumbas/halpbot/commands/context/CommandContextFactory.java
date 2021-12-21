@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Service
 public interface CommandContextFactory
@@ -21,7 +22,8 @@ public interface CommandContextFactory
                           String usage,
                           @Nullable Object instance,
                           ExecutableElementContext<?> executable,
+                          ParsingContext parsingContext,
+                          List<Token> tokens,
                           List<String> permissions,
-                          Set<TypeContext<?>> reflections,
-                          ParsingContext parsingContext);
+                          Set<TypeContext<?>> reflections);
 }

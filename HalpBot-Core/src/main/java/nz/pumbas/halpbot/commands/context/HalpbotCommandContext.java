@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Getter
 @Binds(CommandContext.class)
@@ -23,9 +24,10 @@ public record HalpbotCommandContext(List<String> aliases,
                                     String usage,
                                     @Nullable Object instance,
                                     ExecutableElementContext<?> executable,
+                                    ParsingContext parsingContext,
+                                    List<Token> tokens,
                                     List<String> permissions,
-                                    Set<TypeContext<?>> reflections,
-                                    ParsingContext parsingContext)
+                                    Set<TypeContext<?>> reflections)
         implements CommandContext
 {
 

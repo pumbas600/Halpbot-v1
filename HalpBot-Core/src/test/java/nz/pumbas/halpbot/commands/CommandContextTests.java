@@ -136,7 +136,7 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("customObjectParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Token token = commandContext.tokens(this.commandAdapter.applicationContext()).get(0);
+        Token token = commandContext.tokens().get(0);
 
         Assertions.assertTrue(token instanceof ParsingToken);
         Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER,((ParsingToken) token).converter());
@@ -239,7 +239,7 @@ public class CommandContextTests
         Exceptional<Boolean> result1 = commandContext.invoke(this.invocationFactory.create(""));
         Exceptional<Boolean> result2 = commandContext.invoke(invocationContext);
 
-        Assertions.assertEquals(1, commandContext.tokens(commandAdapter.applicationContext()).size());
+        Assertions.assertEquals(1, commandContext.tokens().size());
         Assertions.assertTrue(result1.caught());
         Assertions.assertThrows(NullPointerException.class, result1::rethrow);
         Assertions.assertTrue(result2.present());
@@ -255,7 +255,7 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithMultipleAnnotationsTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens(this.commandAdapter.applicationContext());
+        List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(1, tokens.size());
         Assertions.assertTrue(tokens.get(0) instanceof ParsingToken);
@@ -278,7 +278,7 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithVarargsTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens(this.commandAdapter.applicationContext());
+        List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(1,tokens.size());
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, ((ParsingToken) tokens.get(0)).converter());
@@ -339,7 +339,7 @@ public class CommandContextTests
 
         Assertions.assertNotNull(commandContext);
 
-        List<Token> tokens = commandContext.tokens(this.commandAdapter.applicationContext());
+        List<Token> tokens = commandContext.tokens();
         Assertions.assertEquals(2, tokens.size());
         Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(0));
         Assertions.assertEquals("My name is", ((PlaceholderToken) tokens.get(0)).placeholder());
@@ -370,7 +370,7 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithMultiplePlaceholdersTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens(this.commandAdapter.applicationContext());
+        List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(4, tokens.size());
         Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(0));
@@ -400,7 +400,7 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithPlaceholdersAndPrimativeTypesTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens(this.commandAdapter.applicationContext());
+        List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(6, tokens.size());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 2 [1 2 3 4]")).present());
@@ -429,7 +429,7 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandStringWithMultipleAnnotationsTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens(this.commandAdapter.applicationContext());
+        List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(4, tokens.size());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 x 3")).present());

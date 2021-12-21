@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,7 +30,6 @@ import lombok.Getter;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
@@ -47,8 +45,9 @@ import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFac
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
+import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
-import nz.pumbas.halpbot.decorators.DecoratorContext;
+import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
@@ -80,8 +79,9 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject private CommandContextFactory commandContextFactory;
     @Inject private InvocationContextFactory invocationContextFactory;
     @Inject private CustomConstructorContextFactory customConstructorContextFactory;
+    @Inject private TokenService tokenService;
 
-    //TODO: Guild specific prefixes
+    //TODO: Setting the guild specific prefixes
     @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
@@ -98,25 +98,33 @@ public class HalpbotCommandAdapter implements CommandAdapter
             String alias       = splitText[0];
             String content     = (2 == splitText.length) ? splitText[1] : "";
 
-            this.commandContextSafely(alias)
+            Exceptional<Object> result = this.commandContextSafely(alias)
                 .absent(() -> this.halpbotCore.displayConfiguration()
                     .displayTemporary(halpbotEvent,
                         "The command **" + alias + "** doesn't seem to exist, you may want to check your spelling",
                         30))
                 .flatMap(commandContext ->
-                    this.handleCommandInvocation(halpbotEvent, commandContext, content))
-                .present(output -> this.halpbotCore.displayConfiguration().display(halpbotEvent, output))
-                .caught(exception -> {
-                    ErrorManager.handle(event, exception);
+                    this.handleCommandInvocation(halpbotEvent, commandContext, content));
+
+            if (result.present())
+                this.halpbotCore.displayConfiguration().display(halpbotEvent, result.get());
+            else if (result.caught()) {
+                Throwable exception = result.error();
+                ErrorManager.handle(event, exception);
+
+                if (exception instanceof ExplainedException explainedException) {
                     this.halpbotCore.displayConfiguration()
+                            .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
+                }
+                else this.halpbotCore.displayConfiguration()
                         .displayTemporary(
-                            halpbotEvent,
-                            "There was the following error trying to invoke this command: " + exception.getMessage(),
-                            30);
-                });
+                                halpbotEvent,
+                                "There was the following error trying to invoke this command: " + exception.getMessage(),
+                                30);
+
+            }
         }
     }
-
     
     private Exceptional<Object> handleCommandInvocation(HalpbotEvent event,
                                                         CommandContext commandContext,
@@ -255,9 +263,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
                         this.usage(command.usage(), methodContext),
                         instance,
                         methodContext,
+                        parsingContext,
+                        this.tokenService.tokens(methodContext),
                         List.of(command.permissions()),
-                        Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet()),
-                        parsingContext
+                        Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet())
                 ));
     }
 
