@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
 
-public interface PermissionManager
+public interface PermissionService
 {
     /**
      * Returns true if the {@link String permission} is registered in the database.
@@ -42,7 +42,7 @@ public interface PermissionManager
 
     /**
      * Gives the user the specified permission. If the permission does not already exist in the database, it will be
-     * automatically added by calling {@link PermissionManager#createPermissions(String...)}.
+     * automatically added by calling {@link PermissionService#createPermissions(String...)}.
      *
      * @param userId
      *      The id of the user to give the permission to
@@ -53,7 +53,7 @@ public interface PermissionManager
 
     /**
      * Gives the user the specified permission. If the permission does not already exist in the database, it will be
-     * automatically added by calling {@link PermissionManager#createPermissions(String...)}.
+     * automatically added by calling {@link PermissionService#createPermissions(String...)}.
      *
      * @param user
      *      The {@link User} to give the permission to

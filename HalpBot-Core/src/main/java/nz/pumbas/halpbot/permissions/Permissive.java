@@ -8,11 +8,11 @@ public interface Permissive
 {
     List<String> permissions();
 
-    default boolean hasPermission(PermissionManager permissionManager, User user) {
+    default boolean hasPermission(PermissionService permissionManager, User user) {
         return this.hasPermission(permissionManager, user.getIdLong());
     }
 
-    default boolean hasPermission(PermissionManager permissionManager, long userId) {
+    default boolean hasPermission(PermissionService permissionManager, long userId) {
         return this.permissions().isEmpty() ||
             permissionManager.hasPermissions(userId, this.permissions());
     }

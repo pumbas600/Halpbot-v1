@@ -46,14 +46,14 @@ import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.PermissionManager;
+import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 public class BuiltInCommands
 {
-    private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
+    private final PermissionService permissionManager = HalpbotUtils.context().get(PermissionService.class);
 
     @Inject private HelpService helpService;
 

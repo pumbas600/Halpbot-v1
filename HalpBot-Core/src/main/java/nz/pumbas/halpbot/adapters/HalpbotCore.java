@@ -33,7 +33,7 @@ import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.PermissionManager;
+import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -53,7 +53,7 @@ public class HalpbotCore implements ContextCarrier
     private final Map<Long, UserCooldowns> userCooldownsMap = new ConcurrentHashMap<>();
 
     private final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
-    private final PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
+    private final PermissionService permissionService = HalpbotUtils.context().get(PermissionService.class);
 
     /**
      * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke

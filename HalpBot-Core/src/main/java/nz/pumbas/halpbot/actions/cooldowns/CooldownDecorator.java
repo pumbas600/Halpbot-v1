@@ -39,9 +39,4 @@ public class CooldownDecorator extends CommandContextDecorator
 
         return Exceptional.of(new ExplainedException(this.cooldownTimers.get(event.getUser().getIdLong()).getRemainingTimeEmbed()));
     }
-
-    @Override
-    public String toString() {
-        return "Cooldown decorator[%s]".formatted(super.toString());
-    }
 }

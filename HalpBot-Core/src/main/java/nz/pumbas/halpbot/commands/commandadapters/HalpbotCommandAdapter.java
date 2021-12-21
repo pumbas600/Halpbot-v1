@@ -51,7 +51,7 @@ import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
-import nz.pumbas.halpbot.permissions.PermissionManager;
+import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.permissions.exceptions.InsufficientPermissionException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.Reflect;
@@ -75,7 +75,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject @Getter private HalpbotCore halpbotCore;
     @Inject @Getter private DecoratorService decoratorService;
 
-    @Inject private PermissionManager permissionManager;
+    @Inject private PermissionService permissionService;
     @Inject private CommandContextFactory commandContextFactory;
     @Inject private InvocationContextFactory invocationContextFactory;
     @Inject private CustomConstructorContextFactory customConstructorContextFactory;
@@ -130,7 +130,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                                         CommandContext commandContext,
                                                         String content)
     {
-        if (!commandContext.hasPermission(this.permissionManager, event.getUser()))
+        if (!commandContext.hasPermission(this.permissionService, event.getUser()))
             return Exceptional.of(new InsufficientPermissionException("You do not have permission to use this command"));
 
         InvocationContext invocationContext = this.invocationContextFactory.create(

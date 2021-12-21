@@ -68,7 +68,7 @@ import nz.pumbas.halpbot.commands.persistant.PersistantData;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.PermissionManager;
+import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.commands.OnReady;
 import nz.pumbas.halpbot.commands.OnShutdown;
@@ -83,7 +83,7 @@ public abstract class AbstractCommandAdapter extends AbstractHalpbotAdapter
     @Inject
     private ApplicationContext applicationContext;
 
-    protected PermissionManager permissionManager = HalpbotUtils.context().get(PermissionManager.class);
+    protected PermissionService permissionManager = HalpbotUtils.context().get(PermissionService.class);
 
     protected final Map<String, CommandContext> registeredCommands = new HashMap<>();
     protected final Map<String, CommandContext> registeredSlashCommands = new HashMap<>();

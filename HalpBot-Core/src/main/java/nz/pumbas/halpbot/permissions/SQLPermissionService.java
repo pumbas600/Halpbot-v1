@@ -46,7 +46,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.context.LateInit;
 
 //TODO: Replace with HH persistent service
-public class SQLPermissionManager implements PermissionManager, LateInit
+public class SQLPermissionService implements PermissionService, LateInit
 {
     private static final ColumnIdentifier<String> PERMISSION = new SimpleColumnIdentifier<>("permission", String.class);
     private static final ColumnIdentifier<Long> USER_ID      = new SimpleColumnIdentifier<>("userId", Long.class);
@@ -117,7 +117,7 @@ public class SQLPermissionManager implements PermissionManager, LateInit
 
     /**
      * Gives the user the specified permission. If the permission does not already exist in the database, it will be
-     * automatically added by calling {@link PermissionManager#createPermissions(String...)}.
+     * automatically added by calling {@link PermissionService#createPermissions(String...)}.
      *
      * @param userId
      *      The id of the user to give the permission to
