@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,7 +64,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
-    private final Map<TypeContext<?>, Map<String, CommandContext>> registeredReflectiveCommands = HartshornUtils.emptyMap();
+    private final Map<TypeContext<?>, MultiMap<String, CommandContext>> registeredReflectiveCommands =
+            HartshornUtils.emptyMap();
 
     private final Map<TypeContext<?>, String> typeAliases = HartshornUtils.emptyMap();
     private final Map<Long, String> guildPrefixes = HartshornUtils.emptyMap();
@@ -145,10 +147,18 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     @Override
-    @Nullable
-    public CommandContext reflectiveCommandContext(TypeContext<?> type, String methodName) {
-        return this.registeredReflectiveCommands.getOrDefault(type, Collections.emptyMap())
-                .get(methodName);
+    public Collection<CommandContext> reflectiveCommandContext(TypeContext<?> targetType,
+                                                               String methodName,
+                                                               Set<TypeContext<?>> reflections)
+    {
+        if (!this.registeredReflectiveCommands.containsKey(targetType))
+            return Collections.emptyList();
+
+        return this.registeredReflectiveCommands.get(targetType).get(methodName)
+                .stream()
+                .filter(commandContext -> commandContext.executable() instanceof MethodContext methodContext
+                        && reflections.contains(methodContext.parent()))
+                .toList();
     }
 
     @Override
@@ -197,6 +207,13 @@ public class HalpbotCommandAdapter implements CommandAdapter
             return;
         }
 
+        if (methodContext.returnType().isVoid()) {
+            this.applicationContext.log().warn(
+                    "The reflective method %s cannot return void if it is annotated with @Reflective"
+                            .formatted(methodContext.qualifiedName()));
+            return;
+        }
+
         if (!this.parameterAnnotationsAreValid(methodContext)) return;
 
         Command command = methodContext.annotation(Command.class).get();
@@ -210,18 +227,11 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
         TypeContext<?> returnType = methodContext.genericReturnType();
         if (!this.registeredReflectiveCommands.containsKey(returnType))
-            this.registeredReflectiveCommands.put(returnType, HartshornUtils.emptyMap());
+            this.registeredReflectiveCommands.put(returnType, new ArrayListMultiMap<>());
 
-        Map<String, CommandContext> aliasMappings = this.registeredReflectiveCommands.get(returnType);
+        MultiMap<String, CommandContext> aliasMappings = this.registeredReflectiveCommands.get(returnType);
 
         for (String alias : aliases) {
-            if (aliasMappings.containsKey(alias)) {
-                this.applicationContext.log().warn(
-                        "The alias '%s' is already being used by the reflective method '%s'. '%s' will not be registered under this alias"
-                                .formatted(alias, aliasMappings.get(alias).toString(), commandContext.toString()));
-                continue;
-            }
-
             aliasMappings.put(alias, commandContext);
         }
     }

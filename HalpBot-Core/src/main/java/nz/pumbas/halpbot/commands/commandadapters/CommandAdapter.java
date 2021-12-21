@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
@@ -126,12 +127,10 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
     @Nullable
     CommandContext commandContext(String alias);
 
-    default Exceptional<CommandContext> reflectiveCommandContextSafely(TypeContext<?> type, String methodName) {
-        return Exceptional.of(this.reflectiveCommandContext(type, methodName));
-    }
+    Collection<CommandContext> reflectiveCommandContext(TypeContext<?> targetType,
+                                                        String methodName,
+                                                        Set<TypeContext<?>> reflections);
 
-    @Nullable
-    CommandContext reflectiveCommandContext(TypeContext<?> type, String methodName);
 
     Map<String, CommandContext> registeredCommands();
 
