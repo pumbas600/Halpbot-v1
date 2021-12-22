@@ -16,6 +16,8 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -259,13 +261,26 @@ public class HalpbotCommandAdapter implements CommandAdapter
         else return this.usageBuilder.buildUsage(this.applicationContext, executable);
     }
 
-    //TODO: Retrieve some details from the class itself if annotated with @Command
+    private Set<TypeContext<?>> reflections(Command command) {
+        return Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet());
+    }
+
     private <T> CommandContext createCommand(List<String> aliases,
                                              @Nullable T instance,
                                              Command command,
                                              MethodContext<?, T> methodContext,
                                              ParsingContext parsingContext)
     {
+        List<String> permissions = Arrays.asList(command.permissions());
+        Set<TypeContext<?>> reflections = this.reflections(command);
+        TypeContext<T> parent = TypeContext.of(instance);
+
+        if (parent.annotation(Command.class).present()) {
+            Command sharedProperties = parent.annotation(Command.class).get();
+            permissions.addAll(List.of(command.permissions()));
+            reflections.addAll(this.reflections(sharedProperties));
+        }
+
         return this.decorate(
                 this.commandContextFactory.create(
                         aliases,
@@ -275,8 +290,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
                         methodContext,
                         parsingContext,
                         this.tokenService.tokens(methodContext),
-                        List.of(command.permissions()),
-                        Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet())
+                        permissions,
+                        reflections
                 ));
     }
 
