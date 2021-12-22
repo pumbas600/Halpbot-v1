@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.commands.factory;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -8,6 +9,8 @@ import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.decorators.CooldownDecoratorFactory;
@@ -41,5 +44,16 @@ public class DemoTests
         MethodContext<?, ?> methodContext = TypeContext.of(CooldownDecoratorFactory.class).methods().get(0);
         Assertions.assertEquals(CooldownDecorator.class, methodContext.returnType().type());
         Assertions.assertEquals(CooldownDecorator.class, methodContext.genericReturnType().type());
+    }
+
+    @InjectTest
+    public void injectionTest(ApplicationContext applicationContext) {
+        DemoServiceA serviceA = applicationContext.get(DemoServiceA.class);
+        DemoServiceB serviceB = applicationContext.get(DemoServiceB.class);
+
+        Assertions.assertNotNull(serviceA);
+        Assertions.assertNotNull(serviceB);
+        Assertions.assertEquals(serviceA, serviceB.serviceA());
+        Assertions.assertEquals(serviceB, serviceA.serviceB());
     }
 }

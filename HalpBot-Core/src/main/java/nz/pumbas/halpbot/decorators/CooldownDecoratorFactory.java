@@ -1,6 +1,5 @@
 package nz.pumbas.halpbot.decorators;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;

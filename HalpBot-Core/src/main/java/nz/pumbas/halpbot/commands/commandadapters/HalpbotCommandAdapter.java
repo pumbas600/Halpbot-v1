@@ -154,7 +154,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         if (!this.registeredReflectiveCommands.containsKey(targetType))
             return Collections.emptyList();
 
-        return this.registeredReflectiveCommands.get(targetType).get(methodName)
+        return this.registeredReflectiveCommands.get(targetType).get(methodName.toLowerCase(Locale.ROOT))
                 .stream()
                 .filter(commandContext -> commandContext.executable() instanceof MethodContext methodContext
                         && reflections.contains(methodContext.parent()))
@@ -232,7 +232,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         MultiMap<String, CommandContext> aliasMappings = this.registeredReflectiveCommands.get(returnType);
 
         for (String alias : aliases) {
-            aliasMappings.put(alias, commandContext);
+            aliasMappings.put(alias.toLowerCase(Locale.ROOT), commandContext);
         }
     }
 

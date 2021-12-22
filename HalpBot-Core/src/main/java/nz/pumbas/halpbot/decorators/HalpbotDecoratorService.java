@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.decorators;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 
+@Service
 @Binds(DecoratorService.class)
 public class HalpbotDecoratorService implements DecoratorService
 {

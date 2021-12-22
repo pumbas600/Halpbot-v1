@@ -46,11 +46,8 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 @Service
 public class Matrix implements DiscordString
 {
-    @Reflective
     public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);
-    @Reflective
     public static final Matrix XReflection = new Matrix(2, 2, 1, 0, 0, -1);
-    @Reflective
     public static final Matrix YReflection = new Matrix(2, 2, -1, 0, 0, 1);
 
     private final int rows;
@@ -233,6 +230,24 @@ public class Matrix implements DiscordString
         double sin = Math.sin(radians);
 
         return new Matrix(2, 2, cos, -sin, sin, cos);
+    }
+
+    @Reflective
+    @Command(alias = {"xReflection", "mirrorX"})
+    public static Matrix xReflection() {
+        return XReflection;
+    }
+
+    @Reflective
+    @Command(alias = {"yReflection", "mirrorY"})
+    public static Matrix yReflection() {
+        return YReflection;
+    }
+
+    @Reflective
+    @Command(alias = {"unitSquare", "us"})
+    public static Matrix unitSquare() {
+        return UnitSquare;
     }
 
     @Override

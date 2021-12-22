@@ -501,20 +501,48 @@ public class CommandContextTests
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix([0 1] 0 1 2)")).absent());
     }
 
-//    @Test
-//    public void commandMethodMatchesTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
-//
-//        Exceptional<Object> result = command.parse(MethodContext.of("Matrix.yShear[4", command));
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.scale[2]", command)).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.roTaTe[45]", command)).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.xShear[2]", command)).present());
-//
-//        Assertions.assertFalse(result.present());
-//    }
-//
+    @Test
+    public void commandContextWithReflectiveMethodsTest() {
+        CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
+
+        Assertions.assertNotNull(commandContext);
+
+        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.create("yShear(4"));
+        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.create("scale(3)"));
+
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("scale(2)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("roTaTe(45)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("xShear(2)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix.xShear(2)")).absent());
+
+        Assertions.assertFalse(result1.present());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertEquals(2, result2.get());
+    }
+
+    @Test
+    public void commandContextWithReflectiveMethodAliasesTest() {
+        CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
+
+        Assertions.assertNotNull(commandContext);
+
+        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.create("unitSquare()"));
+        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.create("us()"));
+
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("mirrorX()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("xReflection()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("mirrorY()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection(fd)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("unitSquare(23)")).absent());
+
+        Assertions.assertTrue(result1.present());
+        Assertions.assertEquals(4, result1.get());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertEquals(4, result2.get());
+    }
+
 //    @Test
 //    public void commandFieldMatchesTest() {
 //        SimpleCommand command = CommandManager.generateCommandMethod(this,

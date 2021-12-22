@@ -47,20 +47,26 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 @Getter
 @Binds(InvocationContext.class)
 @Accessors(chain = false)
-@RequiredArgsConstructor(onConstructor_ = @Bound)
 public class HalpbotInvocationContext implements InvocationContext
 {
     @Inject private ApplicationContext applicationContext;
     private final String content;
     private final @Nullable HalpbotEvent halpbotEvent;
-    private final Set<TypeContext<?>> reflections;
 
+    @Setter private Set<TypeContext<?>> reflections;
     @Setter private int currentIndex;
     @Setter private int currentAnnotationIndex;
     @Setter private TypeContext<?> currentType = TypeContext.VOID;
     @Setter private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
     @Setter private Set<Annotation> annotations = Collections.emptySet();
     @Nullable private ParameterContext<?> parameterContext;
+
+    @Bound
+    public HalpbotInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent, Set<TypeContext<?>> reflections) {
+        this.content = content;
+        this.halpbotEvent = halpbotEvent;
+        this.reflections = reflections;
+    }
 
     @Override
     public void parameterContext(@Nullable ParameterContext<?> parameterContext) {

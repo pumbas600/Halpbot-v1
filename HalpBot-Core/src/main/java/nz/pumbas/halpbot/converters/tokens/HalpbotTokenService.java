@@ -34,8 +34,9 @@ public class HalpbotTokenService implements TokenService
     @Inject
     @Getter private ApplicationContext applicationContext;
 
+    //TODO: Get this fixed
     @Inject private TokenFactory tokenFactory;
-    @Inject private CommandAdapter commandAdapter;
+    //@Inject private CommandAdapter commandAdapter;
     @Inject private ConverterHandler converterHandler;
 
     @Override
@@ -58,7 +59,7 @@ public class HalpbotTokenService implements TokenService
                     int currentIndex = stringTraverser.currentIndex();
 
                     if (!this.converterHandler.isCommandParameter(currentParameter) ||
-                       stringTraverser.next().equalsIgnoreCase(this.commandAdapter.typeAlias(currentParameter.type())))
+                       stringTraverser.next().equalsIgnoreCase(this.applicationContext.get(CommandAdapter.class).typeAlias(currentParameter.type())))
                     {
                         tokens.add(this.tokenFactory.createParsing(currentParameter));
                         parameterIndex++;

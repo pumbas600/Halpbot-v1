@@ -16,9 +16,7 @@ import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
-@Getter
 @Binds(CommandContext.class)
-@RequiredArgsConstructor(onConstructor_ = @Bound)
 public record HalpbotCommandContext(List<String> aliases,
                                     String description,
                                     String usage,
@@ -30,6 +28,9 @@ public record HalpbotCommandContext(List<String> aliases,
                                     Set<TypeContext<?>> reflections)
         implements CommandContext
 {
+
+    @Bound
+    public HalpbotCommandContext { }
 
     @Override
     public String toString() {

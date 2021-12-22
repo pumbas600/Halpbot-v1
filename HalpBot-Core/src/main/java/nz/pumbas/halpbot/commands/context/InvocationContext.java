@@ -34,6 +34,8 @@ public interface InvocationContext extends ContextCarrier, StringTraverser
 
     Set<Annotation> annotations();
 
+    void reflections(Set<TypeContext<?>> reflections);
+
     void currentAnnotationIndex(int index);
 
     void currentType(TypeContext<?> typeContext);

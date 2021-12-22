@@ -61,4 +61,13 @@ public interface CommandContext extends TokenInvokable, Permissive
      * @return The {@link Class classes} that can have static methods invoked from
      */
     Set<TypeContext<?>> reflections();
+
+    @Override
+    default <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
+        Set<TypeContext<?>> originalReflections = invocationContext.reflections();
+        invocationContext.reflections(this.reflections());
+        Exceptional<R> result = TokenInvokable.super.invoke(invocationContext, canHaveContextLeft);
+        invocationContext.reflections(originalReflections);
+        return result;
+    }
 }
