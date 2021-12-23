@@ -58,6 +58,7 @@ public interface Converter<T> extends ReflectionConverter
 
     boolean requiresHalpbotEvent();
 
+    @SuppressWarnings("unchecked")
     default Exceptional<T> apply(InvocationContext invocationContext) {
 
         if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent() == null)

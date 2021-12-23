@@ -148,6 +148,10 @@ public final class HalpbotUtils
         return parseFile(inputStream, BufferedReader::readLine, "");
     }
 
+    public static String firstLine(String filename) {
+        return parseFile(retrieveReader(filename).get(), BufferedReader::readLine, "");
+    }
+
     /**
      * Parses a file using the {@link IOFunction fileParser} provided.
      *
