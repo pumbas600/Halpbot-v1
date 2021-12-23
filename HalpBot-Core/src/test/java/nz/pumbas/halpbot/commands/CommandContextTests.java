@@ -543,16 +543,6 @@ public class CommandContextTests
         Assertions.assertEquals(4, result2.get());
     }
 
-//    @Test
-//    public void commandFieldMatchesTest() {
-//        SimpleCommand command = CommandManager.generateCommandMethod(this,
-//            Reflect.getMethod(this, "commandWithComplexCustomParameterMethodTest"));
-//
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.UnitSquare", command)).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.uNiTsquAre", command)).present());
-//        Assertions.assertTrue(command.parse(MethodContext.of("Matrix.unitSquare[]", command)).absent());
-//    }
-
     @Command(alias = "commandWithComplexParameterTest", reflections = Matrix.class)
     public int commandWithComplexCustomParameterTestMethod(Matrix matrix) {
         return matrix.getColumns();
