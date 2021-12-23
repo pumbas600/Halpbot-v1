@@ -175,7 +175,7 @@ public class Matrix implements DiscordString
         double[][] values = new double[this.rows][other.columns];
         for (int row = 0; row < this.rows(); row++) {
             for (int column = 0; column < other.columns(); column++) {
-                values[row][column] = this.row(row).dot(other.column(column));
+                values[row][column] = this.row(row).dot(other.column(column).transpose());
             }
         }
 
@@ -288,11 +288,25 @@ public class Matrix implements DiscordString
                 .append(this.columns)
                 .append("\n");
 
-        for (double[] row : this.values) {
-            stringBuilder.append(Arrays.toString(row)).append("\n");
+        for (int i = 0; i < this.values.length; i++) {
+            double[] row = this.values[i];
+            if (i != 0) stringBuilder.append("\n");
+
+            stringBuilder.append('[');
+            for (int j = 0; j < this.columns(); j++) {
+                double value = row[j];
+                if (j != 0) stringBuilder.append(", ");
+                stringBuilder.append("%.2f".formatted(value));
+            }
+            stringBuilder.append("]");
         }
 
         return stringBuilder.toString();
+    }
+
+    @Override
+    public String toDiscordString() {
+        return "```csharp\n" + this + "```";
     }
 
     @Reflective
@@ -370,10 +384,5 @@ public class Matrix implements DiscordString
     public static Matrix zero(int size) {
         double[][] values = new double[size][size];
         return new Matrix(values);
-    }
-
-    @Override
-    public String toDiscordString() {
-        return "```csharp\n" + this + "```";
     }
 }
