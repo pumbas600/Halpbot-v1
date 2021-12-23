@@ -557,4 +557,28 @@ public class CommandContextTests
     public int commandWithComplexCustomParameterTestMethod(Matrix matrix) {
         return matrix.getColumns();
     }
+
+    @Test
+    public void commandContextWithReflectiveListTest() {
+        CommandContext commandContext = this.commandAdapter.commandContext("commandWithListOfCustomObjectTest");
+
+        Assertions.assertNotNull(commandContext);
+
+        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.create("mirrorX() us()"));
+        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.create("Matrix([1 0 0 1]) us()"));
+
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("mirrorX() scale(2) us()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("reflection()")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection(")).absent());
+
+        Assertions.assertTrue(result1.present());
+        Assertions.assertEquals(2, result1.get());
+        Assertions.assertTrue(result2.present());
+        Assertions.assertEquals(2, result2.get());
+    }
+
+    @Command(alias = "commandWithListOfCustomObjectTest", reflections = Matrix.class)
+    public int commandWithListOfCustomObjectTestMethod(@Implicit List<Matrix> matrices) {
+        return matrices.size();
+    }
 }

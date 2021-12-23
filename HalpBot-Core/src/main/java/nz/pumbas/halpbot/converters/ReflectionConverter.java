@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.context.parsing;
+package nz.pumbas.halpbot.converters;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -8,8 +8,9 @@ import java.util.Collection;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 
-public interface ReflectionParsingContext
+public interface ReflectionConverter
 {
     default Exceptional<Object> parseReflection(InvocationContext invocationContext)
     {

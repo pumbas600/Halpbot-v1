@@ -47,6 +47,7 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
@@ -191,9 +192,9 @@ public final class DefaultConverters
                 int currentIndex = invocationContext.currentIndex();
                 Exceptional<Object> result = Exceptional.empty();
 
-                for (Invokable invokable : commandAdapter.customConstructors(typeContext)) {
+                for (CustomConstructorContext constructorContext : commandAdapter.customConstructors(typeContext)) {
                     invocationContext.currentIndex(currentIndex);
-                    result = invokable.invoke(invocationContext, true);
+                    result = constructorContext.invoke(invocationContext, true);
                     if (result.present() && invocationContext.isNext(')', true)) break;
 
                     else if (!result.caught()) result = Exceptional.of(

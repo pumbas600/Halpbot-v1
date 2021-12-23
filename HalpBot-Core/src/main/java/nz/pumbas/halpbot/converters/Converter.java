@@ -34,10 +34,11 @@ import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 //TODO: Make converters support use of $Default
-public interface Converter<T>
+public interface Converter<T> extends ReflectionConverter
 {
     TypeContext<T> type();
 
@@ -67,8 +68,12 @@ public interface Converter<T>
         int currentAnnotationIndex = invocationContext.currentAnnotationIndex();
         TypeContext<?> typeContext = invocationContext.currentType();
 
-        Exceptional<T> result = this.mapper().apply(invocationContext)
-                .caught(throwable -> invocationContext.currentIndex(currentIndex));
+        Exceptional<T> result = this.parseReflection(invocationContext).map((obj) -> (T)obj);
+        if (result.caught() || result.orNull() == ParsingContext.IGNORE_RESULT) {
+            invocationContext.currentIndex(currentIndex);
+            result = this.mapper().apply(invocationContext)
+                    .caught(throwable -> invocationContext.currentIndex(currentIndex));
+        }
 
         // Always restore the state of parser back to what it was when it was called.
         invocationContext.currentAnnotationIndex(currentAnnotationIndex);

@@ -24,6 +24,8 @@
 
 package nz.pumbas.halpbot.utilities.enums;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,8 +48,8 @@ public enum StatusCode
         }
     }
 
-    public static StatusCode of(String code) {
-        if (null != code) {
+    public static StatusCode of(@Nullable String code) {
+        if (code != null) {
             try {
                 int parsedCode = Integer.parseInt(code);
                 return of(parsedCode);

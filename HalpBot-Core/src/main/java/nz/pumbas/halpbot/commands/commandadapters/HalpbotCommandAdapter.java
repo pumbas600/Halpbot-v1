@@ -50,6 +50,7 @@ import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
+import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
@@ -311,10 +312,13 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 .filter(constructor -> constructor.annotation(CustomConstructor.class).present())
                 .map(constructor -> {
                     CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
+                    List<Token> tokens = this.tokenService.tokens(constructor);
+
                     return this.customConstructorContextFactory.create(
                             this.usage(construction.usage(), constructor),
                             constructor,
-                            new MessageParsingContext());
+                            new MessageParsingContext(),
+                            tokens);
                 })
                 .collect(Collectors.toList());
 
