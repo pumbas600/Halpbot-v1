@@ -70,7 +70,7 @@ public class Halpbot extends ListenerAdapter implements Bot
 
     @Override
     public JDABuilder initialise() {
-        String token = HalpbotUtils.getFirstLine(HalpbotUtils.retrieveReader("Token.txt").get());
+        String token = HalpbotUtils.firstLine("Token.txt");
         return JDABuilder.createDefault(token)
                 .disableIntents(GatewayIntent.GUILD_PRESENCES)
                 .addEventListeners(this)

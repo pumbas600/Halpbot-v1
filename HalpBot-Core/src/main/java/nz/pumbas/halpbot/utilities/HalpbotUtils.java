@@ -149,7 +149,9 @@ public final class HalpbotUtils
     }
 
     public static String firstLine(String filename) {
-        return parseFile(retrieveReader(filename).get(), BufferedReader::readLine, "");
+        return retrieveReader(filename)
+                .map(in -> parseFile(in, BufferedReader::readLine, ""))
+                .or("");
     }
 
     /**
@@ -164,7 +166,8 @@ public final class HalpbotUtils
      *
      * @return The parsed file
      */
-    public static <T> T parseFile(InputStream inputStream, IOFunction<BufferedReader, T> fileParser, T defaultValue) {
+    public static <T> T parseFile(InputStream inputStream, IOFunction<BufferedReader, T> fileParser,
+                                  T defaultValue) {
         try (InputStreamReader inputReader = new InputStreamReader(inputStream)) {
             BufferedReader reader = new BufferedReader(inputReader);
             T parsedFile = fileParser.apply(reader);
@@ -207,13 +210,8 @@ public final class HalpbotUtils
      *
      * @return The InputStream, if there were no errors retrieving it
      */
-    public static Optional<InputStream> retrieveReader(String filename) {
-        InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(filename);
-
-        if (null == in) {
-            return Optional.empty();
-        }
-        return Optional.of(in);
+    public static Exceptional<InputStream> retrieveReader(String filename) {
+        return Exceptional.of(ClassLoader.getSystemClassLoader().getResourceAsStream(filename));
     }
 
     /**
@@ -245,7 +243,7 @@ public final class HalpbotUtils
                 }
                 return propertyMap;
 
-            }).orElse(propertyMap);
+            }).or(propertyMap);
     }
 
     /**
