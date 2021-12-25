@@ -9,5 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface ButtonAction
 {
+    String id() default "";
+
     boolean isEphemeral() default false;
 }
