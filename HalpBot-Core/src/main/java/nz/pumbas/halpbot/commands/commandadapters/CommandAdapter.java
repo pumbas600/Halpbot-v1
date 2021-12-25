@@ -37,14 +37,12 @@ import nz.pumbas.halpbot.decorators.Decorator;
 import nz.pumbas.halpbot.decorators.DecoratorFactory;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 
-public interface CommandAdapter extends HalpbotAdapter, Enableable
+public interface CommandAdapter extends HalpbotAdapter
 {
     ParameterAnnotationService parameterAnnotationService();
 
     @SubscribeEvent
     void onMessageReceived(MessageReceivedEvent event);
-
-    HalpbotCore halpbotCore();
 
     String defaultPrefix();
 
@@ -67,7 +65,7 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable
                     "A 'defaultPrefix' must be defined in the bot-config.properties file if you're using commands");
 
         this.determineUsageBuilder(config);
-        this.halpbotCore().registerAdapter(this);
+        HalpbotAdapter.super.enable();
     }
 
     default void determineUsageBuilder(BotConfiguration config) {

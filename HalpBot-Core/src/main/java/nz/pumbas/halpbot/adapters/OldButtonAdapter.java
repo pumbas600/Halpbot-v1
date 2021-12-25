@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 import nz.pumbas.halpbot.actions.ActionCallback;
 import nz.pumbas.halpbot.actions.ActionHandler;
 import nz.pumbas.halpbot.actions.ButtonActionCallback;
-import nz.pumbas.halpbot.actions.annotations.ButtonAction;
+import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 
-public class ButtonAdapter extends AbstractHalpbotAdapter implements ActionHandler
+public class OldButtonAdapter extends AbstractHalpbotAdapter implements ActionHandler
 {
     private final ConcurrentManager concurrentManager = new ConcurrentManager();
     private final Queue<String> expiredButtonCallbacks = new ConcurrentLinkedQueue<>();

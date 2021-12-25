@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.actions.annotations;
+package nz.pumbas.halpbot.buttons;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -87,6 +87,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject private TokenService tokenService;
 
     //TODO: Setting the guild specific prefixes
+    @Override
     @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
@@ -167,7 +168,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Override
     public <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext) {
         if (!methodContext.isPublic()) {
-            this.applicationContext.log().warn("The command method %s should be public if its annotated with @Command"
+            this.applicationContext.log().warn("The command method %s must be public if its annotated with @Command"
                     .formatted(methodContext.qualifiedName()));
             return;
         }

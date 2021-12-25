@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import nz.pumbas.halpbot.actions.annotations.Action;
-import nz.pumbas.halpbot.actions.annotations.ButtonAction;
+import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 

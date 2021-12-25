@@ -24,6 +24,9 @@
 
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
@@ -52,6 +55,17 @@ public class HalpBotCommands
     @Command(alias = "suggestion")
     public String suggestion() {
         return "You can note issues and suggestions for me here: https://github.com/pumbas600/HalpBot/issues";
+    }
+
+    @Command(description = "Tests adding buttons to messages")
+    public void buttons(MessageReceivedEvent event) {
+        event.getChannel()
+                .sendMessage("Click on one of these buttons!")
+                .setActionRow(
+                        Button.primary("halpbot:primary", "Click Me"),
+                        Button.secondary("halpbot:secondary", "Or me!"),
+                        Button.danger("halpbot:danger", "Or... Me...")
+                ).queue();
     }
 
     @Command(description = "Randomly chooses one of the items")
