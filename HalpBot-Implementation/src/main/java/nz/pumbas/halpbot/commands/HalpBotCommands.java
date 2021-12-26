@@ -24,12 +24,14 @@
 
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.DefaultConverters;
@@ -67,6 +69,22 @@ public class HalpBotCommands
                         Button.danger("halpbot:danger", "Or... Me...")
                 ).queue();
     }
+
+    @ButtonAction(id = "halpbot:primary")
+    public String primary(ButtonClickEvent event) {
+        return "You clicked the primary button!";
+    }
+
+    @ButtonAction(id = "halpbot:secondary")
+    public String secondary(ButtonClickEvent event) {
+        return "You clicked the secondary button!";
+    }
+
+    @ButtonAction(id = "halpbot:danger", isEphemeral = true)
+    public String danger(ButtonClickEvent event) {
+        return "You clicked the danger button!";
+    }
+
 
     @Command(description = "Randomly chooses one of the items")
     public String choose(@Implicit String[] choices) {

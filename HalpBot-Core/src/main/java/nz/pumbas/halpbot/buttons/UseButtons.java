@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.annotations;
+package nz.pumbas.halpbot.buttons;
 
 import org.dockbox.hartshorn.config.annotations.UseConfigurations;
 import org.dockbox.hartshorn.core.annotations.service.ServiceActivator;
@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
 @ServiceActivator(scanPackages = "nz.pumbas.halpbot")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface UseCommands
+public @interface UseButtons
 {
 }

@@ -43,12 +43,14 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.common.Bot;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 @Activator
+@UseButtons
 @UseCommands
 public class Halpbot extends ListenerAdapter implements Bot
 {

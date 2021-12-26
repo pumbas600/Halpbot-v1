@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.common.ExplainedException;
+import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
 import nz.pumbas.halpbot.utilities.ErrorManager;
@@ -67,8 +68,14 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             HalpbotEvent halpbotEvent = new InteractionEvent(event);
             Exceptional<Object> result = buttonContext.invoke(event);
 
-            if (result.present())
-                this.halpbotCore.displayConfiguration().display(halpbotEvent, result.get());
+            if (result.present()) {
+                // TODO: Redo this
+                DisplayConfiguration displayConfiguration = this.halpbotCore.displayConfiguration();
+                if (buttonContext.isEphemeral())
+                    displayConfiguration.displayTemporary(halpbotEvent, result.get(), 0);
+                else
+                    displayConfiguration.display(halpbotEvent, result.get());
+            }
             else if (result.caught()) {
                 Throwable exception = result.error();
                 //ErrorManager.handle(event, exception);
