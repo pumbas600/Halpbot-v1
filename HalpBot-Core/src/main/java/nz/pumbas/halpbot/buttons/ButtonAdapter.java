@@ -21,7 +21,7 @@ public interface ButtonAdapter extends HalpbotAdapter
                 this.applicationContext().log()
                         .warn("The button action %s must be public if its annotated with @ButtonCommand"
                                 .formatted(button.qualifiedName()));
-                return;
+                continue;
             }
             this.registerButton(instance, button);
         }

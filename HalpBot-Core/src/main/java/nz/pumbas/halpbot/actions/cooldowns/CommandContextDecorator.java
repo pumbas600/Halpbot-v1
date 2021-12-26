@@ -9,7 +9,7 @@ import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 
@@ -35,7 +35,7 @@ public abstract class CommandContextDecorator implements CommandContext
     }
 
     @Override
-    public ParsingContext parsingContext() {
+    public CommandParsingContext parsingContext() {
         return this.commandContext.parsingContext();
     }
 

@@ -70,7 +70,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             Exceptional<Object> result = buttonContext.invoke(event);
 
             if (result.present()) {
-                // TODO: Redo this
                 DisplayConfiguration displayConfiguration = this.halpbotCore.displayConfiguration();
                 if (buttonContext.isEphemeral())
                     displayConfiguration.displayTemporary(halpbotEvent, result.get(), 0);

@@ -16,7 +16,6 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,8 +40,8 @@ import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.CommandContextFactory;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
-import nz.pumbas.halpbot.commands.context.parsing.MessageParsingContext;
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.MessageCommandParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFactory;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
@@ -183,7 +182,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 instance,
                 command,
                 methodContext,
-                new MessageParsingContext());
+                new MessageCommandParsingContext());
 
         for (String alias : aliases) {
             if (this.registeredCommands.containsKey(alias)) {
@@ -227,7 +226,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 null,
                 command,
                 methodContext,
-                new MessageParsingContext());
+                new MessageCommandParsingContext());
 
         TypeContext<?> returnType = methodContext.genericReturnType();
         if (!this.registeredReflectiveCommands.containsKey(returnType))
@@ -271,7 +270,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                              @Nullable T instance,
                                              Command command,
                                              MethodContext<?, T> methodContext,
-                                             ParsingContext parsingContext)
+                                             CommandParsingContext parsingContext)
     {
         List<String> permissions = Arrays.asList(command.permissions());
         Set<TypeContext<?>> reflections = this.reflections(command);
@@ -318,7 +317,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                     return this.customConstructorContextFactory.create(
                             this.usage(construction.usage(), constructor),
                             constructor,
-                            new MessageParsingContext(),
+                            new MessageCommandParsingContext(),
                             tokens);
                 })
                 .collect(Collectors.toList());

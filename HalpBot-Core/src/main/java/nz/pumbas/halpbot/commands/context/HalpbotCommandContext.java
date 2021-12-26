@@ -9,11 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Binds(CommandContext.class)
@@ -22,7 +18,7 @@ public record HalpbotCommandContext(List<String> aliases,
                                     String usage,
                                     @Nullable Object instance,
                                     ExecutableElementContext<?> executable,
-                                    ParsingContext parsingContext,
+                                    CommandParsingContext parsingContext,
                                     List<Token> tokens,
                                     List<String> permissions,
                                     Set<TypeContext<?>> reflections)

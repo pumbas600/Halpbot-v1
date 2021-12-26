@@ -8,9 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Service
@@ -22,7 +21,7 @@ public interface CommandContextFactory
                           String usage,
                           @Nullable Object instance,
                           ExecutableElementContext<?> executable,
-                          ParsingContext parsingContext,
+                          CommandParsingContext parsingContext,
                           List<Token> tokens,
                           List<String> permissions,
                           Set<TypeContext<?>> reflections);

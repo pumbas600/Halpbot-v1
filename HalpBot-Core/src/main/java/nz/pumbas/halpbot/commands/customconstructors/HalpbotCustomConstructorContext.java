@@ -7,13 +7,13 @@ import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Binds(CustomConstructorContext.class)
 public record HalpbotCustomConstructorContext(String usage,
                                               ExecutableElementContext<?> executable,
-                                              ParsingContext parsingContext,
+                                              CommandParsingContext parsingContext,
                                               List<Token> tokens)
     implements CustomConstructorContext
 {

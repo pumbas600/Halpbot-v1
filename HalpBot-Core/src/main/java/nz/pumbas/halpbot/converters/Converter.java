@@ -26,7 +26,6 @@ package nz.pumbas.halpbot.converters;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
@@ -34,7 +33,7 @@ import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 //TODO: Make converters support use of $Default
@@ -70,7 +69,7 @@ public interface Converter<T> extends ReflectionConverter
         TypeContext<?> typeContext = invocationContext.currentType();
 
         Exceptional<T> result = this.parseReflection(invocationContext).map((obj) -> (T)obj);
-        if (result.caught() || result.orNull() == ParsingContext.IGNORE_RESULT) {
+        if (result.caught() || result.orNull() == CommandParsingContext.IGNORE_RESULT) {
             invocationContext.currentIndex(currentIndex);
             result = this.mapper().apply(invocationContext)
                     .caught(throwable -> invocationContext.currentIndex(currentIndex));

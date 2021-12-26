@@ -13,11 +13,12 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
+import nz.pumbas.halpbot.actions.invokable.ActionContext;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.StringTraverser;
 
-public interface InvocationContext extends ContextCarrier, StringTraverser
+public interface InvocationContext extends ContextCarrier, StringTraverser, ActionContext
 {
     @Nullable
     HalpbotEvent halpbotEvent();
@@ -34,6 +35,8 @@ public interface InvocationContext extends ContextCarrier, StringTraverser
 
     Set<Annotation> annotations();
 
+    boolean canHaveContextLeft();
+
     void reflections(Set<TypeContext<?>> reflections);
 
     void currentAnnotationIndex(int index);
@@ -45,6 +48,8 @@ public interface InvocationContext extends ContextCarrier, StringTraverser
     void annotations(Set<Annotation> annotations);
 
     void parameterContext(@Nullable ParameterContext<?> parameterContext);
+
+    void canHaveContextLeft(boolean canHaveContextLeft);
 
     /**
      * Updates the current type, sorted annotations, parameter annotations and resets the current annotation index

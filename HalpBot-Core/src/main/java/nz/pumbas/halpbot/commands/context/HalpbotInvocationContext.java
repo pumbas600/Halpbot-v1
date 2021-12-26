@@ -60,6 +60,7 @@ public class HalpbotInvocationContext implements InvocationContext
     @Setter private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
     @Setter private Set<Annotation> annotations = Collections.emptySet();
     @Nullable private ParameterContext<?> parameterContext;
+    @Setter private boolean canHaveContextLeft;
 
     @Bound
     public HalpbotInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent, Set<TypeContext<?>> reflections) {

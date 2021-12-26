@@ -8,7 +8,7 @@ import java.util.Collection;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 
 public interface ReflectionConverter
 {
@@ -34,6 +34,6 @@ public interface ReflectionConverter
                 }
             }
         }
-        return Exceptional.of(ParsingContext.IGNORE_RESULT);
+        return Exceptional.of(CommandParsingContext.IGNORE_RESULT);
     }
 }

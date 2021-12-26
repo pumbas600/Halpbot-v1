@@ -31,7 +31,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
 import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.parsing.ParsingContext;
+import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.tokens.HalpbotPlaceholderToken;
@@ -46,7 +46,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -190,7 +189,7 @@ public final class CommandManager
      * @return An {@link Exceptional} containing the result of any reflection syntax.
      */
     public static Exceptional<Object> handleReflectionSyntax(InvocationContext invocationContext) {
-        return Exceptional.of(ParsingContext.IGNORE_RESULT);
+        return Exceptional.of(CommandParsingContext.IGNORE_RESULT);
 
 //        if (invocationContext.reflections().isEmpty()) return Exceptional.empty();
 //
