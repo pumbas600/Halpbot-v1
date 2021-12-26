@@ -24,12 +24,15 @@
 
 package nz.pumbas.halpbot.converters;
 
+import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.FieldContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,10 +41,22 @@ import java.util.stream.Stream;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
-import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
+import nz.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 
-public interface ConverterHandler extends ContextCarrier
+public interface ConverterHandler extends ContextCarrier, Enableable
 {
+    @Override
+    @SuppressWarnings("unchecked")
+    default void enable() throws ApplicationException {
+        Set<TypeContext<? extends Annotation>> nonCommandAnnotations = this.applicationContext().environment()
+                .types(NonCommandAnnotation.class)
+                .stream()
+                .map(type -> (TypeContext<? extends Annotation>) type)
+                .collect(Collectors.toSet());
+
+        this.addNonCammandAnnotations(nonCommandAnnotations);
+        this.applicationContext().log().info("Registered %d noncommand annotations".formatted(nonCommandAnnotations.size()));
+    }
 
     default <T, C extends InvocationContext> Converter<C, T> from(Class<T> type) {
         return this.from(TypeContext.of(type), TypeContext.VOID);
@@ -74,19 +89,6 @@ public interface ConverterHandler extends ContextCarrier
 
     @SuppressWarnings("rawtypes")
     default <T> void register(TypeContext<T> type) {
-
-        type.annotation(NonCommandParameters.class)
-                .present(nonCommandParameters -> {
-                    this.addNonCommandTypes(
-                            Stream.of(nonCommandParameters.types())
-                                    .map(TypeContext::of)
-                                    .collect(Collectors.toSet()));
-                    this.addNonCammandAnnotations(
-                            Stream.of(nonCommandParameters.annotations())
-                                    .map(TypeContext::of)
-                                    .collect(Collectors.toSet()));
-                });
-
         int count = 0;
         List<FieldContext<Converter>> converters = type.fieldsOf(Converter.class);
 

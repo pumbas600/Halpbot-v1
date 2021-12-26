@@ -2,17 +2,11 @@ package nz.pumbas.halpbot.converters;
 
 import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.FieldContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.converters.annotations.Ignore;
-import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
+import nz.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 
 @AutomaticActivation
 public class ConverterServicePreProcessor implements ServicePreProcessor<UseCommands>
@@ -24,8 +18,7 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
 
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
-        return type.annotation(NonCommandParameters.class).present()
-            || !type.fieldsOf(Converter.class).isEmpty();
+        return !type.fieldsOf(Converter.class).isEmpty();
     }
 
     @Override

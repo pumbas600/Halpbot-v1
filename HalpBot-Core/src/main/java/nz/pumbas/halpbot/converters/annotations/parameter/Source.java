@@ -29,9 +29,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import nz.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 import nz.pumbas.halpbot.converters.annotations.Any;
 
+@NonCommandAnnotation
 @ParameterAnnotation(conflictingAnnotations = Any.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

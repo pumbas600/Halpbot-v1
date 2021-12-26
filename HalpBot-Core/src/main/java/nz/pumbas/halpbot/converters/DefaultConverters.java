@@ -41,7 +41,6 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
-import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
@@ -54,10 +53,9 @@ import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
-import nz.pumbas.halpbot.converters.annotations.NonCommandParameters;
+import nz.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 import nz.pumbas.halpbot.utilities.Reflect;
-import nz.pumbas.halpbot.utilities.enums.Priority;
 import nz.pumbas.halpbot.converters.annotations.parameter.Children;
 
 import java.util.ArrayList;
@@ -71,13 +69,6 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 
 @Service
-@NonCommandParameters(
-        types = {
-                PersistantUserData.class, GenericEvent.class, Interaction.class, HalpbotCore.class,
-                AbstractHalpbotAdapter.class, JDA.class, ApplicationContext.class, HalpbotAdapter.class
-        },
-        annotations = Source.class
-)
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
 public final class DefaultConverters
 {
@@ -321,8 +312,8 @@ public final class DefaultConverters
     //region Misc
 
     @SuppressWarnings("ConstantConditions")
-    public static final TypeConverter<PersistantUserData> PERSISTANT_USER_DATA_CONVERTER =
-            TypeConverter.builder(PersistantUserData.class)
+    public static final SourceConverter<PersistantUserData> PERSISTANT_USER_DATA_CONVERTER =
+            SourceConverter.builder(PersistantUserData.class)
                     .requiresHalpbotEvent(true)
                     .convert(invocationContext -> Exceptional.of(
                             invocationContext.applicationContext().get(HalpbotCore.class).get(AbstractCommandAdapter.class)
@@ -382,35 +373,32 @@ public final class DefaultConverters
     //region Source Converters
 
     @SuppressWarnings("ConstantConditions")
-    public static final TypeConverter<GenericEvent> EVENT_CONVERTER = TypeConverter.builder(GenericEvent.class)
-            .requiresHalpbotEvent(true)
+    public static final SourceConverter<GenericEvent> EVENT_CONVERTER = SourceConverter.builder(GenericEvent.class)
             .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getEvent(GenericEvent.class)))
             .build();
 
     @SuppressWarnings("ConstantConditions")
-    public static final TypeConverter<Interaction> INTERACTION_CONVERTER = TypeConverter.builder(Interaction.class)
-            .requiresHalpbotEvent(true)
+    public static final SourceConverter<Interaction> INTERACTION_CONVERTER = SourceConverter.builder(Interaction.class)
             .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getEvent(Interaction.class)))
             .build();
 
-    public static final TypeConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = TypeConverter.builder(HalpbotCore.class)
+    public static final SourceConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = SourceConverter.builder(HalpbotCore.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext().get(HalpbotCore.class)))
             .build();
 
-    public static final TypeConverter<HalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
-            TypeConverter.builder(HalpbotAdapter.class)
+    public static final SourceConverter<HalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
+            SourceConverter.builder(HalpbotAdapter.class)
                     .convert(invocationContext -> invocationContext.applicationContext().get(HalpbotCore.class)
                             .getSafely((TypeContext<HalpbotAdapter>) invocationContext.currentType()))
                     .build();
 
     @SuppressWarnings("ConstantConditions")
-    public static final TypeConverter<JDA> JDA_CONVERTER = TypeConverter.builder(JDA.class)
-            .requiresHalpbotEvent(true)
+    public static final SourceConverter<JDA> JDA_CONVERTER = SourceConverter.builder(JDA.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getJDA()))
             .build();
 
-    public static final TypeConverter<ApplicationContext> APPLICATION_CONTEXT_CONVERTER =
-            TypeConverter.builder(ApplicationContext.class)
+    public static final SourceConverter<ApplicationContext> APPLICATION_CONTEXT_CONVERTER =
+            SourceConverter.builder(ApplicationContext.class)
                     .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext()))
                     .build();
 

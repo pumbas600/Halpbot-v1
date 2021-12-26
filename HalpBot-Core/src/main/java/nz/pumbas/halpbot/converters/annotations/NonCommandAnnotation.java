@@ -1,6 +1,5 @@
 package nz.pumbas.halpbot.converters.annotations;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,10 +11,7 @@ import java.lang.annotation.Target;
  * event, or other like-information.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface NonCommandParameters
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface NonCommandAnnotation
 {
-    Class<?>[] types() default {};
-
-    Class<? extends Annotation>[] annotations() default {};
 }
