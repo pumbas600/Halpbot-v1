@@ -5,12 +5,15 @@ import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 
+import java.time.Duration;
+
 @Service
 public interface ButtonContextFactory
 {
     @Factory
     ButtonContext create(String id,
                          boolean isEphemeral,
+                         Duration displayDuration,
                          @Nullable Object instance,
                          ExecutableElementContext<?> executable);
 }

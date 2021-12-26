@@ -11,6 +11,7 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import java.time.Duration;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -21,7 +22,6 @@ import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
-import nz.pumbas.halpbot.utilities.ErrorManager;
 
 @Service
 @Binds(ButtonAdapter.class)
@@ -55,6 +55,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         return this.buttonContextFactory.create(
                 id,
                 buttonAction.isEphemeral(),
+                Duration.of(buttonAction.displayDuration().value(), buttonAction.displayDuration().unit()),
                 instance,
                 methodContext
         );
@@ -73,8 +74,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                 DisplayConfiguration displayConfiguration = this.halpbotCore.displayConfiguration();
                 if (buttonContext.isEphemeral())
                     displayConfiguration.displayTemporary(halpbotEvent, result.get(), 0);
-                else
-                    displayConfiguration.display(halpbotEvent, result.get());
+                else displayConfiguration.display(halpbotEvent, result.get(), buttonContext.displayDuration());
             }
             else if (result.caught()) {
                 Throwable exception = result.error();
