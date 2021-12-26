@@ -77,7 +77,8 @@ public interface ParsingToken extends Token
      * @return The parsed {@link Object default value}
      */
     @Nullable
-    static Object parseDefaultValue(ParameterConverter<?> converter, CommandInvocationContext invocationContext) {
+    static Object parseDefaultValue(Converter<CommandInvocationContext, ?> converter,
+                                    CommandInvocationContext invocationContext) {
         //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
         if ("${Default}".equalsIgnoreCase(invocationContext.content()))
             return Reflect.getDefaultValue(invocationContext.currentType().type());

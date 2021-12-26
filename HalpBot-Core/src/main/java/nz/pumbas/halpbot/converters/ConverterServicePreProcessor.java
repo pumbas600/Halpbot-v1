@@ -25,42 +25,12 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
         return type.annotation(NonCommandParameters.class).present()
-            || !type.fieldsOf(ParameterConverter.class).isEmpty();
+            || !type.fieldsOf(Converter.class).isEmpty();
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public <T> void process(ApplicationContext context, TypeContext<T> type) {
         final ConverterHandler handler = context.get(ConverterHandler.class);
-
-        type.annotation(NonCommandParameters.class)
-            .present(nonCommandParameters -> {
-                handler.addNonCommandTypes(
-                    Stream.of(nonCommandParameters.types())
-                        .map(TypeContext::of)
-                        .collect(Collectors.toSet()));
-                handler.addNonCammandAnnotations(
-                    Stream.of(nonCommandParameters.annotations())
-                        .map(TypeContext::of)
-                        .collect(Collectors.toSet()));
-            });
-
-        int count = 0;
-        List<FieldContext<ParameterConverter>> converters = type.fieldsOf(ParameterConverter.class);
-
-        for (FieldContext<ParameterConverter> fieldContext : converters) {
-            if (fieldContext.annotation(Ignore.class).present())
-                continue;
-
-            if (!fieldContext.isStatic() || !fieldContext.isPublic() || !fieldContext.isFinal())
-                context.log().warn("The converter %s in %s needs to be static, public and final"
-                    .formatted(fieldContext.name(), type.qualifiedName()));
-
-            else {
-                fieldContext.get(null).present(handler::registerConverter);
-                count++;
-            }
-        }
-        context.log().info("Registered %d converters found in %s".formatted(count, type.qualifiedName()));
+        handler.register(type);
     }
 }

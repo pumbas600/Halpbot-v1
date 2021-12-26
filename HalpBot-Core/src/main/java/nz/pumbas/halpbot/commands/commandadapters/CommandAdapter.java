@@ -29,7 +29,7 @@ import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
-import nz.pumbas.halpbot.decorators.CommandDecoratorFactory;
+import nz.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 import nz.pumbas.halpbot.decorators.Decorator;
 import nz.pumbas.halpbot.decorators.DecoratorFactory;
 import nz.pumbas.halpbot.decorators.DecoratorService;
@@ -150,8 +150,8 @@ public interface CommandAdapter extends HalpbotAdapter
 
         for (TypeContext<? extends Annotation> decoratedAnnotation : decoratedAnnotations) {
             DecoratorFactory<?, ?, ?> factory = this.decoratorService().decorator(decoratedAnnotation);
-            if (factory instanceof CommandDecoratorFactory commandDecoratorFactory) {
-                commandContext = (CommandContext) commandDecoratorFactory.decorate(
+            if (factory instanceof ActionInvokableDecoratorFactory actionInvokableDecoratorFactory) {
+                commandContext = (CommandContext) actionInvokableDecoratorFactory.decorate(
                         commandContext,
                         commandContext.executable().annotation(decoratedAnnotation).get());
             }

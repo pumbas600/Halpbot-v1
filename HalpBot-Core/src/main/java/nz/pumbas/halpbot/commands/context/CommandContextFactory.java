@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
@@ -19,9 +20,7 @@ public interface CommandContextFactory
     CommandContext create(List<String> aliases,
                           String description,
                           String usage,
-                          @Nullable Object instance,
-                          ExecutableElementContext<?> executable,
-                          CommandParsingContext parsingContext,
+                          ActionInvokable<CommandInvocationContext> actionInvokable,
                           List<Token> tokens,
                           List<String> permissions,
                           Set<TypeContext<?>> reflections);

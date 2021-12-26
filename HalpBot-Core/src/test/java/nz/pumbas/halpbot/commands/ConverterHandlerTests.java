@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
@@ -51,6 +52,8 @@ import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.ShapeType;
 import nz.pumbas.halpbot.commands.objects.Vector3;
+import nz.pumbas.halpbot.converters.Converter;
+import nz.pumbas.halpbot.converters.SourceConverter;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
@@ -66,65 +69,74 @@ public class ConverterHandlerTests
 {
     @InjectTest
     public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<Object[]> converter = converterHandler.from(Object[].class);
+        Converter<?, Object[]> converter = converterHandler.from(Object[].class);
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingMessageReceivedEventConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<MessageReceivedEvent> converter = converterHandler.from(MessageReceivedEvent.class);
+        Converter<?, MessageReceivedEvent> converter = converterHandler.from(MessageReceivedEvent.class);
 
+        Assertions.assertInstanceOf(SourceConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.EVENT_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingObjectConverterForUnknownTypesTest(ConverterHandler converterHandler) {
-        ParameterConverter<Vector3> converter = converterHandler.from(Vector3.class);
+        Converter<?, Vector3> converter = converterHandler.from(Vector3.class);
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingIntegerConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<Integer> converter = converterHandler.from(Integer.class);
+        Converter<?, Integer> converter = converterHandler.from(Integer.class);
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.INTEGER_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingListConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<List> converter = converterHandler.from(List.class);
+        Converter<?, List> converter = converterHandler.from(List.class);
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.LIST_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingSetConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<Set> converter = converterHandler.from(Set.class);
+        Converter<?, Set> converter = converterHandler.from(Set.class);
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.SET_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingUnmodifiableListConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<List> converter = converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
+        Converter<?, List> converter = converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingEnumConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<ShapeType> converter = converterHandler.from(ShapeType.class);
+        Converter<?, ShapeType> converter = converterHandler.from(ShapeType.class);
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.ENUM_CONVERTER, converter);
     }
 
     @InjectTest
     public void retrievingRemainingStringsConverterTest(ConverterHandler converterHandler) {
-        ParameterConverter<String> converter = converterHandler
+        Converter<?, String> converter = converterHandler
                 .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
 
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, converter);
     }
 
@@ -132,7 +144,7 @@ public class ConverterHandlerTests
     public void parsingRemainingStringsTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
         CommandInvocationContext invocationContext = invocationContextFactory.create("This is a test sentence.");
 
-        ParameterConverter<String> converter = converterHandler
+        Converter<CommandInvocationContext, String> converter = converterHandler
                 .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
 
         Exceptional<String> sentence = converter.apply(invocationContext);
@@ -145,7 +157,7 @@ public class ConverterHandlerTests
     public void parsingArrayTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
         CommandInvocationContext invocationContext = invocationContextFactory.create("[5 1 3 12 20]");
         invocationContext.currentType(TypeContext.of(Integer[].class));
-        ParameterConverter<Integer[]> converter = converterHandler.from(Integer[].class);
+        Converter<CommandInvocationContext, Integer[]> converter = converterHandler.from(Integer[].class);
 
         Integer[] array = converter.apply(invocationContext).get();
 

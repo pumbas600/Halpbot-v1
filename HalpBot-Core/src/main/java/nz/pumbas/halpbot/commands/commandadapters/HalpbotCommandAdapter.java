@@ -39,6 +39,7 @@ import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.CommandContextFactory;
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.context.HalpbotCommandInvokable;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.context.parsing.MessageCommandParsingContext;
 import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
@@ -287,9 +288,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                         aliases,
                         command.description(),
                         this.usage(command.usage(), methodContext),
-                        instance,
-                        methodContext,
-                        parsingContext,
+                        new HalpbotCommandInvokable(instance, methodContext), //TODO: Replace with factory
                         this.tokenService.tokens(methodContext),
                         permissions,
                         reflections

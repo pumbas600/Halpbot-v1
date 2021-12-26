@@ -8,15 +8,20 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 
-public record SourceConverter<T>(TypeContext<T> type,
-                                 TypeContext<? extends Annotation> annotationType,
-                                 Function<InvocationContext, Exceptional<T>> mapper,
-                                 OptionType optionType,
-                                 boolean requiresHalpbotEvent)
-        implements Converter<InvocationContext, T>
+@Getter
+@RequiredArgsConstructor
+public class SourceConverter<T> implements Converter<InvocationContext, T>
 {
+    private final TypeContext<T> type;
+    private final TypeContext<? extends Annotation> annotationType;
+    private final Function<InvocationContext, Exceptional<T>> mapper;
+    private final OptionType optionType;
+    private final boolean requiresHalpbotEvent;
+
     @Override
     public Exceptional<T> apply(InvocationContext invocationContext) {
         if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent() == null)

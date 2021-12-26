@@ -41,6 +41,7 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
@@ -229,7 +230,7 @@ public final class DefaultConverters
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
                         : invocationContext.parameterContext().typeParameters().get(0);
-                ParameterConverter<?> elementConverter = invocationContext.applicationContext()
+                Converter<CommandInvocationContext, ?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);
 
@@ -257,7 +258,7 @@ public final class DefaultConverters
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
                         : invocationContext.parameterContext().typeParameters().get(0);
-                ParameterConverter<?> elementConverter = invocationContext.applicationContext()
+                Converter<CommandInvocationContext, ?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);
 

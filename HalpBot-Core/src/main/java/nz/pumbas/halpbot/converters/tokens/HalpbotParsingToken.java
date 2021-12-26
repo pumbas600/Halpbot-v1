@@ -9,12 +9,13 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ParameterConverter;
 
 @Binds(ParsingToken.class)
 public record HalpbotParsingToken(ParameterContext<?> parameterContext,
                                   List<TypeContext<? extends Annotation>> sortedAnnotations,
-                                  ParameterConverter<?> converter,
+                                  Converter<?, ?> converter,
                                   @Nullable Object defaultValue,
                                   boolean isCommandParameter,
                                   boolean isOptional)

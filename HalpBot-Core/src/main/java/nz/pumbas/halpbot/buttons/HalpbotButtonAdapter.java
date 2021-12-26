@@ -56,8 +56,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                 id,
                 buttonAction.isEphemeral(),
                 Duration.of(buttonAction.displayDuration().value(), buttonAction.displayDuration().unit()),
-                instance,
-                methodContext
+                new HalpbotButtonInvokable(instance, methodContext) //TODO: Use factory instead
         );
     }
 

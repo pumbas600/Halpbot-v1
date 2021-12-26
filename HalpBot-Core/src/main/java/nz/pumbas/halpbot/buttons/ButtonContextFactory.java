@@ -7,6 +7,8 @@ import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 
 import java.time.Duration;
 
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+
 @Service
 public interface ButtonContextFactory
 {
@@ -14,6 +16,5 @@ public interface ButtonContextFactory
     ButtonContext create(String id,
                          boolean isEphemeral,
                          Duration displayDuration,
-                         @Nullable Object instance,
-                         ExecutableElementContext<?> executable);
+                         ActionInvokable<ButtonInvocationContext> actionInvokable);
 }
