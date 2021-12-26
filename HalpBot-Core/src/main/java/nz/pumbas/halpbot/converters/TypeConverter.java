@@ -40,10 +40,9 @@ import nz.pumbas.halpbot.utilities.enums.Priority;
 public record TypeConverter<T>(TypeContext<T> type,
                                TypeContext<? extends Annotation> annotationType,
                                Function<CommandInvocationContext, Exceptional<T>> mapper,
-                               Priority priority,
                                OptionType optionType,
                                boolean requiresHalpbotEvent)
-    implements Converter<T>
+    implements ParameterConverter<T>
 {
     public static <T> TypeConverterBuilder<T> builder(Class<T> type) {
         return builder(TypeContext.of(type));
@@ -63,91 +62,25 @@ public record TypeConverter<T>(TypeContext<T> type,
         return new TypeConverterBuilder<>(type);
     }
 
-    public static class TypeConverterBuilder<T>
+    public static class TypeConverterBuilder<T> extends ConverterBuilder<TypeConverter<T>, CommandInvocationContext, T>
     {
-        private final TypeContext<T> type;
-        private @Nullable Function<CommandInvocationContext, Exceptional<T>> converter;
-        private @Nullable Class<? extends Annotation> annotation;
-
-        private Priority priority = Priority.DEFAULT;
-        private OptionType optionType = OptionType.STRING;
-        private boolean requiresHalpbotEvent;
-
         protected TypeConverterBuilder(TypeContext<T> type) {
-            this.type = type;
+            super(type);
         }
 
         /**
          * Specifies the parsing {@link Function}. If an error is caught in the {@link Exceptional} returned by the
-         * function, then it will automatically reset the current index of the {@link MethodContext}.
+         * function, then it will automatically reset the current index of the {@link CommandInvocationContext}.
          *
          * @param mapper
          *     The {@link Function} to be used to parse the type
          *
          * @return Itself for chaining
          */
+        @Override
         public TypeConverterBuilder<T> convert(Function<CommandInvocationContext, Exceptional<T>> mapper) {
-            this.converter = mapper;
-            return this;
-        }
-
-        /**
-         * Specifies the {@link Priority} of this {@link TypeConverter}. A higher priority means that it will be choosen
-         * before other type parsers for the same type. By default, this is {@link Priority#DEFAULT}, which will be
-         * evaulated last.
-         *
-         * @param priority
-         *     The {@link Priority} to be set for this {@link TypeConverter}
-         *
-         * @return Itself for chaining
-         */
-        public TypeConverterBuilder<T> priority(Priority priority) {
-            this.priority = priority;
-            return this;
-        }
-
-        /**
-         * The {@link Class type} of the annotation which needs to be present on the type for this {@link TypeConverter}
-         * to be called. If no annotation is specified, then this type parser can be called irrespective of the
-         * annotations present.
-         *
-         * @param annotation
-         *     The {@link Class type} of the annotation that needs to be present for this type parser to be called
-         *
-         * @return Itself for chaining
-         */
-        public TypeConverterBuilder<T> annotation(Class<? extends Annotation> annotation) {
-            this.annotation = annotation;
-            return this;
-        }
-
-        /**
-         * Specifies the JDA {@link OptionType} to map this type to, when building slash commands. If no option type
-         * is specified, then it will default to {@link OptionType#STRING}.
-         *
-         * @param optionType
-         *     The JDA {@link OptionType}
-         *
-         * @return Itself for chaining
-         */
-        public TypeConverterBuilder<T> optionType(OptionType optionType) {
-            this.optionType = optionType;
-            return this;
-        }
-
-        /**
-         * Specifies that this converter requires there to be a {@link nz.pumbas.halpbot.events.HalpbotEvent}. If
-         * this event is null in the {@link CommandInvocationContext} then it will automatically return an exceptional
-         * containing a {@link NullPointerException} and the converter function will NOT be called. By default, this
-         * is false.
-         *
-         * @param isRequired
-         *      If the halpbot event is required to be present
-         *
-         * @return Itself for chaining
-         */
-        public TypeConverterBuilder<T> requiresHalpbotEvent(boolean isRequired) {
-            this.requiresHalpbotEvent = isRequired;
+            //Overriden to provide more specific javadoc
+            super.convert(mapper);
             return this;
         }
 
@@ -156,15 +89,13 @@ public record TypeConverter<T>(TypeContext<T> type,
          *
          * @return The built {@link TypeConverter}
          */
+        @Override
         public TypeConverter<T> build() {
-            if (this.converter == null)
-                throw new IllegalConverterException(
-                        "You must specify a converting function before building the converter");
+            this.assertConverterSet();
             return new TypeConverter<>(
                     this.type,
                     TypeContext.of(this.annotation),
                     this.converter,
-                    this.priority,
                     this.optionType,
                     this.requiresHalpbotEvent);
         }

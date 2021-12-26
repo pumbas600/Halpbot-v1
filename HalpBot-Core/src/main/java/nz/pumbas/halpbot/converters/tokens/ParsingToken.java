@@ -31,8 +31,10 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.Converter;
+import nz.pumbas.halpbot.converters.ParameterConverter;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.Reflect;
 
@@ -51,7 +53,7 @@ public interface ParsingToken extends Token
     /**
      * @return The {@link TypeConverter} for this token
      */
-    Converter<?> converter();
+    <C extends InvocationContext> Converter<C, ?> converter();
 
     /**
      * @return Retrieves the default value for this {@link ParsingToken} if this is optional, otherwise it returns null.
@@ -66,16 +68,16 @@ public interface ParsingToken extends Token
     boolean isCommandParameter();
 
     /**
-     * Parses the {@link MethodContext} of the default value.
+     * Parses the {@link CommandInvocationContext} of the default value.
      *
      * @param invocationContext
-     *     {@link MethodContext} containing the default value to be parsed into an {@link Object} using the token's
+     *     {@link CommandInvocationContext} containing the default value to be parsed into an {@link Object} using the token's
      *     {@link TypeConverter}
      *
      * @return The parsed {@link Object default value}
      */
     @Nullable
-    static Object parseDefaultValue(Converter<?> converter, CommandInvocationContext invocationContext) {
+    static Object parseDefaultValue(ParameterConverter<?> converter, CommandInvocationContext invocationContext) {
         //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
         if ("${Default}".equalsIgnoreCase(invocationContext.content()))
             return Reflect.getDefaultValue(invocationContext.currentType().type());

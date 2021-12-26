@@ -13,7 +13,7 @@ import java.util.List;
 
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
-import nz.pumbas.halpbot.converters.Converter;
+import nz.pumbas.halpbot.converters.ParameterConverter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
@@ -36,7 +36,7 @@ public interface TokenFactory
     @Factory
     ParsingToken createParsing(ParameterContext<?> parameterContext,
                                List<TypeContext<? extends Annotation>> sortedAnnotations,
-                               Converter<?> converter,
+                               ParameterConverter<?> converter,
                                @Nullable Object defaultValue,
                                boolean isCommandParameter,
                                boolean isOptional);
@@ -55,7 +55,7 @@ public interface TokenFactory
                         parameterContext.annotations()
                                 .stream()
                                 .map(annotation -> TypeContext.of(annotation.annotationType())));
-        Converter<?> converter = converterHandler.from(parameterContext, sortedAnnotations);
+        ParameterConverter<?> converter = converterHandler.from(parameterContext, sortedAnnotations);
 
         Exceptional<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
 

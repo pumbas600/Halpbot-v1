@@ -36,18 +36,18 @@ import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 public interface ConverterHandler
 {
 
-    default <T> Converter<T> from(Class<T> type) {
+    default <T> ParameterConverter<T> from(Class<T> type) {
         return this.from(TypeContext.of(type), TypeContext.VOID);
     }
 
-    default <T> Converter<T> from(ParameterContext<T> parameterContext,
-                                  List<TypeContext<? extends Annotation>> sortedAnnotations)
+    default <T> ParameterConverter<T> from(ParameterContext<T> parameterContext,
+                                           List<TypeContext<? extends Annotation>> sortedAnnotations)
     {
         TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
         return this.from(parameterContext.type(), targetAnnotationType);
     }
     
-    default <T> Converter<T> from(TypeContext<T> typeContext, CommandInvocationContext invocationContext) {
+    default <T> ParameterConverter<T> from(TypeContext<T> typeContext, CommandInvocationContext invocationContext) {
         int annotationIndex = invocationContext.currentAnnotationIndex();
         List<TypeContext<? extends Annotation>> sortedAnnotations = invocationContext.sortedAnnotations();
 
@@ -60,13 +60,13 @@ public interface ConverterHandler
         return this.from(typeContext, targetAnnotationType);
     }
 
-    default <T> Converter<T> from(Class<T> type, CommandInvocationContext invocationContext) {
+    default <T> ParameterConverter<T> from(Class<T> type, CommandInvocationContext invocationContext) {
         return this.from(TypeContext.of(type), invocationContext);
     }
 
-    <T> Converter<T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType);
+    <T> ParameterConverter<T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType);
 
-    void registerConverter(Converter<?> converter);
+    void registerConverter(ParameterConverter<?> converter);
 
     void addNonCommandTypes(Set<TypeContext<?>> types);
 

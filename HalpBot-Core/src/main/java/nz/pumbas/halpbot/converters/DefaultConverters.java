@@ -144,7 +144,6 @@ public final class DefaultConverters
 
     public static final TypeConverter<String> REMAINING_STRINGS_CONVERTER = TypeConverter.builder(String.class)
             .annotation(Remaining.class)
-            .priority(Priority.EARLY)
             .convert(invocationContext -> Exceptional.of(invocationContext::remaining))
             .build();
 
@@ -171,7 +170,6 @@ public final class DefaultConverters
 
     @Ignore
     public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(Object.class)
-            .priority(Priority.DEFAULT)
             .convert(invocationContext -> {
                 CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
                 TypeContext<?> typeContext = invocationContext.currentType();
@@ -204,7 +202,6 @@ public final class DefaultConverters
             }).build();
 
     public static final TypeConverter<Object> CHILDREN_TYPE_CONVERTER = TypeConverter.builder(Object.class)
-            .priority(Priority.LAST)
             .annotation(Children.class)
             .convert(invocationContext -> {
                 final Exceptional<Object> result = OBJECT_CONVERTER.apply(invocationContext);
@@ -232,7 +229,7 @@ public final class DefaultConverters
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
                         : invocationContext.parameterContext().typeParameters().get(0);
-                Converter<?> elementConverter = invocationContext.applicationContext()
+                ParameterConverter<?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);
 
@@ -252,7 +249,6 @@ public final class DefaultConverters
 
     public static final TypeConverter<List> IMPLICIT_LIST_CONVERTER = TypeConverter.builder(List.class)
             .annotation(Implicit.class)
-            .priority(Priority.LAST)
             .convert(invocationContext -> {
                 Exceptional<List> listExceptional = LIST_CONVERTER.apply(invocationContext);
                 if (listExceptional.errorAbsent() && listExceptional.present())
@@ -261,7 +257,7 @@ public final class DefaultConverters
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
                         : invocationContext.parameterContext().typeParameters().get(0);
-                Converter<?> elementConverter = invocationContext.applicationContext()
+                ParameterConverter<?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);
 
@@ -285,7 +281,6 @@ public final class DefaultConverters
 
     public static final TypeConverter<List> UNMODIFIABLE_LIST_CONVERTER = TypeConverter.builder(List.class)
             .annotation(Unmodifiable.class)
-            .priority(Priority.EARLY)
             .convert(invocationContext ->
                     invocationContext.applicationContext().get(ConverterHandler.class)
                             .from(List.class, invocationContext)
@@ -304,7 +299,6 @@ public final class DefaultConverters
 
     public static final TypeConverter<Set> UNMODIFIABLE_SET_CONVERTER = TypeConverter.builder(Set.class)
             .annotation(Unmodifiable.class)
-            .priority(Priority.EARLY)
             .convert(invocationContext ->
                     invocationContext.applicationContext().get(ConverterHandler.class)
                             .from(Set.class, invocationContext)
@@ -424,7 +418,6 @@ public final class DefaultConverters
             TypeConverter.builder(MessageChannel.class)
                     .requiresHalpbotEvent(true)
                     .annotation(Source.class)
-                    .priority(Priority.FIRST)
                     .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getMessageChannel()))
                     .build();
 
@@ -433,7 +426,6 @@ public final class DefaultConverters
             TypeConverter.builder(TextChannel.class)
                     .requiresHalpbotEvent(true)
                     .annotation(Source.class)
-                    .priority(Priority.FIRST)
                     .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getTextChannel()))
                     .build();
 
@@ -442,7 +434,6 @@ public final class DefaultConverters
             TypeConverter.builder(PrivateChannel.class)
                     .requiresHalpbotEvent(true)
                     .annotation(Source.class)
-                    .priority(Priority.FIRST)
                     .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getPrivateChannel()))
                     .build();
 
@@ -450,7 +441,6 @@ public final class DefaultConverters
     public static final TypeConverter<User> SOURCE_USER_CONVERTER = TypeConverter.builder(User.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
-            .priority(Priority.FIRST)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getUser()))
             .build();
 
@@ -458,7 +448,6 @@ public final class DefaultConverters
     public static final TypeConverter<Guild> SOURCE_GUILD_CONVERTER = TypeConverter.builder(Guild.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
-            .priority(Priority.FIRST)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getGuild()))
             .build();
 
@@ -466,7 +455,6 @@ public final class DefaultConverters
     public static final TypeConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = TypeConverter.builder(ChannelType.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
-            .priority(Priority.FIRST)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getChannelType()))
             .build();
 

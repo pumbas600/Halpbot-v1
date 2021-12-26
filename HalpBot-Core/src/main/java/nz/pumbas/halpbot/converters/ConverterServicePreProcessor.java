@@ -4,7 +4,6 @@ import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.FieldContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.services.ServiceOrder;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
         return type.annotation(NonCommandParameters.class).present()
-            || !type.fieldsOf(Converter.class).isEmpty();
+            || !type.fieldsOf(ParameterConverter.class).isEmpty();
     }
 
     @SuppressWarnings("rawtypes")
@@ -47,9 +46,9 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
             });
 
         int count = 0;
-        List<FieldContext<Converter>> converters = type.fieldsOf(Converter.class);
+        List<FieldContext<ParameterConverter>> converters = type.fieldsOf(ParameterConverter.class);
 
-        for (FieldContext<Converter> fieldContext : converters) {
+        for (FieldContext<ParameterConverter> fieldContext : converters) {
             if (fieldContext.annotation(Ignore.class).present())
                 continue;
 

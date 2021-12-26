@@ -32,7 +32,6 @@ public interface ButtonInvokable extends ActionInvokable<ButtonInvocationContext
             else if (nonCommandParameterIndex < nonCommandParameterTokens.size()) {
                 ParsingToken token = nonCommandParameterTokens.get(nonCommandParameterIndex++);
                 if (token.parameterContext().equals(parameterContext)) {
-                    // TODO: Make Tokens work with other context type
                     parameters[parameterIndex++] = token.converter().apply(invocationContext).orNull();
                 }
             }

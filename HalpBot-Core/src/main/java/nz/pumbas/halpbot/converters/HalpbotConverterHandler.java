@@ -36,43 +36,42 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
-import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 @Service
 @Binds(ConverterHandler.class)
 public class HalpbotConverterHandler implements ConverterHandler
 {
-    private final MultiMap<TypeContext<?>, Converter<?>> converters = new ArrayListMultiMap<>();
+    private final MultiMap<TypeContext<?>, ParameterConverter<?>> converters = new ArrayListMultiMap<>();
 
     private final Set<TypeContext<?>> nonCommandTypes = HartshornUtils.emptyConcurrentSet();
     private final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = HartshornUtils.emptyConcurrentSet();
 
     @Override
-    public <T> Converter<T> from(ParameterContext<T> parameterContext,
-                                 List<TypeContext<? extends Annotation>> sortedAnnotations) {
+    public <T> ParameterConverter<T> from(ParameterContext<T> parameterContext,
+                                          List<TypeContext<? extends Annotation>> sortedAnnotations) {
         TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
         return this.from(parameterContext.type(), targetAnnotationType);
     }
 
     @Override
-    public void registerConverter(Converter<?> converter) {
+    public void registerConverter(ParameterConverter<?> converter) {
         this.converters.put(converter.type(), converter);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Converter<T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
+    public <T> ParameterConverter<T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
         if (!this.converters.containsKey(typeContext)) {
             // Check in case there is a key that equals the type context (E.g: ArrayTypeContext will equal any arrays)
-            return (Converter<T>) this.converters.keySet()
+            return (ParameterConverter<T>) this.converters.keySet()
                     .stream()
                     .filter(type -> this.filterConverterType(type, typeContext))
                     .findFirst()
                     .map(type -> this.from(type, targetAnnotationType))
                     .orElse(Reflect.cast(DefaultConverters.OBJECT_CONVERTER));
         }
-        return (Converter<T>) this.converters.get(typeContext)
+        return (ParameterConverter<T>) this.converters.get(typeContext)
                 .stream()
                 .filter(converter -> converter.annotationType().equals(targetAnnotationType))
                 .findFirst()
