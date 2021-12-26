@@ -47,7 +47,7 @@ import java.util.Set;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.ShapeType;
 import nz.pumbas.halpbot.commands.objects.Vector3;
@@ -130,7 +130,7 @@ public class ConverterHandlerTests
 
     @InjectTest
     public void parsingRemainingStringsTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
-        InvocationContext invocationContext = invocationContextFactory.create("This is a test sentence.");
+        CommandInvocationContext invocationContext = invocationContextFactory.create("This is a test sentence.");
 
         Converter<String> converter = converterHandler
                 .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
@@ -143,7 +143,7 @@ public class ConverterHandlerTests
 
     @InjectTest
     public void parsingArrayTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
-        InvocationContext invocationContext = invocationContextFactory.create("[5 1 3 12 20]");
+        CommandInvocationContext invocationContext = invocationContextFactory.create("[5 1 3 12 20]");
         invocationContext.currentType(TypeContext.of(Integer[].class));
         Converter<Integer[]> converter = converterHandler.from(Integer[].class);
 

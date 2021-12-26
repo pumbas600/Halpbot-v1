@@ -4,39 +4,41 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
-import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
+import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Binds(CooldownDecorator.class)
-public class CooldownDecorator extends CommandContextDecorator
+public class CooldownDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     private final Map<Long, CooldownTimer> cooldownTimers = new ConcurrentHashMap<>();
-    private final long cooldownDurationMs;
+    private final Duration cooldownDuration;
 
     @Bound
-    public CooldownDecorator(CommandContext commandContext, Cooldown cooldown) {
-        super(commandContext);
-        this.cooldownDurationMs = cooldown.unit().toMillis(cooldown.duration());
+    public CooldownDecorator(ActionInvokable<C> actionInvokable, Cooldown cooldown) {
+        super(actionInvokable);
+        this.cooldownDuration = Duration.of(cooldown.duration().value(), cooldown.duration().unit());
     }
 
     @Override
-    public <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
-        HalpbotEvent event = invocationContext.halpbotEvent();
+    public <R> Exceptional<R> invoke(C invocableContext) {
+        HalpbotEvent event = invocableContext.halpbotEvent();
 
         if (event == null)
-            return super.invoke(invocationContext, canHaveContextLeft);
+            return super.invoke(invocableContext);
         else if (this.cooldownTimers.getOrDefault(event.getUser().getIdLong(), CooldownTimer.Empty).hasFinished()) {
-            Exceptional<R> result = super.invoke(invocationContext, canHaveContextLeft);
-            this.cooldownTimers.put(event.getUser().getIdLong(), new CooldownTimer(this.cooldownDurationMs));
+            Exceptional<R> result = super.invoke(invocableContext);
+            this.cooldownTimers.put(event.getUser().getIdLong(), new CooldownTimer(this.cooldownDuration));
             return result;
         }
 
-        return Exceptional.of(new ExplainedException(this.cooldownTimers.get(event.getUser().getIdLong()).getRemainingTimeEmbed()));
+        return Exceptional.of(new ExplainedException(this.cooldownTimers.get(event.getUser().getIdLong()).remainingTimeEmbed()));
     }
 }

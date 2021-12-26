@@ -38,7 +38,7 @@ import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.commands.context.CommandContextFactory;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.context.parsing.MessageCommandParsingContext;
 import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
@@ -138,9 +138,9 @@ public class HalpbotCommandAdapter implements CommandAdapter
         if (!commandContext.hasPermission(this.permissionService, event.getUser()))
             return Exceptional.of(new InsufficientPermissionException("You do not have permission to use this command"));
 
-        InvocationContext invocationContext = this.invocationContextFactory.create(
+        CommandInvocationContext invocationContext = this.invocationContextFactory.create(
                 content, event, commandContext.reflections());
-        return commandContext.invoke(invocationContext, false);
+        return commandContext.invoke(invocationContext);
     }
 
     @Override

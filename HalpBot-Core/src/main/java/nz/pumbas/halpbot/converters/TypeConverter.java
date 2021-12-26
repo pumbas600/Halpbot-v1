@@ -33,13 +33,13 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.exceptions.IllegalConverterException;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 public record TypeConverter<T>(TypeContext<T> type,
                                TypeContext<? extends Annotation> annotationType,
-                               Function<InvocationContext, Exceptional<T>> mapper,
+                               Function<CommandInvocationContext, Exceptional<T>> mapper,
                                Priority priority,
                                OptionType optionType,
                                boolean requiresHalpbotEvent)
@@ -66,7 +66,7 @@ public record TypeConverter<T>(TypeContext<T> type,
     public static class TypeConverterBuilder<T>
     {
         private final TypeContext<T> type;
-        private @Nullable Function<InvocationContext, Exceptional<T>> converter;
+        private @Nullable Function<CommandInvocationContext, Exceptional<T>> converter;
         private @Nullable Class<? extends Annotation> annotation;
 
         private Priority priority = Priority.DEFAULT;
@@ -86,7 +86,7 @@ public record TypeConverter<T>(TypeContext<T> type,
          *
          * @return Itself for chaining
          */
-        public TypeConverterBuilder<T> convert(Function<InvocationContext, Exceptional<T>> mapper) {
+        public TypeConverterBuilder<T> convert(Function<CommandInvocationContext, Exceptional<T>> mapper) {
             this.converter = mapper;
             return this;
         }
@@ -137,7 +137,7 @@ public record TypeConverter<T>(TypeContext<T> type,
 
         /**
          * Specifies that this converter requires there to be a {@link nz.pumbas.halpbot.events.HalpbotEvent}. If
-         * this event is null in the {@link InvocationContext} then it will automatically return an exceptional
+         * this event is null in the {@link CommandInvocationContext} then it will automatically return an exceptional
          * containing a {@link NullPointerException} and the converter function will NOT be called. By default, this
          * is false.
          *

@@ -15,11 +15,6 @@ public interface Coolable
         return this.cooldownDurationMs() > 0;
     }
 
-    default void resetTimer() {
-        if (this.hasCooldown())
-            this.cooldownTimer(new CooldownTimer(this.cooldownDurationMs()));
-    }
-
     default boolean hasFinishedCoolingDown() {
         CooldownTimer cooldownTimer = this.cooldownTimer();
         return cooldownTimer != null && cooldownTimer.hasFinished();

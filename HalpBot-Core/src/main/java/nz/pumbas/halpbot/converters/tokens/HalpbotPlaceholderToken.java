@@ -28,7 +28,7 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 
 /**
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command: {@code
@@ -43,15 +43,15 @@ public record HalpbotPlaceholderToken(boolean isOptional, String placeholder)
     public HalpbotPlaceholderToken {}
 
     /**
-     * Returns if the passed in {@link InvocationContext context} matches this {@link Token}.
+     * Returns if the passed in {@link CommandInvocationContext context} matches this {@link Token}.
      *
      * @param invocationContext
-     *         The {@link InvocationContext context}
+     *         The {@link CommandInvocationContext context}
      *
-     * @return If the {@link InvocationContext context} matches this {@link Token}
+     * @return If the {@link CommandInvocationContext context} matches this {@link Token}
      */
     @Override
-    public boolean matches(InvocationContext invocationContext) {
+    public boolean matches(CommandInvocationContext invocationContext) {
         return invocationContext.nextMatches(this.placeholder());
     }
 

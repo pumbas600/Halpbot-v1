@@ -5,7 +5,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 
 public interface StringTraverser
@@ -31,7 +31,7 @@ public interface StringTraverser
     /**
      * @return An {@link Exceptional} containing the next {@link String word} from the current index or
      *         {@link Exceptional#empty()} if there are no more words
-     * @see InvocationContext#next()
+     * @see CommandInvocationContext#next()
      */
     default Exceptional<String> nextSafe() {
         if (!this.hasNext())
@@ -50,7 +50,7 @@ public interface StringTraverser
 
     /**
      * @return The next {@link String word} from the current index or an empty {@link String} if there are no more words
-     * @see InvocationContext#nextSafe()
+     * @see CommandInvocationContext#nextSafe()
      */
     default String next() {
         return this.nextSafe().or("");
@@ -65,8 +65,8 @@ public interface StringTraverser
      *     The {@link String} to stop at
      *
      * @return an {@link Exceptional} containing the next string up until the specified string
-     * @see InvocationContext#next(String, boolean)
-     * @see InvocationContext#next(Pattern)
+     * @see CommandInvocationContext#next(String, boolean)
+     * @see CommandInvocationContext#next(Pattern)
      */
     default Exceptional<String> next(String until) {
         return this.next(until, true);
@@ -82,7 +82,7 @@ public interface StringTraverser
      *     Should it automatically move the current index past the until string and any whitespace, or remain on it
      *
      * @return an {@link Exceptional} containing the next string up until the specified string
-     * @see InvocationContext#next(String)
+     * @see CommandInvocationContext#next(String)
      */
     default Exceptional<String> next(String until, boolean stepPast) {
         if (!this.hasNext())
@@ -110,7 +110,7 @@ public interface StringTraverser
      *     The {@link Pattern} for the next string
      *
      * @return An {@link Exceptional} containing the matched {@link String pattern}
-     * @see InvocationContext#next(String)
+     * @see CommandInvocationContext#next(String)
      */
     default Exceptional<String> next(Pattern pattern) {
         if (this.hasNext()) {
@@ -145,7 +145,7 @@ public interface StringTraverser
      *     The {@link String} defining the stopping characters
      *
      * @return An {@link Exceptional} containing the string between the start and stop
-     * @see InvocationContext#nextSurrounded(String, String, boolean)
+     * @see CommandInvocationContext#nextSurrounded(String, String, boolean)
      */
     default Exceptional<String> nextSurrounded(String start, String stop) {
         return this.nextSurrounded(start, stop, true);
@@ -166,7 +166,7 @@ public interface StringTraverser
      *     Should it move the current index past the stop characters and any whitespace, or remain on it
      *
      * @return An {@link Exceptional} containing the string between the start and stop
-     * @see InvocationContext#nextSurrounded(String, String)
+     * @see CommandInvocationContext#nextSurrounded(String, String)
      */
     default Exceptional<String> nextSurrounded(String start, String stop, boolean stepPast) {
         if (!this.hasNext() || this.content().indexOf(start, this.currentIndex()) != this.currentIndex())
@@ -255,7 +255,7 @@ public interface StringTraverser
      *     The character to check
      *
      * @return If the character is at the current index
-     * @see InvocationContext#isNext(char, boolean)
+     * @see CommandInvocationContext#isNext(char, boolean)
      */
     default boolean isNext(char character) {
         return this.isNext(character, true);
@@ -271,7 +271,7 @@ public interface StringTraverser
      *     If the character should be stepped past
      *
      * @return If the character is at the current index
-     * @see InvocationContext#isNext(char)
+     * @see CommandInvocationContext#isNext(char)
      */
     default boolean isNext(char character, boolean stepPast) {
         if (!this.hasNext())
@@ -293,7 +293,7 @@ public interface StringTraverser
      * @param character
      *     The character to assert is next
      *
-     * @see InvocationContext#isNext(char)
+     * @see CommandInvocationContext#isNext(char)
      */
     default void assertNext(char character) {
         if (!this.isNext(character)) {

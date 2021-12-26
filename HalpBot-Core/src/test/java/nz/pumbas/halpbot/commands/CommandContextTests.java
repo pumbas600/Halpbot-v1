@@ -42,7 +42,7 @@ import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Shape;
@@ -232,7 +232,7 @@ public class CommandContextTests
     @Test
     public void commandContextWithMessageReceivedEventParameterTest() {
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithMessageReceivedEventParameterTest");
-        InvocationContext invocationContext = this.invocationFactory.create(
+        CommandInvocationContext invocationContext = this.invocationFactory.create(
                 "", new MessageEvent(new TestMessageEvent()), Collections.emptySet());
 
         Assertions.assertNotNull(commandContext);

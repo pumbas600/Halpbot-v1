@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.Reflect;
@@ -75,7 +75,7 @@ public interface ParsingToken extends Token
      * @return The parsed {@link Object default value}
      */
     @Nullable
-    static Object parseDefaultValue(Converter<?> converter, InvocationContext invocationContext) {
+    static Object parseDefaultValue(Converter<?> converter, CommandInvocationContext invocationContext) {
         //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
         if ("${Default}".equalsIgnoreCase(invocationContext.content()))
             return Reflect.getDefaultValue(invocationContext.currentType().type());

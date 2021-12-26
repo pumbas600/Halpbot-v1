@@ -2,8 +2,8 @@ package nz.pumbas.halpbot.actions.cooldowns;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
+//TODO: Remove
 public class UserCooldowns
 {
     private CooldownTimer sendCooldownMessageCooldown;
@@ -30,7 +30,7 @@ public class UserCooldowns
 
     public boolean canSendCooldownMessage() {
         if (null == this.sendCooldownMessageCooldown || this.sendCooldownMessageCooldown.hasFinished()) {
-            this.sendCooldownMessageCooldown = new CooldownTimer(10_000);
+            //this.sendCooldownMessageCooldown = new CooldownTimer(10_000);
             return true;
         }
         return false;

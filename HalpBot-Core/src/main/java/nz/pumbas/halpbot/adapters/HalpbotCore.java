@@ -167,7 +167,7 @@ public class HalpbotCore implements ContextCarrier
             if (userCooldowns.hasCooldownFor(actionId))
             {
                 final MessageEmbed remainingTimeEmbed = userCooldowns.getCooldownFor(actionId)
-                    .getRemainingTimeEmbed();
+                    .remainingTimeEmbed();
 
                 event.safelyGetEvent(Interaction.class)
                     .present(interaction ->

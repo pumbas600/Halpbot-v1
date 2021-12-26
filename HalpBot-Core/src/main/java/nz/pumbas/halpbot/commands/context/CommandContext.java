@@ -28,16 +28,16 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
-import nz.pumbas.halpbot.actions.cooldowns.Coolable;
-import nz.pumbas.halpbot.actions.methods.Invokable;
-import nz.pumbas.halpbot.commands.TokenInvokable;
+import nz.pumbas.halpbot.actions.invokable.ActionContextDecorator;
+import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.permissions.Permissive;
 
-public interface CommandContext extends TokenInvokable, Permissive
+public interface CommandContext extends ActionContextDecorator<CommandInvocationContext>, Permissive
 {
+    List<Token> tokens();
+
     /**
      * @return The {@link String alias} for this command.
      */
@@ -63,11 +63,11 @@ public interface CommandContext extends TokenInvokable, Permissive
     Set<TypeContext<?>> reflections();
 
     @Override
-    default <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
-        Set<TypeContext<?>> originalReflections = invocationContext.reflections();
-        invocationContext.reflections(this.reflections());
-        Exceptional<R> result = TokenInvokable.super.invoke(invocationContext, canHaveContextLeft);
-        invocationContext.reflections(originalReflections);
+    default <R> Exceptional<R> invoke(CommandInvocationContext invocableContext) {
+        Set<TypeContext<?>> originalReflections = invocableContext.reflections();
+        invocableContext.reflections(this.reflections());
+        Exceptional<R> result = ActionContextDecorator.super.invoke(invocableContext);
+        invocableContext.reflections(originalReflections);
         return result;
     }
 }

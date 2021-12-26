@@ -3,7 +3,6 @@ package nz.pumbas.halpbot.converters.tokens;
 import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.proxy.Provided;
 import org.dockbox.hartshorn.core.annotations.service.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -12,8 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.context.HalpbotInvocationContext;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
@@ -63,7 +61,7 @@ public interface TokenFactory
 
         if (unrequired.present()) {
             isOptional = true;
-            InvocationContext invocationContext = this.invocationContexFactory().create(unrequired.get().value());
+            CommandInvocationContext invocationContext = this.invocationContexFactory().create(unrequired.get().value());
             invocationContext.update(parameterContext, sortedAnnotations);
 
             defaultValue = ParsingToken.parseDefaultValue(converter, invocationContext);

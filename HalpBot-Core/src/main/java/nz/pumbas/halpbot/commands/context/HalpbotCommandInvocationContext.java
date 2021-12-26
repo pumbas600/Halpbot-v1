@@ -39,15 +39,14 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
-@Binds(InvocationContext.class)
+@Binds(CommandInvocationContext.class)
 @Accessors(chain = false)
-public class HalpbotInvocationContext implements InvocationContext
+public class HalpbotCommandInvocationContext implements CommandInvocationContext
 {
     @Inject private ApplicationContext applicationContext;
     private final String content;
@@ -63,7 +62,7 @@ public class HalpbotInvocationContext implements InvocationContext
     @Setter private boolean canHaveContextLeft;
 
     @Bound
-    public HalpbotInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent, Set<TypeContext<?>> reflections) {
+    public HalpbotCommandInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent, Set<TypeContext<?>> reflections) {
         this.content = content;
         this.halpbotEvent = halpbotEvent;
         this.reflections = reflections;

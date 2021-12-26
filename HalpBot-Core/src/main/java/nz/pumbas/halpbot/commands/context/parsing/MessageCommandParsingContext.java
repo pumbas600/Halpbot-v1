@@ -4,19 +4,18 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.List;
 
-import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
-import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.commands.TokenInvokable;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.PlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class MessageCommandParsingContext implements CommandParsingContext
 {
     @Override
-    public Exceptional<Object[]> parameters(InvocationContext invocationContext,
+    public Exceptional<Object[]> parameters(CommandInvocationContext invocationContext,
                                             TokenInvokable invokable)
     {
         final List<Token> tokens = invokable.tokens();
@@ -43,7 +42,7 @@ public class MessageCommandParsingContext implements CommandParsingContext
                 if (currentToken instanceof ParsingToken parsingToken)
                     parsedTokens[parameterIndex++] = parsingToken.defaultValue();
             }
-            else if (parameter.orNull() != IGNORE_RESULT)
+            else if (parameter.orNull() != HalpbotUtils.IGNORE_RESULT)
                 parsedTokens[parameterIndex++] = parameter.orNull();
         }
 
@@ -53,7 +52,7 @@ public class MessageCommandParsingContext implements CommandParsingContext
     }
 
     @Override
-    public Exceptional<Object> parseToken(InvocationContext invocationContext,
+    public Exceptional<Object> parseToken(CommandInvocationContext invocationContext,
                                           TokenInvokable invokable,
                                           Token token)
     {
@@ -65,7 +64,7 @@ public class MessageCommandParsingContext implements CommandParsingContext
         }
         else if (token instanceof PlaceholderToken placeholderToken) {
             if (placeholderToken.matches(invocationContext)) {
-                return Exceptional.of(IGNORE_RESULT);
+                return Exceptional.of(HalpbotUtils.IGNORE_RESULT);
             }
             return Exceptional.of(new CommandException("Expected the placeholder " + placeholderToken.placeholder()));
         }

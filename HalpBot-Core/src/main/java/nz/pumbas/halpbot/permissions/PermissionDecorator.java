@@ -8,31 +8,30 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.actions.cooldowns.CommandContextDecorator;
-import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
+import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Binds(PermissionDecorator.class)
-public class PermissionDecorator extends CommandContextDecorator
+public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     @Inject private PermissionService permissionService;
-
     private final List<String> permissions;
 
     @Bound
-    public PermissionDecorator(CommandContext commandContext, Permission permission) {
-        super(commandContext);
+    public PermissionDecorator(ActionInvokable<C> actionInvokable, Permission permission) {
+        super(actionInvokable);
         this.permissions = List.of(permission.permissions());
     }
 
     @Override
-    public <R> Exceptional<R> invoke(InvocationContext invocationContext, boolean canHaveContextLeft) {
+    public <R> Exceptional<R> invoke(C invocationContext) {
         HalpbotEvent event = invocationContext.halpbotEvent();
 
         if (event == null || this.permissionService.hasPermissions(event.getUser().getIdLong(), this.permissions)) {
-            return super.invoke(invocationContext, canHaveContextLeft);
+            return super.invoke(invocationContext);
         }
         return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
     }

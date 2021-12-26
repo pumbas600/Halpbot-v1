@@ -4,29 +4,31 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.Color;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 public class CooldownTimer
 {
-    public static final CooldownTimer Empty = new CooldownTimer(0);
+    public static final CooldownTimer Empty = new CooldownTimer(Duration.ZERO);
 
-    private final long startTimeMs;
-    private final long durationMs;
+    private final OffsetDateTime end;
 
-    public CooldownTimer(long durationMs) {
-        this.startTimeMs = System.currentTimeMillis();
-        this.durationMs = durationMs;
+    public CooldownTimer(Duration duration) {
+        this.end = OffsetDateTime.now().plus(duration);
     }
 
     public boolean hasFinished() {
-        return System.currentTimeMillis() - this.startTimeMs > this.durationMs;
+        return this.remainingTime() <= 0;
     }
 
-    public long getRemainingTime() {
-        return this.durationMs - (System.currentTimeMillis() - this.startTimeMs);
+    public long remainingTime() {
+        return OffsetDateTime.now().until(this.end, ChronoUnit.MILLIS);
     }
 
-    public MessageEmbed getRemainingTimeEmbed() {
-        double remainingTimeSeconds = this.getRemainingTime() / 1000D;
+    public MessageEmbed remainingTimeEmbed() {
+        double remainingTimeSeconds = this.remainingTime() / 1000D;
 
         return new EmbedBuilder()
             .setTitle("Please wait, you're on cooldown")

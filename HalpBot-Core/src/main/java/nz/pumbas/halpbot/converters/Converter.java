@@ -32,8 +32,8 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.enums.Priority;
 
 //TODO: Make converters support use of $Default
@@ -46,7 +46,7 @@ public interface Converter<T> extends ReflectionConverter
     /**
      * @return The {@link Function mapper} for this {@link Converter}
      */
-    Function<InvocationContext, Exceptional<T>> mapper();
+    Function<CommandInvocationContext, Exceptional<T>> mapper();
 
     /**
      * @return The {@link Priority} associated with this {@link Converter}
@@ -58,7 +58,7 @@ public interface Converter<T> extends ReflectionConverter
     boolean requiresHalpbotEvent();
 
     @SuppressWarnings("unchecked")
-    default Exceptional<T> apply(InvocationContext invocationContext) {
+    default Exceptional<T> apply(CommandInvocationContext invocationContext) {
 
         if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent() == null)
             return Exceptional.of(
@@ -66,10 +66,11 @@ public interface Converter<T> extends ReflectionConverter
 
         int currentIndex = invocationContext.currentIndex();
         int currentAnnotationIndex = invocationContext.currentAnnotationIndex();
+        boolean canHaveContextLeft = invocationContext.canHaveContextLeft();
         TypeContext<?> typeContext = invocationContext.currentType();
 
         Exceptional<T> result = this.parseReflection(invocationContext).map((obj) -> (T)obj);
-        if (result.caught() || result.orNull() == CommandParsingContext.IGNORE_RESULT) {
+        if (result.caught() || result.orNull() == HalpbotUtils.IGNORE_RESULT) {
             invocationContext.currentIndex(currentIndex);
             result = this.mapper().apply(invocationContext)
                     .caught(throwable -> invocationContext.currentIndex(currentIndex));
@@ -78,6 +79,7 @@ public interface Converter<T> extends ReflectionConverter
         // Always restore the state of parser back to what it was when it was called.
         invocationContext.currentAnnotationIndex(currentAnnotationIndex);
         invocationContext.currentType(typeContext);
+        invocationContext.canHaveContextLeft(canHaveContextLeft);
         return result;
     }
 }

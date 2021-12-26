@@ -41,12 +41,11 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
@@ -139,7 +138,7 @@ public final class DefaultConverters
             .build();
 
     public static final TypeConverter<String> STRING_CONVERTER = TypeConverter.builder(String.class)
-            .convert(InvocationContext::nextSafe)
+            .convert(CommandInvocationContext::nextSafe)
             .optionType(OptionType.STRING)
             .build();
 
@@ -192,9 +191,10 @@ public final class DefaultConverters
                 int currentIndex = invocationContext.currentIndex();
                 Exceptional<Object> result = Exceptional.empty();
 
+                invocationContext.canHaveContextLeft(true);
                 for (CustomConstructorContext constructorContext : commandAdapter.customConstructors(typeContext)) {
                     invocationContext.currentIndex(currentIndex);
-                    result = constructorContext.invoke(invocationContext, true);
+                    result = constructorContext.invoke(invocationContext);
                     if (result.present() && invocationContext.isNext(')', true)) break;
 
                     else if (!result.caught()) result = Exceptional.of(

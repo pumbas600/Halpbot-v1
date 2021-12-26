@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
 import nz.pumbas.halpbot.commands.context.CommandContext;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -30,7 +30,7 @@ public class HalpbotHelpService implements HelpService
         Map<Object, List<CommandContext>> commands = commandAdapter.registeredCommands()
                 .values()
                 .stream()
-                .collect(Collectors.groupingBy(Invokable::instance));
+                .collect(Collectors.groupingBy(ActionInvokable::instance));
 
         for (Entry<Object, List<CommandContext>> entry : commands.entrySet()) {
             String title = HalpbotUtils.splitVariableName(entry.getKey().getClass().getSimpleName());

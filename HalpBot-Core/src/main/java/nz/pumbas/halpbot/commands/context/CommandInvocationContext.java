@@ -4,21 +4,18 @@ import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import nz.pumbas.halpbot.actions.invokable.ActionContext;
-import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
+import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.StringTraverser;
 
-public interface InvocationContext extends ContextCarrier, StringTraverser, ActionContext
+public interface CommandInvocationContext extends ContextCarrier, StringTraverser, InvocationContext
 {
     @Nullable
     HalpbotEvent halpbotEvent();
@@ -69,7 +66,7 @@ public interface InvocationContext extends ContextCarrier, StringTraverser, Acti
     }
 
     /**
-     * Increments the {@link InvocationContext#currentAnnotationIndex()} by one.
+     * Increments the {@link CommandInvocationContext#currentAnnotationIndex()} by one.
      */
     void incrementAnnotationIndex();
 

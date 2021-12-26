@@ -31,7 +31,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 
 public interface ConverterHandler
 {
@@ -47,7 +47,7 @@ public interface ConverterHandler
         return this.from(parameterContext.type(), targetAnnotationType);
     }
     
-    default <T> Converter<T> from(TypeContext<T> typeContext, InvocationContext invocationContext) {
+    default <T> Converter<T> from(TypeContext<T> typeContext, CommandInvocationContext invocationContext) {
         int annotationIndex = invocationContext.currentAnnotationIndex();
         List<TypeContext<? extends Annotation>> sortedAnnotations = invocationContext.sortedAnnotations();
 
@@ -60,7 +60,7 @@ public interface ConverterHandler
         return this.from(typeContext, targetAnnotationType);
     }
 
-    default <T> Converter<T> from(Class<T> type, InvocationContext invocationContext) {
+    default <T> Converter<T> from(Class<T> type, CommandInvocationContext invocationContext) {
         return this.from(TypeContext.of(type), invocationContext);
     }
 

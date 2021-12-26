@@ -30,17 +30,17 @@ import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
 
 @HartshornTest
 @Activator(scanPackages = "nz.pumbas.halpbot")
-public class InvocationContextTests
+public class CommandInvocationContextTests
 {
 
     @InjectTest
     public void getNextSurroundedTest(InvocationContextFactory invocationContextFactory) {
-        InvocationContext invocationContext = invocationContextFactory.create("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
+        CommandInvocationContext invocationContext = invocationContextFactory.create("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
 
         Exceptional<String> oArray1 = invocationContext.nextSurrounded("[", "]");
         Exceptional<String> oArray2 = invocationContext.nextSurrounded("[", "]");
@@ -56,8 +56,8 @@ public class InvocationContextTests
 
     @InjectTest
     public void getNextSurroundedIncompleteTest(InvocationContextFactory invocationContextFactory) {
-        InvocationContext invocationContext1 = invocationContextFactory.create("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
-        InvocationContext invocationContext2 = invocationContextFactory.create("#Block[1 2 3]]");
+        CommandInvocationContext invocationContext1 = invocationContextFactory.create("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
+        CommandInvocationContext invocationContext2 = invocationContextFactory.create("#Block[1 2 3]]");
 
         Exceptional<String> oArray1 = invocationContext1.nextSurrounded("[", "]");
         Exceptional<String> oArray2 = invocationContext1.nextSurrounded("[", "]");
@@ -72,7 +72,7 @@ public class InvocationContextTests
 
     @InjectTest
     public void getNextSurroundedStepPastTest(InvocationContextFactory invocationContextFactory) {
-        InvocationContext invocationContext = invocationContextFactory.create("#Block[1 2 3]");
+        CommandInvocationContext invocationContext = invocationContextFactory.create("#Block[1 2 3]");
 
         Exceptional<String> oType = invocationContext.nextSurrounded("#", "[", false);
         Exceptional<String> oParameters = invocationContext.nextSurrounded("[", "]");

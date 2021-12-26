@@ -30,13 +30,13 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
 
-import nz.pumbas.halpbot.commands.context.InvocationContext;
-import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
+import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.tokens.HalpbotPlaceholderToken;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
@@ -188,8 +188,8 @@ public final class CommandManager
      *
      * @return An {@link Exceptional} containing the result of any reflection syntax.
      */
-    public static Exceptional<Object> handleReflectionSyntax(InvocationContext invocationContext) {
-        return Exceptional.of(CommandParsingContext.IGNORE_RESULT);
+    public static Exceptional<Object> handleReflectionSyntax(CommandInvocationContext invocationContext) {
+        return Exceptional.of(HalpbotUtils.IGNORE_RESULT);
 
 //        if (invocationContext.reflections().isEmpty()) return Exceptional.empty();
 //
@@ -227,7 +227,7 @@ public final class CommandManager
      *
      * @return An {@link Exceptional} containing the result of the invoked method
      */
-    private static Exceptional<Object> handleMethodReflectionSyntax(InvocationContext invocationContext,
+    private static Exceptional<Object> handleMethodReflectionSyntax(CommandInvocationContext invocationContext,
                                                                     String methodName,
                                                                     TypeContext<?> reflectionType) {
         if (!invocationContext.isNext('[', true))
@@ -262,13 +262,13 @@ public final class CommandManager
      * referenced.
      *
      * @param invocationContext
-     *     The {@link InvocationContext}
+     *     The {@link CommandInvocationContext}
      * @param reflectionClass
      *     The {@link Class} that is being referenced in the reflection syntax
      *
      * @return An {@link Exceptional} containing the specified field.
      */
-    private static Exceptional<Object> handleFieldReflectionSyntax(@NotNull InvocationContext invocationContext,
+    private static Exceptional<Object> handleFieldReflectionSyntax(@NotNull CommandInvocationContext invocationContext,
                                                                    @NotNull TypeContext<?> reflectionClass) {
         if (!invocationContext.hasNext()) return Exceptional.empty();
         String fieldName = invocationContext.next();

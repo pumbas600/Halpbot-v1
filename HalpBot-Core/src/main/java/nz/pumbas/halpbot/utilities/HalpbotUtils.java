@@ -72,6 +72,7 @@ public final class HalpbotUtils
     public static final float threeQuarterRotation = 270F;
     public static final float halfRotation = 180F;
     public static final float quarterRotation = 90F;
+    public static final Object IGNORE_RESULT = new Object();
 
     private static final ContextManager contextManager = new ContextManagerImpl();
 

@@ -15,11 +15,11 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 public interface InvocationContextFactory
 {
     @Factory
-    InvocationContext create(String content,
-                             @Nullable HalpbotEvent halpbotEvent,
-                             Set<TypeContext<?>> reflections);
+    CommandInvocationContext create(String content,
+                                    @Nullable HalpbotEvent halpbotEvent,
+                                    Set<TypeContext<?>> reflections);
 
-    default InvocationContext create(String content) {
+    default CommandInvocationContext create(String content) {
         return this.create(content, null, Collections.emptySet());
     }
 }

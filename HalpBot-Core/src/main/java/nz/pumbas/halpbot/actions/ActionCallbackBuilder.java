@@ -58,7 +58,7 @@ public class ActionCallbackBuilder {
         }
         if (method.isAnnotationPresent(Cooldown.class)) {
             Cooldown cooldown = method.getAnnotation(Cooldown.class);
-            this.setCooldown(cooldown.duration(), cooldown.unit());
+            this.setCooldown(cooldown.duration(), TimeUnit.of(cooldown.unit()));
         }
     }
 
