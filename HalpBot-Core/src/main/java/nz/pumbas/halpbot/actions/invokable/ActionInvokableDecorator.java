@@ -27,4 +27,14 @@ public class ActionInvokableDecorator<C extends InvocationContext> implements Ac
     public Exceptional<Object[]> parameters(C invocationContext) {
         return this.actionInvokable.parameters(invocationContext);
     }
+
+    @Override
+    public <R> Exceptional<R> invoke(Object... parameters) {
+        return this.actionInvokable.invoke(parameters);
+    }
+
+    @Override
+    public <R> Exceptional<R> invoke(C invocationContext) {
+        return this.actionInvokable.invoke(invocationContext);
+    }
 }

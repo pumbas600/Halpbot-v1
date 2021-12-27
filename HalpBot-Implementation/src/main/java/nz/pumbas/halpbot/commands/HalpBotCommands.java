@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
@@ -40,6 +41,7 @@ import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.decorators.log.Log;
+import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
 public class HalpBotCommands
@@ -87,6 +89,7 @@ public class HalpBotCommands
     }
 
     @Log
+    @Cooldown(duration = @Duration(30))
     @Command(description = "Tests the @Log decorator")
     public String test() {
         return "This command is logged when its invoked!";

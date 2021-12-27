@@ -48,7 +48,7 @@ public interface DecoratorService extends Enableable, ContextCarrier
                 .stream()
                 .map(annotation -> TypeContext.of(annotation.annotationType()))
                 .filter(annotation -> annotation.annotation(Decorator.class).present())
-                .sorted(Comparator.comparing(annotation -> annotation.annotation(Decorator.class).get().order()))
+                .sorted(Comparator.comparing(annotation -> -annotation.annotation(Decorator.class).get().order().ordinal()))
                 .toList();
 
         for (TypeContext<? extends Annotation> decoratedAnnotation : decoratedAnnotations) {
