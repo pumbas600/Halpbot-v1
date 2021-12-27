@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.context;
+package nz.pumbas.halpbot.commands.actioninvokable.context;
 
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;

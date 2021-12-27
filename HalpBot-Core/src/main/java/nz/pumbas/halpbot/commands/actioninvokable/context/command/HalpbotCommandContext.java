@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.context;
+package nz.pumbas.halpbot.commands.actioninvokable.context.command;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Binds(CommandContext.class)

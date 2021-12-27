@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.context;
+package nz.pumbas.halpbot.commands.actioninvokable;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;

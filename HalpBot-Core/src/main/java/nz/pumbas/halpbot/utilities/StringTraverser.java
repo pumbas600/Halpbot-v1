@@ -5,7 +5,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 
 public interface StringTraverser

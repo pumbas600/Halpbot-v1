@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.context;
+package nz.pumbas.halpbot.commands.actioninvokable.context;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.actions.invokable.ActionContextDecorator;
-import nz.pumbas.halpbot.actions.methods.Invokable;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 public interface TokenActionContext extends ActionContextDecorator<CommandInvocationContext>

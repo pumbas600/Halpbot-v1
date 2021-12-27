@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.commandadapters;
+package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
@@ -22,8 +22,8 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.Reflective;
 import nz.pumbas.halpbot.commands.annotations.SlashCommand;
-import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContext;
 import nz.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.configurations.BotConfiguration;

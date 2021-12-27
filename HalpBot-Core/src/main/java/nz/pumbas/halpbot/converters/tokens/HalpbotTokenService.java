@@ -19,10 +19,9 @@ import javax.inject.Inject;
 import lombok.Getter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
+import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.utilities.HalpbotStringTraverser;
-import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.StringTraverser;
 
 @Service

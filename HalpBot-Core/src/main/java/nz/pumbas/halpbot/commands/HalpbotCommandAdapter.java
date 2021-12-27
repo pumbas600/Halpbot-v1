@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.commandadapters;
+package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
@@ -37,13 +37,13 @@ import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
-import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.CommandContextFactory;
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.context.HalpbotCommandInvokable;
-import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
-import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
-import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFactory;
+import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContextFactory;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
+import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContextFactory;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
@@ -51,11 +51,9 @@ import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
-import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.permissions.PermissionService;
-import nz.pumbas.halpbot.permissions.exceptions.InsufficientPermissionException;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.Reflect;
 

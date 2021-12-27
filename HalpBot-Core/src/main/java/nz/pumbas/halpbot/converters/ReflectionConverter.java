@@ -5,9 +5,9 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.Collection;
 
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
-import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.CommandAdapter;
+import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public interface ReflectionConverter

@@ -22,20 +22,32 @@
  * SOFTWARE.
  */
 
-package nz.pumbas.halpbot.commands;
+package nz.pumbas.halpbot.commands.actioninvokable.context.command;
 
-import net.dv8tion.jda.api.events.ReadyEvent;
+import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import nz.pumbas.halpbot.commands.actioninvokable.context.TokenActionContext;
+import nz.pumbas.halpbot.permissions.Permissive;
 
-@SuppressWarnings("InterfaceMayBeAnnotatedFunctional")
-public interface OnReady
+//TODO: Replace Permissive with decorator
+public interface CommandContext extends TokenActionContext, Permissive
 {
     /**
-     * A method that is called once after the bot has been initialised.
-     *
-     * @param event
-     *     The JDA {@link ReadyEvent}.
+     * @return The {@link String alias} for this command.
      */
-    void onReady(@NotNull ReadyEvent event);
+    List<String> aliases();
+
+    default String aliasesString() {
+        return String.join(" | ", this.aliases());
+    }
+
+    /**
+     * @return The {@link String description} if present, otherwise null
+     */
+    String description();
+
+    /**
+     * @return The {@link String usage} for this command
+     */
+    String usage();
 }

@@ -41,19 +41,15 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
-import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
+import nz.pumbas.halpbot.commands.CommandAdapter;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContext;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
-import nz.pumbas.halpbot.commands.persistant.PersistantUserData;
-import nz.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.converters.annotations.parameter.Children;
@@ -311,17 +307,17 @@ public final class DefaultConverters
 
     //region Misc
 
-    @SuppressWarnings("ConstantConditions")
-    public static final SourceConverter<PersistantUserData> PERSISTANT_USER_DATA_CONVERTER =
-            SourceConverter.builder(PersistantUserData.class)
-                    .requiresHalpbotEvent(true)
-                    .convert(invocationContext -> Exceptional.of(
-                            invocationContext.applicationContext().get(HalpbotCore.class).get(AbstractCommandAdapter.class)
-                                    .getPersistantUserData(
-                                            (TypeContext<? extends PersistantUserData>) invocationContext.currentType(),
-                                            invocationContext.halpbotEvent().getUser().getIdLong())
-                    ))
-                    .build();
+//    @SuppressWarnings("ConstantConditions")
+//    public static final SourceConverter<PersistantUserData> PERSISTANT_USER_DATA_CONVERTER =
+//            SourceConverter.builder(PersistantUserData.class)
+//                    .requiresHalpbotEvent(true)
+//                    .convert(invocationContext -> Exceptional.of(
+//                            invocationContext.applicationContext().get(HalpbotCore.class).get(AbstractCommandAdapter.class)
+//                                    .getPersistantUserData(
+//                                            (TypeContext<? extends PersistantUserData>) invocationContext.currentType(),
+//                                            invocationContext.halpbotEvent().getUser().getIdLong())
+//                    ))
+//                    .build();
 
     //endregion
 
