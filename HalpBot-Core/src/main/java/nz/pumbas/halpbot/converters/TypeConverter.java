@@ -28,14 +28,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
-import nz.pumbas.halpbot.converters.exceptions.IllegalConverterException;
-import nz.pumbas.halpbot.utilities.enums.Priority;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
 public record TypeConverter<T>(TypeContext<T> type,
                                TypeContext<? extends Annotation> annotationType,

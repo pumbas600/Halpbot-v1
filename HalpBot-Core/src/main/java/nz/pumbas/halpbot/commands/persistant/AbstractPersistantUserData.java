@@ -24,27 +24,13 @@
 
 package nz.pumbas.halpbot.commands.persistant;
 
-import nz.pumbas.halpbot.commands.commandadapters.AbstractCommandAdapter;
-
 public class AbstractPersistantUserData implements PersistantUserData
 {
     protected long userId;
-    protected AbstractCommandAdapter commandAdapter;
     protected boolean alreadyExisted;
 
     public AbstractPersistantUserData(long userId) {
         this.userId = userId;
-    }
-
-    /**
-     * Sets the command adapter for which this {@link PersistantUserData} is registered with. Note that this is
-     * automatically called when its created to set the appropriate command adapter.
-     *
-     * @param commandAdapter
-     *      The {@link AbstractCommandAdapter} to set for this {@link PersistantUserData}
-     */
-    public void setCommandAdapter(AbstractCommandAdapter commandAdapter) {
-        this.commandAdapter = commandAdapter;
     }
 
     /**
@@ -77,6 +63,6 @@ public class AbstractPersistantUserData implements PersistantUserData
      */
     @Override
     public void destroy() {
-        this.commandAdapter.removePersistantUserData(this);
+        //this.commandAdapter.removePersistantUserData(this);
     }
 }

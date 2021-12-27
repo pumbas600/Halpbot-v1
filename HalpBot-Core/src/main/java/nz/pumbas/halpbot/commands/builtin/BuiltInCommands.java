@@ -40,9 +40,9 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
+import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.commands.context.CommandContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;

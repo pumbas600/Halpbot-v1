@@ -27,7 +27,7 @@ package nz.pumbas.halpbot.converters;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 //TODO: Make converters support use of $Default

@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 

@@ -30,8 +30,8 @@ import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
 
 @HartshornTest
 @Activator(scanPackages = "nz.pumbas.halpbot")

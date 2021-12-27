@@ -28,7 +28,7 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
 /**
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command: {@code

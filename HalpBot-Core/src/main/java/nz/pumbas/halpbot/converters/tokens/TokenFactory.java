@@ -11,10 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.Converter;
-import nz.pumbas.halpbot.converters.ParameterConverter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;

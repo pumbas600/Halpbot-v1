@@ -32,9 +32,8 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.Converter;
-import nz.pumbas.halpbot.converters.ParameterConverter;
 import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.Reflect;
 

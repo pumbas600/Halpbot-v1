@@ -33,17 +33,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.commands.commandadapters.CommandAdapter;
-import nz.pumbas.halpbot.commands.context.CommandContext;
-import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
+import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
+import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Shape;
 import nz.pumbas.halpbot.commands.objects.TestMessageEvent;
