@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.hibernate.services;
 
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.ArrayList;

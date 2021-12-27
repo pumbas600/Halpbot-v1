@@ -84,10 +84,15 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
      * @return An {@link Exceptional} containing the annotation, or nothing if no matching annotations were found
      */
     @SuppressWarnings("unchecked")
-    default  <T extends Annotation> Exceptional<T> annotation(Class<T> annotationType) {
+    default <T extends Annotation> Exceptional<T> annotation(Class<T> annotationType) {
         return Exceptional.of(this.annotations().stream()
                 .filter(annotation -> annotationType.isAssignableFrom(annotation.annotationType()))
                 .findFirst()
                 .map(annotation -> (T) annotation));
+    }
+
+    @Override
+    default String contextString() {
+        return this.content();
     }
 }

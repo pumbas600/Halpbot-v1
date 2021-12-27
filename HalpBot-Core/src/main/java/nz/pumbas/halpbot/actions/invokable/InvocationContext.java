@@ -12,4 +12,6 @@ public interface InvocationContext extends ContextCarrier
     HalpbotEvent halpbotEvent();
 
     TypeContext<?> currentType();
+
+    String contextString();
 }

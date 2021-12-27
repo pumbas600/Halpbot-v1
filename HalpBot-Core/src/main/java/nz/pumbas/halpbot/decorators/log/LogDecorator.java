@@ -23,7 +23,11 @@ public class LogDecorator<C extends InvocationContext> extends ActionInvokableDe
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
         if (halpbotEvent != null) {
             invocationContext.applicationContext().log().debug(
-                    "%s has invoked the action %s".formatted(halpbotEvent.getUser().getAsTag(), this.executable().qualifiedName()));
+                    "%s has invoked the action %s in %s with %s".formatted(
+                                    halpbotEvent.getUser().getAsTag(),
+                                    this.executable().qualifiedName(),
+                                    halpbotEvent.getGuild().getName(),
+                                    invocationContext.contextString()));
         }
         return super.invoke(invocationContext);
     }

@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.customparameters;
 
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;

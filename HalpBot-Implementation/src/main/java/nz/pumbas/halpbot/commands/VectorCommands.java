@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.commands;
 
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.customparameters.math.Vector3;

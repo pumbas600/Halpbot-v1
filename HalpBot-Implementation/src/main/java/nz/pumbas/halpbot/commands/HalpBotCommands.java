@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import nz.pumbas.halpbot.buttons.ButtonAction;
@@ -39,6 +39,7 @@ import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
+import nz.pumbas.halpbot.decorators.log.Log;
 
 @Service
 public class HalpBotCommands
@@ -85,6 +86,11 @@ public class HalpBotCommands
         return "You clicked the danger button!";
     }
 
+    @Log
+    @Command(description = "Tests the @Log decorator")
+    public String test() {
+        return this.choose(new String[] {"The", "Response", "From", "This", "Method", "Is", "Irrelevant"});
+    }
 
     @Command(description = "Randomly chooses one of the items")
     public String choose(@Implicit String[] choices) {
