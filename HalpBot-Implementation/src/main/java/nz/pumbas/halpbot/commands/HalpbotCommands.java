@@ -41,6 +41,9 @@ import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.decorators.log.Log;
+import nz.pumbas.halpbot.decorators.log.LogLevel;
+import nz.pumbas.halpbot.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
@@ -88,7 +91,7 @@ public class HalpbotCommands
         return "You clicked the danger button!";
     }
 
-    @Log
+    @Log(LogLevel.INFO)
     @Cooldown(duration = @Duration(20))
     @Command(description = "Tests multiple decorators")
     public String test() {

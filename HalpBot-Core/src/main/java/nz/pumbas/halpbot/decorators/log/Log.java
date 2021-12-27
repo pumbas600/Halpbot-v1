@@ -13,4 +13,5 @@ import nz.pumbas.halpbot.decorators.Order;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Log
 {
+    LogLevel value() default LogLevel.DEBUG;
 }
