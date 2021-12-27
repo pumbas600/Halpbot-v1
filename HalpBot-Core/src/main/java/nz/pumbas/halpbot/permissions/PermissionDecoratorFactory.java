@@ -1,6 +1,7 @@
-package nz.pumbas.halpbot.decorators;
+package nz.pumbas.halpbot.permissions;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.permissions.PermissionDecorator;
 

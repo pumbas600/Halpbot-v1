@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.permissions;
+package nz.pumbas.halpbot.decorators.log;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,10 +8,9 @@ import java.lang.annotation.Target;
 import nz.pumbas.halpbot.decorators.Decorator;
 import nz.pumbas.halpbot.decorators.Order;
 
-@Decorator(value = PermissionDecoratorFactory.class, order = Order.FIRST)
+@Decorator(value = LogDecoratorFactory.class, order = Order.LATE)
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Permission
+public @interface Log
 {
-    String[] permissions();
 }
