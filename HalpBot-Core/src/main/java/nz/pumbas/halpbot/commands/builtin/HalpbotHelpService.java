@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.util.Comparator;
@@ -25,38 +26,51 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Binds(HelpService.class)
 public class HalpbotHelpService implements HelpService
 {
+    @Nullable private MessageEmbed allCommandHelpEmbed;
+
     @Override
     public MessageEmbed build(CommandAdapter commandAdapter) {
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setColor(Color.ORANGE)
-                .setTitle("HALP");
+        if (this.allCommandHelpEmbed == null) {
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setColor(Color.ORANGE)
+                    .setTitle("HALP");
 
-        Map<Object, List<CommandContext>> commands = commandAdapter.registeredCommands()
-                .values()
-                .stream()
-                .collect(Collectors.groupingBy(ActionInvokable::instance));
+            Map<Object, List<CommandContext>> commands = commandAdapter.registeredCommands()
+                    .values()
+                    .stream()
+                    .collect(Collectors.groupingBy(ActionInvokable::instance));
 
-        List<Object> sortedKeys = commands.keySet()
-                .stream()
-                .sorted(Comparator.comparing(key -> -commands.get(key).size()))
-                .collect(Collectors.toList());
+            List<Object> sortedKeys = commands.keySet()
+                    .stream()
+                    .sorted(Comparator.comparing(key -> -commands.get(key).size()))
+                    .collect(Collectors.toList());
 
-        for (Object instance : sortedKeys) {
-            String title = HalpbotUtils.splitVariableName(
-                    TypeContext.unproxy(commandAdapter.applicationContext(), instance).name());
-            StringBuilder stringBuilder = new StringBuilder();
-            for (CommandContext commandContext : new HashSet<>(commands.get(instance))) {
-                stringBuilder.append("- ")
-                        .append(String.join(" | ", commandContext.aliases()))
-                        .append("\n");
+            for (Object instance : sortedKeys) {
+                String title = HalpbotUtils.splitVariableName(
+                        TypeContext.unproxy(commandAdapter.applicationContext(), instance).name());
+                StringBuilder stringBuilder = new StringBuilder();
+                // Hashset prevents double ups from multiple aliases occuring
+                List<String> commandAliases = new HashSet<>(commands.get(instance))
+                        .stream()
+                        .map(CommandContext::aliasesString)
+                        .sorted()
+                        .collect(Collectors.toList());
+
+                for (String aliases : commandAliases) {
+                    stringBuilder.append("- ")
+                            .append(aliases)
+                            .append("\n");
+                }
+
+                embedBuilder.addField(title, stringBuilder.toString(), true);
             }
 
-            embedBuilder.addField(title, stringBuilder.toString(), true);
+            this.allCommandHelpEmbed = embedBuilder.build();
         }
-
-        return embedBuilder.build();
+        return this.allCommandHelpEmbed;
     }
 
+    //TODO: Cache this where possible
     @Override
     public MessageEmbed build(Guild guild, CommandAdapter commandAdapter, CommandContext commandContext) {
         String prefix = commandAdapter.prefix(guild.getIdLong());
