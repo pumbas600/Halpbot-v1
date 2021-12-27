@@ -76,7 +76,7 @@ public interface Pagination<T>
      */
     default void display(HalpbotEvent event) {
         if (event instanceof InteractionEvent) {
-            event.getEvent(Interaction.class)
+            event.event(Interaction.class)
                 .replyEmbeds(this.buildCurrentPage())
                 .queue();
         }

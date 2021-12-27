@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.events;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -10,37 +11,41 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.jetbrains.annotations.Nullable;
 
-//TODO: Update with fluent style
 public interface HalpbotEvent
 {
-    Object getRawEvent();
+    Object rawEvent();
 
     @SuppressWarnings("unchecked")
-    default <T> T getEvent(Class<T> type) {
-        if (type.isAssignableFrom(this.getRawEvent().getClass())) {
-            return (T) this.getRawEvent();
+    default <T> T event(Class<T> type) {
+        if (type.isAssignableFrom(this.rawEvent().getClass())) {
+            return (T) this.rawEvent();
         }
         throw new UnsupportedOperationException("The raw event is not of the specified type: " + type.getSimpleName());
     }
 
-    default <T> Exceptional<T> safelyGetEvent(Class<T> type) {
-        return Exceptional.of(() -> this.getEvent(type));
+    default <T> Exceptional<T> eventSafely(Class<T> type) {
+        return Exceptional.of(() -> this.event(type));
     }
 
-    MessageChannel getMessageChannel();
+    MessageChannel messageChannel();
 
-    TextChannel getTextChannel();
+    TextChannel textChannel();
 
-    PrivateChannel getPrivateChannel();
+    PrivateChannel privateChannel();
+
+    @Nullable
+    AbstractChannel channel();
     
-    ChannelType getChannelType();
+    ChannelType channelType();
 
-    Guild getGuild();
+    @Nullable
+    Guild guild();
 
-    User getUser();
+    User user();
 
-    JDA getJDA();
+    JDA jda();
 
     void reply(String message);
 

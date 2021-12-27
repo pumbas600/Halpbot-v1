@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.events;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -11,6 +12,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,47 +26,53 @@ public class MessageEvent implements HalpbotEvent
     }
 
     @Override
-    public Object getRawEvent() {
+    public Object rawEvent() {
         return this.event;
     }
 
     @Override
-    public MessageChannel getMessageChannel() {
+    public MessageChannel messageChannel() {
         return this.event.getChannel();
     }
 
     @Override
-    public TextChannel getTextChannel() {
+    public TextChannel textChannel() {
         return this.event.getTextChannel();
     }
 
     @Override
-    public PrivateChannel getPrivateChannel() {
+    public PrivateChannel privateChannel() {
         return this.event.getPrivateChannel();
     }
 
+    @Nullable
     @Override
-    public ChannelType getChannelType() {
+    public AbstractChannel channel() {
+        return this.event.getChannel();
+    }
+
+    @Override
+    public ChannelType channelType() {
         return this.event.getChannelType();
     }
 
     @Override
-    public Guild getGuild() {
+    public Guild guild() {
         return this.event.getGuild();
     }
 
     @Override
-    public User getUser() {
+    public User user() {
         if (this.event instanceof MessageReceivedEvent)
             return ((MessageReceivedEvent) this.event).getAuthor();
         else if (this.event instanceof GenericMessageReactionEvent)
-            return ((GenericMessageReactionEvent) this.event).getUser();
+            return ((GenericMessageReactionEvent) this.event).retrieveUser().complete();
         throw new UnsupportedOperationException(
             "The event " + this.event.getClass().getSimpleName() + " doesn't support this operation");
     }
 
     @Override
-    public JDA getJDA() {
+    public JDA jda() {
         return this.event.getJDA();
     }
 

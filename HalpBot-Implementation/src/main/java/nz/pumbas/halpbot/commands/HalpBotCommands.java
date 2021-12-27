@@ -89,7 +89,7 @@ public class HalpBotCommands
     @Log
     @Command(description = "Tests the @Log decorator")
     public String test() {
-        return this.choose(new String[] {"The", "Response", "From", "This", "Method", "Is", "Irrelevant"});
+        return "This command is logged when its invoked!";
     }
 
     @Command(description = "Randomly chooses one of the items")

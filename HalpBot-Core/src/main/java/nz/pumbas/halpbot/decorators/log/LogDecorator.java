@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.decorators.log;
 
+import net.dv8tion.jda.api.entities.AbstractChannel;
+
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -22,12 +24,13 @@ public class LogDecorator<C extends InvocationContext> extends ActionInvokableDe
 
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
         if (halpbotEvent != null) {
+            AbstractChannel channel = halpbotEvent.channel();
             invocationContext.applicationContext().log().debug(
-                    "%s has invoked the action %s in %s with %s".formatted(
-                                    halpbotEvent.getUser().getAsTag(),
+                    "%s has invoked the action %s in %s with the event '%s'".formatted(
+                                    halpbotEvent.user().getAsTag(),
                                     this.executable().qualifiedName(),
-                                    halpbotEvent.getGuild().getName(),
-                                    invocationContext.contextString()));
+                                    channel != null ? channel.getName() : "Undeterminable Channel",
+                                    halpbotEvent.rawEvent()));
         }
         return super.invoke(invocationContext);
     }

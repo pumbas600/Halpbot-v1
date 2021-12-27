@@ -327,10 +327,10 @@ public final class DefaultConverters
     public static final TypeConverter<TextChannel> TEXT_CHANNEL_CONVERTER = TypeConverter.builder(TextChannel.class)
             .requiresHalpbotEvent(true)
             .convert(invocationContext -> invocationContext.nextSurrounded("<#", ">")
-                    .map(invocationContext.halpbotEvent().getGuild()::getTextChannelById)
+                    .map(invocationContext.halpbotEvent().guild()::getTextChannelById)
                     .orElse(
                             () -> LONG_CONVERTER.apply(invocationContext)
-                                    .map(id -> invocationContext.halpbotEvent().getGuild().getTextChannelById(id))
+                                    .map(id -> invocationContext.halpbotEvent().guild().getTextChannelById(id))
                                     .orNull()
                     ))
             .optionType(OptionType.CHANNEL)
@@ -341,10 +341,10 @@ public final class DefaultConverters
             .requiresHalpbotEvent(true)
             .convert(invocationContext ->
                     invocationContext.nextSurrounded("<@!", ">")
-                            .map(id -> invocationContext.halpbotEvent().getGuild().retrieveMemberById(id).complete())
+                            .map(id -> invocationContext.halpbotEvent().guild().retrieveMemberById(id).complete())
                             .orElse(
                                     () -> LONG_CONVERTER.apply(invocationContext)
-                                            .map(id -> invocationContext.halpbotEvent().getGuild().retrieveMemberById(id).complete())
+                                            .map(id -> invocationContext.halpbotEvent().guild().retrieveMemberById(id).complete())
                                             .orNull()
                             ))
             .optionType(OptionType.USER)
@@ -355,10 +355,10 @@ public final class DefaultConverters
             .requiresHalpbotEvent(true)
             .convert(invocationContext ->
                     invocationContext.nextSurrounded("<@!", ">")
-                            .map(id -> invocationContext.halpbotEvent().getJDA().retrieveUserById(id).complete())
+                            .map(id -> invocationContext.halpbotEvent().jda().retrieveUserById(id).complete())
                             .orElse(
                                     () -> LONG_CONVERTER.apply(invocationContext)
-                                            .map(id -> invocationContext.halpbotEvent().getJDA().retrieveUserById(id).complete())
+                                            .map(id -> invocationContext.halpbotEvent().jda().retrieveUserById(id).complete())
                                             .orNull()
                             ))
             .optionType(OptionType.USER)
@@ -370,12 +370,12 @@ public final class DefaultConverters
 
     @SuppressWarnings("ConstantConditions")
     public static final SourceConverter<GenericEvent> EVENT_CONVERTER = SourceConverter.builder(GenericEvent.class)
-            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getEvent(GenericEvent.class)))
+            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().event(GenericEvent.class)))
             .build();
 
     @SuppressWarnings("ConstantConditions")
     public static final SourceConverter<Interaction> INTERACTION_CONVERTER = SourceConverter.builder(Interaction.class)
-            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getEvent(Interaction.class)))
+            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().event(Interaction.class)))
             .build();
 
     public static final SourceConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = SourceConverter.builder(HalpbotCore.class)
@@ -390,7 +390,7 @@ public final class DefaultConverters
 
     @SuppressWarnings("ConstantConditions")
     public static final SourceConverter<JDA> JDA_CONVERTER = SourceConverter.builder(JDA.class)
-            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getJDA()))
+            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().jda()))
             .build();
 
     public static final SourceConverter<ApplicationContext> APPLICATION_CONTEXT_CONVERTER =
@@ -403,7 +403,7 @@ public final class DefaultConverters
             TypeConverter.builder(MessageChannel.class)
                     .requiresHalpbotEvent(true)
                     .annotation(Source.class)
-                    .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getMessageChannel()))
+                    .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().messageChannel()))
                     .build();
 
     @SuppressWarnings("ConstantConditions")
@@ -411,7 +411,7 @@ public final class DefaultConverters
             TypeConverter.builder(TextChannel.class)
                     .requiresHalpbotEvent(true)
                     .annotation(Source.class)
-                    .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getTextChannel()))
+                    .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().textChannel()))
                     .build();
 
     @SuppressWarnings("ConstantConditions")
@@ -419,28 +419,28 @@ public final class DefaultConverters
             TypeConverter.builder(PrivateChannel.class)
                     .requiresHalpbotEvent(true)
                     .annotation(Source.class)
-                    .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().getPrivateChannel()))
+                    .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().privateChannel()))
                     .build();
 
     @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<User> SOURCE_USER_CONVERTER = TypeConverter.builder(User.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
-            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getUser()))
+            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().user()))
             .build();
 
     @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<Guild> SOURCE_GUILD_CONVERTER = TypeConverter.builder(Guild.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
-            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getGuild()))
+            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().guild()))
             .build();
 
     @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = TypeConverter.builder(ChannelType.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
-            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().getChannelType()))
+            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().channelType()))
             .build();
 
     //endregion

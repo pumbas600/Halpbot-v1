@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.events;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -10,6 +11,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,43 +25,50 @@ public class InteractionEvent implements HalpbotEvent
     }
 
     @Override
-    public Object getRawEvent() {
+    public Object rawEvent() {
         return this.interaction;
     }
 
     @Override
-    public MessageChannel getMessageChannel() {
+    public MessageChannel messageChannel() {
         return this.interaction.getMessageChannel();
     }
 
     @Override
-    public TextChannel getTextChannel() {
+    public TextChannel textChannel() {
         return this.interaction.getTextChannel();
     }
 
     @Override
-    public PrivateChannel getPrivateChannel() {
+    public PrivateChannel privateChannel() {
         return this.interaction.getPrivateChannel();
     }
 
     @Override
-    public ChannelType getChannelType() {
+    public ChannelType channelType() {
         return this.interaction.getChannelType();
     }
 
     @Override
-    public Guild getGuild() {
+    @Nullable
+    public Guild guild() {
         return this.interaction.getGuild();
     }
 
     @Override
-    public User getUser() {
+    public User user() {
         return this.interaction.getUser();
     }
 
+    @Nullable
     @Override
-    public JDA getJDA() {
-        return this.interaction.getChannel().getJDA();
+    public AbstractChannel channel() {
+        return this.interaction.getChannel();
+    }
+
+    @Override
+    public JDA jda() {
+        return this.interaction.getJDA();
     }
 
     @Override

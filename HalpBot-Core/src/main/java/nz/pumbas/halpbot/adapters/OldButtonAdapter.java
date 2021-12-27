@@ -112,12 +112,12 @@ public class OldButtonAdapter extends AbstractHalpbotAdapter implements ActionHa
 
     @Override
     public String getActionId(HalpbotEvent event) {
-        return event.getEvent(ButtonClickEvent.class).getComponentId();
+        return event.event(ButtonClickEvent.class).getComponentId();
     }
 
     @Override
     public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
-        ButtonClickEvent event = halpbotEvent.getEvent(ButtonClickEvent.class);
+        ButtonClickEvent event = halpbotEvent.event(ButtonClickEvent.class);
         this.parsedButtonCallbacks.remove(event.getComponentId());
         event.editButton(event.getButton().asDisabled()).queue();
     }

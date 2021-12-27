@@ -8,7 +8,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 public interface ActionHandler
 {
     default void handle(ActionCallback actionCallback, HalpbotEvent event) {
-        long userId = event.getUser().getIdLong();
+        long userId = event.user().getIdLong();
 
 //        if (!actionCallback.hasPermission(event.getUser())) {
 //            this.getHalpbotCore().getDisplayConfiguration()

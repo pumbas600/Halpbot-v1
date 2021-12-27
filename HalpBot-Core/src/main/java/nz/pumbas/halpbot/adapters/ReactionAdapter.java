@@ -90,12 +90,12 @@ public class ReactionAdapter extends AbstractHalpbotAdapter implements ActionHan
 
     @Override
     public String getActionId(HalpbotEvent event) {
-        return event.getEvent(MessageReactionAddEvent.class).getMessageId();
+        return event.event(MessageReactionAddEvent.class).getMessageId();
     }
 
     @Override
     public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
-        MessageReactionAddEvent event = halpbotEvent.getEvent(MessageReactionAddEvent.class);
+        MessageReactionAddEvent event = halpbotEvent.event(MessageReactionAddEvent.class);
         long messageId = event.getMessageIdLong();
 
         event.retrieveMessage()

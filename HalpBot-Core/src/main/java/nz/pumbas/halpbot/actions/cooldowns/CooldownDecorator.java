@@ -33,12 +33,12 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
 
         if (event == null)
             return super.invoke(invocableContext);
-        else if (this.cooldownTimers.getOrDefault(event.getUser().getIdLong(), CooldownTimer.Empty).hasFinished()) {
+        else if (this.cooldownTimers.getOrDefault(event.user().getIdLong(), CooldownTimer.Empty).hasFinished()) {
             Exceptional<R> result = super.invoke(invocableContext);
-            this.cooldownTimers.put(event.getUser().getIdLong(), new CooldownTimer(this.cooldownDuration));
+            this.cooldownTimers.put(event.user().getIdLong(), new CooldownTimer(this.cooldownDuration));
             return result;
         }
 
-        return Exceptional.of(new ExplainedException(this.cooldownTimers.get(event.getUser().getIdLong()).remainingTimeEmbed()));
+        return Exceptional.of(new ExplainedException(this.cooldownTimers.get(event.user().getIdLong()).remainingTimeEmbed()));
     }
 }

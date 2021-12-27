@@ -48,7 +48,7 @@ public class ButtonActionCallback extends AbstractActionCallback implements Meth
     public Exceptional<Object> invokeCallback(HalpbotEvent event) {
         return this.invoke(
             HalpbotUtils.combine(
-                new Object[]{ event.getEvent(ButtonClickEvent.class) },
+                new Object[]{ event.event(ButtonClickEvent.class) },
                 this.parameters));
     }
 

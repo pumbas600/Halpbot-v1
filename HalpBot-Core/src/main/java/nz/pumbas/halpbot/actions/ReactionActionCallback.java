@@ -47,7 +47,7 @@ public class ReactionActionCallback extends AbstractActionCallback
     @Override
     public Exceptional<Object> invokeCallback(HalpbotEvent event) {
         //Use of supplier means that any exception thrown in the callback will be automatically caught.
-        return Exceptional.of(() -> this.callback.apply(event.getEvent(MessageReactionAddEvent.class)));
+        return Exceptional.of(() -> this.callback.apply(event.event(MessageReactionAddEvent.class)));
     }
 
     public String getCodepointEmoji() {
