@@ -31,6 +31,8 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import java.time.temporal.ChronoUnit;
+
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -89,10 +91,10 @@ public class HalpBotCommands
     }
 
     @Log
-    @Cooldown(duration = @Duration(30))
-    @Command(description = "Tests the @Log decorator")
+    @Cooldown(duration = @Duration(20))
+    @Command(description = "Tests multiple decorators")
     public String test() {
-        return "This command is logged when its invoked!";
+        return "This command is logged when its invoked and has a 20 second cooldown!";
     }
 
     @Command(description = "Randomly chooses one of the items")
