@@ -1,6 +1,5 @@
 package nz.pumbas.halpbot.commands.context;
 
-import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -12,10 +11,11 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
+import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.StringTraverser;
 
-public interface CommandInvocationContext extends ContextCarrier, StringTraverser, InvocationContext
+public interface CommandInvocationContext extends StringTraverser, InvocationContext
 {
     @Nullable
     HalpbotEvent halpbotEvent();
@@ -24,13 +24,13 @@ public interface CommandInvocationContext extends ContextCarrier, StringTraverse
 
     int currentAnnotationIndex();
 
-    TypeContext<?> currentType();
-
     ParameterContext<?> parameterContext();
 
     List<TypeContext<? extends Annotation>> sortedAnnotations();
 
     Set<Annotation> annotations();
+
+    List<Token> tokens();
 
     boolean canHaveContextLeft();
 
@@ -47,6 +47,8 @@ public interface CommandInvocationContext extends ContextCarrier, StringTraverse
     void parameterContext(@Nullable ParameterContext<?> parameterContext);
 
     void canHaveContextLeft(boolean canHaveContextLeft);
+
+    void tokens(List<Token> tokens);
 
     /**
      * Updates the current type, sorted annotations, parameter annotations and resets the current annotation index

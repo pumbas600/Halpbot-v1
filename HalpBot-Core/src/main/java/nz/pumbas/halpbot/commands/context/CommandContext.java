@@ -24,20 +24,13 @@
 
 package nz.pumbas.halpbot.commands.context;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
-
 import java.util.List;
-import java.util.Set;
 
-import nz.pumbas.halpbot.actions.invokable.ActionContextDecorator;
-import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.permissions.Permissive;
 
-public interface CommandContext extends ActionContextDecorator<CommandInvocationContext>, Permissive
+//TODO: Replace Permissive with decorator
+public interface CommandContext extends TokenActionContext, Permissive
 {
-    List<Token> tokens();
-
     /**
      * @return The {@link String alias} for this command.
      */
@@ -56,18 +49,4 @@ public interface CommandContext extends ActionContextDecorator<CommandInvocation
      * @return The {@link String usage} for this command
      */
     String usage();
-
-    /**
-     * @return The {@link Class classes} that can have static methods invoked from
-     */
-    Set<TypeContext<?>> reflections();
-
-    @Override
-    default <R> Exceptional<R> invoke(CommandInvocationContext invocableContext) {
-        Set<TypeContext<?>> originalReflections = invocableContext.reflections();
-        invocableContext.reflections(this.reflections());
-        Exceptional<R> result = ActionContextDecorator.super.invoke(invocableContext);
-        invocableContext.reflections(originalReflections);
-        return result;
-    }
 }

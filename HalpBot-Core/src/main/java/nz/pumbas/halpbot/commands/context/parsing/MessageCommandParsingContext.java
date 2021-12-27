@@ -4,7 +4,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.List;
 
-import nz.pumbas.halpbot.commands.TokenInvokable;
+import nz.pumbas.halpbot.commands.context.TokenActionContext;
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
@@ -16,7 +16,7 @@ public class MessageCommandParsingContext implements CommandParsingContext
 {
     @Override
     public Exceptional<Object[]> parameters(CommandInvocationContext invocationContext,
-                                            TokenInvokable invokable)
+                                            TokenActionContext invokable)
     {
         final List<Token> tokens = invokable.tokens();
         final Object[] parsedTokens = new Object[invokable.executable().parameterCount()];
@@ -53,7 +53,7 @@ public class MessageCommandParsingContext implements CommandParsingContext
 
     @Override
     public Exceptional<Object> parseToken(CommandInvocationContext invocationContext,
-                                          TokenInvokable invokable,
+                                          TokenActionContext invokable,
                                           Token token)
     {
         if (token instanceof ParsingToken parsingToken) {

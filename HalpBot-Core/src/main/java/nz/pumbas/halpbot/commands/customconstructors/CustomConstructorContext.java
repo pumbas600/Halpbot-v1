@@ -1,17 +1,8 @@
 package nz.pumbas.halpbot.commands.customconstructors;
 
-import org.jetbrains.annotations.Nullable;
+import nz.pumbas.halpbot.commands.context.TokenActionContext;
 
-import nz.pumbas.halpbot.actions.methods.Invokable;
-import nz.pumbas.halpbot.commands.TokenInvokable;
-
-public interface CustomConstructorContext extends TokenInvokable
+public interface CustomConstructorContext extends TokenActionContext
 {
-    @Override
-    @Nullable
-    default Object instance() {
-        return null;
-    }
-
     String usage();
 }

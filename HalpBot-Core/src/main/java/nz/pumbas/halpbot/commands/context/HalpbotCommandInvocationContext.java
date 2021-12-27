@@ -41,6 +41,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
@@ -60,6 +61,7 @@ public class HalpbotCommandInvocationContext implements CommandInvocationContext
     @Setter private Set<Annotation> annotations = Collections.emptySet();
     @Nullable private ParameterContext<?> parameterContext;
     @Setter private boolean canHaveContextLeft;
+    @Setter private List<Token> tokens = Collections.emptyList();
 
     @Bound
     public HalpbotCommandInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent, Set<TypeContext<?>> reflections) {

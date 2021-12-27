@@ -29,14 +29,11 @@ import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.FieldContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
@@ -47,7 +44,7 @@ public interface ConverterHandler extends ContextCarrier, Enableable
 {
     @Override
     @SuppressWarnings("unchecked")
-    default void enable() throws ApplicationException {
+    default void enable() {
         Set<TypeContext<? extends Annotation>> nonCommandAnnotations = this.applicationContext().environment()
                 .types(NonCommandAnnotation.class)
                 .stream()

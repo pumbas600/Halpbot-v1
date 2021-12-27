@@ -36,4 +36,6 @@ public @interface CustomConstructor
     String command() default "";
 
     String usage() default "";
+
+    Class<?>[] reflections() default {};
 }

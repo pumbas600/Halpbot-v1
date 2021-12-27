@@ -263,8 +263,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
         else return this.usageBuilder.buildUsage(this.applicationContext, executable);
     }
 
-    private Set<TypeContext<?>> reflections(Command command) {
-        return Stream.of(command.reflections()).map(TypeContext::of).collect(Collectors.toSet());
+    private Set<TypeContext<?>> reflections(Class<?>[] reflections) {
+        return Stream.of(reflections).map(TypeContext::of).collect(Collectors.toSet());
     }
 
     private <T> CommandContext createCommand(List<String> aliases,
@@ -274,13 +274,13 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                              CommandParsingContext parsingContext)
     {
         List<String> permissions = Arrays.asList(command.permissions());
-        Set<TypeContext<?>> reflections = this.reflections(command);
+        Set<TypeContext<?>> reflections = this.reflections(command.reflections());
         TypeContext<T> parent = TypeContext.of(instance);
 
         if (parent.annotation(Command.class).present()) {
             Command sharedProperties = parent.annotation(Command.class).get();
             permissions.addAll(List.of(command.permissions()));
-            reflections.addAll(this.reflections(sharedProperties));
+            reflections.addAll(this.reflections(sharedProperties.reflections()));
         }
 
         return this.decorate(
@@ -315,8 +315,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
                     return this.customConstructorContextFactory.create(
                             this.usage(construction.usage(), constructor),
-                            constructor,
-                            new MessageCommandParsingContext(),
+                            new HalpbotCommandInvokable(null, constructor),
+                            this.reflections(construction.reflections()),
                             tokens);
                 })
                 .collect(Collectors.toList());
