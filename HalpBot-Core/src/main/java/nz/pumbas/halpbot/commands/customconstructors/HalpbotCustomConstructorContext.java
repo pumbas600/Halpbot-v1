@@ -14,7 +14,6 @@ import java.util.Set;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Binds(CustomConstructorContext.class)

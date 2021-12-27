@@ -233,7 +233,7 @@ public class CommandContextTests
     public void commandContextWithMessageReceivedEventParameterTest() {
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithMessageReceivedEventParameterTest");
         CommandInvocationContext invocationContext = this.invocationFactory.create(
-                "", new MessageEvent(new TestMessageEvent()), Collections.emptySet());
+                "", new MessageEvent(new TestMessageEvent()));
 
         Assertions.assertNotNull(commandContext);
         Exceptional<Boolean> result1 = commandContext.invoke(this.invocationFactory.create(""));

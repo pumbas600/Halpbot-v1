@@ -16,10 +16,9 @@ public interface InvocationContextFactory
 {
     @Factory
     CommandInvocationContext create(String content,
-                                    @Nullable HalpbotEvent halpbotEvent,
-                                    Set<TypeContext<?>> reflections);
+                                    @Nullable HalpbotEvent halpbotEvent);
 
     default CommandInvocationContext create(String content) {
-        return this.create(content, null, Collections.emptySet());
+        return this.create(content, null);
     }
 }

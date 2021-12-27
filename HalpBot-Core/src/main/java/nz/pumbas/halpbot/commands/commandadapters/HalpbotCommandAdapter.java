@@ -32,6 +32,7 @@ import lombok.Getter;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
@@ -41,8 +42,6 @@ import nz.pumbas.halpbot.commands.context.CommandContextFactory;
 import nz.pumbas.halpbot.commands.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.context.HalpbotCommandInvokable;
 import nz.pumbas.halpbot.commands.context.InvocationContextFactory;
-import nz.pumbas.halpbot.commands.context.parsing.MessageCommandParsingContext;
-import nz.pumbas.halpbot.commands.context.parsing.CommandParsingContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContext;
 import nz.pumbas.halpbot.commands.customconstructors.CustomConstructorContextFactory;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
@@ -78,7 +77,6 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject @Getter private ApplicationContext applicationContext;
     @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
     @Inject @Getter private HalpbotCore halpbotCore;
-    @Inject @Getter private DecoratorService decoratorService;
 
     @Inject private PermissionService permissionService;
     @Inject private CommandContextFactory commandContextFactory;
@@ -136,11 +134,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                                         CommandContext commandContext,
                                                         String content)
     {
-        if (!commandContext.hasPermission(this.permissionService, event.getUser()))
-            return Exceptional.of(new InsufficientPermissionException("You do not have permission to use this command"));
-
-        CommandInvocationContext invocationContext = this.invocationContextFactory.create(
-                content, event, commandContext.reflections());
+        CommandInvocationContext invocationContext = this.invocationContextFactory.create(content, event);
         return commandContext.invoke(invocationContext);
     }
 
@@ -183,7 +177,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 instance,
                 command,
                 methodContext,
-                new MessageCommandParsingContext());
+                new HalpbotCommandInvokable(instance, methodContext));
 
         for (String alias : aliases) {
             if (this.registeredCommands.containsKey(alias)) {
@@ -227,7 +221,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 null,
                 command,
                 methodContext,
-                new MessageCommandParsingContext());
+                new HalpbotCommandInvokable(null, methodContext));
 
         TypeContext<?> returnType = methodContext.genericReturnType();
         if (!this.registeredReflectiveCommands.containsKey(returnType))
@@ -271,7 +265,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                              @Nullable T instance,
                                              Command command,
                                              MethodContext<?, T> methodContext,
-                                             CommandParsingContext parsingContext)
+                                             ActionInvokable<CommandInvocationContext> actionInvokable)
     {
         List<String> permissions = Arrays.asList(command.permissions());
         Set<TypeContext<?>> reflections = this.reflections(command.reflections());
@@ -283,16 +277,16 @@ public class HalpbotCommandAdapter implements CommandAdapter
             reflections.addAll(this.reflections(sharedProperties.reflections()));
         }
 
-        return this.decorate(
-                this.commandContextFactory.create(
-                        aliases,
-                        command.description(),
-                        this.usage(command.usage(), methodContext),
-                        new HalpbotCommandInvokable(instance, methodContext), //TODO: Replace with factory
-                        this.tokenService.tokens(methodContext),
-                        permissions,
-                        reflections
-                ));
+
+        return this.commandContextFactory.create(
+                aliases,
+                command.description(),
+                this.usage(command.usage(), methodContext),
+                this.halpbotCore.decorate(actionInvokable),
+                this.tokenService.tokens(methodContext),
+                permissions,
+                reflections
+        );
     }
 
     @Override

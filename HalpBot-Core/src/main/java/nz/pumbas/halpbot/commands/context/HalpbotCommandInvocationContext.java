@@ -53,7 +53,7 @@ public class HalpbotCommandInvocationContext implements CommandInvocationContext
     private final String content;
     private final @Nullable HalpbotEvent halpbotEvent;
 
-    @Setter private Set<TypeContext<?>> reflections;
+    @Setter private Set<TypeContext<?>> reflections = Collections.emptySet();
     @Setter private int currentIndex;
     @Setter private int currentAnnotationIndex;
     @Setter private TypeContext<?> currentType = TypeContext.VOID;
@@ -64,10 +64,9 @@ public class HalpbotCommandInvocationContext implements CommandInvocationContext
     @Setter private List<Token> tokens = Collections.emptyList();
 
     @Bound
-    public HalpbotCommandInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent, Set<TypeContext<?>> reflections) {
+    public HalpbotCommandInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent) {
         this.content = content;
         this.halpbotEvent = halpbotEvent;
-        this.reflections = reflections;
     }
 
     @Override
