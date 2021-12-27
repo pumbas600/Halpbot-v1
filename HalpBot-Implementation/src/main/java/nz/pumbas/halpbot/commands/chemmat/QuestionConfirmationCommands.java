@@ -65,7 +65,7 @@ public class QuestionConfirmationCommands
 //            });
     }
 
-    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(value = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Sets the current channel to be the location where new changes are automatically sent")
     public String setConfirmationChannel(@Source TextChannel textChannel) {
         boolean startThread = -1 == this.displayChangesChannel;
@@ -82,7 +82,7 @@ public class QuestionConfirmationCommands
         return this.questionService.countWaitingConfirmation();
     }
 
-    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(value = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Declines all the changes currently waiting for approval")
     public String declineAll() {
         long modificationsCount = this.changesCount();
@@ -92,7 +92,7 @@ public class QuestionConfirmationCommands
         return "Declined all " + modificationsCount + " modicatications";
     }
 
-    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(value = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Lists all the changes currently waiting for approval")
     public @Nullable String changes(MessageReceivedEvent event) {
         List<Question> questions = this.questionService.getAmountWaitingConfirmation(DISPLAY_QUESTION_GROUPING_AMOUNT);

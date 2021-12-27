@@ -119,7 +119,7 @@ public class ChemmatCommands
         this.defaultQuestionHandler = new QuestionHandler(this.questionService, this.random);
     }
 
-    @Permission(permissions = HalpbotPermissions.ADMIN)
+    @Permission(value = HalpbotPermissions.ADMIN)
     @Command(description = "Checks all the confirmed questions for any image links that are invalid")
     public List<Long> checkLinks() {
         return this.questionService
@@ -130,7 +130,7 @@ public class ChemmatCommands
             .collect(Collectors.toList());
     }
 
-    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(value = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Thank everyone who used Halpbot")
     public String thankYou(JDA jda) {
         final long part1EngineeringId = 813905691713994802L;
@@ -171,7 +171,7 @@ public class ChemmatCommands
     }
 
 
-    @Permission(permissions = HalpbotPermissions.ADMIN)
+    @Permission(value = HalpbotPermissions.ADMIN)
     @Command(description = "Reloads the questions from the database and reshuffles them at the same time")
     public String reloadQuestions() {
         this.defaultQuestionHandler.shuffleQuestions();

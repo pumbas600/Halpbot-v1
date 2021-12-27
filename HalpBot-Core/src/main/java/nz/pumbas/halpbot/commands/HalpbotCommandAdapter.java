@@ -302,7 +302,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
                     return this.customConstructorContextFactory.create(
                             this.usage(construction.usage(), constructor),
-                            new HalpbotCommandInvokable(null, constructor),
+                            this.decoratorService.decorate(new HalpbotCommandInvokable(null, constructor)),
                             this.reflections(construction.reflections()),
                             tokens);
                 })

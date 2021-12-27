@@ -18,8 +18,10 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.HalpbotCore;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
+import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
 
@@ -30,6 +32,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
 
     @Inject private ButtonContextFactory buttonContextFactory;
+    @Inject private DecoratorService decoratorService;
 
     @Inject @Getter private ApplicationContext applicationContext;
     @Inject @Getter private HalpbotCore halpbotCore;
@@ -41,22 +44,20 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         ButtonContext buttonContext = this.createButton(
                 id,
                 button,
-                instance,
-                buttonMethodContext);
+                new HalpbotButtonInvokable(instance, buttonMethodContext)); //TODO: Use factory instead
 
         this.registeredButtons.put(id, buttonContext);
     }
 
     private <T> ButtonContext createButton(String id,
                                            ButtonAction buttonAction,
-                                           @Nullable T instance,
-                                           MethodContext<?, T> methodContext)
+                                           ActionInvokable<ButtonInvocationContext> actionInvokable)
     {
         return this.buttonContextFactory.create(
                 id,
                 buttonAction.isEphemeral(),
                 Duration.of(buttonAction.displayDuration().value(), buttonAction.displayDuration().unit()),
-                new HalpbotButtonInvokable(instance, methodContext) //TODO: Use factory instead
+                this.decoratorService.decorate(actionInvokable)
         );
     }
 

@@ -75,13 +75,13 @@ public class BuiltInCommands
         return this.helpService.build(guild, commandAdapter, commandContext.get());
     }
 
-    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(HalpbotPermissions.BOT_OWNER)
     @Command(description = "Shuts the bot down. Any existing RestActions will be completed first.")
     public void shutdown(JDA jda) {
         jda.shutdown();
     }
 
-    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(HalpbotPermissions.BOT_OWNER)
     @Command(description = "Shuts the bot down immediately")
     public void forceShutdown(JDA jda) {
         jda.shutdownNow();
@@ -137,7 +137,7 @@ public class BuiltInCommands
         return embedBuilder.build();
     }
 
-    @Permission(permissions = HalpbotPermissions.GIVE_PERMISSIONS)
+    @Permission(HalpbotPermissions.GIVE_PERMISSIONS)
     @Command(description = "Gives the user the specified permission")
     public String givePermission(@Source User author, User user, String permission) {
         permission = permission.toLowerCase(Locale.ROOT);
@@ -156,7 +156,7 @@ public class BuiltInCommands
     }
 
     @Deprecated(forRemoval = true)
-    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(HalpbotPermissions.BOT_OWNER)
     @Command(description = "Forces all the SQLDrivers to invoke their reload listeners, refreshing any cached database information")
     public String reloadDatabase() {
         HalpbotUtils.context().get(SQLManager.class)

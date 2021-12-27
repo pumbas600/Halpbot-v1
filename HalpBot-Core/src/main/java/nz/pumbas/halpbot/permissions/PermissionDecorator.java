@@ -24,7 +24,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     @Bound
     public PermissionDecorator(ActionInvokable<C> actionInvokable, Permission permission) {
         super(actionInvokable);
-        this.permissions = List.of(permission.permissions());
+        this.permissions = List.of(permission.value());
     }
 
     @Override
