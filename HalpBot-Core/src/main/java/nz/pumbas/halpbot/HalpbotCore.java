@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.adapters;
+package nz.pumbas.halpbot;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -33,6 +33,8 @@ import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.actions.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
+import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
+import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
@@ -52,7 +54,6 @@ public class HalpbotCore implements ContextCarrier
     @Getter private long ownerId = -1;
 
     @Inject @Getter private ApplicationContext applicationContext;
-    @Inject @Getter private DecoratorService decoratorService;
 
     @Getter private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
 
@@ -122,30 +123,6 @@ public class HalpbotCore implements ContextCarrier
         else {
             this.displayConfiguration = (DisplayConfiguration) this.applicationContext.get(typeContext);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public <C extends InvocationContext> ActionInvokable<C> decorate(ActionInvokable<C> actionInvokable) {
-        List<? extends TypeContext<? extends Annotation>> decoratedAnnotations = actionInvokable.executable().annotations()
-                .stream()
-                .map(annotation -> TypeContext.of(annotation.annotationType()))
-                .filter(annotation -> annotation.annotation(Decorator.class).present())
-                .sorted(Comparator.comparing(annotation -> annotation.annotation(Decorator.class).get().order()))
-                .toList();
-
-        for (TypeContext<? extends Annotation> decoratedAnnotation : decoratedAnnotations) {
-            DecoratorFactory<?, ?, ?> factory = this.decoratorService.decorator(decoratedAnnotation);
-            if (factory instanceof ActionInvokableDecoratorFactory actionInvokableDecoratorFactory) {
-                actionInvokable = (ActionInvokable<C>) actionInvokableDecoratorFactory.decorate(
-                        actionInvokable,
-                        actionInvokable.executable().annotation(decoratedAnnotation).get());
-            }
-            else this.applicationContext().log()
-                    .error("The command %s is annotated with the decorator %s, but this does not support commands"
-                            .formatted(actionInvokable.executable().qualifiedName(), decoratedAnnotation.qualifiedName()));
-        }
-
-        return actionInvokable;
     }
 
     public JDA build(JDABuilder jdaBuilder) throws ApplicationException {

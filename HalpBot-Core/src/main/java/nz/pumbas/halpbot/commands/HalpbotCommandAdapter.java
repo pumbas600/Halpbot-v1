@@ -33,7 +33,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
-import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.annotations.CustomParameter;
@@ -51,6 +51,7 @@ import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
+import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.permissions.PermissionService;
@@ -81,6 +82,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject private InvocationContextFactory invocationContextFactory;
     @Inject private CustomConstructorContextFactory customConstructorContextFactory;
     @Inject private TokenService tokenService;
+    @Inject private DecoratorService decoratorService;
 
     //TODO: Setting the guild specific prefixes
     @Override
@@ -280,7 +282,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 aliases,
                 command.description(),
                 this.usage(command.usage(), methodContext),
-                this.halpbotCore.decorate(actionInvokable),
+                this.decoratorService.decorate(actionInvokable),
                 this.tokenService.tokens(methodContext),
                 permissions,
                 reflections

@@ -36,13 +36,8 @@ import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.service.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
-
-import java.io.IOException;
-
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.common.Bot;

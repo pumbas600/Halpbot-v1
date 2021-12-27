@@ -16,10 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.Halpbot;
 import nz.pumbas.halpbot.actions.ActionCallback;
-import nz.pumbas.halpbot.adapters.HalpbotCore;
-import nz.pumbas.halpbot.adapters.ReactionAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;

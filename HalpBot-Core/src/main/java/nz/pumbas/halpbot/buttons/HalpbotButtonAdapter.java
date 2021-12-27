@@ -17,7 +17,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.events.HalpbotEvent;

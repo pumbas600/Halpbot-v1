@@ -7,7 +7,6 @@ import org.dockbox.hartshorn.core.boot.HartshornApplication;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
-import nz.pumbas.halpbot.adapters.HalpbotCore;
 import nz.pumbas.halpbot.common.Bot;
 
 public final class HalpbotBuilder

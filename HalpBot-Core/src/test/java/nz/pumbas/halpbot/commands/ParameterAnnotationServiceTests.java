@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.converters.annotations.Any;
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;

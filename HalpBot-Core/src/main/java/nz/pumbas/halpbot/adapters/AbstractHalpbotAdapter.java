@@ -3,6 +3,8 @@ package nz.pumbas.halpbot.adapters;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import nz.pumbas.halpbot.HalpbotCore;
+
 public abstract class AbstractHalpbotAdapter extends ListenerAdapter
 {
     protected HalpbotCore halpBotCore;

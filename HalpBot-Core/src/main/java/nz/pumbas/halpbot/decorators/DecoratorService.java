@@ -7,6 +7,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 
 public interface DecoratorService extends Enableable, ContextCarrier
 {
@@ -35,4 +40,28 @@ public interface DecoratorService extends Enableable, ContextCarrier
 
     @Nullable
     DecoratorFactory<?, ?, ?> decorator(TypeContext<? extends Annotation> decoratedAnnotation);
+
+    @SuppressWarnings("unchecked")
+    default <C extends InvocationContext> ActionInvokable<C> decorate(ActionInvokable<C> actionInvokable) {
+        List<? extends TypeContext<? extends Annotation>> decoratedAnnotations = actionInvokable.executable().annotations()
+                .stream()
+                .map(annotation -> TypeContext.of(annotation.annotationType()))
+                .filter(annotation -> annotation.annotation(Decorator.class).present())
+                .sorted(Comparator.comparing(annotation -> annotation.annotation(Decorator.class).get().order()))
+                .toList();
+
+        for (TypeContext<? extends Annotation> decoratedAnnotation : decoratedAnnotations) {
+            DecoratorFactory<?, ?, ?> factory = this.decorator(decoratedAnnotation);
+            if (factory instanceof ActionInvokableDecoratorFactory actionInvokableDecoratorFactory) {
+                actionInvokable = (ActionInvokable<C>) actionInvokableDecoratorFactory.decorate(
+                        actionInvokable,
+                        actionInvokable.executable().annotation(decoratedAnnotation).get());
+            }
+            else this.applicationContext().log()
+                    .error("The command %s is annotated with the decorator %s, but this does not support commands"
+                            .formatted(actionInvokable.executable().qualifiedName(), decoratedAnnotation.qualifiedName()));
+        }
+
+        return actionInvokable;
+    }
 }

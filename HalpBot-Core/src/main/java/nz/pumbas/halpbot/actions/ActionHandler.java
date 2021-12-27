@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.actions;
 
-import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;

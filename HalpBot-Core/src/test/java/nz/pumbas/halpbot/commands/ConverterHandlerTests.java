@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
-import nz.pumbas.halpbot.adapters.HalpbotCore;
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
