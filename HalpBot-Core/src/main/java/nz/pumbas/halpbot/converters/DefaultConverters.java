@@ -199,6 +199,7 @@ public final class DefaultConverters
                     // If there are no children then it will return the error in 'result'
                     Exceptional<Object> parsed = result;
 
+                    invocationContext.canHaveContextLeft(true);
                     for (Class<?> child : children.value()) {
                         invocationContext.currentType(TypeContext.of(child));
                         parsed = OBJECT_CONVERTER.apply(invocationContext);

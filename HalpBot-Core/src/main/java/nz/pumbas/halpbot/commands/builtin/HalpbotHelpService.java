@@ -49,9 +49,10 @@ public class HalpbotHelpService implements HelpService
                 String title = HalpbotUtils.splitVariableName(
                         TypeContext.unproxy(commandAdapter.applicationContext(), instance).name());
                 StringBuilder stringBuilder = new StringBuilder();
-                // Hashset prevents double ups from multiple aliases occuring
-                List<String> commandAliases = new HashSet<>(commands.get(instance))
+                // distinct() prevents double ups from multiple aliases occuring
+                List<String> commandAliases = commands.get(instance)
                         .stream()
+                        .distinct()
                         .map(CommandContext::aliasesString)
                         .sorted()
                         .collect(Collectors.toList());

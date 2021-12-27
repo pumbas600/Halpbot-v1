@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 
 import nz.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 
-@ParameterAnnotation
+@ParameterAnnotation(after = Implicit.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Children

@@ -66,6 +66,7 @@ public interface ConverterHandler extends ContextCarrier, Enableable
     }
     
     default <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, CommandInvocationContext invocationContext) {
+        invocationContext.incrementAnnotationIndex();
         int annotationIndex = invocationContext.currentAnnotationIndex();
         List<TypeContext<? extends Annotation>> sortedAnnotations = invocationContext.sortedAnnotations();
 

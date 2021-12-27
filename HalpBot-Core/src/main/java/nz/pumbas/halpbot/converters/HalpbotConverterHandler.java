@@ -32,15 +32,20 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
+import nz.pumbas.halpbot.converters.types.ArrayTypeContext;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 @Service
@@ -65,7 +70,8 @@ public class HalpbotConverterHandler implements ConverterHandler
 
     @Override
     public <T, C extends InvocationContext> Converter<C, T> from(ParameterContext<T> parameterContext,
-                                                                 List<TypeContext<? extends Annotation>> sortedAnnotations) {
+                                                                 List<TypeContext<? extends Annotation>> sortedAnnotations)
+    {
         TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
         return this.from(parameterContext.type(), targetAnnotationType);
     }
@@ -73,12 +79,19 @@ public class HalpbotConverterHandler implements ConverterHandler
     @Override
     @SuppressWarnings("unchecked")
     public <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
+        if (!targetAnnotationType.isVoid()) {
+            Exceptional<Converter<C, T>> eConverter = this.searchAnnotationForType(typeContext, targetAnnotationType);
+            if (eConverter.present())
+                return eConverter.get();
+        }
+
         if (!this.converters.containsKey(typeContext)) {
-            // Check in case there is a key that equals the type context (E.g: ArrayTypeContext will equal any arrays)
+            // Check in case there is a key that is a child of the type context
+            // (E.g: ArrayTypeContext will equal any arrays)
             return (Converter<C, T>) this.converters.keySet()
                     .stream()
-                    .filter(type -> this.filterConverterType(type, typeContext))
-                    .findFirst()
+                    .filter(type -> this.parentOf(type, typeContext))
+                    .min(Comparator.comparing(type -> type.is(Object.class))) // Prioritise types that aren't Object.class
                     .map(type -> this.from(type, targetAnnotationType))
                     .orElse(Reflect.cast(DefaultConverters.OBJECT_CONVERTER));
         }
@@ -92,10 +105,22 @@ public class HalpbotConverterHandler implements ConverterHandler
                 );
     }
 
-    private boolean filterConverterType(TypeContext<?> keyContext, TypeContext<?> typeContext) {
-        return keyContext.type().equals(Object.class)
-                ? keyContext.equals(typeContext)
-                : typeContext.childOf(keyContext);
+    //TODO: Replace with TypeContext#parentOf when available
+    private boolean parentOf(TypeContext<?> parent, TypeContext<?> child) {
+        return parent instanceof ArrayTypeContext
+                ? parent.equals(child)
+                : child.childOf(parent);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T, C extends InvocationContext> Exceptional<Converter<C, T>> searchAnnotationForType(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
+        return Exceptional.of(this.converters.values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(converter -> converter.annotationType().equals(targetAnnotationType))
+                .filter(converter -> this.parentOf(converter.type(), typeContext))
+                .findFirst()
+                .map(converter -> (Converter<C, T>) converter));
     }
 
     @Override

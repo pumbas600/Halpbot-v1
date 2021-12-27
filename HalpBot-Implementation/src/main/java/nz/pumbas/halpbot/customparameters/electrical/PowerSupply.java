@@ -24,8 +24,11 @@
 
 package nz.pumbas.halpbot.customparameters.electrical;
 
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
+@Service
 public class PowerSupply extends ElectricalComponent {
 
     @CustomConstructor

@@ -27,6 +27,9 @@ package nz.pumbas.halpbot.converters;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import java.lang.annotation.Annotation;
+import java.util.Set;
+
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -42,10 +45,12 @@ public interface ParameterConverter<T> extends Converter<CommandInvocationContex
             return Exceptional.of(
                     new NullPointerException("The halpbot event is null but it is required to convert this type"));
 
+        //TODO: Move to state object
         int currentIndex = invocationContext.currentIndex();
         int currentAnnotationIndex = invocationContext.currentAnnotationIndex();
         boolean canHaveContextLeft = invocationContext.canHaveContextLeft();
         TypeContext<?> typeContext = invocationContext.currentType();
+        Set<Annotation> annotations = invocationContext.annotations();
 
         Exceptional<T> result = this.parseReflection(invocationContext).map((obj) -> (T)obj);
         if (result.caught() || result.orNull() == HalpbotUtils.IGNORE_RESULT) {
@@ -58,6 +63,7 @@ public interface ParameterConverter<T> extends Converter<CommandInvocationContex
         invocationContext.currentAnnotationIndex(currentAnnotationIndex);
         invocationContext.currentType(typeContext);
         invocationContext.canHaveContextLeft(canHaveContextLeft);
+        invocationContext.annotations(annotations);
         return result;
     }
 }

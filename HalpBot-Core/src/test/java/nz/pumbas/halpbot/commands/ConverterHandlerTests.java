@@ -53,6 +53,7 @@ import nz.pumbas.halpbot.commands.objects.ShapeType;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.SourceConverter;
+import nz.pumbas.halpbot.converters.annotations.parameter.Children;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
@@ -61,6 +62,7 @@ import nz.pumbas.halpbot.converters.ParameterConverter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
+import nz.pumbas.halpbot.utilities.Reflect;
 
 @UseCommands
 @HartshornTest
@@ -137,6 +139,15 @@ public class ConverterHandlerTests
 
         Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingChildrenConverterTest(ConverterHandler converterHandler) {
+        Converter<?, List> converter = converterHandler
+                .from(TypeContext.of(List.class), TypeContext.of(Children.class));
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.CHILDREN_TYPE_CONVERTER, converter);
     }
 
     @InjectTest
