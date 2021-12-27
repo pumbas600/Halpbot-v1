@@ -1,7 +1,5 @@
 package nz.pumbas.halpbot;
 
-import com.google.common.io.Files;
-
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;

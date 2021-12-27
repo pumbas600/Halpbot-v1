@@ -41,6 +41,7 @@ public interface DecoratorService extends Enableable, ContextCarrier
     @Nullable
     DecoratorFactory<?, ?, ?> decorator(TypeContext<? extends Annotation> decoratedAnnotation);
 
+    //TODO: Check parent class for shared decorators
     @SuppressWarnings("unchecked")
     default <C extends InvocationContext> ActionInvokable<C> decorate(ActionInvokable<C> actionInvokable) {
         List<? extends TypeContext<? extends Annotation>> decoratedAnnotations = actionInvokable.executable().annotations()

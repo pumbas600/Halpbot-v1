@@ -267,16 +267,13 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                              MethodContext<?, T> methodContext,
                                              ActionInvokable<CommandInvocationContext> actionInvokable)
     {
-        List<String> permissions = Arrays.asList(command.permissions());
         Set<TypeContext<?>> reflections = this.reflections(command.reflections());
         TypeContext<T> parent = TypeContext.of(instance);
 
         if (parent.annotation(Command.class).present()) {
             Command sharedProperties = parent.annotation(Command.class).get();
-            permissions.addAll(List.of(command.permissions()));
             reflections.addAll(this.reflections(sharedProperties.reflections()));
         }
-
 
         return this.commandContextFactory.create(
                 aliases,
@@ -284,7 +281,6 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 this.usage(command.usage(), methodContext),
                 this.decoratorService.decorate(actionInvokable),
                 this.tokenService.tokens(methodContext),
-                permissions,
                 reflections
         );
     }

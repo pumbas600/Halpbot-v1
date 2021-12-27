@@ -27,10 +27,8 @@ package nz.pumbas.halpbot.commands.actioninvokable.context.command;
 import java.util.List;
 
 import nz.pumbas.halpbot.commands.actioninvokable.context.TokenActionContext;
-import nz.pumbas.halpbot.permissions.Permissive;
 
-//TODO: Replace Permissive with decorator
-public interface CommandContext extends TokenActionContext, Permissive
+public interface CommandContext extends TokenActionContext
 {
     /**
      * @return The {@link String alias} for this command.

@@ -17,7 +17,6 @@ public record HalpbotCommandContext(List<String> aliases,
                                     String usage,
                                     ActionInvokable<CommandInvocationContext> actionInvokable,
                                     List<Token> tokens,
-                                    List<String> permissions,
                                     Set<TypeContext<?>> reflections)
         implements CommandContext
 {

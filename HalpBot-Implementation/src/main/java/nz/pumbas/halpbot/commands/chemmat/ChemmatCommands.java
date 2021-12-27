@@ -71,6 +71,7 @@ import nz.pumbas.halpbot.hibernate.models.UserStatistics;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
 import nz.pumbas.halpbot.hibernate.services.UserStatisticsService;
+import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -118,8 +119,8 @@ public class ChemmatCommands
         this.defaultQuestionHandler = new QuestionHandler(this.questionService, this.random);
     }
 
-    @Command(description = "Checks all the confirmed questions for any image links that are invalid",
-             permissions = HalpbotPermissions.ADMIN)
+    @Permission(permissions = HalpbotPermissions.ADMIN)
+    @Command(description = "Checks all the confirmed questions for any image links that are invalid")
     public List<Long> checkLinks() {
         return this.questionService
             .getAllConfirmedQuestions()
@@ -129,7 +130,8 @@ public class ChemmatCommands
             .collect(Collectors.toList());
     }
 
-    @Command(description = "Thank everyone who used Halpbot", permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(description = "Thank everyone who used Halpbot")
     public String thankYou(JDA jda) {
         final long part1EngineeringId = 813905691713994802L;
         Guild guild = jda.getGuildById(part1EngineeringId);
@@ -169,8 +171,8 @@ public class ChemmatCommands
     }
 
 
-    @Command(description = "Reloads the questions from the database and reshuffles them at the same time",
-             permissions = HalpbotPermissions.ADMIN)
+    @Permission(permissions = HalpbotPermissions.ADMIN)
+    @Command(description = "Reloads the questions from the database and reshuffles them at the same time")
     public String reloadQuestions() {
         this.defaultQuestionHandler.shuffleQuestions();
         this.questionHandlers.values().forEach(QuestionHandler::shuffleQuestions);

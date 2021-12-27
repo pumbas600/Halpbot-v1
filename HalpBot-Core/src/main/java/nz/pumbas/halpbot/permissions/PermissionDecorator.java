@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import lombok.Getter;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
@@ -18,7 +19,7 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     @Inject private PermissionService permissionService;
-    private final List<String> permissions;
+    @Getter private final List<String> permissions;
 
     @Bound
     public PermissionDecorator(ActionInvokable<C> actionInvokable, Permission permission) {

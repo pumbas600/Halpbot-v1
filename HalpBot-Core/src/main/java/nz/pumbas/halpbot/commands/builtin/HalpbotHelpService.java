@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
+import nz.pumbas.halpbot.permissions.PermissionDecorator;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Binds(HelpService.class)
@@ -58,8 +59,8 @@ public class HalpbotHelpService implements HelpService
 
         if (!commandContext.description().isBlank())
             embedBuilder.setDescription(commandContext.description());
-        if (!commandContext.permissions().isEmpty())
-            embedBuilder.addField("Permissions", String.join(", ", commandContext.permissions()), false);
+        if (commandContext.actionInvokable() instanceof PermissionDecorator<?> permissionDecorator && !permissionDecorator.permissions().isEmpty())
+            embedBuilder.addField("Permissions", String.join(", ", permissionDecorator.permissions()), false);
 
         return embedBuilder.build();
     }

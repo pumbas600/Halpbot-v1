@@ -44,9 +44,5 @@ public @interface Command
 
     String usage() default "";
 
-    long[] restrictedTo() default {};
-
     Class<?>[] reflections() default {};
-
-    String[] permissions() default {};
 }

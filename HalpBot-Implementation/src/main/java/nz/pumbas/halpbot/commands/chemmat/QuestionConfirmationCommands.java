@@ -26,6 +26,7 @@ import nz.pumbas.halpbot.hibernate.models.Status;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
 import nz.pumbas.halpbot.actions.ActionCallbackBuilder;
+import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -64,8 +65,8 @@ public class QuestionConfirmationCommands
 //            });
     }
 
-    @Command(description = "Sets the current channel to be the location where new changes are automatically sent",
-             permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(description = "Sets the current channel to be the location where new changes are automatically sent")
     public String setConfirmationChannel(@Source TextChannel textChannel) {
         boolean startThread = -1 == this.displayChangesChannel;
         this.displayChangesChannel = textChannel.getIdLong();
@@ -81,8 +82,8 @@ public class QuestionConfirmationCommands
         return this.questionService.countWaitingConfirmation();
     }
 
-    @Command(description = "Declines all the changes currently waiting for approval",
-             permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(description = "Declines all the changes currently waiting for approval")
     public String declineAll() {
         long modificationsCount = this.changesCount();
         if (0 != modificationsCount) {
@@ -91,8 +92,8 @@ public class QuestionConfirmationCommands
         return "Declined all " + modificationsCount + " modicatications";
     }
 
-    @Command(description = "Lists all the changes currently waiting for approval",
-             permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(description = "Lists all the changes currently waiting for approval")
     public @Nullable String changes(MessageReceivedEvent event) {
         List<Question> questions = this.questionService.getAmountWaitingConfirmation(DISPLAY_QUESTION_GROUPING_AMOUNT);
         if (questions.isEmpty())

@@ -10,10 +10,8 @@ import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
-import nz.pumbas.halpbot.decorators.CooldownDecoratorFactory;
+import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
 
 @Demo
 @Service

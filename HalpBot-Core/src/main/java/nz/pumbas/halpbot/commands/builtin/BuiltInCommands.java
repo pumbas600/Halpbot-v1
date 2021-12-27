@@ -46,6 +46,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -53,8 +54,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 public class BuiltInCommands
 {
-    private final PermissionService permissionManager = HalpbotUtils.context().get(PermissionService.class);
-
+    @Inject private PermissionService permissionManager;
     @Inject private HelpService helpService;
 
     @Command(alias = { "help", "halp" }, description = "Displays the help information for the specified command")
@@ -75,19 +75,14 @@ public class BuiltInCommands
         return this.helpService.build(guild, commandAdapter, commandContext.get());
     }
 
-    // Move to CommandAdapter
-    private MessageEmbed buildHelpMessage(CommandContext commandContext) {
-        return new EmbedBuilder().build();
-    }
-
-    @Command(description = "Shuts the bot down. Any existing RestActions will be completed first.",
-             permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(description = "Shuts the bot down. Any existing RestActions will be completed first.")
     public void shutdown(JDA jda) {
         jda.shutdown();
     }
 
-    @Command(description = "Shuts the bot down immediately",
-             permissions = HalpbotPermissions.BOT_OWNER)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(description = "Shuts the bot down immediately")
     public void forceShutdown(JDA jda) {
         jda.shutdownNow();
     }
@@ -121,6 +116,7 @@ public class BuiltInCommands
         return embedBuilder.build();
     }
 
+    //TODO: Rework
     @Command(description = "Returns all the permissions in the database")
     public MessageEmbed allPermissions() {
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -141,8 +137,8 @@ public class BuiltInCommands
         return embedBuilder.build();
     }
 
-    @Command(description = "Gives the user the specified permission",
-             permissions = HalpbotPermissions.GIVE_PERMISSIONS)
+    @Permission(permissions = HalpbotPermissions.GIVE_PERMISSIONS)
+    @Command(description = "Gives the user the specified permission")
     public String givePermission(@Source User author, User user, String permission) {
         permission = permission.toLowerCase(Locale.ROOT);
 
@@ -159,8 +155,9 @@ public class BuiltInCommands
         return String.format("Successfully gave the user the permission '%s'", permission);
     }
 
-    @Command(description = "Forces all the SQLDrivers to invoke their reload listeners, refreshing any cached database information",
-             permissions = HalpbotPermissions.BOT_OWNER)
+    @Deprecated(forRemoval = true)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(description = "Forces all the SQLDrivers to invoke their reload listeners, refreshing any cached database information")
     public String reloadDatabase() {
         HalpbotUtils.context().get(SQLManager.class)
             .reloadAllDrivers();

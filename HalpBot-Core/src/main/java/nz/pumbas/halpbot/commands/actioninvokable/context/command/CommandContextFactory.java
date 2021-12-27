@@ -20,6 +20,5 @@ public interface CommandContextFactory
                           String usage,
                           ActionInvokable<CommandInvocationContext> actionInvokable,
                           List<Token> tokens,
-                          List<String> permissions,
                           Set<TypeContext<?>> reflections);
 }

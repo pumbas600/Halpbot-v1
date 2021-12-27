@@ -36,6 +36,8 @@ import nz.pumbas.halpbot.customparameters.electrical.CircuitManager;
 import nz.pumbas.halpbot.customparameters.electrical.ElectricalComponent;
 import nz.pumbas.halpbot.customparameters.electrical.PowerSupply;
 import nz.pumbas.halpbot.customparameters.electrical.Resistor;
+import nz.pumbas.halpbot.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.permissions.Permission;
 
 @Service
 public class ElectricalCommands
@@ -50,7 +52,8 @@ public class ElectricalCommands
         return this.manager.buildCircuitOutput(components);
     }
 
-    @Command(alias = "A2Q3", description = "Solves Assignment 2 Question 3", restrictedTo = Halpbot.CREATOR_ID)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(alias = "A2Q3", description = "Solves Assignment 2 Question 3")
     public String a2q3(double supplyCurrent, double r1, double r2, double r3, double r4) {
         // Voltage between A and B (Part1)
         double resistanceA = r1 + r3;
@@ -69,7 +72,8 @@ public class ElectricalCommands
         return String.format("```V_ab: %.10f\nI_ab: %.10f```", voltageAcrossAB, currentThroughAB);
     }
 
-    @Command(alias = "A2Q5", description = "Solves Assignment 2 Question 5", restrictedTo = Halpbot.CREATOR_ID)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(alias = "A2Q5", description = "Solves Assignment 2 Question 5")
     public String a2q5(double v1, double v2, double v3, double r1, double r2, double r3) {
         double numerator = (v1/r1) + (v2/r2) + (v3/r3);
         double denominator = (1/r1) + (1/r2) + (1/r3);
@@ -87,7 +91,8 @@ public class ElectricalCommands
                 voltageAtA, currentThrough1, currentThrough2, currentThrough3);
     }
 
-    @Command(alias = "A2Q6", description = "Solves Assignment 2 Question 6", restrictedTo = Halpbot.CREATOR_ID)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(alias = "A2Q6", description = "Solves Assignment 2 Question 6")
     public String a2q6(double v1, double currentSource, double r1, double r2, double r3) {
         double numerator = currentSource + (v1 / r1);
         double denominator = (1/r1) + (1/r3);
@@ -98,7 +103,8 @@ public class ElectricalCommands
         return String.format("```V_a = %.10f\nI_1 = %.10f```", voltageAtA, currentThrough1);
     }
 
-    @Command(alias = "A2Q7", description = "Solves Assignment 2 Question 7", restrictedTo = Halpbot.CREATOR_ID)
+    @Permission(permissions = HalpbotPermissions.BOT_OWNER)
+    @Command(alias = "A2Q7", description = "Solves Assignment 2 Question 7")
     public String a2q7(double currentSource1, double currentSource2, double r1, double r2) {
         double voltageAtTop = (currentSource1 + currentSource2) / ((1/r1) + (1/r2));
         double currentAcrossAB = (voltageAtTop / r2) - currentSource2;
