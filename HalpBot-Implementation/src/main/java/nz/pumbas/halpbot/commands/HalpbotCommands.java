@@ -31,8 +31,6 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
-import java.time.temporal.ChronoUnit;
-
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -46,7 +44,7 @@ import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
-public class HalpBotCommands
+public class HalpbotCommands
 {
 
     @Command(alias = "source")

@@ -5,12 +5,15 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.awt.Color;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
@@ -33,10 +36,16 @@ public class HalpbotHelpService implements HelpService
                 .stream()
                 .collect(Collectors.groupingBy(ActionInvokable::instance));
 
-        for (Entry<Object, List<CommandContext>> entry : commands.entrySet()) {
-            String title = HalpbotUtils.splitVariableName(entry.getKey().getClass().getSimpleName());
+        List<Object> sortedKeys = commands.keySet()
+                .stream()
+                .sorted(Comparator.comparing(key -> -commands.get(key).size()))
+                .collect(Collectors.toList());
+
+        for (Object instance : sortedKeys) {
+            String title = HalpbotUtils.splitVariableName(
+                    TypeContext.unproxy(commandAdapter.applicationContext(), instance).name());
             StringBuilder stringBuilder = new StringBuilder();
-            for (CommandContext commandContext : new HashSet<>(entry.getValue())) {
+            for (CommandContext commandContext : new HashSet<>(commands.get(instance))) {
                 stringBuilder.append("- ")
                         .append(String.join(" | ", commandContext.aliases()))
                         .append("\n");
