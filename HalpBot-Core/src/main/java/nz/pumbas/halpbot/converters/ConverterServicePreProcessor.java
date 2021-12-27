@@ -1,12 +1,11 @@
 package nz.pumbas.halpbot.converters;
 
-import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
+import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 
 @AutomaticActivation
 public class ConverterServicePreProcessor implements ServicePreProcessor<UseCommands>

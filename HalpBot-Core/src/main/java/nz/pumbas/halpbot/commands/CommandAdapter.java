@@ -82,19 +82,18 @@ public interface CommandAdapter extends HalpbotAdapter
     }
 
     default <T> void registerCommands(TypeContext<T> type) {
-        T instance = this.applicationContext().get(type);
         int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
 
         for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
             if (methodContext.annotation(SlashCommand.class).present()) {
                 slashCommands++;
-                this.registerSlashCommand(instance, methodContext);
+                this.registerSlashCommand(this.applicationContext().get(type), methodContext);
             } else if (methodContext.annotation(Reflective.class).present()) {
                 reflectiveCommands++;
                 this.registerReflectiveCommand(methodContext);
             } else {
                 messageCommands++;
-                this.registerMessageCommand(instance, methodContext);
+                this.registerMessageCommand(this.applicationContext().get(type), methodContext);
             }
         }
 

@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.commands.factory;
 
-import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
+import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
@@ -8,7 +8,7 @@ import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 @AutomaticActivation
 public class DemoServicePreProcessor implements ServicePreProcessor<Demo>
 {
-    private TypeContext<DemoTests> target = TypeContext.of(DemoTests.class);
+    private final TypeContext<DemoTests> target = TypeContext.of(DemoTests.class);
 
     @Override
     public boolean preconditions(ApplicationContext context, TypeContext<?> type) {

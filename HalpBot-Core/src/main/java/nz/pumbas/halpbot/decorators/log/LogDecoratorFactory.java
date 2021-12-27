@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.decorators.log;
 
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;

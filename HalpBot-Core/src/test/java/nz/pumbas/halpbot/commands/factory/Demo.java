@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.commands.factory;
 
-import org.dockbox.hartshorn.core.annotations.service.ServiceActivator;
+import org.dockbox.hartshorn.core.annotations.activate.ServiceActivator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

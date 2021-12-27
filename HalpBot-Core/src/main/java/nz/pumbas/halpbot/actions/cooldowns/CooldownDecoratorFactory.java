@@ -1,9 +1,8 @@
 package nz.pumbas.halpbot.actions.cooldowns;
 
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
-import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 

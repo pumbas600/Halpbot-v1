@@ -1,8 +1,7 @@
 package nz.pumbas.halpbot.converters.annotations;
 
-import org.dockbox.hartshorn.core.ComponentType;
 import org.dockbox.hartshorn.core.annotations.Extends;
-import org.dockbox.hartshorn.core.annotations.component.Component;
+import org.dockbox.hartshorn.core.annotations.stereotype.Component;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;

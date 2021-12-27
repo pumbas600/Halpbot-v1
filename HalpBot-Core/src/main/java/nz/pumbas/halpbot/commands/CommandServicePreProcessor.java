@@ -1,22 +1,23 @@
 package nz.pumbas.halpbot.commands;
 
-import org.dockbox.hartshorn.core.annotations.service.AutomaticActivation;
+import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.services.ServiceOrder;
+import org.dockbox.hartshorn.core.services.ProcessingOrder;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.commands.CommandAdapter;
 
 @AutomaticActivation
 public class CommandServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
     @Override
-    public ServiceOrder order() {
-        return ServiceOrder.LATE;
+    public ProcessingOrder order() {
+        return ProcessingOrder.LATE;
     }
+
+
 
     @Override
     public Class<UseCommands> activator() {

@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 

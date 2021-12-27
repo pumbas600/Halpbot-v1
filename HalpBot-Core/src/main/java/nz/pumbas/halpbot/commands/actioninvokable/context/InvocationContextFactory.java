@@ -1,11 +1,10 @@
 package nz.pumbas.halpbot.commands.actioninvokable.context;
 
 import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import javax.annotation.Nullable;
 
-import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Service

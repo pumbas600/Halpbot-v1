@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.commands.actioninvokable.context.command;
 
 import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.util.List;

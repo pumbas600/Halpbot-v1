@@ -7,7 +7,7 @@ import org.dockbox.hartshorn.core.ArrayListMultiMap;
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.MultiMap;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
-import org.dockbox.hartshorn.core.annotations.service.Service;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.AccessModifier;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
@@ -174,7 +174,6 @@ public class HalpbotCommandAdapter implements CommandAdapter
         List<String> aliases = this.aliases(command, methodContext);
         CommandContext commandContext = this.createCommand(
                 aliases,
-                instance,
                 command,
                 methodContext,
                 new HalpbotCommandInvokable(instance, methodContext));
@@ -218,7 +217,6 @@ public class HalpbotCommandAdapter implements CommandAdapter
         List<String> aliases = this.aliases(command, methodContext);
         CommandContext commandContext = this.createCommand(
                 aliases,
-                null,
                 command,
                 methodContext,
                 new HalpbotCommandInvokable(null, methodContext));
@@ -262,13 +260,12 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     private <T> CommandContext createCommand(List<String> aliases,
-                                             @Nullable T instance,
                                              Command command,
                                              MethodContext<?, T> methodContext,
                                              ActionInvokable<CommandInvocationContext> actionInvokable)
     {
+        TypeContext<T> parent = methodContext.parent();
         Set<TypeContext<?>> reflections = this.reflections(command.reflections());
-        TypeContext<T> parent = TypeContext.of(instance);
 
         if (parent.annotation(Command.class).present()) {
             Command sharedProperties = parent.annotation(Command.class).get();
