@@ -10,5 +10,5 @@ public interface HelpService
 {
     MessageEmbed build(CommandAdapter commandAdapter);
 
-    MessageEmbed build(Guild guild, CommandAdapter commandAdapter, CommandContext commandContext);
+    MessageEmbed build(CommandAdapter commandAdapter, CommandContext commandContext);
 }

@@ -3,6 +3,7 @@ package nz.pumbas.halpbot.decorators;
 import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -11,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 
 public interface DecoratorService extends Enableable, ContextCarrier
@@ -64,5 +66,15 @@ public interface DecoratorService extends Enableable, ContextCarrier
         }
 
         return actionInvokable;
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T extends ActionInvokable<?>> Exceptional<T> decorator(ActionInvokable<?> actionInvokable, Class<T> type) {
+        while (actionInvokable instanceof ActionInvokableDecorator decorator) {
+            if (type.isAssignableFrom(actionInvokable.getClass()))
+                return Exceptional.of((T) actionInvokable);
+            actionInvokable = decorator.actionInvokable();
+        }
+        return Exceptional.empty();
     }
 }

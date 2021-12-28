@@ -108,7 +108,6 @@ public class HalpbotCommands
     }
 
     @Time
-    @Permission(HalpbotPermissions.GUILD_OWNER)
     @Command(description = "Tests the @Time decorator")
     public String time(int limit) {
         double sum = 0;

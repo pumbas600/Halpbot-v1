@@ -72,7 +72,7 @@ public class BuiltInCommands
         if (commandContext.absent())
             return "That doesn't seem to be a registered command :sob:";
 
-        return this.helpService.build(guild, commandAdapter, commandContext.get());
+        return this.helpService.build(commandAdapter, commandContext.get());
     }
 
     @Permission(HalpbotPermissions.BOT_OWNER)

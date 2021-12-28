@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -17,15 +18,19 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
+import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.permissions.PermissionDecorator;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Binds(HelpService.class)
 public class HalpbotHelpService implements HelpService
 {
+    @Inject private DecoratorService decoratorService;
     @Nullable private MessageEmbed allCommandHelpEmbed;
 
     @Override
@@ -73,18 +78,22 @@ public class HalpbotHelpService implements HelpService
 
     //TODO: Cache this where possible
     @Override
-    public MessageEmbed build(Guild guild, CommandAdapter commandAdapter, CommandContext commandContext) {
-        String prefix = commandAdapter.prefix(guild.getIdLong());
-
-        EmbedBuilder embedBuilder =  new EmbedBuilder()
+    @SuppressWarnings("unchecked")
+    public MessageEmbed build(CommandAdapter commandAdapter, CommandContext commandContext) {
+        final EmbedBuilder embedBuilder =  new EmbedBuilder()
                 .setColor(Color.cyan)
-                .setTitle("%s %s".formatted(prefix, commandContext.aliasesString()))
-                .addField("Usage", "%s %s".formatted(prefix, commandContext.toString()), false);
+                .setTitle(commandContext.aliasesString())
+                .addField("Usage", commandContext.toString(), false);
 
         if (!commandContext.description().isBlank())
             embedBuilder.setDescription(commandContext.description());
-        if (commandContext.actionInvokable() instanceof PermissionDecorator<?> permissionDecorator && !permissionDecorator.permissions().isEmpty())
-            embedBuilder.addField("Permissions", String.join(", ", permissionDecorator.permissions()), false);
+
+        this.decoratorService.decorator(commandContext.actionInvokable(), PermissionDecorator.class)
+                .filter(decorator -> !decorator.permissions().isEmpty())
+                .present(decorator -> embedBuilder.addField(
+                        "Permissions",
+                        String.join(", ", decorator.permissions()),
+                        false));
 
         return embedBuilder.build();
     }
