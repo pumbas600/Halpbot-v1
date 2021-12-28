@@ -15,4 +15,6 @@ public @interface Decorator
     Class<? extends DecoratorFactory<?, ?, ?>> value();
 
     Order order() default Order.DEFAULT;
+
+    DecoratorMerge merge() default DecoratorMerge.KEEP_ACTION;
 }

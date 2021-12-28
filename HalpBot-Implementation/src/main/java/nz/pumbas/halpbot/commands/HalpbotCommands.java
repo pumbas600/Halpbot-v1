@@ -44,8 +44,6 @@ import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.time.Time;
-import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
 
