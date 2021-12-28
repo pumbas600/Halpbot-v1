@@ -29,7 +29,6 @@ public class HalpbotDecoratorService implements DecoratorService
                 .get();
 
         DecoratorFactory<?, ?, ?> factory = this.applicationContext.get(factoryType);
-
         if (factory == null) {
             this.applicationContext.log().error("There was an error retrieving the decorator factory %s"
                     .formatted(factoryType.getCanonicalName()));
