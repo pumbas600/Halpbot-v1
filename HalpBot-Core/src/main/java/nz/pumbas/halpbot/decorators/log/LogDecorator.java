@@ -12,6 +12,7 @@ import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.utilities.LogLevel;
 
 @Binds(LogDecorator.class)
 public class LogDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>

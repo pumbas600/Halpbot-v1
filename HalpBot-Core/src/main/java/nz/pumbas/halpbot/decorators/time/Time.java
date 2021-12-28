@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.decorators.log;
+package nz.pumbas.halpbot.decorators.time;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,10 +9,10 @@ import nz.pumbas.halpbot.decorators.Decorator;
 import nz.pumbas.halpbot.decorators.Order;
 import nz.pumbas.halpbot.utilities.LogLevel;
 
-@Decorator(value = LogDecoratorFactory.class, order = Order.LATE)
-@Target(ElementType.METHOD)
+@Decorator(value = TimeDecoratorFactory.class, order = Order.FIRST)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Log
+public @interface Time
 {
-    LogLevel value() default LogLevel.DEBUG;
+    LogLevel value() default LogLevel.INFO;
 }

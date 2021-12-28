@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.factory;
+package nz.pumbas.halpbot.decorators.log;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -8,8 +8,6 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
-import nz.pumbas.halpbot.decorators.log.Log;
-import nz.pumbas.halpbot.decorators.log.LogDecorator;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Binds(value = LogDecorator.class, priority = 0)
@@ -23,11 +21,15 @@ public class CustomLogDecorator<C extends InvocationContext> extends LogDecorato
     @Override
     public <R> Exceptional<R> invoke(C invocationContext) {
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
+
+        // If the invocation context is created internally - Rather than via an event listener,
+        // the halpbot event may be null
         if (halpbotEvent != null && halpbotEvent.rawEvent() instanceof MessageReceivedEvent messageEvent) {
             this.logLevel().log(invocationContext.applicationContext(),
                     "[%s] %s".formatted(messageEvent.getClass().getSimpleName(), messageEvent.getMessage().getContentRaw()));
         }
 
+        // Invoke the old decorator like normally
         return super.invoke(invocationContext);
     }
 }

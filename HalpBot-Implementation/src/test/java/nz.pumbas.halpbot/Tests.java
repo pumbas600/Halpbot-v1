@@ -14,7 +14,7 @@ import nz.pumbas.halpbot.decorators.CustomLogDecorator;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.log.LogDecorator;
 import nz.pumbas.halpbot.decorators.log.LogDecoratorFactory;
-import nz.pumbas.halpbot.decorators.log.LogLevel;
+import nz.pumbas.halpbot.utilities.LogLevel;
 
 @Activator(scanPackages = "nz.pumbas.halpbot")
 @HartshornTest

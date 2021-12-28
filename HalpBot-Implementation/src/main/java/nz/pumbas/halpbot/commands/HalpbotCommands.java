@@ -41,7 +41,8 @@ import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.decorators.log.Log;
-import nz.pumbas.halpbot.decorators.log.LogLevel;
+import nz.pumbas.halpbot.decorators.time.Time;
+import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
@@ -100,6 +101,18 @@ public class HalpbotCommands
     @Command(description = "Tests the @Log decorator")
     public String log() {
         return "This command is logged when it is invoked";
+    }
+
+    @Time
+    @Command(description = "Tests the @Time decorator")
+    public String time(int limit) {
+        double sum = 0;
+        // Some expensive action:
+        for (int i = 0; i < limit; i++) {
+            sum += Math.sqrt(i);
+        }
+
+        return "Action complete!";
     }
 
     @Command(description = "Randomly chooses one of the items")

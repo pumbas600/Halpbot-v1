@@ -18,10 +18,11 @@ import nz.pumbas.halpbot.bugtesting.DemoInterface;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
 import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
+import nz.pumbas.halpbot.decorators.log.CustomLogDecorator;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.log.LogDecorator;
 import nz.pumbas.halpbot.decorators.log.LogDecoratorFactory;
-import nz.pumbas.halpbot.decorators.log.LogLevel;
+import nz.pumbas.halpbot.utilities.LogLevel;
 
 @Demo
 @Service

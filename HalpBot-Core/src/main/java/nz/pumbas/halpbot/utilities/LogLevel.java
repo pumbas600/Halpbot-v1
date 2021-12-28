@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.decorators.log;
+package nz.pumbas.halpbot.utilities;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.slf4j.Logger;
