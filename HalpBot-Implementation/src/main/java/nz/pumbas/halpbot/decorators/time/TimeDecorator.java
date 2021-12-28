@@ -7,17 +7,19 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 
-import lombok.Getter;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.utilities.LogLevel;
 
+// Bind the TimeDecorator to this instance so that the factory knows to instantiate this
 @Binds(TimeDecorator.class)
 public class TimeDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
-    @Getter private final LogLevel logLevel;
+    private final LogLevel logLevel;
 
+    // Its important that you're @Bound constructor contains the ActionInvokable and the annotation so that
+    // it can be used by the constructor. If this doesn't match, an exception will be thrown during startup
     @Bound
     public TimeDecorator(ActionInvokable<C> actionInvokable, Time time) {
         super(actionInvokable);
@@ -29,9 +31,9 @@ public class TimeDecorator<C extends InvocationContext> extends ActionInvokableD
         OffsetDateTime start = OffsetDateTime.now();
         Exceptional<R> result = super.invoke(invocationContext);
 
-        double ms = start.until(OffsetDateTime.now(), ChronoUnit.NANOS) / 1000D;
-        this.logLevel.log(invocationContext.applicationContext(),
-                "Invoked [%s] in %.2fms".formatted(this.executable().qualifiedName(), ms));
+        double us = start.until(OffsetDateTime.now(), ChronoUnit.NANOS) / 1000D;
+        this.logLevel.log(invocationContext.applicationContext(), "Invoked [%s] %s in %.2fμs"
+                .formatted(this.executable().qualifiedName(), result.caught() ? "Unsuccessfully" : "Successfully", us));
 
         return result;
     }

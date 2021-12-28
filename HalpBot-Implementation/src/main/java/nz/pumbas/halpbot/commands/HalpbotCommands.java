@@ -31,6 +31,8 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import java.time.temporal.ChronoUnit;
+
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -42,6 +44,8 @@ import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.time.Time;
+import nz.pumbas.halpbot.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
 
@@ -91,7 +95,7 @@ public class HalpbotCommands
     }
 
     @Log(LogLevel.INFO)
-    @Cooldown(duration = @Duration(20))
+    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.MINUTES))
     @Command(description = "Tests multiple decorators")
     public String test() {
         return "This command is logged when its invoked and has a 20 second cooldown!";
@@ -104,6 +108,7 @@ public class HalpbotCommands
     }
 
     @Time
+    @Permission(HalpbotPermissions.GUILD_OWNER)
     @Command(description = "Tests the @Time decorator")
     public String time(int limit) {
         double sum = 0;
