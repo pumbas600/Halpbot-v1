@@ -7,6 +7,7 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
+import lombok.Getter;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
@@ -15,7 +16,7 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 @Binds(LogDecorator.class)
 public class LogDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
-    private final LogLevel logLevel;
+    @Getter private final LogLevel logLevel;
 
     @Bound
     public LogDecorator(ActionInvokable<C> actionInvokable, Log log) {
@@ -31,12 +32,12 @@ public class LogDecorator<C extends InvocationContext> extends ActionInvokableDe
             AbstractChannel channel = halpbotEvent.channel();
             Guild guild = halpbotEvent.guild();
 
-            this.logLevel.log(invocationContext.applicationContext().log(),
+            this.logLevel.log(invocationContext.applicationContext(),
                     "[%s][%s] %s has invoked the action %s".formatted(
-                                    guild != null ? guild.getName() : "PM",
-                                    channel != null ? channel.getName() : "?",
-                                    halpbotEvent.user().getAsTag(),
-                                    this.executable().qualifiedName()));
+                                guild != null ? guild.getName() : "PM",
+                                channel != null ? channel.getName() : "?",
+                                halpbotEvent.user().getAsTag(),
+                                this.executable().qualifiedName()));
         }
         return super.invoke(invocationContext);
     }

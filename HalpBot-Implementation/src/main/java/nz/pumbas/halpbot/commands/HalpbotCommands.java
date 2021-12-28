@@ -42,8 +42,6 @@ import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.log.LogLevel;
-import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.Permission;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
@@ -96,6 +94,12 @@ public class HalpbotCommands
     @Command(description = "Tests multiple decorators")
     public String test() {
         return "This command is logged when its invoked and has a 20 second cooldown!";
+    }
+
+    @Log(LogLevel.INFO)
+    @Command(description = "Tests the @Log decorator")
+    public String log() {
+        return "This command is logged when it is invoked";
     }
 
     @Command(description = "Randomly chooses one of the items")

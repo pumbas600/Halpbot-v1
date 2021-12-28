@@ -10,8 +10,18 @@ import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.Annotation;
+
+import nz.pumbas.halpbot.bugtesting.DemoFactory;
+import nz.pumbas.halpbot.bugtesting.DemoImplementation;
+import nz.pumbas.halpbot.bugtesting.DemoInterface;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
+import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
+import nz.pumbas.halpbot.decorators.log.Log;
+import nz.pumbas.halpbot.decorators.log.LogDecorator;
+import nz.pumbas.halpbot.decorators.log.LogDecoratorFactory;
+import nz.pumbas.halpbot.decorators.log.LogLevel;
 
 @Demo
 @Service
@@ -53,5 +63,33 @@ public class DemoTests
         Assertions.assertNotNull(serviceB);
         Assertions.assertEquals(serviceA, serviceB.serviceA());
         Assertions.assertEquals(serviceB, serviceA.serviceB());
+    }
+
+    @InjectTest
+    public void demoPriortityTest(DemoFactory demoFactory) {
+        DemoInterface demo = demoFactory.create("Test");
+
+        Assertions.assertNotNull(demo);
+        Assertions.assertInstanceOf(DemoImplementation.class, demo);
+        Assertions.assertEquals("Test", demo.name());
+    }
+
+    @InjectTest
+    public void logPriortityTest(LogDecoratorFactory factory) {
+        LogDecorator<?> decorator = factory.decorate(new HalpbotCommandInvokable(null, null),
+                new Log() {
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return Log.class;
+                    }
+
+                    @Override
+                    public LogLevel value() {
+                        return LogLevel.DEBUG;
+                    }
+                });
+
+        Assertions.assertNotNull(decorator);
+        Assertions.assertInstanceOf(CustomLogDecorator.class, decorator);
     }
 }

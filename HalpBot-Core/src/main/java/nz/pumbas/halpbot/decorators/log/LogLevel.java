@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.decorators.log;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.slf4j.Logger;
 
 import java.util.function.BiConsumer;
@@ -17,7 +18,7 @@ public enum LogLevel
         this.logger = logger;
     }
 
-    public void log(Logger logger, String msg) {
-        this.logger.accept(logger, msg);
+    public void log(ApplicationContext applicationContext, String msg) {
+        this.logger.accept(applicationContext.log(), msg);
     }
 }
