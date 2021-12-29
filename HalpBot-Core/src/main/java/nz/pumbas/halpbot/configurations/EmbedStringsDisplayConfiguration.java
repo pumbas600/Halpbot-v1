@@ -32,7 +32,7 @@ public class EmbedStringsDisplayConfiguration implements DisplayConfiguration
 
     private MessageEmbed createEmbed(String message) {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setDescription(HalpbotUtils.checkEmbedDesciptionLength(message));
+        builder.setDescription(HalpbotUtils.limitEmbedDescriptionLength(message));
         builder.setColor(Color.ORANGE);
         return builder.build();
     }

@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.internal.utils.Helpers;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -112,6 +113,11 @@ public class HalpbotCommands
     @ButtonAction(id = "halpbot:button:dynamic", displayDuration = @Duration(10))
     public String suffix(@Source User user, String suffix) {
         return user.getName() + suffix;
+    }
+
+    @Command(description = "Returns the code point length of a string")
+    public int cplength(@Remaining String string) {
+        return Helpers.codePointLength(string);
     }
 
     @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.MINUTES))

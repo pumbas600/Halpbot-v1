@@ -25,6 +25,8 @@
 package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
@@ -74,30 +76,25 @@ public final class HalpbotUtils
     public static final float quarterRotation = 90F;
     public static final Object IGNORE_RESULT = new Object();
 
-    private static final ContextManager contextManager = new ContextManagerImpl();
-
-    private static final int MAX_DESCRIPTION_LENGTH = 2048;
-
-    private static JDA jda;
+    private static final ContextManager contextManager = new ContextManagerImpl(); //TODO: Remove
+    private static JDA jda; //TODO: Remove
 
     private HalpbotUtils() {}
 
     public static ContextManager context() {
         return contextManager;
-    }
-
+    } //TODO: Remove
     public static JDA getJDA() {
         return jda;
-    }
-
+    } //TODO: Remove
     public static void setJDA(JDA jdaInstance) {
         jda = jdaInstance;
-    }
+    } //TODO: Remove
 
 
     /**
      * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than
-     * {@link HalpbotUtils#MAX_DESCRIPTION_LENGTH} it will cause an error to be thrown. This method simply checks if
+     * {@link MessageEmbed#DESCRIPTION_MAX_LENGTH} it will cause an error to be thrown. This method simply checks if
      * the description exceeds this limit and if it does, then it creates a substring of the maximum displayable
      * message.
      *
@@ -106,10 +103,18 @@ public final class HalpbotUtils
      *
      * @return The checked description
      */
-    public static String checkEmbedDesciptionLength(String description) {
-        if (MAX_DESCRIPTION_LENGTH < description.length())
-            description = description.substring(0, MAX_DESCRIPTION_LENGTH);
-        return description;
+    public static String limitEmbedDescriptionLength(String description) {
+        return limitLength(description, MessageEmbed.DESCRIPTION_MAX_LENGTH);
+    }
+
+    public static String limitMessageLength(String message) {
+        return limitLength(message, Message.MAX_CONTENT_LENGTH);
+    }
+
+    private static String limitLength(String string, int length) {
+        if (string.length() > length)
+            return string.substring(0, length - 3) + "...";
+        return string;
     }
 
     /**

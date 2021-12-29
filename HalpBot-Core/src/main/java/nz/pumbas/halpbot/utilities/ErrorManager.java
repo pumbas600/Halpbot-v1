@@ -26,31 +26,46 @@ package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 
+import javax.inject.Inject;
+
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
+@Service
 public final class ErrorManager
 {
-    private static long loggerUserId = -1;
+    @Nullable
+    private static ErrorManager instance;
 
-    public static void setLoggerUserId(long userId) {
-        loggerUserId = userId;
+    @Inject private ApplicationContext applicationContext;
+    @Inject private HalpbotCore halpbotCore;
+
+    public ErrorManager() {
+        instance = this;
     }
 
-    private ErrorManager() {}
+    private static ErrorManager instance() {
+        if (instance == null)
+            throw new UnsupportedOperationException(
+                    "You're trying to access the ErrorManager instance before it's been created");
+        return instance;
+    }
 
     public static void handle(Throwable e) {
         handle(e, "Caught the error: ");
     }
 
     public static void handle(Throwable e, String message) {
-        //HalpbotUtils.logger().error(message, e);
+        instance().applicationContext.log().error(message, e);
         sendToLoggerUser(null, e, message);
     }
 
@@ -82,25 +97,24 @@ public final class ErrorManager
             .queue();
     }
 
-    private static void sendToLoggerUser(GenericMessageEvent event, Throwable e, String message) {
-        if (-1 != loggerUserId) {
-            EmbedBuilder error = new EmbedBuilder();
-            error.setTitle(message);
-            error.setColor(Color.red);
+    private static void sendToLoggerUser(@Nullable GenericMessageEvent event, Throwable e, String message) {
+        EmbedBuilder error = new EmbedBuilder();
+        error.setTitle(message);
+        error.setColor(Color.red);
 
-            Throwable displayThrowable = null == e.getCause() ? e : e.getCause();
+        Throwable displayThrowable = null == e.getCause() ? e : e.getCause();
 
-            String stackTrace = HalpbotUtils.getStackTrace(displayThrowable);
-            error.setDescription(HalpbotUtils.checkEmbedDesciptionLength(stackTrace));
+        String stackTrace = HalpbotUtils.getStackTrace(displayThrowable);
+        error.setDescription(HalpbotUtils.limitEmbedDescriptionLength(stackTrace));
 
-            if (null != event) {
-                error.setFooter(event.getGuild().getName(), event.getGuild().getBannerUrl());
-            }
-
-            HalpbotUtils.getJDA().retrieveUserById(loggerUserId)
-                .flatMap(User::openPrivateChannel)
-                .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
-                .queue();
+        if (null != event) {
+            error.setFooter(event.getGuild().getName(), event.getGuild().getBannerUrl());
         }
+
+        instance().halpbotCore.jda().retrieveUserById(instance().halpbotCore.ownerId())
+            .flatMap(User::openPrivateChannel)
+            .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
+            .queue();
     }
+
 }

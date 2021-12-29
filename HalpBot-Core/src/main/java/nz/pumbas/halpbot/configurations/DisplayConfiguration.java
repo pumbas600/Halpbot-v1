@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.objects.DiscordString;
 import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public interface DisplayConfiguration
 {
@@ -29,9 +30,9 @@ public interface DisplayConfiguration
         else if (object instanceof MessageEmbed messageEmbed)
             this.display(event, messageEmbed);
         else if (object instanceof DiscordString discordString)
-            this.display(event, discordString.toDiscordString());
+            this.display(event, HalpbotUtils.limitMessageLength(discordString.toDiscordString()));
         else
-            this.display(event, object.toString());
+            this.display(event, HalpbotUtils.limitMessageLength(object.toString()));
     }
 
     void displayTemporary(HalpbotEvent event, String message, long seconds);
@@ -46,8 +47,8 @@ public interface DisplayConfiguration
         else if (object instanceof MessageEmbed messageEmbed)
             this.displayTemporary(event, messageEmbed, seconds);
         else if (object instanceof DiscordString discordString)
-            this.displayTemporary(event, discordString.toDiscordString(), seconds);
+            this.displayTemporary(event, HalpbotUtils.limitMessageLength(discordString.toDiscordString()), seconds);
         else
-            this.displayTemporary(event, object.toString(), seconds);
+            this.displayTemporary(event, HalpbotUtils.limitMessageLength(object.toString()), seconds);
     }
 }
