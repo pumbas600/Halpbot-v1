@@ -10,7 +10,7 @@ import nz.pumbas.halpbot.decorators.Order;
 import nz.pumbas.halpbot.utilities.LogLevel;
 
 @Decorator(value = LogDecoratorFactory.class, order = Order.LATE)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Log
 {

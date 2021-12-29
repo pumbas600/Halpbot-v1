@@ -11,7 +11,7 @@ import nz.pumbas.halpbot.utilities.Duration;
 
 @Decorator(CooldownDecoratorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Cooldown
 {
     Duration duration() default @Duration(5);

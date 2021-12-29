@@ -47,6 +47,7 @@ import nz.pumbas.halpbot.decorators.time.Time;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
 
+@Log(LogLevel.INFO)
 @Service
 public class HalpbotCommands
 {
@@ -92,14 +93,12 @@ public class HalpbotCommands
         return "You clicked the danger button!";
     }
 
-    @Log(LogLevel.INFO)
     @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.MINUTES))
     @Command(description = "Tests multiple decorators")
     public String test() {
         return "This command is logged when its invoked and has a 20 second cooldown!";
     }
 
-    @Log(LogLevel.INFO)
     @Command(description = "Tests the @Log decorator")
     public String log() {
         return "This command is logged when it is invoked";

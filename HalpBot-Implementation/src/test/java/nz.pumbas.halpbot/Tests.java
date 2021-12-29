@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import nz.pumbas.halpbot.bugtesting.DemoFactory;
 import nz.pumbas.halpbot.bugtesting.DemoInterface;
 import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
+import nz.pumbas.halpbot.decorators.log.CustomLogDecorator;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.log.LogDecorator;
 import nz.pumbas.halpbot.decorators.log.LogDecoratorFactory;
