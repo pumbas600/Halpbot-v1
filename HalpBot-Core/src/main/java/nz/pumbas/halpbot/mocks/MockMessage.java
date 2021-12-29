@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.ReactionPaginationAction;
 
 import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +36,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Formatter;
+import java.util.LinkedList;
 import java.util.List;
 
+@SuppressWarnings({"ReturnOfNull", "ConstantConditions"})
 public record MockMessage(String content) implements Message
 {
     @Nullable
@@ -48,55 +51,55 @@ public record MockMessage(String content) implements Message
     @NotNull
     @Override
     public List<User> getMentionedUsers() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public Bag<User> getMentionedUsersBag() {
-        return null;
+        return new HashBag<>();
     }
 
     @NotNull
     @Override
     public List<TextChannel> getMentionedChannels() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public Bag<TextChannel> getMentionedChannelsBag() {
-        return null;
+        return new HashBag<>();
     }
 
     @NotNull
     @Override
     public List<Role> getMentionedRoles() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public Bag<Role> getMentionedRolesBag() {
-        return null;
+        return new HashBag<>();
     }
 
     @NotNull
     @Override
     public List<Member> getMentionedMembers(@NotNull Guild guild) {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public List<Member> getMentionedMembers() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public List<IMentionable> getMentions(@NotNull MentionType... types) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -123,7 +126,7 @@ public record MockMessage(String content) implements Message
     @NotNull
     @Override
     public User getAuthor() {
-        return null;
+        return User.fromId(0);
     }
 
     @Nullable
@@ -135,7 +138,7 @@ public record MockMessage(String content) implements Message
     @NotNull
     @Override
     public String getJumpUrl() {
-        return null;
+        return "";
     }
 
     @NotNull
@@ -241,7 +244,7 @@ public record MockMessage(String content) implements Message
     @NotNull
     @Override
     public Bag<Emote> getEmotesBag() {
-        return null;
+        return new HashBag<>();
     }
 
     @NotNull
