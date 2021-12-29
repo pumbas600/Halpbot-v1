@@ -8,7 +8,6 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 
 public interface InvocationContext extends ContextCarrier
 {
-    @Nullable
     HalpbotEvent halpbotEvent();
 
     TypeContext<?> currentType();

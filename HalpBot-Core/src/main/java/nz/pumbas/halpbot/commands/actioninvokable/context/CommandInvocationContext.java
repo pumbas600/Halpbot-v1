@@ -17,9 +17,6 @@ import nz.pumbas.halpbot.utilities.StringTraverser;
 
 public interface CommandInvocationContext extends StringTraverser, InvocationContext
 {
-    @Nullable
-    HalpbotEvent halpbotEvent();
-
     Set<TypeContext<?>> reflections();
 
     int currentAnnotationIndex();

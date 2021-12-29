@@ -351,7 +351,6 @@ public final class DefaultConverters
             .optionType(OptionType.USER)
             .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<User> USER_CONVERTER = TypeConverter.builder(User.class)
             .requiresHalpbotEvent(true)
             .convert(invocationContext ->
@@ -369,12 +368,10 @@ public final class DefaultConverters
 
     //region Source Converters
 
-    @SuppressWarnings("ConstantConditions")
     public static final SourceConverter<GenericEvent> EVENT_CONVERTER = SourceConverter.builder(GenericEvent.class)
             .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().event(GenericEvent.class)))
             .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final SourceConverter<Interaction> INTERACTION_CONVERTER = SourceConverter.builder(Interaction.class)
             .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().event(Interaction.class)))
             .build();
@@ -388,8 +385,6 @@ public final class DefaultConverters
                     .convert(invocationContext -> invocationContext.applicationContext().get(HalpbotCore.class)
                             .getSafely((TypeContext<HalpbotAdapter>) invocationContext.currentType()))
                     .build();
-
-    @SuppressWarnings("ConstantConditions")
     public static final SourceConverter<JDA> JDA_CONVERTER = SourceConverter.builder(JDA.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().jda()))
             .build();
@@ -399,7 +394,6 @@ public final class DefaultConverters
                     .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext()))
                     .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<MessageChannel> SOURCE_MESSAGE_CHANNEL_CONVERTER =
             TypeConverter.builder(MessageChannel.class)
                     .requiresHalpbotEvent(true)
@@ -407,7 +401,6 @@ public final class DefaultConverters
                     .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().messageChannel()))
                     .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<TextChannel> SOURCE_TEXT_CHANNEL_CONVERTER =
             TypeConverter.builder(TextChannel.class)
                     .requiresHalpbotEvent(true)
@@ -415,7 +408,6 @@ public final class DefaultConverters
                     .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().textChannel()))
                     .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<PrivateChannel> SOURCE_PRIVATE_CHANNEL_CONVERTER =
             TypeConverter.builder(PrivateChannel.class)
                     .requiresHalpbotEvent(true)
@@ -423,21 +415,18 @@ public final class DefaultConverters
                     .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().privateChannel()))
                     .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<User> SOURCE_USER_CONVERTER = TypeConverter.builder(User.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().user()))
             .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<Guild> SOURCE_GUILD_CONVERTER = TypeConverter.builder(Guild.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().guild()))
             .build();
 
-    @SuppressWarnings("ConstantConditions")
     public static final TypeConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = TypeConverter.builder(ChannelType.class)
             .requiresHalpbotEvent(true)
             .annotation(Source.class)

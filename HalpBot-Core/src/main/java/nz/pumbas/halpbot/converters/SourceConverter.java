@@ -25,9 +25,9 @@ public class SourceConverter<T> implements Converter<InvocationContext, T>
 
     @Override
     public Exceptional<T> apply(InvocationContext invocationContext) {
-        if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent() == null)
+        if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent().isInternal())
             return Exceptional.of(
-                    new NullPointerException("The halpbot event is null but it is required to convert this type"));
+                    new NullPointerException("The halpbot event is internal but it is required to convert this type"));
 
         return this.mapper().apply(invocationContext);
     }

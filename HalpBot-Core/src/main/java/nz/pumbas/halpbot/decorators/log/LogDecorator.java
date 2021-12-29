@@ -29,7 +29,7 @@ public class LogDecorator<C extends InvocationContext> extends ActionInvokableDe
     public <R> Exceptional<R> invoke(C invocationContext) {
 
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
-        if (halpbotEvent != null) {
+        if (!halpbotEvent.isInternal()) {
             AbstractChannel channel = halpbotEvent.channel();
             Guild guild = halpbotEvent.guild();
 

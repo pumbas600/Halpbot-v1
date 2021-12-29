@@ -5,26 +5,30 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
+import nz.pumbas.halpbot.buttons.ButtonContext;
 import nz.pumbas.halpbot.buttons.ButtonInvocationContext;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.events.InternalEvent;
 
 @Service
 public interface InvocationContextFactory
 {
     @Factory
     CommandInvocationContext command(String content,
-                                     @Nullable HalpbotEvent halpbotEvent);
+                                     HalpbotEvent halpbotEvent);
 
     default CommandInvocationContext command(String content) {
-        return this.command(content, null);
+        return this.command(content, new InternalEvent());
     }
 
     @Factory
     ButtonInvocationContext button(HalpbotEvent halpbotEvent,
                                    List<ParsingToken> nonCommandParameterTokens,
                                    Object[] passedParameters);
+
+    default ButtonInvocationContext button(HalpbotEvent halpbotEvent, ButtonContext buttonContext) {
+        return this.button(halpbotEvent, buttonContext.nonCommandParameterTokens(), buttonContext.passedParameters());
+    }
 }

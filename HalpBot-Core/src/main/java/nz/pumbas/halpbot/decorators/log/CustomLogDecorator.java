@@ -23,8 +23,8 @@ public class CustomLogDecorator<C extends InvocationContext> extends LogDecorato
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
 
         // If the invocation context is created internally - Rather than via an event listener,
-        // the halpbot event may be null
-        if (halpbotEvent != null && halpbotEvent.rawEvent() instanceof MessageReceivedEvent messageEvent) {
+        // trying to access its fields will cause an UnsupportedOperationException to be thrown
+        if (!halpbotEvent.isInternal() && halpbotEvent.rawEvent() instanceof MessageReceivedEvent messageEvent) {
             this.logLevel().log(invocationContext.applicationContext(),
                     "[%s] %s".formatted(messageEvent.getClass().getSimpleName(), messageEvent.getMessage().getContentRaw()));
         }

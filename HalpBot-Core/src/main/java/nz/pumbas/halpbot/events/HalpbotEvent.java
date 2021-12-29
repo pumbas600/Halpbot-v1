@@ -29,6 +29,10 @@ public interface HalpbotEvent
         return Exceptional.of(() -> this.event(type));
     }
 
+    default boolean isInternal() {
+        return false;
+    }
+
     MessageChannel messageChannel();
 
     TextChannel textChannel();

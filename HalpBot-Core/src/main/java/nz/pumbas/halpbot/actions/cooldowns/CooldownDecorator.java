@@ -31,7 +31,7 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
     public <R> Exceptional<R> invoke(C invocableContext) {
         HalpbotEvent event = invocableContext.halpbotEvent();
 
-        if (event == null)
+        if (event.isInternal())
             return super.invoke(invocableContext);
         else if (this.cooldownTimers.getOrDefault(event.user().getIdLong(), CooldownTimer.Empty).hasFinished()) {
             Exceptional<R> result = super.invoke(invocableContext);

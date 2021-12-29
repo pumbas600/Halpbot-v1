@@ -31,7 +31,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     public <R> Exceptional<R> invoke(C invocationContext) {
         HalpbotEvent event = invocationContext.halpbotEvent();
 
-        if (event == null || this.permissionService.hasPermissions(event.user().getIdLong(), this.permissions)) {
+        if (event.isInternal() || this.permissionService.hasPermissions(event.user().getIdLong(), this.permissions)) {
             return super.invoke(invocationContext);
         }
         return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
