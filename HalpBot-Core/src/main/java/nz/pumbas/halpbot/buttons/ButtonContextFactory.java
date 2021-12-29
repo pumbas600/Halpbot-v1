@@ -20,4 +20,14 @@ public interface ButtonContextFactory
                          ActionInvokable<ButtonInvocationContext> actionInvokable,
                          Object[] passedParameters,
                          List<ParsingToken> nonCommandParameterTokens);
+
+    default ButtonContext create(String id, Object[] passedParameters, ButtonContext buttonContext) {
+        return this.create(
+                id,
+                buttonContext.isEphemeral(),
+                buttonContext.displayDuration(),
+                buttonContext.actionInvokable(),
+                passedParameters,
+                buttonContext.nonCommandParameterTokens());
+    }
 }

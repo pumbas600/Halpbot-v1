@@ -96,7 +96,7 @@ public class DemoTests
     @InjectTest
     public void proxyEqualityTest(ApplicationContext applicationContext) {
         DemoServiceA serviceA1 = applicationContext.get(DemoServiceA.class);
-        DemoServiceA serviceA2 = applicationContext.get(DemoServiceA.class);
+        DemoServiceA serviceA2 = applicationContext.environment().manager().handler(serviceA1).get().instance().get();
 
         Assertions.assertEquals(serviceA1, serviceA2);
     }
