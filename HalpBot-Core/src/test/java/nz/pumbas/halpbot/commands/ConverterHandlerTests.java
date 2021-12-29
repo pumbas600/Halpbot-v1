@@ -48,7 +48,7 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
+import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.ShapeType;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.converters.Converter;
@@ -62,7 +62,6 @@ import nz.pumbas.halpbot.converters.ParameterConverter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
-import nz.pumbas.halpbot.utilities.Reflect;
 
 @UseCommands
 @HartshornTest
@@ -161,7 +160,7 @@ public class ConverterHandlerTests
 
     @InjectTest
     public void parsingRemainingStringsTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
-        CommandInvocationContext invocationContext = invocationContextFactory.create("This is a test sentence.");
+        CommandInvocationContext invocationContext = invocationContextFactory.command("This is a test sentence.");
 
         Converter<CommandInvocationContext, String> converter = converterHandler
                 .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
@@ -174,7 +173,7 @@ public class ConverterHandlerTests
 
     @InjectTest
     public void parsingArrayTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
-        CommandInvocationContext invocationContext = invocationContextFactory.create("[5 1 3 12 20]");
+        CommandInvocationContext invocationContext = invocationContextFactory.command("[5 1 3 12 20]");
         invocationContext.currentType(TypeContext.of(Integer[].class));
         Converter<CommandInvocationContext, Integer[]> converter = converterHandler.from(Integer[].class);
 

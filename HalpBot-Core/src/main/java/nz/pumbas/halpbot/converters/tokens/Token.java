@@ -31,7 +31,6 @@ import nz.pumbas.halpbot.commands.annotations.Command;
  */
 public interface Token
 {
-
     /**
      * @return If this {@link Token} is optional or not
      */

@@ -13,5 +13,7 @@ public interface InvocationContext extends ContextCarrier
 
     TypeContext<?> currentType();
 
+    void currentType(TypeContext<?> typeContext);
+
     String contextString();
 }

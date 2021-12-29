@@ -12,7 +12,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
+import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
@@ -61,7 +61,7 @@ public interface TokenFactory
 
         if (unrequired.present()) {
             isOptional = true;
-            CommandInvocationContext invocationContext = this.invocationContexFactory().create(unrequired.get().value());
+            CommandInvocationContext invocationContext = this.invocationContexFactory().command(unrequired.get().value());
             invocationContext.update(parameterContext, sortedAnnotations);
 
             defaultValue = ParsingToken.parseDefaultValue(converter, invocationContext);

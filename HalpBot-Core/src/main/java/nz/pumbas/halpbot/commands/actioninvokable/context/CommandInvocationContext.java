@@ -40,8 +40,6 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
 
     void incrementCurrentAnnotationIndex();
 
-    void currentType(TypeContext<?> typeContext);
-
     void sortedAnnotations(List<TypeContext<? extends Annotation>> sortedAnnotations);
 
     void annotations(Set<Annotation> annotations);

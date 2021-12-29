@@ -16,7 +16,6 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +40,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext
 import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContextFactory;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
-import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
+import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContext;
 import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContextFactory;
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
@@ -134,7 +133,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                                         CommandContext commandContext,
                                                         String content)
     {
-        CommandInvocationContext invocationContext = this.invocationContextFactory.create(content, event);
+        CommandInvocationContext invocationContext = this.invocationContextFactory.command(content, event);
         return commandContext.invoke(invocationContext);
     }
 

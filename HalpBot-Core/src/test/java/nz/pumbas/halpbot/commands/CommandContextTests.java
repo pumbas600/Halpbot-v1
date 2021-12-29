@@ -41,7 +41,7 @@ import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
-import nz.pumbas.halpbot.commands.actioninvokable.context.InvocationContextFactory;
+import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Shape;
 import nz.pumbas.halpbot.commands.objects.TestMessageEvent;
@@ -68,11 +68,11 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
 
         Assertions.assertNotNull(commandContext);
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 [2 3 4 1]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 [1 a 2]")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("abc [1 3 2]")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 agf")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 [2 3 4 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 [1 a 2]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("abc [1 3 2]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 agf")).absent());
     }
 
     @Test
@@ -81,8 +81,8 @@ public class CommandContextTests
 
         Assertions.assertNotNull(commandContext);
 
-        Exceptional<Boolean> result1 = commandContext.invoke(this.invocationFactory.create("1 [2 1 4 3]"));
-        Exceptional<Boolean> result2 = commandContext.invoke(this.invocationFactory.create("2 [9 5 4 3]"));
+        Exceptional<Boolean> result1 = commandContext.invoke(this.invocationFactory.command("1 [2 1 4 3]"));
+        Exceptional<Boolean> result2 = commandContext.invoke(this.invocationFactory.command("2 [9 5 4 3]"));
 
         Assertions.assertTrue(result1.present());
         Assertions.assertTrue(result2.present());
@@ -96,7 +96,7 @@ public class CommandContextTests
 
         Assertions.assertNotNull(commandContext);
 
-        Exceptional<Boolean> result = commandContext.invoke(this.invocationFactory.create("1"));
+        Exceptional<Boolean> result = commandContext.invoke(this.invocationFactory.command("1"));
 
         Assertions.assertTrue(result.present());
         Assertions.assertFalse(result.get());
@@ -108,13 +108,13 @@ public class CommandContextTests
 
         Assertions.assertNotNull(commandContext);
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 [1 3 3]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("3")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("alpha")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 [1 4 c]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 [1 3 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("3")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("alpha")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 [1 4 c]")).absent());
 
-        Exceptional<Boolean> result = commandContext.invoke(this.invocationFactory.create("2 [1 2 3]"));
+        Exceptional<Boolean> result = commandContext.invoke(this.invocationFactory.command("2 [1 2 3]"));
         Assertions.assertTrue(result.present());
         Assertions.assertTrue(result.get());
 
@@ -139,12 +139,12 @@ public class CommandContextTests
         Assertions.assertTrue(token instanceof ParsingToken);
         Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER,((ParsingToken) token).converter());
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Vector3(1 2 3)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Vector3(3 1)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("#Vector3(3 1)")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("(3 1 2)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Vector3(1 2 3)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Vector3(3 1)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("#Vector3(3 1)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("(3 1 2)")).absent());
 
-        Exceptional<Double> result = commandContext.invoke(this.invocationFactory.create("Vector3(1 2 3)"));
+        Exceptional<Double> result = commandContext.invoke(this.invocationFactory.command("Vector3(1 2 3)"));
         Assertions.assertTrue(result.present());
         Assertions.assertEquals(2, result.get());
 
@@ -160,13 +160,13 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("implicitArrayTest");
 
         Assertions.assertNotNull(commandContext);
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 3 2 1 4 Heyo")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 3 Hi")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 [2 3 8] Hi")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 Hi")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("a 1 2 Hi")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 3 2 1 4 Heyo")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 3 Hi")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 [2 3 8] Hi")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 Hi")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("a 1 2 Hi")).absent());
 
-        Exceptional<Object> result = commandContext.invoke(this.invocationFactory.create("2 3 2 1 4 Heyo"));
+        Exceptional<Object> result = commandContext.invoke(this.invocationFactory.command("2 3 2 1 4 Heyo"));
         Assertions.assertTrue(result.present());
         Assertions.assertEquals("2 - [3, 2, 1, 4] - Heyo", result.get());
     }
@@ -181,13 +181,13 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("implicitArrayAtEndTest");
 
         Assertions.assertNotNull(commandContext);
-        Exceptional<Double> result1 = commandContext.invoke(this.invocationFactory.create(""));
-        Exceptional<Double> result2 = commandContext.invoke(this.invocationFactory.create(
+        Exceptional<Double> result1 = commandContext.invoke(this.invocationFactory.command(""));
+        Exceptional<Double> result2 = commandContext.invoke(this.invocationFactory.command(
                 "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150)"));
-        Exceptional<Double> result3 = commandContext.invoke(this.invocationFactory.create(
+        Exceptional<Double> result3 = commandContext.invoke(this.invocationFactory.command(
                 "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150) Shape(Rectangle 200 50 100 275)"));
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create(
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command(
             "Shape(Rectangle 200 50 100 25)")).present());
 
         Assertions.assertTrue(result1.absent());
@@ -212,12 +212,12 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("stringDefaultValueTest");
 
         Assertions.assertNotNull(commandContext);
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Hi")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("-1")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("a -1")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Hi")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("-1")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("a -1")).absent());
 
-        Exceptional<String> result = commandContext.invoke(this.invocationFactory.create(""));
+        Exceptional<String> result = commandContext.invoke(this.invocationFactory.command(""));
         Assertions.assertTrue(result.present());
         Assertions.assertEquals("default value", result.get());
     }
@@ -230,11 +230,11 @@ public class CommandContextTests
     @Test
     public void commandContextWithMessageReceivedEventParameterTest() {
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithMessageReceivedEventParameterTest");
-        CommandInvocationContext invocationContext = this.invocationFactory.create(
+        CommandInvocationContext invocationContext = this.invocationFactory.command(
                 "", new MessageEvent(new TestMessageEvent()));
 
         Assertions.assertNotNull(commandContext);
-        Exceptional<Boolean> result1 = commandContext.invoke(this.invocationFactory.create(""));
+        Exceptional<Boolean> result1 = commandContext.invoke(this.invocationFactory.command(""));
         Exceptional<Boolean> result2 = commandContext.invoke(invocationContext);
 
         Assertions.assertEquals(1, commandContext.tokens().size());
@@ -259,11 +259,11 @@ public class CommandContextTests
         Assertions.assertTrue(tokens.get(0) instanceof ParsingToken);
         Assertions.assertEquals(1, ((ParsingToken) tokens.get(0)).sortedAnnotations().size());
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 2 3")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("[1 2 3]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1.0 2 3")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("[1 2 3")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 2 3")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 2 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1.0 2 3")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 2 3")).absent());
     }
 
     @Command(alias = "commandWithMultipleAnnotationsTest")
@@ -281,11 +281,11 @@ public class CommandContextTests
         Assertions.assertEquals(1,tokens.size());
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, ((ParsingToken) tokens.get(0)).converter());
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("[1 2 3]")).errorAbsent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("")).caught());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 2 3")).caught());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1.0 2 3")).caught());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("[1 2 3")).caught());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 2 3]")).errorAbsent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("")).caught());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 2 3")).caught());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1.0 2 3")).caught());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 2 3")).caught());
     }
 
     @Command(alias = "commandWithVarargsTest")
@@ -300,8 +300,8 @@ public class CommandContextTests
         Assertions.assertNotNull(commandContext1);
         Assertions.assertNotNull(commandContext2);
         Assertions.assertEquals(commandContext1, commandContext2);
-        Assertions.assertTrue(commandContext1.invoke(this.invocationFactory.create("")).errorAbsent());
-        Assertions.assertTrue(commandContext1.invoke(this.invocationFactory.create("1")).caught());
+        Assertions.assertTrue(commandContext1.invoke(this.invocationFactory.command("")).errorAbsent());
+        Assertions.assertTrue(commandContext1.invoke(this.invocationFactory.command("1")).caught());
     }
 
     @Command(alias = {"commandWithMultipleAliases1", "CommandWithMultipleAliases2"})
@@ -313,8 +313,8 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithAListTest");
 
         Assertions.assertNotNull(commandContext);
-        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.create("[]"));
-        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.create("[1 5 3 4]"));
+        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.command("[]"));
+        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.command("[1 5 3 4]"));
 
         Assertions.assertTrue(result1.present());
         Assertions.assertTrue(result2.present());
@@ -343,13 +343,13 @@ public class CommandContextTests
         Assertions.assertEquals("My name is", ((PlaceholderToken) tokens.get(0)).placeholder());
         Assertions.assertInstanceOf(ParsingToken.class, tokens.get(1));
 
-        Exceptional<String> result1 = commandContext.invoke(this.invocationFactory.create("pumbas600"));
-        Exceptional<String> result2 = commandContext.invoke(this.invocationFactory.create("My name is pumbas600"));
+        Exceptional<String> result1 = commandContext.invoke(this.invocationFactory.command("pumbas600"));
+        Exceptional<String> result2 = commandContext.invoke(this.invocationFactory.command("My name is pumbas600"));
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("my name is pumbas600")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("My NaMe IS pumbas600")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("My pumbas600")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("NaMe IS pumbas600")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("my name is pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("My NaMe IS pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("My pumbas600")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("NaMe IS pumbas600")).absent());
 
         Assertions.assertTrue(result1.present());
         Assertions.assertTrue(result2.present());
@@ -379,12 +379,12 @@ public class CommandContextTests
         Assertions.assertEquals("my name is", ((PlaceholderToken) tokens.get(2)).placeholder());
         Assertions.assertInstanceOf(ParsingToken.class, tokens.get(3));
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Hi, my name is pumbas600")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Hi my NaMe IS pumbas600")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("hi my name is pumbas600")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("My NaMe is")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create(", My pumbas600")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("hi, NaMe IS pumbas600")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Hi, my name is pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Hi my NaMe IS pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("hi my name is pumbas600")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("My NaMe is")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command(", My pumbas600")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("hi, NaMe IS pumbas600")).absent());
     }
 
     @Command(alias = "commandWithMultiplePlaceholdersTest",
@@ -401,15 +401,15 @@ public class CommandContextTests
         List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(6, tokens.size());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 2 [1 2 3 4]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("add 1 2 [1 2 3 4]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("add 1 and 2 [1 2 3 4]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("add 1 and 2 and [1 2 3 4]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 and 2 and [1 2 3 4]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 2 1 2 3 4")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("hi 1 2 [1 2 3 4]")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("1 2 add [1 2 3 4]")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("add 1 and 2 not [1 2 3 4]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 2 [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("add 1 2 [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("add 1 and 2 [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("add 1 and 2 and [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 and 2 and [1 2 3 4]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 2 1 2 3 4")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("hi 1 2 [1 2 3 4]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 2 add [1 2 3 4]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("add 1 and 2 not [1 2 3 4]")).absent());
     }
 
     @Command(alias = "commandWithPlaceholdersAndPrimativeTypesTest",
@@ -430,14 +430,14 @@ public class CommandContextTests
         List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(4, tokens.size());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 x 3")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 x 2 [1 0 0 1]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 2 [1 0 0 1]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 x 2 1 0 0 1")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 2 1 0 0 1")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 2 x 1 0 0 1")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 2 1.2")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("2 2 [1 2 0.0 3]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 x 3")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 x 2 [1 0 0 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 2 [1 0 0 1]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 x 2 1 0 0 1")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 2 1 0 0 1")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 2 x 1 0 0 1")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 2 1.2")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 2 [1 2 0.0 3]")).absent());
     }
 
     @Command(alias = "commandStringWithMultipleAnnotationsTest", command = "Integer [x] Integer Integer[]")
@@ -451,18 +451,18 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Exceptional<Object> result1 = commandContext.invoke(this.invocationFactory.create("Matrix(2 2 x 1 0 0 1)"));
-        Exceptional<Object> result2 = commandContext.invoke(this.invocationFactory.create("Matr(2 2 [1 2 0.0 3])"));
-        Exceptional<Object> result3 = commandContext.invoke(this.invocationFactory.create("Matrix(2 2 [1 2 1 3]"));
+        Exceptional<Object> result1 = commandContext.invoke(this.invocationFactory.command("Matrix(2 2 x 1 0 0 1)"));
+        Exceptional<Object> result2 = commandContext.invoke(this.invocationFactory.command("Matr(2 2 [1 2 0.0 3])"));
+        Exceptional<Object> result3 = commandContext.invoke(this.invocationFactory.command("Matrix(2 2 [1 2 1 3]"));
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 x 3)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 x 2 [1 0 0 1])")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 2 [1 0 0 1])")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 x 2 1 0 0 1)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 2 1 0 0 1)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 2 1.2)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 2 [1 2 0.0 3])")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix(2 x 3 [1 2 3 4 5 6])")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 x 3)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 x 2 [1 0 0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 2 [1 0 0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 x 2 1 0 0 1)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 2 1 0 0 1)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 2 1.2)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 2 [1 2 0.0 3])")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 x 3 [1 2 3 4 5 6])")).present());
 
         Assertions.assertFalse(result1.present());
         Assertions.assertEquals("There seems to have been an error when constructing the object Matrix",
@@ -482,7 +482,7 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Exceptional<Integer> result = commandContext.invoke(this.invocationFactory.create("Matrix(2 3 [1 2 3 4 5 6])"));
+        Exceptional<Integer> result = commandContext.invoke(this.invocationFactory.command("Matrix(2 3 [1 2 3 4 5 6])"));
 
         Assertions.assertTrue(result.present());
         Assertions.assertEquals(3, result.get());
@@ -493,10 +493,10 @@ public class CommandContextTests
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix()")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix([1 0 0 1])")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix([1 0] [0 1])")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix([0 1] 0 1 2)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix([1 0 0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix([1 0] [0 1])")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix([0 1] 0 1 2)")).absent());
     }
 
     @Test
@@ -505,13 +505,13 @@ public class CommandContextTests
 
         Assertions.assertNotNull(commandContext);
 
-        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.create("yShear(4"));
-        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.create("scale(3)"));
+        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.command("yShear(4"));
+        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.command("scale(3)"));
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("scale(2)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("roTaTe(45)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("xShear(2)")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("Matrix.xShear(2)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("scale(2)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("roTaTe(45)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("xShear(2)")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix.xShear(2)")).absent());
 
         Assertions.assertFalse(result1.present());
         Assertions.assertTrue(result2.present());
@@ -524,16 +524,16 @@ public class CommandContextTests
 
         Assertions.assertNotNull(commandContext);
 
-        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.create("unitSquare()"));
-        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.create("us()"));
+        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.command("unitSquare()"));
+        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.command("us()"));
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("mirrorX()")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("xReflection()")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection()")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("mirrorY()")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection(fd)")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection)")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("unitSquare(23)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("mirrorX()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("xReflection()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("yReflection()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("mirrorY()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("yReflection(fd)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("yReflection)")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("unitSquare(23)")).absent());
 
         Assertions.assertTrue(result1.present());
         Assertions.assertEquals(4, result1.get());
@@ -552,12 +552,12 @@ public class CommandContextTests
 
         Assertions.assertNotNull(commandContext);
 
-        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.create("mirrorX() us()"));
-        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.create("Matrix([1 0 0 1]) us()"));
+        Exceptional<Integer> result1 = commandContext.invoke(this.invocationFactory.command("mirrorX() us()"));
+        Exceptional<Integer> result2 = commandContext.invoke(this.invocationFactory.command("Matrix([1 0 0 1]) us()"));
 
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("mirrorX() scale(2) us()")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("reflection()")).absent());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create("yReflection(")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("mirrorX() scale(2) us()")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("reflection()")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("yReflection(")).absent());
 
         Assertions.assertTrue(result1.present());
         Assertions.assertEquals(2, result1.get());

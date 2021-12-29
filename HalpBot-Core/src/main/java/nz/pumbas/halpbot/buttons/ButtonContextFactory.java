@@ -4,8 +4,11 @@ import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Service
 public interface ButtonContextFactory
@@ -14,5 +17,7 @@ public interface ButtonContextFactory
     ButtonContext create(String id,
                          boolean isEphemeral,
                          Duration displayDuration,
-                         ActionInvokable<ButtonInvocationContext> actionInvokable);
+                         ActionInvokable<ButtonInvocationContext> actionInvokable,
+                         Object[] passedParameters,
+                         List<ParsingToken> nonCommandParameterTokens);
 }

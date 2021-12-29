@@ -25,9 +25,10 @@ public interface ButtonInvokable extends ActionInvokable<ButtonInvocationContext
         while (parameterIndex < parameters.length) {
             final ParameterContext<?> parameterContext = this.executable().parameters().get(parameterIndex);
             TypeContext<?> targetType = parameterContext.type();
+            invocationContext.currentType(targetType);
 
             // Attempt to find matching parameter
-            if (passedParameterIndex < passedParameters.length && this.parentOf(targetType, passedParameters[passedParameterIndex]))
+            if (passedParameterIndex < passedParameters.length && targetType.parentOf(passedParameters[passedParameterIndex].getClass()))
                 parameters[parameterIndex++] = passedParameters[passedParameterIndex++];
             else if (nonCommandParameterIndex < nonCommandParameterTokens.size()) {
                 ParsingToken token = nonCommandParameterTokens.get(nonCommandParameterIndex++);
@@ -40,10 +41,5 @@ public interface ButtonInvokable extends ActionInvokable<ButtonInvocationContext
                             .formatted(targetType.qualifiedName(), this.executable().qualifiedName())));
         }
         return Exceptional.of(parameters);
-    }
-
-    //TODO: Replace with TypeContext#parentOf when added
-    private boolean parentOf(TypeContext<?> parent, Object child) {
-        return parent.type().isAssignableFrom(child.getClass());
     }
 }
