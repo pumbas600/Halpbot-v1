@@ -23,7 +23,7 @@ public interface Converter<C extends InvocationContext, T>
 
     OptionType optionType();
 
-    boolean requiresHalpbotEvent();
-
-    Exceptional<T> apply(C invocationContext);
+    default Exceptional<T> apply(C invocationContext) {
+        return this.mapper().apply(invocationContext);
+    }
 }

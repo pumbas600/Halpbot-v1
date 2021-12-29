@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.objects;
+package nz.pumbas.halpbot.mocks;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Category;
@@ -32,13 +32,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.List;
 
-public class TestMessage implements Message
+public record MockMessage(String content) implements Message
 {
-
     @Nullable
     @Override
     public MessageReference getMessageReference() {
@@ -141,25 +141,25 @@ public class TestMessage implements Message
     @NotNull
     @Override
     public String getContentDisplay() {
-        return null;
+        return this.content;
     }
 
     @NotNull
     @Override
     public String getContentRaw() {
-        return null;
+        return this.content;
     }
 
     @NotNull
     @Override
     public String getContentStripped() {
-        return null;
+        return this.content;
     }
 
     @NotNull
     @Override
     public List<String> getInvites() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Nullable
@@ -176,7 +176,7 @@ public class TestMessage implements Message
     @NotNull
     @Override
     public ChannelType getChannelType() {
-        return null;
+        return ChannelType.UNKNOWN;
     }
 
     @Override
@@ -217,25 +217,25 @@ public class TestMessage implements Message
     @NotNull
     @Override
     public List<Attachment> getAttachments() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public List<MessageEmbed> getEmbeds() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public List<ActionRow> getActionRows() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public List<Emote> getEmotes() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
@@ -247,13 +247,13 @@ public class TestMessage implements Message
     @NotNull
     @Override
     public List<MessageReaction> getReactions() {
-        return null;
+        return Collections.emptyList();
     }
 
     @NotNull
     @Override
     public List<MessageSticker> getStickers() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -306,7 +306,7 @@ public class TestMessage implements Message
     @NotNull
     @Override
     public JDA getJDA() {
-        return null;
+        return MockJDA.INSTANCE;
     }
 
     @Override
@@ -430,7 +430,7 @@ public class TestMessage implements Message
     @NotNull
     @Override
     public EnumSet<MessageFlag> getFlags() {
-        return null;
+        return EnumSet.noneOf(MessageFlag.class);
     }
 
     @Override
@@ -446,7 +446,7 @@ public class TestMessage implements Message
     @NotNull
     @Override
     public MessageType getType() {
-        return null;
+        return MessageType.DEFAULT;
     }
 
     @Nullable

@@ -10,7 +10,8 @@ import nz.pumbas.halpbot.buttons.ButtonInvocationContext;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.events.HalpbotEvent;
-import nz.pumbas.halpbot.events.InternalEvent;
+import nz.pumbas.halpbot.events.MessageEvent;
+import nz.pumbas.halpbot.mocks.MockMessageEvent;
 
 @Service
 public interface InvocationContextFactory
@@ -20,7 +21,7 @@ public interface InvocationContextFactory
                                      HalpbotEvent halpbotEvent);
 
     default CommandInvocationContext command(String content) {
-        return this.command(content, new InternalEvent());
+        return this.command(content, new MessageEvent(MockMessageEvent.INSTANCE));
     }
 
     @Factory

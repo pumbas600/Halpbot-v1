@@ -40,11 +40,6 @@ public interface ParameterConverter<T> extends Converter<CommandInvocationContex
     @Override
     @SuppressWarnings("unchecked")
     default Exceptional<T> apply(CommandInvocationContext invocationContext) {
-
-        if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent().isInternal())
-            return Exceptional.of(
-                    new NullPointerException("The halpbot event is internal but it is required to convert this type"));
-
         //TODO: Move to state object
         int currentIndex = invocationContext.currentIndex();
         int currentAnnotationIndex = invocationContext.currentAnnotationIndex();

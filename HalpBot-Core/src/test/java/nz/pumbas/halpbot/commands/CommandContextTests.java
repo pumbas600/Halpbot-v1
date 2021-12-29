@@ -44,7 +44,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationConte
 import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.Matrix;
 import nz.pumbas.halpbot.commands.objects.Shape;
-import nz.pumbas.halpbot.commands.objects.TestMessageEvent;
+import nz.pumbas.halpbot.mocks.MockMessageEvent;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
@@ -230,16 +230,14 @@ public class CommandContextTests
     @Test
     public void commandContextWithMessageReceivedEventParameterTest() {
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithMessageReceivedEventParameterTest");
-        CommandInvocationContext invocationContext = this.invocationFactory.command(
-                "", new MessageEvent(new TestMessageEvent()));
+        CommandInvocationContext invocationContext = this.invocationFactory.command("", new MessageEvent(new MockMessageEvent()));
 
         Assertions.assertNotNull(commandContext);
         Exceptional<Boolean> result1 = commandContext.invoke(this.invocationFactory.command(""));
         Exceptional<Boolean> result2 = commandContext.invoke(invocationContext);
 
         Assertions.assertEquals(1, commandContext.tokens().size());
-        Assertions.assertTrue(result1.caught());
-        Assertions.assertThrows(NullPointerException.class, result1::rethrow);
+        Assertions.assertTrue(result1.present());
         Assertions.assertTrue(result2.present());
     }
 

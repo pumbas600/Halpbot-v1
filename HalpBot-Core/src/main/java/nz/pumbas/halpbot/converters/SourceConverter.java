@@ -11,7 +11,6 @@ import java.util.function.Function;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
-import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
 @RequiredArgsConstructor
@@ -21,16 +20,6 @@ public class SourceConverter<T> implements Converter<InvocationContext, T>
     private final TypeContext<? extends Annotation> annotationType;
     private final Function<InvocationContext, Exceptional<T>> mapper;
     private final OptionType optionType;
-    private final boolean requiresHalpbotEvent;
-
-    @Override
-    public Exceptional<T> apply(InvocationContext invocationContext) {
-        if (this.requiresHalpbotEvent() && invocationContext.halpbotEvent().isInternal())
-            return Exceptional.of(
-                    new NullPointerException("The halpbot event is internal but it is required to convert this type"));
-
-        return this.mapper().apply(invocationContext);
-    }
 
     public static <T> SourceConverterBuilder<T> builder(TypeContext<T> type) {
         return new SourceConverterBuilder<>(type);
@@ -44,23 +33,6 @@ public class SourceConverter<T> implements Converter<InvocationContext, T>
 
         protected SourceConverterBuilder(TypeContext<T> type) {
             super(type);
-            this.requiresHalpbotEvent = true;
-        }
-
-        /**
-         * Specifies that this converter requires there to be a {@link HalpbotEvent}. If this event is null in the
-         * {@link InvocationContext} then it will automatically return an exceptional containing a {@link
-         * NullPointerException} and the converter function will NOT be called. By default, this is true for source
-         * converters.
-         *
-         * @param isRequired
-         *         If the halpbot event is required to be present
-         *
-         * @return Itself for chaining
-         */
-        @Override
-        public ConverterBuilder<SourceConverter<T>, InvocationContext, T> requiresHalpbotEvent(boolean isRequired) {
-            return super.requiresHalpbotEvent(isRequired);
         }
 
         @Override
@@ -70,8 +42,7 @@ public class SourceConverter<T> implements Converter<InvocationContext, T>
                     this.type,
                     TypeContext.of(this.annotation),
                     this.converter,
-                    this.optionType,
-                    this.requiresHalpbotEvent);
+                    this.optionType);
         }
     }
 }

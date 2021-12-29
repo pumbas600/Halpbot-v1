@@ -37,8 +37,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationConte
 public record TypeConverter<T>(TypeContext<T> type,
                                TypeContext<? extends Annotation> annotationType,
                                Function<CommandInvocationContext, Exceptional<T>> mapper,
-                               OptionType optionType,
-                               boolean requiresHalpbotEvent)
+                               OptionType optionType)
     implements ParameterConverter<T>
 {
     public static <T> TypeConverterBuilder<T> builder(Class<T> type) {
@@ -93,8 +92,7 @@ public record TypeConverter<T>(TypeContext<T> type,
                     this.type,
                     TypeContext.of(this.annotation),
                     this.converter,
-                    this.optionType,
-                    this.requiresHalpbotEvent);
+                    this.optionType);
         }
     }
 }

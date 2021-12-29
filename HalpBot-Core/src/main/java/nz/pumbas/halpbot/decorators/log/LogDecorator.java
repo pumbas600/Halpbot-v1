@@ -27,19 +27,17 @@ public class LogDecorator<C extends InvocationContext> extends ActionInvokableDe
 
     @Override
     public <R> Exceptional<R> invoke(C invocationContext) {
-
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
-        if (!halpbotEvent.isInternal()) {
-            AbstractChannel channel = halpbotEvent.channel();
-            Guild guild = halpbotEvent.guild();
+        AbstractChannel channel = halpbotEvent.channel();
+        Guild guild = halpbotEvent.guild();
 
-            this.logLevel.log(invocationContext.applicationContext(),
-                    "[%s][%s] %s has invoked the action %s".formatted(
-                                guild != null ? guild.getName() : "PM",
-                                channel != null ? channel.getName() : "?",
-                                halpbotEvent.user().getAsTag(),
-                                this.executable().qualifiedName()));
-        }
+        this.logLevel.log(invocationContext.applicationContext(),
+                "[%s][%s] %s has invoked the action %s".formatted(
+                            guild != null ? guild.getName() : "PM",
+                            channel != null ? channel.getName() : "?",
+                            halpbotEvent.user().getAsTag(),
+                            this.executable().qualifiedName()));
+
         return super.invoke(invocationContext);
     }
 }

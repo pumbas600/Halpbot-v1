@@ -19,7 +19,6 @@ public abstract class ConverterBuilder<R extends Converter<C, T>, C extends Invo
     protected @Nullable Class<? extends Annotation> annotation;
 
     protected OptionType optionType = OptionType.STRING;
-    protected boolean requiresHalpbotEvent;
 
     protected ConverterBuilder(TypeContext<T> type) {
         this.type = type;
@@ -64,22 +63,6 @@ public abstract class ConverterBuilder<R extends Converter<C, T>, C extends Invo
      */
     public ConverterBuilder<R, C, T> optionType(OptionType optionType) {
         this.optionType = optionType;
-        return this;
-    }
-
-    /**
-     * Specifies that this converter requires there to be a {@link nz.pumbas.halpbot.events.HalpbotEvent}. If
-     * this event is null in the {@link InvocationContext} then it will automatically return an exceptional
-     * containing a {@link NullPointerException} and the converter function will NOT be called. By default, this
-     * is false.
-     *
-     * @param isRequired
-     *      If the halpbot event is required to be present
-     *
-     * @return Itself for chaining
-     */
-    public ConverterBuilder<R, C, T> requiresHalpbotEvent(boolean isRequired) {
-        this.requiresHalpbotEvent = isRequired;
         return this;
     }
 

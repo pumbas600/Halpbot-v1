@@ -29,21 +29,27 @@ public interface HalpbotEvent
         return Exceptional.of(() -> this.event(type));
     }
 
-    default boolean isInternal() {
-        return false;
-    }
-
     MessageChannel messageChannel();
 
     TextChannel textChannel();
 
     PrivateChannel privateChannel();
 
+    /**
+     * This is currently never nullable, but may be nullable in the future according to the Javadocs.
+     *
+     * @return The channel the event was created in
+     */
     @Nullable
     AbstractChannel channel();
     
     ChannelType channelType();
 
+    /**
+     * This can be null if the event was created in a private message.
+     *
+     * @return The guild this event was created in
+     */
     @Nullable
     Guild guild();
 
