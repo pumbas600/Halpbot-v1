@@ -396,35 +396,35 @@ public final class DefaultConverters
                     .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext()))
                     .build();
 
-    public static final TypeConverter<MessageChannel> SOURCE_MESSAGE_CHANNEL_CONVERTER =
-            TypeConverter.builder(MessageChannel.class)
+    public static final SourceConverter<MessageChannel> SOURCE_MESSAGE_CHANNEL_CONVERTER =
+            SourceConverter.builder(MessageChannel.class)
                     .annotation(Source.class)
                     .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().messageChannel()))
                     .build();
 
-    public static final TypeConverter<TextChannel> SOURCE_TEXT_CHANNEL_CONVERTER =
-            TypeConverter.builder(TextChannel.class)
+    public static final SourceConverter<TextChannel> SOURCE_TEXT_CHANNEL_CONVERTER =
+            SourceConverter.builder(TextChannel.class)
                     .annotation(Source.class)
                     .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().textChannel()))
                     .build();
 
-    public static final TypeConverter<PrivateChannel> SOURCE_PRIVATE_CHANNEL_CONVERTER =
-            TypeConverter.builder(PrivateChannel.class)
+    public static final SourceConverter<PrivateChannel> SOURCE_PRIVATE_CHANNEL_CONVERTER =
+            SourceConverter.builder(PrivateChannel.class)
                     .annotation(Source.class)
                     .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().privateChannel()))
                     .build();
 
-    public static final TypeConverter<User> SOURCE_USER_CONVERTER = TypeConverter.builder(User.class)
+    public static final SourceConverter<User> SOURCE_USER_CONVERTER = SourceConverter.builder(User.class)
             .annotation(Source.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().user()))
             .build();
 
-    public static final TypeConverter<Guild> SOURCE_GUILD_CONVERTER = TypeConverter.builder(Guild.class)
+    public static final SourceConverter<Guild> SOURCE_GUILD_CONVERTER = SourceConverter.builder(Guild.class)
             .annotation(Source.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().guild()))
             .build();
 
-    public static final TypeConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = TypeConverter.builder(ChannelType.class)
+    public static final SourceConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = SourceConverter.builder(ChannelType.class)
             .annotation(Source.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().channelType()))
             .build();

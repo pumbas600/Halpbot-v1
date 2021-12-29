@@ -24,21 +24,28 @@
 
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.time.temporal.ChronoUnit;
 
+import javax.inject.Inject;
+
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
+import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.TypeConverter;
+import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.customparameters.units.Prefix;
 import nz.pumbas.halpbot.customparameters.units.Unit;
@@ -51,7 +58,6 @@ import nz.pumbas.halpbot.utilities.Duration;
 @Service
 public class HalpbotCommands
 {
-
     @Command(alias = "source")
     public String source() {
         return "You can see the source code for me here: https://github.com/pumbas600/HalpBot :kissing_heart:";
@@ -91,6 +97,21 @@ public class HalpbotCommands
     @ButtonAction(id = "halpbot:danger", isEphemeral = true)
     public String danger(ButtonClickEvent event) {
         return "You clicked the danger button!";
+    }
+
+    @Time
+    @Command(description = "Tests dynamic buttons")
+    public MessageAction dynamicDemo(MessageReceivedEvent event, ButtonAdapter buttonAdapter, @Remaining String suffix) {
+        return event.getChannel()
+                .sendMessage("This is a dynamic suffix adding button demo")
+                .setActionRow(buttonAdapter.register(
+                        Button.primary("halpbot:button:dynamic", "Add suffix"), suffix));
+    }
+
+    @Time
+    @ButtonAction(id = "halpbot:button:dynamic", displayDuration = @Duration(10))
+    public String suffix(@Source User user, String suffix) {
+        return user.getName() + suffix;
     }
 
     @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.MINUTES))

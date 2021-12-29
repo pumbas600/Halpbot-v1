@@ -15,6 +15,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationConte
 import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.ConverterHandler;
+import nz.pumbas.halpbot.converters.SourceConverter;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
@@ -46,16 +47,16 @@ public interface TokenFactory
         final ConverterHandler converterHandler = this.converterHandler();
         final ParameterAnnotationService annotationService = this.parameterAnnotationService();
 
-        boolean isCommandParameter = converterHandler.isCommandParameter(parameterContext);
-        boolean isOptional = false;
-        @Nullable Object defaultValue = null;
-
         List<TypeContext<? extends Annotation>> sortedAnnotations =
                 annotationService.sortAndFilter(
                         parameterContext.annotations()
                                 .stream()
                                 .map(annotation -> TypeContext.of(annotation.annotationType())));
+
         Converter<CommandInvocationContext, ?> converter = converterHandler.from(parameterContext, sortedAnnotations);
+        boolean isCommandParameter = !(converter instanceof SourceConverter);
+        boolean isOptional = false;
+        @Nullable Object defaultValue = null;
 
         Exceptional<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
 

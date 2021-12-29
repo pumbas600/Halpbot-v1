@@ -31,9 +31,9 @@ public class TimeDecorator<C extends InvocationContext> extends ActionInvokableD
         OffsetDateTime start = OffsetDateTime.now();
         Exceptional<R> result = super.invoke(invocationContext);
 
-        double us = start.until(OffsetDateTime.now(), ChronoUnit.NANOS) / 1000D;
-        this.logLevel.log(invocationContext.applicationContext(), "Invoked [%s] %s in %.2fμs"
-                .formatted(this.executable().qualifiedName(), result.caught() ? "Unsuccessfully" : "Successfully", us));
+        double ms = start.until(OffsetDateTime.now(), ChronoUnit.NANOS) / 1_000_000D;
+        this.logLevel.log(invocationContext.applicationContext(), "Invoked [%s] %s in %.5fms"
+                .formatted(this.executable().qualifiedName(), result.caught() ? "Unsuccessfully" : "Successfully", ms));
 
         return result;
     }

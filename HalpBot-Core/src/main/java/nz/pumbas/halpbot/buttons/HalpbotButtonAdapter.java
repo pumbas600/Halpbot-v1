@@ -66,16 +66,19 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     @Override
     public Button register(Button button, Object... parameters) {
         ButtonContext buttonContext = this.buttonContext( button.getId());
-        if (buttonContext != null) {
-            String newId = button.getId() + System.currentTimeMillis();
-            ButtonContext newButtonContext = this.buttonContextFactory
-                    .create(newId, parameters, buttonContext);
+        if (buttonContext == null)
+            throw new IllegalArgumentException(
+                    "You cannot register a button with the id %s as there is no matching button action for it"
+                            .formatted(button.getId()));
 
-            this.registeredButtons.put(newId, newButtonContext);
-            //TODO: Remove after awhile?
-        }
+        String newId = button.getId() + System.currentTimeMillis();
+        ButtonContext newButtonContext = this.buttonContextFactory
+                .create(newId, parameters, buttonContext);
 
-        return button;
+        this.registeredButtons.put(newId, newButtonContext);
+        //TODO: Remove after awhile
+
+        return button.withId(newId);
     }
 
     private <T> ButtonContext createButton(String id,
@@ -100,8 +103,9 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     @Override
     @SubscribeEvent
     public void onButtonClick(ButtonClickEvent event) {
-        if (!this.registeredButtons.containsKey(event.getComponentId()))
+        if (!this.registeredButtons.containsKey(event.getComponentId())) {
             return;
+        }
 
         ButtonContext buttonContext = this.registeredButtons.get(event.getComponentId());
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
@@ -116,6 +120,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             else displayConfiguration.display(halpbotEvent, result.get(), buttonContext.displayDuration());
         }
         else if (result.caught()) {
+            event.deferEdit(); // Prevent interaction failed event
             Throwable exception = result.error();
 
             if (exception instanceof ExplainedException explainedException) {
