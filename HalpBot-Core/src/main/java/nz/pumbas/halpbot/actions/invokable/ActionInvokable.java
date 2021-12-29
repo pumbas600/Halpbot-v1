@@ -15,7 +15,7 @@ public interface ActionInvokable<C extends InvocationContext> extends Invokable
     @Override
     @SuppressWarnings("unchecked")
     default <R> Exceptional<R> invoke(Object... parameters) {
-        final ExecutableElementContext<?> executable = this.executable();
+        final ExecutableElementContext<?, ?> executable = this.executable();
         if (executable instanceof MethodContext methodContext) {
             return methodContext.invoke(this.instance(), parameters);
         }

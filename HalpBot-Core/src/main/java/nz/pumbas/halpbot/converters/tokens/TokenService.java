@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface TokenService extends ContextCarrier
 {
-    List<Token> tokens(ExecutableElementContext<?> executableContext);
+    List<Token> tokens(ExecutableElementContext<?, ?> executableContext);
 }

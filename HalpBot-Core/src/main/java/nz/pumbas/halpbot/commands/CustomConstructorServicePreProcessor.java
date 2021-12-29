@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.Key;
 import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -18,15 +19,15 @@ public class CustomConstructorServicePreProcessor implements ServicePreProcessor
     }
 
     @Override
-    public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
-        return type.constructors()
+    public boolean preconditions(ApplicationContext context, Key<?> key) {
+        return key.type().constructors()
                 .stream()
                 .anyMatch(constructorContext -> constructorContext.annotation(CustomConstructor.class).present());
     }
 
     @Override
-    public <T> void process(ApplicationContext context, TypeContext<T> type) {
-        context.get(CommandAdapter.class).registerCustomConstructors(type);
+    public <T> void process(ApplicationContext context, Key<T> key) {
+        context.get(CommandAdapter.class).registerCustomConstructors(key.type());
     }
 
     @Override

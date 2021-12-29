@@ -20,7 +20,7 @@ public interface ActionContextDecorator<C extends InvocationContext> extends Act
     }
 
     @Override
-    default ExecutableElementContext<?> executable() {
+    default ExecutableElementContext<?, ?> executable() {
         return this.actionInvokable().executable();
     }
 

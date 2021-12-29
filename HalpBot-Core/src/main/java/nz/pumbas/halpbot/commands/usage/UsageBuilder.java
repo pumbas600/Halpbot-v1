@@ -10,5 +10,5 @@ public interface UsageBuilder
         return true;
     }
 
-    String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext);
+    String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?, ?> executableContext);
 }

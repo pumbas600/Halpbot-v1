@@ -90,7 +90,7 @@ public class HalpbotConverterHandler implements ConverterHandler
             // (E.g: ArrayTypeContext will equal any arrays)
             return (Converter<C, T>) this.converters.keySet()
                     .stream()
-                    .filter(type -> this.parentOf(type, typeContext))
+                    .filter(type -> type.parentOf(typeContext))
                     .min(Comparator.comparing(type -> type.is(Object.class))) // Prioritise types that aren't Object.class
                     .map(type -> this.from(type, targetAnnotationType))
                     .orElse(Reflect.cast(DefaultConverters.OBJECT_CONVERTER));
@@ -105,20 +105,13 @@ public class HalpbotConverterHandler implements ConverterHandler
                 );
     }
 
-    //TODO: Replace with TypeContext#parentOf when available
-    private boolean parentOf(TypeContext<?> parent, TypeContext<?> child) {
-        return parent instanceof ArrayTypeContext
-                ? parent.equals(child)
-                : child.childOf(parent);
-    }
-
     @SuppressWarnings("unchecked")
     private <T, C extends InvocationContext> Exceptional<Converter<C, T>> searchAnnotationForType(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
         return Exceptional.of(this.converters.values()
                 .stream()
                 .flatMap(Collection::stream)
                 .filter(converter -> converter.annotationType().equals(targetAnnotationType))
-                .filter(converter -> this.parentOf(converter.type(), typeContext))
+                .filter(converter -> converter.type().parentOf(typeContext))
                 .findFirst()
                 .map(converter -> (Converter<C, T>) converter));
     }

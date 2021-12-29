@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.commands;
 
+import org.dockbox.hartshorn.core.Key;
 import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -17,22 +18,20 @@ public class CommandServicePreProcessor implements ServicePreProcessor<UseComman
         return ProcessingOrder.LATE;
     }
 
-
-
     @Override
     public Class<UseCommands> activator() {
         return UseCommands.class;
     }
 
     @Override
-    public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
-        return !type.methods(Command.class).isEmpty();
+    public boolean preconditions(ApplicationContext context, Key<?> key) {
+        return !key.type().methods(Command.class).isEmpty();
     }
 
     @Override
-    public <T> void process(ApplicationContext context, TypeContext<T> type) {
-        context.log().debug("Processing %s".formatted(type.qualifiedName()));
+    public <T> void process(ApplicationContext context, Key<T> key) {
+        context.log().debug("Processing %s".formatted(key.type().qualifiedName()));
         CommandAdapter commandAdapter = context.get(CommandAdapter.class);
-        commandAdapter.registerCommands(type);
+        commandAdapter.registerCommands(key.type());
     }
 }

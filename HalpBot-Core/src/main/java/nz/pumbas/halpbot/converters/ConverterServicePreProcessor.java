@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.converters;
 
+import org.dockbox.hartshorn.core.Key;
 import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -16,13 +17,13 @@ public class ConverterServicePreProcessor implements ServicePreProcessor<UseComm
     }
 
     @Override
-    public boolean preconditions(ApplicationContext context, TypeContext<?> type) {
-        return !type.fieldsOf(Converter.class).isEmpty();
+    public boolean preconditions(ApplicationContext context, Key<?> key) {
+        return !key.type().fieldsOf(Converter.class).isEmpty();
     }
 
     @Override
-    public <T> void process(ApplicationContext context, TypeContext<T> type) {
+    public <T> void process(ApplicationContext context, Key<T> key) {
         final ConverterHandler handler = context.get(ConverterHandler.class);
-        handler.register(type);
+        handler.register(key.type());
     }
 }

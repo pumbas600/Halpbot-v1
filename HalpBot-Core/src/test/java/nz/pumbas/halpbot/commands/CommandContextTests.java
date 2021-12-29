@@ -187,13 +187,13 @@ public class CommandContextTests
         Exceptional<Double> result3 = commandContext.invoke(this.invocationFactory.create(
                 "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150) Shape(Rectangle 200 50 100 275)"));
 
-        Assertions.assertTrue(result3.present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.create(
             "Shape(Rectangle 200 50 100 25)")).present());
 
         Assertions.assertTrue(result1.absent());
         Assertions.assertTrue(result2.present());
         Assertions.assertEquals(20000D, result2.get());
+        Assertions.assertTrue(result3.present());
     }
 
     @Command(alias = "implicitArrayAtEndTest",

@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
+import java.time.temporal.ChronoUnit;
 
+import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.bugtesting.DemoFactory;
 import nz.pumbas.halpbot.bugtesting.DemoImplementation;
 import nz.pumbas.halpbot.bugtesting.DemoInterface;
@@ -22,6 +24,7 @@ import nz.pumbas.halpbot.decorators.log.CustomLogDecorator;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.log.LogDecorator;
 import nz.pumbas.halpbot.decorators.log.LogDecoratorFactory;
+import nz.pumbas.halpbot.utilities.Duration;
 import nz.pumbas.halpbot.utilities.LogLevel;
 
 @Demo
@@ -43,9 +46,33 @@ public class DemoTests
 
     @InjectTest
     public void inheritedFactoryTest(CooldownDecoratorFactory factory) {
-        CooldownDecorator decorator = factory.decorate(null, null);
+        CooldownDecorator<?> decorator = factory.decorate(new HalpbotCommandInvokable(null, null), new Cooldown() {
+            @Override
+            public Duration duration() {
+                return new Duration() {
+                    @Override
+                    public long value() {
+                        return 10;
+                    }
+
+                    @Override
+                    public ChronoUnit unit() {
+                        return ChronoUnit.SECONDS;
+                    }
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return Duration.class;
+                    }
+                };
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Cooldown.class;
+            }
+        });
         Assertions.assertNotNull(decorator);
-        Assertions.assertEquals("Cooldown decorator", decorator.toString());
     }
 
     @Test

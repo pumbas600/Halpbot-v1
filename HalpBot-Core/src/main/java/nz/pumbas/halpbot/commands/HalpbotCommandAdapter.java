@@ -249,7 +249,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         return aliases;
     }
 
-    private String usage(String usage, ExecutableElementContext<?> executable) {
+    private String usage(String usage, ExecutableElementContext<?, ?> executable) {
         if (!usage.isBlank())
             return usage;
         else return this.usageBuilder.buildUsage(this.applicationContext, executable);

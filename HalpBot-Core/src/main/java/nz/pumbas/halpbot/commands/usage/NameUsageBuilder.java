@@ -39,7 +39,7 @@ public class NameUsageBuilder implements UsageBuilder
     }
 
     @Override
-    public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?> executableContext) {
+    public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?, ?> executableContext) {
         TokenService tokenService = applicationContext.get(TokenService.class);
         StringBuilder stringBuilder = new StringBuilder();
         List<ParameterContext<?>> parameters = executableContext.parameters();

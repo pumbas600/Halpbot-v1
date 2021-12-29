@@ -3,7 +3,6 @@ package nz.pumbas.halpbot.decorators;
 import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.AnnotatedElementContext;
-import org.dockbox.hartshorn.core.context.element.ConstructorContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -13,12 +12,10 @@ import org.dockbox.hartshorn.core.domain.tuple.Tuple;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
@@ -57,7 +54,7 @@ public interface DecoratorService extends Enableable, ContextCarrier
     //TODO: Test this
     @SuppressWarnings("unchecked")
     default <C extends InvocationContext> ActionInvokable<C> decorate(ActionInvokable<C> actionInvokable) {
-        Map<TypeContext<? extends Annotation>, List<Annotation>> parentDecorators = this.decorators(this.parent(actionInvokable.executable()));
+        Map<TypeContext<? extends Annotation>, List<Annotation>> parentDecorators = this.decorators(actionInvokable.executable().parent());
         Map<TypeContext<? extends Annotation>, List<Annotation>> decorators = this.decorators(actionInvokable.executable());
 
         // Merge the parent and action decorators using the DecoratorMerge specified
@@ -95,13 +92,6 @@ public interface DecoratorService extends Enableable, ContextCarrier
                 .stream()
                 .filter((annotation) -> TypeContext.of(annotation.annotationType()).annotation(Decorator.class).present())
                 .collect(Collectors.groupingBy(annotation -> TypeContext.of(annotation.annotationType())));
-    }
-
-    //TODO: Remove once this becomes available in HH:
-    private TypeContext<?> parent(ExecutableElementContext<?> executable) {
-        if (executable instanceof MethodContext methodContext)
-            return methodContext.parent();
-        return ((TypedElementContext<?>) executable).type();
     }
 
     default int depth(ActionInvokable<?> actionInvokable) {

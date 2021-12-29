@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Binds(ButtonInvokable.class)
 public record HalpbotButtonInvokable(@Nullable Object instance,
-                                     ExecutableElementContext<?> executable)
+                                     ExecutableElementContext<?, ?> executable)
     implements ButtonInvokable
 {
     @Bound

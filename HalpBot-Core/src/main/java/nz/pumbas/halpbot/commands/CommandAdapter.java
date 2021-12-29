@@ -131,7 +131,7 @@ public interface CommandAdapter extends HalpbotAdapter
 
     String typeAlias(TypeContext<?> typeContext);
 
-    default boolean parameterAnnotationsAreValid(ExecutableElementContext<?> executable) {
+    default boolean parameterAnnotationsAreValid(ExecutableElementContext<?, ?> executable) {
         for (ParameterContext<?> parameterContext : executable.parameters()) {
             TypeContext<?> parameterType = parameterContext.type();
             List<TypeContext<? extends Annotation>> parameterAnnotations = parameterContext.annotations()

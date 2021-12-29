@@ -19,7 +19,7 @@ public class ActionInvokableDecorator<C extends InvocationContext> implements Ac
     }
 
     @Override
-    public ExecutableElementContext<?> executable() {
+    public ExecutableElementContext<?, ?> executable() {
         return this.actionInvokable.executable();
     }
 

@@ -30,6 +30,16 @@ public class ArrayTypeContext extends TypeContext<Object>
     }
 
     @Override
+    public boolean parentOf(Class<?> to) {
+        return to.isArray();
+    }
+
+    @Override
+    public boolean parentOf(TypeContext<?> type) {
+        return type.isArray();
+    }
+
+    @Override
     public boolean isArray() {
         return true;
     }

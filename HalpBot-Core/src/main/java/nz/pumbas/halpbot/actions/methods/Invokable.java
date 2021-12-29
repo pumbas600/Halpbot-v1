@@ -9,7 +9,7 @@ public interface Invokable
     @Nullable
     Object instance();
 
-    ExecutableElementContext<?> executable();
+    ExecutableElementContext<?, ?> executable();
 
     <R> Exceptional<R> invoke(Object... parameters);
 }

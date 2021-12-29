@@ -28,7 +28,7 @@ import nz.pumbas.halpbot.utilities.StringTraverser;
 @Binds(TokenService.class)
 public class HalpbotTokenService implements TokenService
 {
-    private final Map<ExecutableElementContext<?>, List<Token>> cache = HartshornUtils.emptyMap();
+    private final Map<ExecutableElementContext<?, ?>, List<Token>> cache = HartshornUtils.emptyMap();
 
     @Inject
     @Getter private ApplicationContext applicationContext;
@@ -39,7 +39,7 @@ public class HalpbotTokenService implements TokenService
     @Inject private ConverterHandler converterHandler;
 
     @Override
-    public List<Token> tokens(ExecutableElementContext<?> executableContext) {
+    public List<Token> tokens(ExecutableElementContext<?, ?> executableContext) {
         if (this.cache.containsKey(executableContext))
             return this.cache.get(executableContext);
 
@@ -95,8 +95,9 @@ public class HalpbotTokenService implements TokenService
         return tokens;
     }
 
-    private Exceptional<String> command(ExecutableElementContext<?> executableContext) {
-        return executableContext.annotation(Command.class).map(Command::command)
+    private Exceptional<String> command(ExecutableElementContext<?, ?> executableContext) {
+        return executableContext.annotation(Command.class)
+                .map(Command::command)
                 .orElse(() -> executableContext.annotation(CustomConstructor.class).map(CustomConstructor::command).orNull());
 
     }

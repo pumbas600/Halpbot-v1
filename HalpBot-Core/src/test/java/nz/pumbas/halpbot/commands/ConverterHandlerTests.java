@@ -142,6 +142,15 @@ public class ConverterHandlerTests
     }
 
     @InjectTest
+    public void retrievingImplicitListConverterTest(ConverterHandler converterHandler) {
+        Converter<?, int[]> converter = converterHandler
+                .from(TypeContext.of(int[].class), TypeContext.of(Implicit.class));
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, converter);
+    }
+
+    @InjectTest
     public void retrievingChildrenConverterTest(ConverterHandler converterHandler) {
         Converter<?, List> converter = converterHandler
                 .from(TypeContext.of(List.class), TypeContext.of(Children.class));
