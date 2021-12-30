@@ -19,26 +19,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.security.auth.login.LoginException;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
-import nz.pumbas.halpbot.actions.cooldowns.UserCooldowns;
 import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
-import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
-import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
@@ -46,17 +39,17 @@ public class HalpbotCore implements ContextCarrier
 {
     @Getter private long ownerId = -1;
 
-    @Inject @Getter private ApplicationContext applicationContext;
+    @Getter
+    @Inject private ApplicationContext applicationContext;
+    @Inject private PermissionService permissionService;
 
     @Getter private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
 
     @Nullable private JDA jda;
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
-    private final Map<Long, UserCooldowns> userCooldownsMap = new ConcurrentHashMap<>();
 
     private final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
-    private final PermissionService permissionService = HalpbotUtils.context().get(PermissionService.class);
 
     /**
      * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke
@@ -129,66 +122,7 @@ public class HalpbotCore implements ContextCarrier
             ExceptionHandler.unchecked(e);
         }
 
-        this.concurrentManager.scheduleRegularly(20, 20, TimeUnit.MINUTES, this::clearEmptyCooldowns);
         return this.jda;
-    }
-
-    public void addCooldown(long userId, String actionId, CooldownTimer cooldown) {
-       UserCooldowns userCooldowns;
-        if (!this.userCooldownsMap.containsKey(userId)) {
-            userCooldowns = new UserCooldowns();
-            this.userCooldownsMap.put(userId, userCooldowns);
-        }
-        else userCooldowns = this.userCooldownsMap.get(userId);
-
-        userCooldowns.addCooldown(actionId, cooldown);
-    }
-
-    public boolean hasCooldown(long userId, String actionId) {
-        return this.userCooldownsMap.containsKey(userId)
-            && this.userCooldownsMap.get(userId).hasCooldownFor(actionId);
-    }
-
-    /**
-     * Check if the user has a cooldown for the specified action. If they do, it displays a cooldown message telling
-     * the user how long they have to wait before they can do the action again. This message will automatically
-     * delete after a short period of time. Note that this message has a cooldown too. If their 'cooldown message' is
-     * cooling down, then nothing will be displayed, preventing users from spamming the cooldown message.
-     *
-     * @param event
-     *      The event to send display the message with
-     * @param userId
-     *      The user id
-     * @param actionId
-     *      The action id
-     *
-     * @return If they have a cooldown.
-     */
-    public boolean hasCooldown(HalpbotEvent event, long userId, String actionId) {
-        if (this.userCooldownsMap.containsKey(userId)) {
-            UserCooldowns userCooldowns = this.userCooldownsMap.get(userId);
-            if (userCooldowns.hasCooldownFor(actionId))
-            {
-                final MessageEmbed remainingTimeEmbed = userCooldowns.getCooldownFor(actionId)
-                    .remainingTimeEmbed();
-
-                event.eventSafely(Interaction.class)
-                    .present(interaction ->
-                        this.displayConfiguration().displayTemporary(event, remainingTimeEmbed, -1))
-                    .absent(() -> {
-                        if (userCooldowns.canSendCooldownMessage()) {
-                            this.displayConfiguration().displayTemporary(event, remainingTimeEmbed, 10);
-                        }
-                    });
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void clearEmptyCooldowns() {
-       this.userCooldownsMap.entrySet()
-           .removeIf(entry -> entry.getValue().isEmpty());
     }
 
     public <T extends HalpbotAdapter> HalpbotCore registerAdapter(T adapter) {
@@ -204,10 +138,12 @@ public class HalpbotCore implements ContextCarrier
         return this.jda;
     }
 
+    @Nullable
     public <T> T get(final Class<T> implementation) {
         return this.get(TypeContext.of(implementation));
     }
 
+    @Nullable
     public <T> T get(final TypeContext<T> implementation) {
         return this.getSafely(implementation).orNull();
     }

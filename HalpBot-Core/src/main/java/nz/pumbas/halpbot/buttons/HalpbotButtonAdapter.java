@@ -23,6 +23,7 @@ import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.common.ExplainedException;
+import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
@@ -127,7 +128,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                 this.halpbotCore.displayConfiguration()
                         .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
             }
-            else this.halpbotCore.displayConfiguration()
+            else if (!(exception instanceof UndisplayedException))
+                this.halpbotCore.displayConfiguration()
                     .displayTemporary(
                             halpbotEvent,
                             "There was the following error trying to invoke this command: " + exception.getMessage(),

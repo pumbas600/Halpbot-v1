@@ -60,7 +60,6 @@ public class HalpbotCommandInvocationContext implements CommandInvocationContext
     @Setter private TypeContext<?> currentType = TypeContext.VOID;
     @Setter private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
     @Setter private Set<Annotation> annotations = Collections.emptySet();
-    @Nullable private ParameterContext<?> parameterContext; //TODO: Replace with ParameterContext#genericType
     @Setter private boolean canHaveContextLeft;
     @Setter private List<Token> tokens = Collections.emptyList();
 
@@ -73,15 +72,6 @@ public class HalpbotCommandInvocationContext implements CommandInvocationContext
     @Override
     public void incrementCurrentAnnotationIndex() {
         this.currentAnnotationIndex++;
-    }
-
-    @Override
-    public void parameterContext(@Nullable ParameterContext<?> parameterContext) {
-        if (parameterContext != null) {
-            this.currentType(parameterContext.type());
-            this.annotations(parameterContext.annotations());
-        }
-        this.parameterContext = parameterContext;
     }
 
     @Override

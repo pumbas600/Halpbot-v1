@@ -31,27 +31,18 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.utils.Helpers;
 
+import org.checkerframework.checker.units.qual.Time;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.domain.Exceptional;
-
-import java.time.temporal.ChronoUnit;
-
-import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
-import nz.pumbas.halpbot.converters.DefaultConverters;
-import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.customparameters.Shape;
-import nz.pumbas.halpbot.customparameters.units.Prefix;
-import nz.pumbas.halpbot.customparameters.units.Unit;
 import nz.pumbas.halpbot.decorators.log.Log;
-import nz.pumbas.halpbot.decorators.time.Time;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
 
@@ -115,14 +106,9 @@ public class HalpbotCommands
         return user.getName() + suffix;
     }
 
-    @Command(description = "Returns the code point length of a string")
-    public int cplength(@Remaining String string) {
-        return Helpers.codePointLength(string);
-    }
-
-    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.MINUTES))
+    @Cooldown(duration = @Duration(60))
     @Command(description = "Tests multiple decorators")
-    public String test() {
+    public String cooldown() {
         return "This command is logged when its invoked and has a 20 second cooldown!";
     }
 
@@ -163,38 +149,5 @@ public class HalpbotCommands
         }
 
         return String.format("x: %.2f, y: %.2f", sumAx / totalA, sumAy / totalA);
-    }
-
-    public static final TypeConverter<Unit> UNIT_CONVERTER = TypeConverter.builder(Unit.class)
-        .convert(
-            ctx -> DefaultConverters.DOUBLE_CONVERTER.apply(ctx)
-                .map(value -> {
-                    Exceptional<String> eUnit = DefaultConverters.STRING_CONVERTER.apply(ctx);
-                    if (eUnit.caught()) eUnit.rethrowUnchecked();
-                    String unit = eUnit.get();
-                    if (1 < unit.length() && Prefix.isPrefix(unit.charAt(0)))
-                        return new Unit(value, Prefix.getPrefix(unit.charAt(0)), unit.substring(1));
-                    else
-                        return new Unit(value, Prefix.DEFAULT, unit);
-                }))
-        .build();
-
-    public static final TypeConverter<Prefix> PREFIX_CONVERTER = TypeConverter.builder(Prefix.class)
-        .convert(ctx ->
-            DefaultConverters.ENUM_CONVERTER.apply(ctx)
-                .map(prefix -> (Prefix) prefix)
-                .orElse(() ->
-                    DefaultConverters.CHARACTER_CONVERTER.apply(ctx)
-                        .map(prefix -> {
-                            if (Prefix.isPrefix(prefix))
-                                return Prefix.getPrefix(prefix);
-                            throw new IllegalArgumentException("That is not a valid prefix");
-                        }).orNull()
-                ))
-        .build();
-
-    @Command(alias = "convert", description = "Converts the number to the specified prefix")
-    public Unit convert(Unit unit, Prefix toPrefix) {
-        return unit.to(toPrefix);
     }
 }

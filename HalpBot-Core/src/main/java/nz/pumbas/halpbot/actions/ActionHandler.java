@@ -16,8 +16,6 @@ public interface ActionHandler
 //            return;
 //        }
 
-        if (!this.getHalpbotCore().hasCooldown(event, userId, this.getActionId(event))) {
-
             actionCallback.invokeCallback(event)
                 .present(value ->
                     {
@@ -38,7 +36,7 @@ public interface ActionHandler
 //                this.getHalpbotCore()
 //                    .addCooldown(userId, this.getActionId(event), actionCallback.createCooldown());
 //            }
-        }
+
     }
 
     default boolean displayTemporarily(ActionCallback actionCallback) {

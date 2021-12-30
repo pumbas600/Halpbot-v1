@@ -445,6 +445,33 @@ public class CommandContextTests
     }
 
     @Test
+    public void commandContextWithNestedGenericParametersTest() {
+        CommandContext commandContext = this.commandAdapter.commandContext("commandWithNestedGenericParametersTest");
+
+        Assertions.assertNotNull(commandContext);
+        List<Token> tokens = commandContext.tokens();
+
+        Assertions.assertEquals(1, tokens.size());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[1 2 3] [1 4 6]]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[1 4 5] [1 4]]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 4 5] [1 3] [4 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[2 2] [1.2]]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[2 4] [1 4]")).absent());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[[2 4] [1 4]]]")).absent());
+    }
+
+    @Command(alias = "commandWithNestedGenericParametersTest")
+    public int commandWithNestedGenericParametersTestMethod(@Implicit List<List<Integer>> matrix) {
+        int sum = 0;
+        for (List<Integer> row : matrix) {
+            for (int num : row) {
+                sum += num;
+            }
+        }
+        return sum;
+    }
+
+    @Test
     public void commandContextWithComplexCustomParameterMatchesTest() {
         CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 

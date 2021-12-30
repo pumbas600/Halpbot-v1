@@ -47,6 +47,7 @@ import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
 import nz.pumbas.halpbot.common.ExplainedException;
+import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
@@ -119,7 +120,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
                     this.halpbotCore.displayConfiguration()
                             .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
                 }
-                else this.halpbotCore.displayConfiguration()
+                else if (!(exception instanceof UndisplayedException))
+                    this.halpbotCore.displayConfiguration()
                         .displayTemporary(
                                 halpbotEvent,
                                 "There was the following error trying to invoke this command: " + exception.getMessage(),

@@ -14,6 +14,7 @@ public class CooldownTimer
     public static final CooldownTimer Empty = new CooldownTimer(Duration.ZERO);
 
     private final OffsetDateTime end;
+    private OffsetDateTime previousRemainingTime = OffsetDateTime.MIN;
 
     public CooldownTimer(Duration duration) {
         this.end = OffsetDateTime.now().plus(duration);
@@ -27,8 +28,13 @@ public class CooldownTimer
         return OffsetDateTime.now().until(this.end, ChronoUnit.MILLIS);
     }
 
+    public boolean canSendEmbed(long secondsPassed) {
+        return this.previousRemainingTime.until(OffsetDateTime.now(), ChronoUnit.SECONDS) >= secondsPassed;
+    }
+
     public MessageEmbed remainingTimeEmbed() {
         double remainingTimeSeconds = this.remainingTime() / 1000D;
+        this.previousRemainingTime = OffsetDateTime.now();
 
         return new EmbedBuilder()
             .setTitle("Please wait, you're on cooldown")

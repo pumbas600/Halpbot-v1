@@ -4,6 +4,7 @@ import org.dockbox.hartshorn.config.annotations.UseConfigurations;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
+import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
@@ -12,7 +13,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.bugtesting.DemoFactory;
@@ -117,22 +122,40 @@ public class DemoTests
         Assertions.assertEquals("Test", demo.name());
     }
 
-//    @InjectTest
-//    public void logPriortityTest(LogDecoratorFactory factory) {
-//        LogDecorator<?> decorator = factory.decorate(new HalpbotCommandInvokable(null, null),
-//                new Log() {
-//                    @Override
-//                    public Class<? extends Annotation> annotationType() {
-//                        return Log.class;
-//                    }
-//
-//                    @Override
-//                    public LogLevel value() {
-//                        return LogLevel.DEBUG;
-//                    }
-//                });
-//
-//        Assertions.assertNotNull(decorator);
-//        Assertions.assertInstanceOf(CustomLogDecorator.class, decorator);
-//    }
+    @Test
+    public void genericTypeTests() {
+        ParameterContext<?> parameter = TypeContext.of(this).method("genericTestMethod", List.class)
+                .get()
+                .parameters()
+                .get(0);
+
+        TypeContext<?> genericType = parameter.genericType();
+
+        Assertions.assertTrue(genericType.is(List.class));
+        Assertions.assertEquals(1, genericType.typeParameters().size());
+
+        genericType = genericType.typeParameters().get(0);
+        Assertions.assertTrue(genericType.is(List.class));
+        Assertions.assertEquals(1, genericType.typeParameters().size());
+
+        genericType = genericType.typeParameters().get(0);
+        Assertions.assertTrue(genericType.is(String.class));
+        Assertions.assertEquals(0, genericType.typeParameters().size());
+    }
+
+    public void genericTestMethod(List<List<String>> nestedGeneric) { }
+
+    @Test
+    public void genericTypeContextTest() throws NoSuchMethodException {
+        Parameter parameter = DemoTests.class.getDeclaredMethod("genericTestMethod", List.class)
+                .getParameters()[0];
+        Type type = parameter.getParameterizedType();
+
+        Assertions.assertInstanceOf(ParameterizedType.class, type);
+        final ParameterizedType parameterizedType = (ParameterizedType) type;
+
+        TypeContext<?> genericType = TypeContext.of(parameterizedType);
+        Assertions.assertTrue(genericType.is(List.class));
+        Assertions.assertEquals(1, genericType.typeParameters().size());
+    }
 }

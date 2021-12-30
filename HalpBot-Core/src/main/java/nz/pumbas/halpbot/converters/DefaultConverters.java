@@ -217,7 +217,7 @@ public final class DefaultConverters
             .convert(invocationContext -> {
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
-                        : invocationContext.parameterContext().typeParameters().get(0);
+                        : invocationContext.currentType().typeParameters().get(0);
                 Converter<CommandInvocationContext, ?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);
@@ -245,7 +245,7 @@ public final class DefaultConverters
 
                 TypeContext<?> genericType = invocationContext.currentType().isArray()
                         ? invocationContext.currentType().elementType().get()
-                        : invocationContext.parameterContext().typeParameters().get(0);
+                        : invocationContext.currentType().typeParameters().get(0);
                 Converter<CommandInvocationContext, ?> elementConverter = invocationContext.applicationContext()
                         .get(ConverterHandler.class)
                         .from(genericType, invocationContext);

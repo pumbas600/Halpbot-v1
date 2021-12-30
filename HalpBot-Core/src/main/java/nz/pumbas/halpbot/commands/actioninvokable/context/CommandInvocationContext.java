@@ -21,8 +21,6 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
 
     int currentAnnotationIndex();
 
-    ParameterContext<?> parameterContext();
-
     List<TypeContext<? extends Annotation>> sortedAnnotations();
 
     Set<Annotation> annotations();
@@ -41,8 +39,6 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
 
     void annotations(Set<Annotation> annotations);
 
-    void parameterContext(@Nullable ParameterContext<?> parameterContext);
-
     void canHaveContextLeft(boolean canHaveContextLeft);
 
     void tokens(List<Token> tokens);
@@ -59,7 +55,8 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
     default void update(ParameterContext<?> parameterContext,
                         List<TypeContext<? extends Annotation>> sortedAnnotations)
     {
-        this.parameterContext(parameterContext);
+        this.currentType(parameterContext.genericType());
+        this.annotations(parameterContext.annotations());
         this.sortedAnnotations(sortedAnnotations);
         this.currentAnnotationIndex(0);
     }

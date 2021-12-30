@@ -25,15 +25,12 @@
 package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 
 import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.annotations.context.AutoCreating;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -110,22 +107,22 @@ public class ErrorManager implements Enableable
     }
 
     private static void sendToLoggerUser(@Nullable GenericMessageEvent event, Throwable e, String message) {
-        EmbedBuilder error = new EmbedBuilder();
-        error.setTitle(message);
-        error.setColor(Color.red);
-
-        Throwable displayThrowable = null == e.getCause() ? e : e.getCause();
-
-        String stackTrace = HalpbotUtils.getStackTrace(displayThrowable);
-        error.setDescription(HalpbotUtils.limitEmbedDescriptionLength(stackTrace));
-
-        if (null != event) {
-            error.setFooter(event.getGuild().getName(), event.getGuild().getBannerUrl());
-        }
-
-        instance().halpbotCore.jda().retrieveUserById(instance().halpbotCore.ownerId())
-            .flatMap(User::openPrivateChannel)
-            .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
-            .queue();
+//        EmbedBuilder error = new EmbedBuilder();
+//        error.setTitle(message);
+//        error.setColor(Color.red);
+//
+//        Throwable displayThrowable = null == e.getCause() ? e : e.getCause();
+//
+//        String stackTrace = HalpbotUtils.getStackTrace(displayThrowable);
+//        error.setDescription(HalpbotUtils.limitEmbedDescriptionLength(stackTrace));
+//
+//        if (null != event) {
+//            error.setFooter(event.getGuild().getName(), event.getGuild().getBannerUrl());
+//        }
+//
+//        instance().halpbotCore.jda().retrieveUserById(instance().halpbotCore.ownerId())
+//            .flatMap(User::openPrivateChannel)
+//            .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
+//            .queue();
     }
 }
