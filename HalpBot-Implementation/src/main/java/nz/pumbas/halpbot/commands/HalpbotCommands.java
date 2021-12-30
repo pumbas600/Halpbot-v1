@@ -106,11 +106,11 @@ public class HalpbotCommands
         return event.getChannel()
                 .sendMessage("This is a dynamic suffix adding button demo")
                 .setActionRow(buttonAdapter.register(
-                        Button.primary("halpbot:button:dynamic", "Add suffix"), suffix));
+                        Button.primary("halpbot:button:suffix", "Add suffix"), suffix));
     }
 
     @Time
-    @ButtonAction(id = "halpbot:button:dynamic", displayDuration = @Duration(10))
+    @ButtonAction(id = "halpbot:button:suffix", displayDuration = @Duration(10))
     public String suffix(@Source User user, String suffix) {
         return user.getName() + suffix;
     }

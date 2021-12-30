@@ -8,6 +8,7 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import nz.pumbas.halpbot.common.Bot;
+import nz.pumbas.halpbot.utilities.ErrorManager;
 
 public final class HalpbotBuilder
 {
@@ -17,6 +18,7 @@ public final class HalpbotBuilder
             throws ApplicationException
     {
         ApplicationContext applicationContext = HartshornApplication.create(bot, args, modifiers);
+        applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
         HalpbotCore halpbotCore = applicationContext.get(HalpbotCore.class);
         Bot botInstance = applicationContext.get(bot);
 

@@ -28,8 +28,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 
+import org.dockbox.hartshorn.core.Enableable;
+import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
+import org.dockbox.hartshorn.core.annotations.context.AutoCreating;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -41,7 +45,8 @@ import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
 @Service
-public final class ErrorManager
+@AutoCreating
+public class ErrorManager implements Enableable
 {
     @Nullable
     private static ErrorManager instance;
@@ -49,8 +54,15 @@ public final class ErrorManager
     @Inject private ApplicationContext applicationContext;
     @Inject private HalpbotCore halpbotCore;
 
-    public ErrorManager() {
+    @Override
+    public boolean canEnable() {
+        return instance == null;
+    }
+
+    @Override
+    public void enable() {
         instance = this;
+        this.applicationContext.log().info("Error manager initialised");
     }
 
     private static ErrorManager instance() {
@@ -116,5 +128,4 @@ public final class ErrorManager
             .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
             .queue();
     }
-
 }

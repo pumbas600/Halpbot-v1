@@ -35,6 +35,10 @@ public interface ButtonAdapter extends HalpbotAdapter
 
     <T> void registerButton(T instance, MethodContext<?, T> buttonMethodContext);
 
+    default String id(ButtonAction button, MethodContext<?, ?> methodContext) {
+        return button.id().isBlank() ? methodContext.name() : button.id();
+    }
+
     @Nullable
     ButtonContext buttonContext(@Nullable String id);
 
