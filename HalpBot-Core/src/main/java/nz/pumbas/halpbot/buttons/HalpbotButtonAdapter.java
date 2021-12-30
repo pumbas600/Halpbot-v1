@@ -122,19 +122,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         }
         else if (result.caught()) {
             event.deferEdit(); // Prevent interaction failed event
-            Throwable exception = result.error();
-
-            if (exception instanceof ExplainedException explainedException) {
-                this.halpbotCore.displayConfiguration()
-                        .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
-            }
-            else if (!(exception instanceof UndisplayedException))
-                this.halpbotCore.displayConfiguration()
-                    .displayTemporary(
-                            halpbotEvent,
-                            "There was the following error trying to invoke this command: " + exception.getMessage(),
-                            30);
-
+            this.handleException(halpbotEvent, result.error());
         }
     }
 }

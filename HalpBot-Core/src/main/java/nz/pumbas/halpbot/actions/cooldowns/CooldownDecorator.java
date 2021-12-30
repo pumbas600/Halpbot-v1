@@ -46,6 +46,7 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
         if (cooldownTimer.canSendEmbed(SECONDS_BETWEEN_COOLDOWN_EMBEDS))
             return Exceptional.of(new ExplainedException(this.cooldownTimers.get(event.user().getIdLong()).remainingTimeEmbed()));
         if (event.rawEvent() instanceof MessageReceivedEvent messageReceivedEvent)
+            // Acknowledge the request with a :stopwatch: reaction
             messageReceivedEvent.getMessage().addReaction("\u23F1").queue();
         return Exceptional.of(new UndisplayedException("You're currently on cooldown"));
     }

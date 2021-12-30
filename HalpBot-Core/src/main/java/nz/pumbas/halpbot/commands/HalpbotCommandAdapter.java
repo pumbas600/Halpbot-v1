@@ -77,7 +77,6 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
     @Inject @Getter private HalpbotCore halpbotCore;
 
-    @Inject private PermissionService permissionService;
     @Inject private CommandContextFactory commandContextFactory;
     @Inject private InvocationContextFactory invocationContextFactory;
     @Inject private CustomConstructorContextFactory customConstructorContextFactory;
@@ -112,22 +111,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
             if (result.present())
                 this.halpbotCore.displayConfiguration().display(halpbotEvent, result.get());
-            else if (result.caught()) {
-                Throwable exception = result.error();
-                ErrorManager.handle(event, exception);
-
-                if (exception instanceof ExplainedException explainedException) {
-                    this.halpbotCore.displayConfiguration()
-                            .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
-                }
-                else if (!(exception instanceof UndisplayedException))
-                    this.halpbotCore.displayConfiguration()
-                        .displayTemporary(
-                                halpbotEvent,
-                                "There was the following error trying to invoke this command: " + exception.getMessage(),
-                                30);
-
-            }
+            else if (result.caught())
+                this.handleException(halpbotEvent, result.error());
         }
     }
     
