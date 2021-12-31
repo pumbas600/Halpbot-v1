@@ -2,9 +2,22 @@ package nz.pumbas.halpbot.configurations;
 
 import org.dockbox.hartshorn.config.annotations.Configuration;
 import org.dockbox.hartshorn.config.annotations.Value;
+import org.dockbox.hartshorn.core.annotations.inject.Provider;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.dockbox.hartshorn.data.FileFormats;
+import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
+import org.dockbox.hartshorn.data.remote.JdbcRemoteConfiguration;
+import org.dockbox.hartshorn.data.remote.PersistenceConnection;
+import org.dockbox.hartshorn.data.remote.Remote;
+
+import java.io.File;
+
+import javax.inject.Singleton;
 
 import lombok.Getter;
+import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Getter
 @Configuration(source = "classpath:bot-config", filetype = FileFormats.PROPERTIES)
@@ -21,5 +34,21 @@ public class BotConfiguration
 
     @Value("ownerId")
     private long ownerId = -1;
+
+    @Provider
+    @Singleton
+    public PermissionRepository permissionRepository(ApplicationContext applicationContext)
+            throws ApplicationException
+    {
+        JdbcRemoteConfiguration configuration;
+
+        File db = HalpbotUtils.getResourceFile("halpbot-core");
+        if (db == null)
+            throw new ApplicationException("The database halpbot-core is missing");
+
+        // TODO: Create DerbyFileRemote without username and password
+        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(db.toPath(), "root", "demo");
+        return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
+    }
 
 }
