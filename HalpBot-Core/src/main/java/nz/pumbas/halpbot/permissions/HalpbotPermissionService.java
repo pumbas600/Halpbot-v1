@@ -6,10 +6,17 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
+
 @Service
 @Binds(PermissionService.class)
 public class HalpbotPermissionService implements PermissionService
 {
+    @Inject
+    private PermissionRepository permissionRepository;
+
     @Override
     public boolean isPermission(String permission) {
         return false;
