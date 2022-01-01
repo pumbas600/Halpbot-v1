@@ -1,5 +1,9 @@
 package nz.pumbas.halpbot.permissions;
 
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -19,26 +23,36 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     @Inject protected PermissionService permissionService;
-    @Getter protected final Set<String> permissions;
+    @Getter protected final Set<String> customPermissions;
+    @Getter protected final Set<Permission> jdaPermissions;
 
     @Bound
-    public PermissionDecorator(ActionInvokable<C> actionInvokable, Permission permission) {
+    public PermissionDecorator(ActionInvokable<C> actionInvokable, Permissions permissions) {
         super(actionInvokable);
-        this.permissions = Set.of(permission.value());
+        this.customPermissions = Set.of(permissions.permissions());
+        this.jdaPermissions = Set.of(permissions.value());
         this.registerPermissions();
     }
 
     protected void registerPermissions() {
-        this.permissionService.addPermissions(this.permissions);
+        this.permissionService.addPermissions(this.customPermissions);
     }
 
     @Override
     public <R> Exceptional<R> invoke(C invocationContext) {
         HalpbotEvent event = invocationContext.halpbotEvent();
+        Guild guild = event.guild();
+        Member member = event.member();
 
-        if (this.permissionService.hasPermission(event.user().getIdLong(), this.permissions)) {
+        if (guild == null || member == null || this.hasPermission(guild, member))
+        {
             return super.invoke(invocationContext);
         }
         return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
+    }
+
+    private boolean hasPermission(Guild guild, Member member) {
+        return member.hasPermission(this.jdaPermissions) &&
+                this.permissionService.hasPermissions(guild, member, this.customPermissions);
     }
 }

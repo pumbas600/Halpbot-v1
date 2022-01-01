@@ -35,7 +35,6 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.awt.Color;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -48,7 +47,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.Permission;
+import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -77,13 +76,13 @@ public class BuiltInCommands
         return this.helpService.build(commandAdapter, commandContext.get());
     }
 
-    @Permission(HalpbotPermissions.BOT_OWNER)
+    @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Shuts the bot down. Any existing RestActions will be completed first.")
     public void shutdown(JDA jda) {
         jda.shutdown();
     }
 
-    @Permission(HalpbotPermissions.BOT_OWNER)
+    @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Shuts the bot down immediately")
     public void forceShutdown(JDA jda) {
         jda.shutdownNow();
@@ -159,7 +158,7 @@ public class BuiltInCommands
 //    }
 
     @Deprecated(forRemoval = true)
-    @Permission(HalpbotPermissions.BOT_OWNER)
+    @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Forces all the SQLDrivers to invoke their reload listeners, refreshing any cached database information")
     public String reloadDatabase() {
         HalpbotUtils.context().get(SQLManager.class)
