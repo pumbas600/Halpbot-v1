@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.buttons;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
