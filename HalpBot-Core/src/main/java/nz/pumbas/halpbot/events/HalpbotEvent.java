@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PrivateChannel;
@@ -56,6 +57,15 @@ public interface HalpbotEvent
     User user();
 
     JDA jda();
+
+    /**
+     * The {@link User} of the event received as Member object. This will be null in case of Message being received in a
+     * PrivateChannel or isWebhookMessage() returning true.
+     *
+     * @return The author as a Member object
+     */
+    @Nullable
+    Member member();
 
     void reply(String message);
 

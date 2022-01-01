@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PrivateChannel;
@@ -69,6 +70,12 @@ public class InteractionEvent implements HalpbotEvent
     @Override
     public JDA jda() {
         return this.interaction.getJDA();
+    }
+
+    @Nullable
+    @Override
+    public Member member() {
+        return this.interaction.getMember();
     }
 
     @Override

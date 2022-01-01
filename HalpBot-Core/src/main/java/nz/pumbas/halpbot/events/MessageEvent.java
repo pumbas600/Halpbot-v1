@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PrivateChannel;
@@ -63,10 +64,10 @@ public class MessageEvent implements HalpbotEvent
 
     @Override
     public User user() {
-        if (this.event instanceof MessageReceivedEvent)
-            return ((MessageReceivedEvent) this.event).getAuthor();
-        else if (this.event instanceof GenericMessageReactionEvent)
-            return ((GenericMessageReactionEvent) this.event).retrieveUser().complete();
+        if (this.event instanceof MessageReceivedEvent messageReceivedEvent)
+            return messageReceivedEvent.getAuthor();
+        else if (this.event instanceof GenericMessageReactionEvent messageReactionEvent)
+            return messageReactionEvent.retrieveUser().complete();
         throw new UnsupportedOperationException(
             "The event " + this.event.getClass().getSimpleName() + " doesn't support this operation");
     }
@@ -74,6 +75,18 @@ public class MessageEvent implements HalpbotEvent
     @Override
     public JDA jda() {
         return this.event.getJDA();
+    }
+
+    //TODO: Make this return CompletableFuture
+    @Override
+    @Nullable
+    public Member member() {
+        if (this.event instanceof MessageReceivedEvent messageReceivedEvent)
+            return messageReceivedEvent.getMember();
+        else if (this.event instanceof GenericMessageReactionEvent messageReactionEvent)
+            return messageReactionEvent.retrieveMember().complete();
+        throw new UnsupportedOperationException(
+                "The event " + this.event.getClass().getSimpleName() + " doesn't support this operation");
     }
 
     @Override
