@@ -20,6 +20,8 @@ subject
 *.hprof
 dependency-reduced-pom.xml
 
+Halpbot-Core-DB/
+
 # Package Files #
 *.jar
 *.war

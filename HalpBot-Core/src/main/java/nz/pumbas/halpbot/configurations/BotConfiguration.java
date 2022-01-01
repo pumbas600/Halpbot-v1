@@ -35,20 +35,15 @@ public class BotConfiguration
     @Value("ownerId")
     private long ownerId = -1;
 
-    @Provider
-    @Singleton
-    public PermissionRepository permissionRepository(ApplicationContext applicationContext)
-            throws ApplicationException
-    {
-        JdbcRemoteConfiguration configuration;
-
-        File db = HalpbotUtils.getResourceFile("halpbot-core");
-        if (db == null)
-            throw new ApplicationException("The database halpbot-core is missing");
-
-        // TODO: Create DerbyFileRemote without username and password
-        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(db.toPath(), "root", "demo");
-        return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
-    }
+//    @Provider
+//    @Singleton
+//    public PermissionRepository permissionRepository(ApplicationContext applicationContext)
+//            throws ApplicationException
+//    {
+//        File db = new File("Halpbot-Core-DB/DB");
+//        // TODO: Create DerbyFileRemote without username and password
+//        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(db.toPath(), "root", "demo");
+//        return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
+//    }
 
 }

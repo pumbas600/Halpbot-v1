@@ -30,17 +30,25 @@ import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.common.Bot;
+import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
@@ -52,15 +60,18 @@ public class Halpbot extends ListenerAdapter implements Bot
     public static final long CREATOR_ID = 260930648330469387L;
 
     @Inject private ApplicationContext applicationContext;
+    @Inject private PermissionRepository permissionRepository;
     @Inject private HalpbotCore halpbotCore;
 
-    @Override
+    @SubscribeEvent
     public void onReady(ReadyEvent event) {
         this.applicationContext.log()
                 .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
+
+        this.testDB();
     }
 
-    @Override
+    @SubscribeEvent
     public void onShutdown(ShutdownEvent event) {
         this.applicationContext.log().info("Shutting down the bot!");
     }
@@ -73,4 +84,38 @@ public class Halpbot extends ListenerAdapter implements Bot
                 .addEventListeners(this)
                 .setActivity(Activity.of(ActivityType.COMPETING, "The best way to help everyone"));
     }
+
+    private void testDB() {
+
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:derby:Halpbot-Core-DB;create=true");
+
+            Statement s = connection.createStatement();
+            try {
+                s.execute("""
+                create table GuildPermissions(
+                        guildId bigint not null,
+                        permission varchar(64) not null,
+                        roleId bigint not null,
+                        constraint GuildPermissionsPK
+                            primary key (guildId, permission)
+                )
+                """);
+                this.applicationContext.log().info("Created GuildPermissions table");
+            } catch (SQLException e) {
+                // ignore
+            }
+
+            PreparedStatement ps = connection.prepareStatement(
+                    "insert into GuildPermissions values (?, ?, ?)");
+            ps.setLong(1, 1);
+            ps.setString(2, "halpbot.admin.test");
+            ps.setLong(3, 2);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            this.applicationContext.log().error("Caught the following error while connecting to the db", e);
+        }
+    }
+
 }
