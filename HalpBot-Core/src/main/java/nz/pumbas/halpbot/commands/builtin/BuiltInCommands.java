@@ -103,7 +103,7 @@ public class BuiltInCommands
         embedBuilder.setFooter(user.getName(), user.getAvatarUrl());
 
         StringBuilder builder = new StringBuilder();
-        List<String> permissions = this.permissionManager.getPermissions(user);
+        List<String> permissions = this.permissionManager.permissions(user);
         if (permissions.isEmpty())
             builder.append("No permissions");
         else {
@@ -124,7 +124,7 @@ public class BuiltInCommands
         embedBuilder.setColor(Color.ORANGE);
 
         StringBuilder builder = new StringBuilder();
-        List<String> permissions = this.permissionManager.getAllPermissions();
+        List<String> permissions = this.permissionManager.permissions();
         if (permissions.isEmpty())
             builder.append("No permissions");
         else {
@@ -142,13 +142,13 @@ public class BuiltInCommands
     public String givePermission(@Source User author, User user, String permission) {
         permission = permission.toLowerCase(Locale.ROOT);
 
-        if (this.permissionManager.hasPermissions(user, permission)) {
+        if (this.permissionManager.hasPermission(user, permission)) {
             return "That user already has that permission!";
         }
         if (!this.permissionManager.isPermission(permission)) {
             return "The permission '" + permission + "' doesn't exist";
         }
-        if (!this.permissionManager.hasPermissions(author, permission)) {
+        if (!this.permissionManager.hasPermission(author, permission)) {
             return "You must have the permission '" + permission + "' to give it to others";
         }
         this.permissionManager.givePermission(user, permission);

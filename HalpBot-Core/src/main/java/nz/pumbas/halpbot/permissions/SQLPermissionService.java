@@ -38,6 +38,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import nz.pumbas.halpbot.sql.SQLDriver;
 import nz.pumbas.halpbot.sql.SQLUtils;
@@ -46,7 +47,7 @@ import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.context.LateInit;
 
 //TODO: Replace with HH persistent service
-public class SQLPermissionService implements PermissionService, LateInit
+public class SQLPermissionService implements LateInit
 {
     private static final ColumnIdentifier<String> PERMISSION = new SimpleColumnIdentifier<>("permission", String.class);
     private static final ColumnIdentifier<Long> USER_ID      = new SimpleColumnIdentifier<>("userId", Long.class);
@@ -60,7 +61,6 @@ public class SQLPermissionService implements PermissionService, LateInit
     /**
      * A late initialisation function that is called after the object has been first constructed.
      */
-    @Override
     public void lateInitialisation() {
         this.driver = SQLDriver.of("halpbotcore", this::populateDatabaseWithDefaultPermissions);
         //this.driver.onLoad(this::cacheData);
@@ -93,12 +93,12 @@ public class SQLPermissionService implements PermissionService, LateInit
             driver.executeUpdate(connection, createPermissionTableSQL);
             driver.executeUpdate(connection, createUserPermissionTableSQL);
 
-            this.insertPermissionToDatabase(
-                driver, List.of(
-                    HalpbotPermissions.BOT_OWNER,
-                    HalpbotPermissions.BOT_OWNER,
-                    HalpbotPermissions.ADMIN,
-                    HalpbotPermissions.GIVE_PERMISSIONS));
+//            this.insertPermissionToDatabase(
+//                driver, List.of(
+//                    HalpbotPermissions.BOT_OWNER,
+//                    HalpbotPermissions.BOT_OWNER,
+//                    HalpbotPermissions.ADMIN,
+//                    HalpbotPermissions.GIVE_PERMISSIONS));
         }
     }
 
@@ -110,26 +110,24 @@ public class SQLPermissionService implements PermissionService, LateInit
      *
      * @return If the permission is registered
      */
-    @Override
     public boolean isPermission(String permission) {
         return 0 != this.permissions.where(PERMISSION, permission.toLowerCase(Locale.ROOT)).count();
     }
 
     /**
      * Gives the user the specified permission. If the permission does not already exist in the database, it will be
-     * automatically added by calling {@link PermissionService#createPermissions(String...)}.
+     * automatically added by calling {@link PermissionService#addPermissions(String...)}.
      *
      * @param userId
      *      The id of the user to give the permission to
      * @param permission
      *      The {@link String permission} to give the user
      */
-    @Override
     public void givePermission(long userId, String permission) {
         permission = permission.toLowerCase(Locale.ROOT);
 
-        if (!this.isPermission(permission))
-            this.createPermissions(permission);
+        //if (!this.isPermission(permission))
+            //this.addPermissions(permission);
         int permissionId = this.permissions.where(PERMISSION, permission)
             .first().get()
             .value(PERMISSION_ID).get();
@@ -161,12 +159,11 @@ public class SQLPermissionService implements PermissionService, LateInit
      * @param permissions
      *      The {@link List} of permissions to add to the database
      */
-    @Override
-    public void createPermissions(List<String> permissions) {
+    public void addPermissions(Set<String> permissions) {
         this.insertPermissionToDatabase(this.driver, permissions);
     }
 
-    private void insertPermissionToDatabase(SQLDriver driver, List<String> permissions) {
+    private void insertPermissionToDatabase(SQLDriver driver, Set<String> permissions) {
         final String insertPermissionSQL = "INSERT INTO permissions (permission) VALUES (?)";
         try (Connection connection = driver.createConnection();
              PreparedStatement statement = driver.createStatement(connection, insertPermissionSQL)) {
@@ -197,9 +194,8 @@ public class SQLPermissionService implements PermissionService, LateInit
      *
      * @return If the user has the specified permissions
      */
-    @Override
-    public boolean hasPermissions(long userId, List<String> permissions) {
-        List<String> userPermissions = this.getPermissions(userId);
+    public boolean hasPermission(long userId, Set<String> permissions) {
+        List<String> userPermissions = this.permissions(userId);
         if (userPermissions.contains(HalpbotPermissions.BOT_OWNER))
             return true;
 
@@ -230,8 +226,7 @@ public class SQLPermissionService implements PermissionService, LateInit
      *
      * @return The {@link List} of permissions that the user has
      */
-    @Override
-    public List<String> getPermissions(long userId) {
+    public List<String> permissions(long userId) {
         List<String> permissions = new ArrayList<>();
 
         this.joinedUserPermissions
@@ -247,8 +242,7 @@ public class SQLPermissionService implements PermissionService, LateInit
      *
      * @return All the different permissions
      */
-    @Override
-    public List<String> getAllPermissions() {
+    public List<String> permissions() {
         List<String> permissions = new ArrayList<>();
         this.permissions.forEach(row -> row.value(PERMISSION)
             .present(permissions::add));

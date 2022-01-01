@@ -24,9 +24,12 @@
 
 package nz.pumbas.halpbot.permissions;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
+import java.util.Set;
 
 public interface PermissionService
 {
@@ -41,36 +44,12 @@ public interface PermissionService
     boolean isPermission(String permission);
 
     /**
-     * Gives the user the specified permission. If the permission does not already exist in the database, it will be
-     * automatically added by calling {@link PermissionService#createPermissions(String...)}.
-     *
-     * @param userId
-     *      The id of the user to give the permission to
-     * @param permission
-     *      The {@link String permission} to give the user
-     */
-    void givePermission(long userId, String permission);
-
-    /**
-     * Gives the user the specified permission. If the permission does not already exist in the database, it will be
-     * automatically added by calling {@link PermissionService#createPermissions(String...)}.
-     *
-     * @param user
-     *      The {@link User} to give the permission to
-     * @param permission
-     *      The {@link String permission} to give the user
-     */
-    default void givePermission(User user, String permission) {
-        this.givePermission(user.getIdLong(), permission);
-    }
-
-    /**
      * Adds the following permissions to the database.
      *
      * @param permissions
      *      The {@link List} of permissions to add to the database
      */
-    void createPermissions(List<String> permissions);
+    void addPermissions(Set<String> permissions);
 
     /** Adds the following permissions to the database.
      * <p>
@@ -80,8 +59,8 @@ public interface PermissionService
      * @param permissions
      *      The permissions to add to the database
      */
-    default void createPermissions(String... permissions) {
-        this.createPermissions(List.of(permissions));
+    default void addPermissions(String... permissions) {
+        this.addPermissions(Set.of(permissions));
     }
 
     /**
@@ -100,7 +79,15 @@ public interface PermissionService
      *
      * @return If the user has the specified permissions
      */
-    boolean hasPermissions(long userId, List<String> permissions);
+    default boolean hasPermission(long userId, Set<String> permissions) {
+        for (String permission : permissions) {
+            if (!this.hasPermission(userId, permission))
+                return false;
+        }
+        return true;
+    }
+
+    boolean hasPermission(Guild guild, Member member, String permission);
 
     /**
      * Returns true of the user has all the following permissions. Note: If the user has the
@@ -117,9 +104,7 @@ public interface PermissionService
      *
      * @return If the user has the specified permissions
      */
-    default boolean hasPermissions(long userId, String... permissions) {
-        return this.hasPermissions(userId, List.of(permissions));
-    }
+    boolean hasPermission(long userId, String permission);
 
     /**
      * Returns true of the user has all the following permissions. Note: If the user has the
@@ -132,8 +117,8 @@ public interface PermissionService
      *
      * @return If the user has the specified permissions
      */
-    default boolean hasPermissions(User user, String... permissions) {
-        return this.hasPermissions(user.getIdLong(), permissions);
+    default boolean hasPermission(User user, String permissions) {
+        return this.hasPermission(user.getIdLong(), permissions);
     }
 
     /**
@@ -144,7 +129,7 @@ public interface PermissionService
      *
      * @return The {@link List} of permissions that the user has
      */
-    List<String> getPermissions(long userId);
+    Set<String> permissions(Guild guild, Member member);
 
     /**
      * Returns the {@link List} of permissions that the specified user has.
@@ -154,8 +139,8 @@ public interface PermissionService
      *
      * @return The {@link List} of permissions that the user has
      */
-    default List<String> getPermissions(User user) {
-        return this.getPermissions(user.getIdLong());
+    default Set<String> permissions(User user) {
+        return this.permissions(user.getIdLong());
     }
 
     /**
@@ -163,5 +148,5 @@ public interface PermissionService
      *
      * @return All the different permissions
      */
-    List<String> getAllPermissions();
+    Set<String> permissions();
 }

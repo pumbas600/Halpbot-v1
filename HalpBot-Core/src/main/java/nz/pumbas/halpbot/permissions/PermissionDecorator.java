@@ -4,7 +4,7 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -19,19 +19,19 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     @Inject private PermissionService permissionService;
-    @Getter private final List<String> permissions;
+    @Getter private final Set<String> permissions;
 
     @Bound
     public PermissionDecorator(ActionInvokable<C> actionInvokable, Permission permission) {
         super(actionInvokable);
-        this.permissions = List.of(permission.value());
+        this.permissions = Set.of(permission.value());
     }
 
     @Override
     public <R> Exceptional<R> invoke(C invocationContext) {
         HalpbotEvent event = invocationContext.halpbotEvent();
 
-        if (this.permissionService.hasPermissions(event.user().getIdLong(), this.permissions)) {
+        if (this.permissionService.hasPermission(event.user().getIdLong(), this.permissions)) {
             return super.invoke(invocationContext);
         }
         return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
