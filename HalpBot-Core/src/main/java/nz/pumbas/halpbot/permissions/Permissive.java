@@ -2,11 +2,11 @@ package nz.pumbas.halpbot.permissions;
 
 import net.dv8tion.jda.api.entities.User;
 
-import java.util.List;
+import java.util.Set;
 
 public interface Permissive
 {
-    List<String> permissions();
+    Set<String> permissions();
 
     default boolean hasPermission(PermissionService permissionService, User user) {
         return this.hasPermission(permissionService, user.getIdLong());
@@ -14,6 +14,6 @@ public interface Permissive
 
     default boolean hasPermission(PermissionService permissionService, long userId) {
         return this.permissions().isEmpty() ||
-            permissionService.hasPermissions(userId, this.permissions());
+            permissionService.hasPermission(userId, this.permissions());
     }
 }
