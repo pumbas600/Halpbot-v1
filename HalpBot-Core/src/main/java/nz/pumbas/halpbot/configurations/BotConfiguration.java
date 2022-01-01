@@ -12,6 +12,7 @@ import org.dockbox.hartshorn.data.remote.PersistenceConnection;
 import org.dockbox.hartshorn.data.remote.Remote;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import javax.inject.Singleton;
 
@@ -35,15 +36,19 @@ public class BotConfiguration
     @Value("ownerId")
     private long ownerId = -1;
 
-//    @Provider
-//    @Singleton
-//    public PermissionRepository permissionRepository(ApplicationContext applicationContext)
-//            throws ApplicationException
-//    {
-//        File db = new File("Halpbot-Core-DB/DB");
-//        // TODO: Create DerbyFileRemote without username and password
-//        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(db.toPath(), "root", "demo");
-//        return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
-//    }
+    @Provider
+    @Singleton
+    public PermissionRepository permissionRepository(ApplicationContext applicationContext)
+            throws ApplicationException
+    {
+        File db = new File("Halpbot-Core-DB");
+        if (!db.exists()) {
+            //TODO: Create tables
+        }
+        Path path = db.toPath();
+        // TODO: Create DerbyFileRemote without username and password
+        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "demo");
+        return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
+    }
 
 }

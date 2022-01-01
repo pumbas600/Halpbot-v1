@@ -1,8 +1,11 @@
 package nz.pumbas.halpbot.actions;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+//TODO: Remove
 public abstract class AbstractActionCallback implements ActionCallback
 {
     protected final long deleteAfterDuration;
@@ -12,6 +15,11 @@ public abstract class AbstractActionCallback implements ActionCallback
     protected final List<String> permissions;
     protected final boolean singleUse;
     protected final long displayDuration;
+
+    @Override
+    public Set<String> permissions() {
+        return Collections.emptySet();
+    }
 
     protected AbstractActionCallback(
         long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
@@ -36,11 +44,6 @@ public abstract class AbstractActionCallback implements ActionCallback
     @Override
     public TimeUnit getDeleteAfterTimeUnit() {
         return this.deleteAfterTimeUnit;
-    }
-
-    @Override
-    public List<String> permissions() {
-        return this.permissions;
     }
 
     @Override
