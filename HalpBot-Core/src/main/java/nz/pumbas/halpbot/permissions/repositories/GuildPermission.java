@@ -3,6 +3,7 @@ package nz.pumbas.halpbot.permissions.repositories;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.permissions.repositories;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GuildPermissionId
+public class GuildPermissionId implements Serializable
 {
     private long guildId;
     private String permission;

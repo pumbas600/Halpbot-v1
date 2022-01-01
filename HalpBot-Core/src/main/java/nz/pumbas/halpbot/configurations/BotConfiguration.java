@@ -41,11 +41,7 @@ public class BotConfiguration
     public PermissionRepository permissionRepository(ApplicationContext applicationContext)
             throws ApplicationException
     {
-        File db = new File("Halpbot-Core-DB");
-        if (!db.exists()) {
-            //TODO: Create tables
-        }
-        Path path = db.toPath();
+        Path path = new File("Halpbot-Core-DB").toPath();
         // TODO: Create DerbyFileRemote without username and password
         PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "demo");
         return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
