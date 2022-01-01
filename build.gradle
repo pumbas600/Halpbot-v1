@@ -75,7 +75,7 @@ allprojects {
             implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
             implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
 
-            implementation 'org.apache.derby:derby:10.8.2.2'
+            implementation 'org.apache.derby:derby:10.14.2.0'
 
             implementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'

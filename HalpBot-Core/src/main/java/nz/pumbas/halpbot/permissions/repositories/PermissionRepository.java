@@ -8,7 +8,8 @@ import org.dockbox.hartshorn.data.jpa.JpaRepository;
 import java.util.Set;
 
 @Service
-public abstract class PermissionRepository implements JpaRepository<GuildPermission, String>, DelegatorAccessor<PermissionRepository>
+public abstract class PermissionRepository implements JpaRepository<GuildPermission, GuildPermissionId>,
+        DelegatorAccessor<PermissionRepository>
 {
     @Query("SELECT gp.roleId FROM GuildPermission gp WHERE gp.guildId = :guildId AND gp.permission = :permission")
     public abstract long guildRole(long guildId, String permission);
