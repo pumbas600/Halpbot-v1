@@ -57,6 +57,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @UseCommands
 public class Halpbot extends ListenerAdapter implements Bot
 {
+    public static final String TABLE_ALREADY_EXISTS_STATE = "X0Y32";
     public static final long CREATOR_ID = 260930648330469387L;
 
     @Inject private ApplicationContext applicationContext;
@@ -103,7 +104,8 @@ public class Halpbot extends ListenerAdapter implements Bot
                 """);
                 this.applicationContext.log().info("Created GuildPermissions table");
             } catch (SQLException e) {
-                // ignore
+                if (!e.getSQLState().equals(TABLE_ALREADY_EXISTS_STATE))
+                    throw e;
             }
 
             PreparedStatement ps = connection.prepareStatement(
@@ -115,6 +117,8 @@ public class Halpbot extends ListenerAdapter implements Bot
 
         } catch (SQLException e) {
             this.applicationContext.log().error("Caught the following error while connecting to the db", e);
+            this.applicationContext.log().error("Code: " + e.getErrorCode());
+            this.applicationContext.log().error("State: " + e.getSQLState());
         }
     }
 
