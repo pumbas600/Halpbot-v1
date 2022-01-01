@@ -57,6 +57,18 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @UseCommands
 public class Halpbot extends ListenerAdapter implements Bot
 {
+    private static final String UPSERT_VALUE =
+            """
+            MERGE INTO GuildPermissions gp
+            USING SYSIBM.SYSDUMMY1
+            ON gp.guildId = :guildId AND gp.permission = :permission
+            WHEN MATCHED THEN
+                UPDATE SET roleId = :roleId
+            WHEN NOT MATCHED THEN
+                INSERT (guildId, permission, roleId)
+                VALUES (:guildId, :permission, :roleId)
+            """;
+
     public static final String TABLE_ALREADY_EXISTS_STATE = "X0Y32";
     public static final long CREATOR_ID = 260930648330469387L;
 
