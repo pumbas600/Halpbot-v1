@@ -1,7 +1,6 @@
 package nz.pumbas.halpbot.permissions.repositories;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,9 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GuildPermission
 {
-    @Id
-    private String guildId;
-
+    private long guildId;
     private String permission;
-    private String roleId;
+    private long roleId;
 }

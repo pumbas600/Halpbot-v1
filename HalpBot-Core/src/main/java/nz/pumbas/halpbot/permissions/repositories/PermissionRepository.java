@@ -15,4 +15,16 @@ public abstract class PermissionRepository implements JpaRepository<GuildPermiss
 
     @Query("SELECT gp.permission FROM GuildPermission gp WHERE gp.guildId = :guildId AND gp.roleId IN :roleIds")
     public abstract Set<String> permissions(long guildId, Set<Long> roleIds);
+
+    @Query("SELECT COUNT(*) FROM GuildPermissions gp WHERE gp.guildId = :guildId AND gp.roleId = :roleId")
+    public abstract long countPermissionsWithRole(long guildId, long roleId);
+
+    @Query("SELECT COUNT(*) FROM GuildPermissions gp WHERE gp.guildId = :guildId AND gp.permission = :permission")
+    public abstract long countPermissions(long guildId, String permission);
+
+    @Query("INSERT INTO GuildPermissions VALUES (:guildId, :permission, :roleId)")
+    public abstract long insertPermission(long guildId, String permission, long roleId);
+
+    @Query("UPDATE GuildPermissions gp SET roleId = :roleId WHERE gp.guildId = :guildId AND gp.permission = :permission")
+    public abstract long updatePermission(long guildId, String permission, long roleId);
 }

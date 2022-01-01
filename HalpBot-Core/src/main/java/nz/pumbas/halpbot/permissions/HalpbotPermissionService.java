@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
 @Service
@@ -28,6 +29,21 @@ public class HalpbotPermissionService implements PermissionService
     @Override
     public boolean isPermission(String permission) {
         return this.permissions.contains(permission);
+    }
+
+    @Override
+    public boolean isPermission(long guildId, long roleId) {
+        return this.permissionRepository.countPermissionsWithRole(guildId, roleId) != 0;
+    }
+
+    @Override
+    public boolean permissionExists(long guildId, String permission) {
+        return this.permissionRepository.countPermissions(guildId, permission) != 0;
+    }
+
+    @Override
+    public void updateOrSave(GuildPermission guildPermission) {
+        this.permissionRepository.updateOrSave(guildPermission);
     }
 
     @Override
@@ -48,9 +64,9 @@ public class HalpbotPermissionService implements PermissionService
     }
 
     @Override
-    public Set<String> permissions(Guild guild, Member member) {
+    public Set<String> permissions(long guildId, Member member) {
         return this.permissionRepository
-                .permissions(guild.getIdLong(), member.getRoles()
+                .permissions(guildId, member.getRoles()
                         .stream()
                         .map(Role::getIdLong)
                         .collect(Collectors.toSet())

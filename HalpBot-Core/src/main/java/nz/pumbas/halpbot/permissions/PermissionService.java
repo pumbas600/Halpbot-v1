@@ -30,6 +30,9 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
+import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 
 public interface PermissionService
 {
@@ -42,6 +45,16 @@ public interface PermissionService
      * @return If the permission is registered
      */
     boolean isPermission(String permission);
+
+    boolean isPermission(long guildId, long roleId);
+
+    boolean permissionExists(long guildId, String permission);
+
+    default void updateOrSave(long guildId, String permission, long roleId) {
+        this.updateOrSave(new GuildPermission(guildId, permission, roleId));
+    }
+
+    void updateOrSave(GuildPermission guildPermission);
 
     /**
      * Adds the following permissions to the database.
@@ -87,7 +100,20 @@ public interface PermissionService
         return true;
     }
 
+    default boolean hasPermissions(Guild guild, Member member, Set<String> permissions) {
+        for (String permission : permissions) {
+            if (!this.hasPermission(guild, member, permission))
+                return false;
+        }
+        return true;
+    }
+
     boolean hasPermission(Guild guild, Member member, String permission);
+
+    default CompletableFuture<Boolean> hasPermissions(Guild guild, User user, Set<String> permissions) {
+        return CompletableFuture.supplyAsync(() -> guild.retrieveMember(user).complete())
+                .thenApply((member) -> this.hasPermissions(guild, member, permissions));
+    }
 
     /**
      * Returns true of the user has all the following permissions. Note: If the user has the
@@ -106,41 +132,16 @@ public interface PermissionService
      */
     boolean hasPermission(long userId, String permission);
 
-    /**
-     * Returns true of the user has all the following permissions. Note: If the user has the
-     * {@link HalpbotPermissions#BOT_OWNER} permission, then this will always return true as the owner has all permissions.
-     *
-     * @param user
-     *      The {@link User} to check for the permissions
-     * @param permissions
-     *      The permissions to check that the user has
-     *
-     * @return If the user has the specified permissions
-     */
     default boolean hasPermission(User user, String permissions) {
         return this.hasPermission(user.getIdLong(), permissions);
     }
 
-    /**
-     * Returns the {@link List} of permissions that the specified user has.
-     *
-     * @param userId
-     *      The id of the user to get the permissions for
-     *
-     * @return The {@link List} of permissions that the user has
-     */
-    Set<String> permissions(Guild guild, Member member);
+    Set<String> permissions(long guildId, Member member);
 
-    /**
-     * Returns the {@link List} of permissions that the specified user has.
-     *
-     * @param user
-     *      The {@link User} to get the permissions for
-     *
-     * @return The {@link List} of permissions that the user has
-     */
-    default Set<String> permissions(User user) {
-        return this.permissions(user.getIdLong());
+    default CompletableFuture<Set<String>> permissions(Guild guild, User user) {
+        final long guildId = guild.getIdLong();
+        return CompletableFuture.supplyAsync(() -> guild.retrieveMember(user).complete())
+                .thenApply(member -> this.permissions(guildId, member));
     }
 
     /**
