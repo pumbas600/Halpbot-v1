@@ -18,13 +18,18 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 @Binds(PermissionDecorator.class)
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
-    @Inject private PermissionService permissionService;
-    @Getter private final Set<String> permissions;
+    @Inject protected PermissionService permissionService;
+    @Getter protected final Set<String> permissions;
 
     @Bound
     public PermissionDecorator(ActionInvokable<C> actionInvokable, Permission permission) {
         super(actionInvokable);
         this.permissions = Set.of(permission.value());
+        this.registerPermissions();
+    }
+
+    protected void registerPermissions() {
+        this.permissionService.addPermissions(this.permissions);
     }
 
     @Override
