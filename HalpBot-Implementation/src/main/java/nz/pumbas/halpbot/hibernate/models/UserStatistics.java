@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 import nz.pumbas.halpbot.objects.DiscordString;
 
-@Entity
+//@Entity
 @Table(name = "USER_STATISTICS")
 public class UserStatistics implements DiscordString, Serializable
 {

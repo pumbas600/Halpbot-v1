@@ -7,7 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity
+//@Entity
 @Table(name = "QUESTION_MODIFICATIONS")
 public class QuestionModification implements Serializable
 {

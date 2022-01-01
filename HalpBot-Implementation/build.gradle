@@ -6,8 +6,7 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.36.0.2'
     implementation project(':HalpBot-Core')
 
-    implementation 'org.apache.derby:derby:10.15.2.0'
-    implementation 'org.apache.derby:derbyclient:10.15.2.0'
+//    implementation 'org.apache.derby:derbyclient:10.15.2.0'
     implementation 'ch.qos.logback:logback-classic:1.2.10'
 }
 
