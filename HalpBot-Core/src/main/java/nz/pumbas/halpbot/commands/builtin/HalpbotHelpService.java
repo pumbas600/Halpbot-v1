@@ -1,22 +1,17 @@
 package nz.pumbas.halpbot.commands.builtin;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -91,10 +86,10 @@ public class HalpbotHelpService implements HelpService
                 embedBuilder.setDescription(commandContext.description());
 
             this.decoratorService.decorator(commandContext.actionInvokable(), PermissionDecorator.class)
-                    .filter(decorator -> !decorator.permissions().isEmpty())
+                    .filter(decorator -> !decorator.customPermissions().isEmpty())
                     .present(decorator -> embedBuilder.addField(
                             "Permissions",
-                            String.join(", ", decorator.permissions()),
+                            String.join(", ", decorator.customPermissions()),
                             false));
 
             this.commandHelpEmbeds.put(commandContext, embedBuilder.build());

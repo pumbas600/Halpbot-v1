@@ -18,13 +18,13 @@ import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.log.LogDecorator;
-import nz.pumbas.halpbot.permissions.Permission;
+import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.permissions.PermissionDecorator;
 import nz.pumbas.halpbot.utilities.Duration;
 
 
 @Cooldown(duration = @Duration(10))
-@Permission("halpbot.example.class")
+@Permissions(permissions = "halpbot.example.class")
 @UseCommands
 @Service
 @HartshornTest
@@ -35,7 +35,7 @@ public class DecoratorServiceTests
 
     @Log
     @Cooldown
-    @Permission("halpbot.example.action")
+    @Permissions(permissions = "halpbot.example.action")
     @Command(alias = "decoratedCommandTest")
     public void decoratedCommandTestMethod() {
     }

@@ -26,7 +26,7 @@ import nz.pumbas.halpbot.hibernate.models.Status;
 import nz.pumbas.halpbot.hibernate.services.QuestionService;
 import nz.pumbas.halpbot.hibernate.services.TopicService;
 import nz.pumbas.halpbot.actions.ActionCallbackBuilder;
-import nz.pumbas.halpbot.permissions.Permission;
+import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -65,7 +65,7 @@ public class QuestionConfirmationCommands
 //            });
     }
 
-    @Permission(value = HalpbotPermissions.BOT_OWNER)
+    @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Sets the current channel to be the location where new changes are automatically sent")
     public String setConfirmationChannel(@Source TextChannel textChannel) {
         boolean startThread = -1 == this.displayChangesChannel;
@@ -82,7 +82,7 @@ public class QuestionConfirmationCommands
         return this.questionService.countWaitingConfirmation();
     }
 
-    @Permission(value = HalpbotPermissions.BOT_OWNER)
+    @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Declines all the changes currently waiting for approval")
     public String declineAll() {
         long modificationsCount = this.changesCount();
@@ -92,7 +92,7 @@ public class QuestionConfirmationCommands
         return "Declined all " + modificationsCount + " modicatications";
     }
 
-    @Permission(value = HalpbotPermissions.BOT_OWNER)
+    @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Lists all the changes currently waiting for approval")
     public @Nullable String changes(MessageReceivedEvent event) {
         List<Question> questions = this.questionService.getAmountWaitingConfirmation(DISPLAY_QUESTION_GROUPING_AMOUNT);

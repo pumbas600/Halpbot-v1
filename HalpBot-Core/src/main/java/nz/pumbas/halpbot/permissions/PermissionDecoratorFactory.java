@@ -7,9 +7,9 @@ import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 
 @Service
-public interface PermissionDecoratorFactory extends ActionInvokableDecoratorFactory<PermissionDecorator<?>, Permission>
+public interface PermissionDecoratorFactory extends ActionInvokableDecoratorFactory<PermissionDecorator<?>, Permissions>
 {
     @Factory
     @Override
-    PermissionDecorator<?> decorate(ActionInvokable<?> element, Permission annotation);
+    PermissionDecorator<?> decorate(ActionInvokable<?> element, Permissions annotation);
 }
