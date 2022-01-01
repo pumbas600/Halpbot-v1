@@ -111,7 +111,7 @@ public interface PermissionService
     boolean hasPermission(Guild guild, Member member, String permission);
 
     default CompletableFuture<Boolean> hasPermissions(Guild guild, User user, Set<String> permissions) {
-        return CompletableFuture.supplyAsync(() -> guild.retrieveMember(user).complete())
+        return guild.retrieveMember(user).submit()
                 .thenApply((member) -> this.hasPermissions(guild, member, permissions));
     }
 
@@ -122,11 +122,6 @@ public interface PermissionService
      * desired permission. For example, if you're checking if a user has the
      * {@code halpbot.admin.give.permission} permission and you don't have that exact permission, it will then check
      * if you have the {@code halpbot.admin.give.*} permission, then {@code halpbot.admin.*}, etc.
-     *
-     * @param userId
-     *      The id of the user to check for the permissions
-     * @param permissions
-     *      The permissions to check that the user has
      *
      * @return If the user has the specified permissions
      */
@@ -140,7 +135,7 @@ public interface PermissionService
 
     default CompletableFuture<Set<String>> permissions(Guild guild, User user) {
         final long guildId = guild.getIdLong();
-        return CompletableFuture.supplyAsync(() -> guild.retrieveMember(user).complete())
+        return guild.retrieveMember(user).submit()
                 .thenApply(member -> this.permissions(guildId, member));
     }
 
