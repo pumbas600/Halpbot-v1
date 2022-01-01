@@ -27,6 +27,7 @@ package nz.pumbas.halpbot.commands.builtin;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
@@ -36,6 +37,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.awt.Color;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -94,8 +96,9 @@ public class BuiltInCommands
     }
 
     @Command(description = "Retrieves the permissions that the specified user has, or the author if no user is specified")
-    public MessageEmbed permissions(@Source User author, @Unrequired @Nullable User user) {
-        if (null == user) user = author;
+    public MessageEmbed permissions(@Source Guild guild, @Source Member author, @Unrequired @Nullable Member member) {
+        if (null == member) member = author;
+        User user = member.getUser();
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Permissions");
@@ -103,7 +106,7 @@ public class BuiltInCommands
         embedBuilder.setFooter(user.getName(), user.getAvatarUrl());
 
         StringBuilder builder = new StringBuilder();
-        List<String> permissions = this.permissionManager.permissions(user);
+        Set<String> permissions = this.permissionManager.permissions(guild.getIdLong(), member);
         if (permissions.isEmpty())
             builder.append("No permissions");
         else {
@@ -116,44 +119,44 @@ public class BuiltInCommands
         return embedBuilder.build();
     }
 
-    //TODO: Rework
-    @Command(description = "Returns all the permissions in the database")
-    public MessageEmbed allPermissions() {
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Permissions");
-        embedBuilder.setColor(Color.ORANGE);
+//    //TODO: Rework
+//    @Command(description = "Returns all the permissions in the database")
+//    public MessageEmbed allPermissions() {
+//        EmbedBuilder embedBuilder = new EmbedBuilder();
+//        embedBuilder.setTitle("Permissions");
+//        embedBuilder.setColor(Color.ORANGE);
+//
+//        StringBuilder builder = new StringBuilder();
+//        List<String> permissions = this.permissionManager.permissions();
+//        if (permissions.isEmpty())
+//            builder.append("No permissions");
+//        else {
+//            for (String permission : permissions) {
+//                builder.append(permission).append('\n');
+//            }
+//        }
+//
+//        embedBuilder.setDescription(builder.toString());
+//        return embedBuilder.build();
+//    }
 
-        StringBuilder builder = new StringBuilder();
-        List<String> permissions = this.permissionManager.permissions();
-        if (permissions.isEmpty())
-            builder.append("No permissions");
-        else {
-            for (String permission : permissions) {
-                builder.append(permission).append('\n');
-            }
-        }
-
-        embedBuilder.setDescription(builder.toString());
-        return embedBuilder.build();
-    }
-
-    @Permission(HalpbotPermissions.GIVE_PERMISSIONS)
-    @Command(description = "Gives the user the specified permission")
-    public String givePermission(@Source User author, User user, String permission) {
-        permission = permission.toLowerCase(Locale.ROOT);
-
-        if (this.permissionManager.hasPermission(user, permission)) {
-            return "That user already has that permission!";
-        }
-        if (!this.permissionManager.isPermission(permission)) {
-            return "The permission '" + permission + "' doesn't exist";
-        }
-        if (!this.permissionManager.hasPermission(author, permission)) {
-            return "You must have the permission '" + permission + "' to give it to others";
-        }
-        this.permissionManager.givePermission(user, permission);
-        return String.format("Successfully gave the user the permission '%s'", permission);
-    }
+//    @Permission(HalpbotPermissions.GIVE_PERMISSIONS)
+//    @Command(description = "Gives the user the specified permission")
+//    public String givePermission(@Source User author, User user, String permission) {
+//        permission = permission.toLowerCase(Locale.ROOT);
+//
+//        if (this.permissionManager.hasPermission(user, permission)) {
+//            return "That user already has that permission!";
+//        }
+//        if (!this.permissionManager.isPermission(permission)) {
+//            return "The permission '" + permission + "' doesn't exist";
+//        }
+//        if (!this.permissionManager.hasPermission(author, permission)) {
+//            return "You must have the permission '" + permission + "' to give it to others";
+//        }
+//        this.permissionManager.givePermission(user, permission);
+//        return String.format("Successfully gave the user the permission '%s'", permission);
+//    }
 
     @Deprecated(forRemoval = true)
     @Permission(HalpbotPermissions.BOT_OWNER)
