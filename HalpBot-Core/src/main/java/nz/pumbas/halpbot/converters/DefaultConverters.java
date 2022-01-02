@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -46,6 +47,7 @@ import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContext;
+import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
@@ -340,6 +342,22 @@ public final class DefaultConverters
             .optionType(OptionType.CHANNEL)
             .build();
 
+    public static final TypeConverter<Role> ROLE_CONVERTER = TypeConverter.builder(Role.class)
+            .convert(invocationContext -> {
+                final Guild guild = invocationContext.halpbotEvent().guild();
+                if (guild == null)
+                    return Exceptional.of(
+                            new UnsupportedOperationException("You can't specify a role in a private message"));
+                Exceptional<Role> role = invocationContext.nextSurrounded("<@&", ">")
+                        .map(guild::getRoleById);
+                if (role.caught())
+                    role = LONG_CONVERTER.apply(invocationContext)
+                            .map(guild::getRoleById);
+                return role;
+            })
+            .optionType(OptionType.CHANNEL)
+            .build();
+
     public static final TypeConverter<Member> MEMBER_CONVERTER = TypeConverter.builder(Member.class)
             .convert(invocationContext -> {
                 final Guild guild = invocationContext.halpbotEvent().guild();
@@ -360,6 +378,9 @@ public final class DefaultConverters
             .convert(invocationContext -> {
                 Exceptional<User> user = invocationContext.nextSurrounded("<@!", ">")
                         .map(id -> invocationContext.halpbotEvent().jda().retrieveUserById(id).complete());
+                if (user.caught())
+                    user = invocationContext.nextSurrounded("<@", ">")
+                            .map(id -> invocationContext.halpbotEvent().jda().retrieveUserById(id).complete());
                 if (user.caught())
                     user = LONG_CONVERTER.apply(invocationContext)
                             .map(id -> invocationContext.halpbotEvent().jda().retrieveUserById(id).complete());
