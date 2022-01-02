@@ -52,8 +52,6 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @UseCommands
 public class Halpbot extends ListenerAdapter implements Bot
 {
-    public static final long CREATOR_ID = 260930648330469387L;
-
     @Inject private ApplicationContext applicationContext;
     @Inject private PermissionRepository permissionRepository;
     @Inject private HalpbotCore halpbotCore;
