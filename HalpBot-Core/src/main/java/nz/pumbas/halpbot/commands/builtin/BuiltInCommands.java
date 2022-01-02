@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.Color;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -159,22 +160,25 @@ public class BuiltInCommands
 //        return String.format("Successfully gave the user the permission '%s'", permission);
 //    }
 
+    //TODO: Make it so that it automatically throws an error when a field is null
     @Permissions(Permission.MANAGE_PERMISSIONS)
     @Command(description = "Binds a permission to a role")
-    public String bind(@Source @Nullable Guild guild, String permission, long roleId) {
+    public String bind(@Source @Nullable Guild guild, String permission, @Nullable Role newRole) {
         if (guild == null)
             return "This cannot be used in a private message";
-        Exceptional<Role> role = this.permissionService.guildRole(guild, permission);
-        Role newRole = guild.getRoleById(roleId);
+        Exceptional<Role> oldRole = this.permissionService.guildRole(guild, permission);
         if (newRole == null)
-            return "The role id %d doesn't exist".formatted(roleId);
+            return "The role specified doesn't exist";
 
-        String result = role.absent()
+        if (oldRole.present() && oldRole.get().getIdLong() == newRole.getIdLong())
+            return "The permission `%s` is already bound to `%s`".formatted(permission, newRole.getName());
+
+        String result = oldRole.absent()
                 ? "Binding the permission `%s` to `%s`".formatted(permission, newRole.getName())
                 : "Updating the binding of the permission `%s` from `%s` to `%s`"
-                        .formatted(permission, role.get().getName(), newRole.getName());
+                        .formatted(permission, oldRole.get().getName(), newRole.getName());
 
-        this.permissionService.updateOrSave(guild.getIdLong(),permission, roleId);
+        this.permissionService.updateOrSave(guild.getIdLong(),permission, newRole.getIdLong());
         return result;
     }
 
@@ -189,7 +193,7 @@ public class BuiltInCommands
         embedBuilder.setTitle("%s's Permission Bindings".formatted(guild.getName()))
                 .setColor(Color.ORANGE);
 
-        for (String permission : bindings.keySet()) {
+        for (String permission : bindings.keySet().stream().sorted().collect(Collectors.toList())) {
             Long roleId = bindings.get(permission);
             String role = "Unbound";
             if (roleId != null) {
@@ -197,7 +201,7 @@ public class BuiltInCommands
                 if (guildRole != null)
                     role = guildRole.getName();
             }
-            embedBuilder.appendDescription("%s - %s\n".formatted(permission, role));
+            embedBuilder.appendDescription("`%s` - `%s`\n".formatted(permission, role));
         }
         return embedBuilder.build();
     }

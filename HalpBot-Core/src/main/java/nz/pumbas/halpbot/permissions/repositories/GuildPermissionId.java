@@ -32,4 +32,9 @@ public class GuildPermissionId implements Serializable
                 && key.guildId() == this.guildId
                 && key.permission().equals(this.permission);
     }
+
+    @Override
+    public String toString() {
+        return "GP-ID(%d:%s)".formatted(this.guildId, this.permission);
+    }
 }

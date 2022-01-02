@@ -23,4 +23,9 @@ public class GuildPermission
     private String permission;
 
     private long roleId;
+
+    @Override
+    public String toString() {
+        return "GP(%d:%s:%d)".formatted(this.guildId, this.permission, this.roleId);
+    }
 }
