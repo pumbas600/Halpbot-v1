@@ -5,7 +5,6 @@ import org.dockbox.hartshorn.core.proxy.DelegatorAccessor;
 import org.dockbox.hartshorn.data.annotations.Query;
 import org.dockbox.hartshorn.data.jpa.JpaRepository;
 
-import java.util.List;
 import java.util.Set;
 
 @Service

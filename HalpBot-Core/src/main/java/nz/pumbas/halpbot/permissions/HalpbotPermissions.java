@@ -29,18 +29,27 @@ import net.dv8tion.jda.api.entities.Member;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
+import javax.inject.Inject;
+
+import nz.pumbas.halpbot.HalpbotCore;
+
 @Service
-public final class HalpbotPermissions
+public class HalpbotPermissions
 {
-    public static final String BOT_OWNER = "halpbot.owner.bot";
+    @Inject private HalpbotCore halpbotCore;
+
+    public static final String BOT_OWNER = "halpbot.bot.owner";
     public static final String GUILD_OWNER = "halpbot.guild.owner";
     public static final String ADMIN = "halpbot.admin.*";
     public static final String GIVE_PERMISSIONS = "halpbot.admin.give.permissions";
 
     @PermissionSupplier(GUILD_OWNER)
-    public static boolean isGuildOwner(Guild guild, Member member) {
+    public boolean isGuildOwner(Guild guild, Member member) {
         return guild.getOwnerIdLong() == member.getIdLong();
     }
 
-    private HalpbotPermissions() {}
+    @PermissionSupplier(BOT_OWNER)
+    public boolean isBotOwner(Guild guild, Member member) {
+        return this.halpbotCore.ownerId() == member.getIdLong();
+    }
 }
