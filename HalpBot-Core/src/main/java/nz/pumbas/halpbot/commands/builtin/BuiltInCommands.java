@@ -28,10 +28,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -52,6 +49,8 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.permissions.PermissionService;
+import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
+import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -166,19 +165,25 @@ public class BuiltInCommands
     public String bind(@Source @Nullable Guild guild, String permission, @Nullable Role newRole) {
         if (guild == null)
             return "This cannot be used in a private message";
-        Exceptional<Role> oldRole = this.permissionService.guildRole(guild, permission);
         if (newRole == null)
             return "The role specified doesn't exist";
 
-        if (oldRole.present() && oldRole.get().getIdLong() == newRole.getIdLong())
-            return "The permission `%s` is already bound to `%s`".formatted(permission, newRole.getName());
+        Exceptional<GuildPermission> oldGp =
+                this.permissionService.findById(new GuildPermissionId(guild.getIdLong(), permission));
+        String result = "Binding the permission `%s` to `%s`".formatted(permission, newRole.getName());
 
-        String result = oldRole.absent()
-                ? "Binding the permission `%s` to `%s`".formatted(permission, newRole.getName())
-                : "Updating the binding of the permission `%s` from `%s` to `%s`"
-                        .formatted(permission, oldRole.get().getName(), newRole.getName());
-
-        this.permissionService.updateOrSave(guild.getIdLong(),permission, newRole.getIdLong());
+        if (oldGp.present()) {
+            Role oldRole = guild.getRoleById(oldGp.get().roleId());
+            if (oldRole != null) {
+                if (oldRole.getIdLong() == newRole.getIdLong())
+                    return "The permission `%s` is already bound to `%s`".formatted(permission, newRole.getName());
+                result = "Updating the binding of the permission `%s` from `%s` to `%s`"
+                        .formatted(permission, oldRole.getName(), newRole.getName());
+            }
+            this.permissionService.close();
+        }
+        this.permissionService.updateOrSave(new GuildPermission(guild.getIdLong(), permission, newRole.getIdLong()));
+        this.permissionService.close();
         return result;
     }
 

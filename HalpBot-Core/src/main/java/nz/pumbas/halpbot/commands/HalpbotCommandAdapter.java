@@ -111,8 +111,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
             if (result.present())
                 this.halpbotCore.displayConfiguration().display(halpbotEvent, result.get());
-            else if (result.caught())
+            else if (result.caught()) {
+                this.applicationContext.log().error("Caught the error: ", result.error());
                 this.handleException(halpbotEvent, result.error());
+            }
         }
     }
     
