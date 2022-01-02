@@ -1,6 +1,9 @@
 package nz.pumbas.halpbot.commands.factory;
 
+import net.dv8tion.jda.api.Permission;
+
 import org.dockbox.hartshorn.config.annotations.UseConfigurations;
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
@@ -20,18 +23,23 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
-import nz.pumbas.halpbot.bugtesting.DemoFactory;
-import nz.pumbas.halpbot.bugtesting.DemoImplementation;
-import nz.pumbas.halpbot.bugtesting.DemoInterface;
+import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.commands.bugtesting.DemoFactory;
+import nz.pumbas.halpbot.commands.bugtesting.DemoImplementation;
+import nz.pumbas.halpbot.commands.bugtesting.DemoInterface;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
 import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
+import nz.pumbas.halpbot.permissions.PermissionDecoratorFactory;
+import nz.pumbas.halpbot.permissions.PermissionService;
+import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Demo
 @Service
 @UseConfigurations
+@Activator(scanPackages = "nz.pumbas.halpbot")
 @HartshornTest
 public class DemoTests
 {
@@ -157,5 +165,50 @@ public class DemoTests
         TypeContext<?> genericType = TypeContext.of(parameterizedType);
         Assertions.assertTrue(genericType.is(List.class));
         Assertions.assertEquals(1, genericType.typeParameters().size());
+    }
+
+    @InjectTest
+    public void permissionService(PermissionService permissionService) {
+        Assertions.assertNotNull(permissionService);
+    }
+
+    @InjectTest
+    public void permissionDecoratorTest(PermissionDecoratorFactory factory) {
+        ActionInvokable<?> actionInvokable = new HalpbotCommandInvokable(null, null);
+        ActionInvokable<?> permissionDecorator = factory.decorate(actionInvokable, new TestPermissions());
+
+        Assertions.assertNotNull(permissionDecorator);
+    }
+
+    @InjectTest
+    public void permissionDecorator(DemoServiceA<?> serviceA) {
+        Assertions.assertNotNull(serviceA);
+        Assertions.assertNotNull(serviceA.permissionService());
+    }
+
+    @InjectTest
+    public void serviceFactory(DemoFactory factory) {
+        DemoInterface<?> serviceA = factory.create("test");
+        Assertions.assertNotNull(factory);
+        Assertions.assertNotNull(serviceA);
+        Assertions.assertNotNull(serviceA.permissionService());
+    }
+
+    private static class TestPermissions implements Permissions
+    {
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return Permissions.class;
+        }
+
+        @Override
+        public String[] permissions() {
+            return new String[] { "halpbot.example.test" };
+        }
+
+        @Override
+        public Permission[] value() {
+            return new Permission[0];
+        }
     }
 }

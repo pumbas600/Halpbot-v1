@@ -33,6 +33,7 @@ import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.AccessModifier;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.core.domain.tuple.Tuple;
 
 import java.util.AbstractSequentialList;
@@ -177,6 +178,8 @@ public interface PermissionService extends ContextCarrier
     }
 
     Set<String> permissions(long guildId, Member member);
+
+    Exceptional<Role> guildRole(Guild guild, String permission);
 
     default CompletableFuture<Set<String>> permissions(Guild guild, User user) {
         final long guildId = guild.getIdLong();

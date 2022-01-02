@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.bugtesting;
+package nz.pumbas.halpbot.commands.bugtesting;
 
 public interface GenericFactory<R>
 {
