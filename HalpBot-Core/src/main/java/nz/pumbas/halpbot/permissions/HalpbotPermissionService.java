@@ -12,7 +12,6 @@ import org.dockbox.hartshorn.core.context.element.MethodContext;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,7 +19,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.HalpbotCore;
+import nz.pumbas.halpbot.actions.methods.Invokable;
+import nz.pumbas.halpbot.actions.methods.InvokableFactory;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
@@ -29,16 +29,12 @@ import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 @Binds(PermissionService.class)
 public class HalpbotPermissionService implements PermissionService
 {
-    @Inject private HalpbotCore halpbotCore;
     @Getter
     @Inject private ApplicationContext applicationContext;
+    @Inject private InvokableFactory invokableFactory;
 
     private final Set<String> permissions = new HashSet<>();
-    private final Map<String, MethodContext<Boolean, ?>> permissionSuppliers = new HashMap<>();
-
-    private boolean isBotOwner(long userId) {
-        return this.halpbotCore.ownerId() == userId;
-    }
+    private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
 
     @Inject
     private PermissionRepository permissionRepository;
@@ -59,11 +55,13 @@ public class HalpbotPermissionService implements PermissionService
     }
 
     @Override
-    public void registerPermissionSupplier(String permission, MethodContext<Boolean, ?> predicate) {
+    public <T> void registerPermissionSupplier(T instance, String permission, MethodContext<Boolean, T> predicate) {
         if (this.permissionSuppliers.containsKey(permission))
             this.applicationContext.log().warn("There is already a supplier for the permission %s".formatted(permission));
-        else
-            this.permissionSuppliers.put(permission, predicate);
+        else {
+            Invokable invokable = this.invokableFactory.create(instance, predicate);
+            this.permissionSuppliers.put(permission, invokable);
+        }
     }
 
     @Override
@@ -78,14 +76,14 @@ public class HalpbotPermissionService implements PermissionService
 
     private boolean evaluatePermissionSupplier(String permission, Guild guild, Member member) {
         return Boolean.TRUE.equals(this.permissionSuppliers.get(permission)
-                .invoke(null, guild, member)
+                .invoke(guild, member)
                 .or(false));
     }
 
     @Override
     public boolean hasPermission(Guild guild, Member member, String permission) {
-        if (this.isBotOwner(member.getIdLong()))
-            return true;
+//        if (this.isBotOwner(member.getIdLong()))
+//            return true;
         if (this.permissionSuppliers.containsKey(permission))
             return this.evaluatePermissionSupplier(permission, guild, member);
 
@@ -114,5 +112,13 @@ public class HalpbotPermissionService implements PermissionService
     @Override
     public Set<String> permissions() {
         return Collections.unmodifiableSet(this.permissions);
+    }
+
+    @Override
+    public Set<String> rolePermissions() {
+        return this.permissions
+                .stream()
+                .filter((permission) -> !this.permissionSuppliers.containsKey(permission))
+                .collect(Collectors.toSet());
     }
 }

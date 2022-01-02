@@ -62,19 +62,14 @@ public interface PermissionService extends ContextCarrier
     }
 
     @SuppressWarnings("unchecked")
-    default void registerPermissionSuppliers(TypeContext<?> typeContext) {
-        List<? extends MethodContext<?, ?>> permissionSuppliers = typeContext.methods(PermissionSupplier.class);
+    default <T> void registerPermissionSuppliers(TypeContext<T> typeContext) {
+        T instance = this.applicationContext().get(typeContext);
+        List<? extends MethodContext<?, T>> permissionSuppliers = typeContext.methods(PermissionSupplier.class);
 
         int validPermissionSuppliers = 0;
 
         // First validate the permission suppliers
         for (MethodContext<?, ?> permissionSupplier : permissionSuppliers) {
-            if (!permissionSupplier.has(AccessModifier.STATIC)) {
-                this.applicationContext().log().warn("The permission supplier %s must be static"
-                        .formatted(permissionSupplier.qualifiedName()));
-                continue;
-            }
-
             List<TypeContext<?>> parameters = permissionSupplier.parameterTypes();
             if (parameters.size() != 2 || !parameters.get(0).is(Guild.class) || !parameters.get(1).is(Member.class)) {
                 this.applicationContext().log()
@@ -93,13 +88,13 @@ public interface PermissionService extends ContextCarrier
 
             validPermissionSuppliers++;
             String permission = permissionSupplier.annotation(PermissionSupplier.class).get().value();
-            this.registerPermissionSupplier(permission, (MethodContext<Boolean, ?>) permissionSupplier);
+            this.registerPermissionSupplier(instance, permission, (MethodContext<Boolean, T>) permissionSupplier);
         }
         this.applicationContext().log().info("Registered %d permission suppliers in %s"
                 .formatted(validPermissionSuppliers, typeContext.qualifiedName()));
     }
 
-    void registerPermissionSupplier(String permission, MethodContext<Boolean, ?> predicate);
+    <T> void registerPermissionSupplier(T instance, String permission, MethodContext<Boolean, T> predicate);
 
     void updateOrSave(GuildPermission guildPermission);
 
@@ -186,10 +181,14 @@ public interface PermissionService extends ContextCarrier
                 .thenApply(member -> this.permissions(guildId, member));
     }
 
+
+
     /**
      * Returns a {@link List} containing all the different permissions.
      *
      * @return All the different permissions
      */
     Set<String> permissions();
+
+    Set<String> rolePermissions();
 }
