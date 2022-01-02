@@ -4,10 +4,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
+import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import java.util.Set;
 
@@ -22,9 +24,9 @@ import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Binds(PermissionDecorator.class)
-public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
+public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> implements Enableable
 {
-    @Inject protected PermissionService permissionService; // TODO: Fix this being null
+    @Inject protected PermissionService permissionService;
     @Getter protected final Set<String> customPermissions;
     @Getter protected final Set<Permission> jdaPermissions;
 
@@ -33,11 +35,6 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         super(actionInvokable);
         this.customPermissions = Set.of(permissions.permissions());
         this.jdaPermissions = Set.of(permissions.value());
-        this.registerPermissions();
-    }
-
-    protected void registerPermissions() {
-        this.permissionService.addPermissions(this.customPermissions);
     }
 
     @Override
@@ -56,5 +53,10 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     private boolean hasPermission(Guild guild, Member member) {
         return member.hasPermission(this.jdaPermissions) &&
                 this.permissionService.hasPermissions(guild, member, this.customPermissions);
+    }
+
+    @Override
+    public void enable() {
+        this.permissionService.addPermissions(this.customPermissions);
     }
 }

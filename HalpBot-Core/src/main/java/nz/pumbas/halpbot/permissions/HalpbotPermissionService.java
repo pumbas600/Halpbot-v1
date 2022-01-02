@@ -4,11 +4,11 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,12 +33,10 @@ public class HalpbotPermissionService implements PermissionService
     @Getter
     @Inject private ApplicationContext applicationContext;
     @Inject private InvokableFactory invokableFactory;
+    @Inject private PermissionRepository permissionRepository;
 
     private final Set<String> permissions = new HashSet<>();
     private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
-
-    @Inject
-    private PermissionRepository permissionRepository;
 
     @Override
     public boolean isPermission(String permission) {
@@ -106,6 +104,12 @@ public class HalpbotPermissionService implements PermissionService
                         .map(Role::getIdLong)
                         .collect(Collectors.toSet())
         );
+    }
+
+    @Override
+    public Exceptional<Role> guildRole(Guild guild, String permission) {
+        return this.permissionRepository.findById(new GuildPermissionId(guild.getIdLong(), permission))
+                .map((gp) -> guild.getRoleById(gp.roleId()));
     }
 
     @Override

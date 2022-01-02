@@ -159,7 +159,26 @@ public class BuiltInCommands
 //        return String.format("Successfully gave the user the permission '%s'", permission);
 //    }
 
-    @Permissions(Permission.MANAGE_ROLES)
+    @Permissions(Permission.MANAGE_PERMISSIONS)
+    @Command(description = "Binds a permission to a role")
+    public String bind(@Source @Nullable Guild guild, String permission, long roleId) {
+        if (guild == null)
+            return "This cannot be used in a private message";
+        Exceptional<Role> role = this.permissionService.guildRole(guild, permission);
+        Role newRole = guild.getRoleById(roleId);
+        if (newRole == null)
+            return "The role id %d doesn't exist".formatted(roleId);
+
+        String result = role.absent()
+                ? "Binding the permission `%s` to `%s`".formatted(permission, newRole.getName())
+                : "Updating the binding of the permission `%s` from `%s` to `%s`"
+                        .formatted(permission, role.get().getName(), newRole.getName());
+
+        this.permissionService.updateOrSave(guild.getIdLong(),permission, roleId);
+        return result;
+    }
+
+    @Permissions(Permission.MANAGE_PERMISSIONS)
     @Command(description = "Returns the role bindings for the permissions in the specified guild")
     public Object guildPermissions(@Source @Nullable Guild guild) {
         if (guild == null)
@@ -178,7 +197,7 @@ public class BuiltInCommands
                 if (guildRole != null)
                     role = guildRole.getName();
             }
-            embedBuilder.appendDescription("%s - %s".formatted(permission, role));
+            embedBuilder.appendDescription("%s - %s\n".formatted(permission, role));
         }
         return embedBuilder.build();
     }
