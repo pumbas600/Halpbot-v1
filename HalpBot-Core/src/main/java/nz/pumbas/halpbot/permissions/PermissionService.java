@@ -26,16 +26,19 @@ package nz.pumbas.halpbot.permissions;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.context.element.AccessModifier;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.core.domain.tuple.Tuple;
 
 import java.util.AbstractSequentialList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -191,4 +194,6 @@ public interface PermissionService extends ContextCarrier
     Set<String> permissions();
 
     Set<String> rolePermissions();
+
+    Map<String, Long> permissionBindings(Guild guild);
 }

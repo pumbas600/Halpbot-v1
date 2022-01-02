@@ -5,12 +5,16 @@ import org.dockbox.hartshorn.core.proxy.DelegatorAccessor;
 import org.dockbox.hartshorn.data.annotations.Query;
 import org.dockbox.hartshorn.data.jpa.JpaRepository;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
 public abstract class PermissionRepository implements JpaRepository<GuildPermission, GuildPermissionId>,
         DelegatorAccessor<PermissionRepository>
 {
+    @Query("SELECT gp FROM GuildPermission gp WHERE gp.guildId = :guildId")
+    public abstract List<GuildPermission> guildPermissions(long guildId);
+
     @Query("SELECT gp.permission FROM GuildPermission gp WHERE gp.guildId = :guildId AND gp.roleId IN :roleIds")
     public abstract Set<String> permissions(long guildId, Set<Long> roleIds);
 

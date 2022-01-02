@@ -26,19 +26,21 @@ package nz.pumbas.halpbot.commands.builtin;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.util.Locale;
-import java.util.Set;
+import java.util.Map;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.commands.CommandAdapter;
@@ -55,7 +57,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 public class BuiltInCommands
 {
-    @Inject private PermissionService permissionManager;
+    @Inject private PermissionService permissionService;
     @Inject private HelpService helpService;
 
     @Command(alias = { "help", "halp" }, description = "Displays the help information for the specified command")
@@ -94,29 +96,29 @@ public class BuiltInCommands
             HalpbotUtils.capitalise(jda.getStatus().toString()));
     }
 
-    @Command(description = "Retrieves the permissions that the specified user has, or the author if no user is specified")
-    public MessageEmbed permissions(@Source Guild guild, @Source Member author, @Unrequired @Nullable Member member) {
-        if (null == member) member = author;
-        User user = member.getUser();
-
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Permissions");
-        embedBuilder.setColor(Color.ORANGE);
-        embedBuilder.setFooter(user.getName(), user.getAvatarUrl());
-
-        StringBuilder builder = new StringBuilder();
-        Set<String> permissions = this.permissionManager.permissions(guild.getIdLong(), member);
-        if (permissions.isEmpty())
-            builder.append("No permissions");
-        else {
-            for (String permission : permissions) {
-                builder.append(permission).append('\n');
-            }
-        }
-
-        embedBuilder.setDescription(builder.toString());
-        return embedBuilder.build();
-    }
+//    @Command(description = "Retrieves the permissions that the specified user has, or the author if no user is specified")
+//    public MessageEmbed permissions(@Source Guild guild, @Source Member author, @Unrequired @Nullable Member member) {
+//        if (null == member) member = author;
+//        User user = member.getUser();
+//
+//        EmbedBuilder embedBuilder = new EmbedBuilder();
+//        embedBuilder.setTitle("Permissions");
+//        embedBuilder.setColor(Color.ORANGE);
+//        embedBuilder.setFooter(user.getName(), user.getAvatarUrl());
+//
+//        StringBuilder builder = new StringBuilder();
+//        Set<String> permissions = this.permissionService.permissions(guild.getIdLong(), member);
+//        if (permissions.isEmpty())
+//            builder.append("No permissions");
+//        else {
+//            for (String permission : permissions) {
+//                builder.append(permission).append('\n');
+//            }
+//        }
+//
+//        embedBuilder.setDescription(builder.toString());
+//        return embedBuilder.build();
+//    }
 
 //    //TODO: Rework
 //    @Command(description = "Returns all the permissions in the database")
@@ -156,6 +158,30 @@ public class BuiltInCommands
 //        this.permissionManager.givePermission(user, permission);
 //        return String.format("Successfully gave the user the permission '%s'", permission);
 //    }
+
+    @Permissions(Permission.MANAGE_ROLES)
+    @Command(description = "Returns the role bindings for the permissions in the specified guild")
+    public Object guildPermissions(@Source @Nullable Guild guild) {
+        if (guild == null)
+            return "This cannot be used in a private message";
+
+        Map<String, Long> bindings = this.permissionService.permissionBindings(guild);
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle("%s's Permission Bindings".formatted(guild.getName()))
+                .setColor(Color.ORANGE);
+
+        for (String permission : bindings.keySet()) {
+            Long roleId = bindings.get(permission);
+            String role = "Unbound";
+            if (roleId != null) {
+                Role guildRole = guild.getRoleById(roleId);
+                if (guildRole != null)
+                    role = guildRole.getName();
+            }
+            embedBuilder.appendDescription("%s - %s".formatted(permission, role));
+        }
+        return embedBuilder.build();
+    }
 
     @Deprecated(forRemoval = true)
     @Permissions(permissions = HalpbotPermissions.BOT_OWNER)

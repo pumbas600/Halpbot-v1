@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
+import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
@@ -82,8 +83,6 @@ public class HalpbotPermissionService implements PermissionService
 
     @Override
     public boolean hasPermission(Guild guild, Member member, String permission) {
-//        if (this.isBotOwner(member.getIdLong()))
-//            return true;
         if (this.permissionSuppliers.containsKey(permission))
             return this.evaluatePermissionSupplier(permission, guild, member);
 
@@ -120,5 +119,15 @@ public class HalpbotPermissionService implements PermissionService
                 .stream()
                 .filter((permission) -> !this.permissionSuppliers.containsKey(permission))
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Map<String, Long> permissionBindings(Guild guild) {
+        Map<String, Long> bindings = new HashMap<>();
+        this.permissionRepository.guildPermissions(guild.getIdLong())
+                .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
+
+        this.rolePermissions().forEach((permission) -> bindings.putIfAbsent(permission, null));
+        return bindings;
     }
 }

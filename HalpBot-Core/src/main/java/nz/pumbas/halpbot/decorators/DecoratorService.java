@@ -72,12 +72,20 @@ public interface DecoratorService extends Enableable, ContextCarrier
                         .sorted(Comparator.comparing((entry) -> -entry.getKey().annotation(Decorator.class).get().order().ordinal()))
                         .toList());
 
+        ActionInvokable<C> previous;
         for (Tuple<TypeContext<? extends Annotation>, Annotation> entry : entries) {
             DecoratorFactory<?, ?, ?> factory = this.decorator(entry.getKey());
             if (factory instanceof ActionInvokableDecoratorFactory actionInvokableDecoratorFactory) {
+                previous = actionInvokable;
                 actionInvokable = (ActionInvokable<C>) actionInvokableDecoratorFactory.decorate(
                         actionInvokable,
                         entry.getValue());
+                if (actionInvokable == null) {
+                    this.applicationContext().log()
+                            .error("There was an error while creating the decorator %s with %s"
+                                    .formatted(entry.getKey().qualifiedName(), entry.getValue().toString()));
+                    actionInvokable = previous;
+                }
             }
             else this.applicationContext().log()
                     .error("The command %s is annotated with the decorator %s, but this does not support commands"

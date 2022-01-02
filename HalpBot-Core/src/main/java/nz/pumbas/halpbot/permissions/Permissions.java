@@ -16,7 +16,7 @@ import nz.pumbas.halpbot.decorators.Order;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Permissions
 {
-    String[] permissions();
+    String[] permissions() default {};
 
     Permission[] value() default {};
 }
