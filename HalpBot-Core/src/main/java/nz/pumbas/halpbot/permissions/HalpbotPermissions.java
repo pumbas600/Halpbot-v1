@@ -40,8 +40,6 @@ public class HalpbotPermissions
 
     public static final String BOT_OWNER = "halpbot.bot.owner";
     public static final String GUILD_OWNER = "halpbot.guild.owner";
-    public static final String ADMIN = "halpbot.admin.*";
-    public static final String GIVE_PERMISSIONS = "halpbot.admin.give.permissions";
 
     @PermissionSupplier(GUILD_OWNER)
     public boolean isGuildOwner(Guild guild, Member member) {

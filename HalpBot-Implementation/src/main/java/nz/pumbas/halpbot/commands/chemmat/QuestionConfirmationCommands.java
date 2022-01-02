@@ -40,7 +40,6 @@ public class QuestionConfirmationCommands
     private long displayChangesChannel = -1;
 
     private final ActionCallbackBuilder callbackBuilder = ActionCallback.builder()
-        .addPermissions(HalpbotPermissions.ADMIN)
         .setSingleUse()
         .setDeleteAfter(-1, TimeUnit.MINUTES);
 

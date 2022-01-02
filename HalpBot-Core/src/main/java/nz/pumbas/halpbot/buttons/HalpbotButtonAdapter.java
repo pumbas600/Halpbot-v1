@@ -1,6 +1,5 @@
 package nz.pumbas.halpbot.buttons;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -23,8 +22,6 @@ import lombok.Getter;
 import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
-import nz.pumbas.halpbot.common.ExplainedException;
-import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.TokenService;

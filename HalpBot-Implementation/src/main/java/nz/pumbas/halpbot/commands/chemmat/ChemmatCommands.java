@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.commands.chemmat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -119,7 +120,7 @@ public class ChemmatCommands
         this.defaultQuestionHandler = new QuestionHandler(this.questionService, this.random);
     }
 
-    @Permissions(permissions = HalpbotPermissions.ADMIN)
+    @Permissions(Permission.ADMINISTRATOR)
     @Command(description = "Checks all the confirmed questions for any image links that are invalid")
     public List<Long> checkLinks() {
         return this.questionService
@@ -171,7 +172,7 @@ public class ChemmatCommands
     }
 
 
-    @Permissions(permissions = HalpbotPermissions.ADMIN)
+    @Permissions(Permission.ADMINISTRATOR)
     @Command(description = "Reloads the questions from the database and reshuffles them at the same time")
     public String reloadQuestions() {
         this.defaultQuestionHandler.shuffleQuestions();
