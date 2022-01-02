@@ -24,12 +24,23 @@
 
 package nz.pumbas.halpbot.permissions;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+
+@Service
 public final class HalpbotPermissions
 {
     public static final String BOT_OWNER = "halpbot.owner.bot";
-    public static final String GUILD_OWNER = "halpbot.owner.guild";
+    public static final String GUILD_OWNER = "halpbot.guild.owner";
     public static final String ADMIN = "halpbot.admin.*";
     public static final String GIVE_PERMISSIONS = "halpbot.admin.give.permissions";
+
+    @PermissionSupplier(GUILD_OWNER)
+    public static boolean isGuildOwner(Guild guild, Member member) {
+        return guild.getOwnerIdLong() == member.getIdLong();
+    }
 
     private HalpbotPermissions() {}
 }

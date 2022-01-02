@@ -28,13 +28,20 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 
+import org.dockbox.hartshorn.core.context.ContextCarrier;
+import org.dockbox.hartshorn.core.context.element.AccessModifier;
+import org.dockbox.hartshorn.core.context.element.MethodContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
+
+import java.util.AbstractSequentialList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 
-public interface PermissionService
+public interface PermissionService extends ContextCarrier
 {
     /**
      * Returns true if the {@link String permission} is registered in the database.
@@ -53,6 +60,46 @@ public interface PermissionService
     default void updateOrSave(long guildId, String permission, long roleId) {
         this.updateOrSave(new GuildPermission(guildId, permission, roleId));
     }
+
+    @SuppressWarnings("unchecked")
+    default void registerPermissionSuppliers(TypeContext<?> typeContext) {
+        List<? extends MethodContext<?, ?>> permissionSuppliers = typeContext.methods(PermissionSupplier.class);
+
+        int validPermissionSuppliers = 0;
+
+        // First validate the permission suppliers
+        for (MethodContext<?, ?> permissionSupplier : permissionSuppliers) {
+            if (!permissionSupplier.has(AccessModifier.STATIC)) {
+                this.applicationContext().log().warn("The permission supplier %s must be static"
+                        .formatted(permissionSupplier.qualifiedName()));
+                continue;
+            }
+
+            List<TypeContext<?>> parameters = permissionSupplier.parameterTypes();
+            if (parameters.size() != 2 || !parameters.get(0).is(Guild.class) || !parameters.get(1).is(Member.class)) {
+                this.applicationContext().log()
+                        .warn("The permission supplier %s must only have the parameters %s and %s"
+                                .formatted(permissionSupplier.qualifiedName(),
+                                        Guild.class.getCanonicalName(),
+                                        Member.class.getCanonicalName()));
+                continue;
+            }
+
+            if (!permissionSupplier.returnType().is(boolean.class)) {
+                this.applicationContext().log().warn("The permission supplier %s must return a boolean"
+                        .formatted(permissionSupplier.qualifiedName()));
+                continue;
+            }
+
+            validPermissionSuppliers++;
+            String permission = permissionSupplier.annotation(PermissionSupplier.class).get().value();
+            this.registerPermissionSupplier(permission, (MethodContext<Boolean, ?>) permissionSupplier);
+        }
+        this.applicationContext().log().info("Registered %d permission suppliers in %s"
+                .formatted(validPermissionSuppliers, typeContext.qualifiedName()));
+    }
+
+    void registerPermissionSupplier(String permission, MethodContext<Boolean, ?> predicate);
 
     void updateOrSave(GuildPermission guildPermission);
 

@@ -6,14 +6,20 @@ import net.dv8tion.jda.api.entities.Role;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.context.element.MethodContext;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import lombok.Getter;
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
@@ -21,7 +27,16 @@ import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 @Binds(PermissionService.class)
 public class HalpbotPermissionService implements PermissionService
 {
+    @Inject private HalpbotCore halpbotCore;
+    @Getter
+    @Inject private ApplicationContext applicationContext;
+
     private final Set<String> permissions = new HashSet<>();
+    private final Map<String, MethodContext<Boolean, ?>> permissionSuppliers = new HashMap<>();
+
+    private boolean isBotOwner(long userId) {
+        return this.halpbotCore.ownerId() == userId;
+    }
 
     @Inject
     private PermissionRepository permissionRepository;
@@ -42,6 +57,14 @@ public class HalpbotPermissionService implements PermissionService
     }
 
     @Override
+    public void registerPermissionSupplier(String permission, MethodContext<Boolean, ?> predicate) {
+        if (this.permissionSuppliers.containsKey(permission))
+            this.applicationContext.log().warn("There is already a supplier for the permission %s".formatted(permission));
+        else
+            this.permissionSuppliers.put(permission, predicate);
+    }
+
+    @Override
     public void updateOrSave(GuildPermission guildPermission) {
         this.permissionRepository.updateOrSave(guildPermission);
     }
@@ -51,8 +74,19 @@ public class HalpbotPermissionService implements PermissionService
         this.permissions.addAll(permissions);
     }
 
+    private boolean evaluatePermissionSupplier(String permission, Guild guild, Member member) {
+        return Boolean.TRUE.equals(this.permissionSuppliers.get(permission)
+                .invoke(null, guild, member)
+                .or(false));
+    }
+
     @Override
     public boolean hasPermission(Guild guild, Member member, String permission) {
+        if (this.isBotOwner(member.getIdLong()))
+            return true;
+        if (this.permissionSuppliers.containsKey(permission))
+            return this.evaluatePermissionSupplier(permission, guild, member);
+
         long roleId = this.permissionRepository.guildRole(guild.getIdLong(), permission);
         Role role = guild.getRoleById(roleId);
         return member.getRoles().contains(role);
