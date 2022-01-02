@@ -12,6 +12,7 @@ import org.dockbox.hartshorn.core.context.element.MethodContext;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
+import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
 @Service
@@ -87,9 +89,11 @@ public class HalpbotPermissionService implements PermissionService
         if (this.permissionSuppliers.containsKey(permission))
             return this.evaluatePermissionSupplier(permission, guild, member);
 
-        long roleId = this.permissionRepository.guildRole(guild.getIdLong(), permission);
-        Role role = guild.getRoleById(roleId);
-        return member.getRoles().contains(role);
+        return Boolean.TRUE.equals(
+                this.permissionRepository.findById(new GuildPermissionId(guild.getIdLong(), permission))
+                        .map((gp) -> member.getRoles().contains(guild.getRoleById(gp.roleId())))
+                        .or(false)
+        );
     }
 
     @Override

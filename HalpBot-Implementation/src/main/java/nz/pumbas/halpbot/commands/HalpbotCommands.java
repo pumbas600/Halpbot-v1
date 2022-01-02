@@ -24,20 +24,19 @@
 
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.entities.Message.MentionType;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import net.dv8tion.jda.internal.utils.Helpers;
 
 import org.checkerframework.checker.units.qual.Time;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
+import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
@@ -46,8 +45,10 @@ import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.decorators.log.Log;
+import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
 
@@ -55,6 +56,8 @@ import nz.pumbas.halpbot.utilities.Duration;
 @Service
 public class HalpbotCommands
 {
+    @Inject private PermissionService permissionService;
+
     @Command(alias = "source")
     public String source() {
         return "You can see the source code for me here: https://github.com/pumbas600/HalpBot :kissing_heart:";
@@ -68,6 +71,26 @@ public class HalpbotCommands
     @Command(alias = "suggestion")
     public String suggestion() {
         return "You can note issues and suggestions for me here: https://github.com/pumbas600/HalpBot/issues";
+    }
+
+    @Command
+    public String author(User user) {
+        return user.toString();
+    }
+
+    @Command
+    public String hasPermission(@Nullable @Source Guild guild,
+                                @Source Member author,
+                                String permission,
+                                @Unrequired @Nullable Member member)
+    {
+        if (guild == null)
+            return "This cannot be done in a private message";
+        if (member == null)
+            member = author;
+        return this.permissionService.hasPermission(guild, member, permission)
+                ? "You have the permission!"
+                : "You don't have the permission :(";
     }
 
     @Command(description = "Tests adding buttons to messages")
