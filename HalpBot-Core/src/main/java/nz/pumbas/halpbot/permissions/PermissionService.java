@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
+import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 
 public interface PermissionService extends ContextCarrier
 {
@@ -100,7 +101,15 @@ public interface PermissionService extends ContextCarrier
 
     <T> void registerPermissionSupplier(T instance, String permission, MethodContext<Boolean, T> predicate);
 
-    void updateOrSave(GuildPermission guildPermission);
+    GuildPermission updateOrSave(GuildPermission guildPermission);
+
+    GuildPermission update(GuildPermission guildPermission);
+
+    GuildPermission save(GuildPermission guildPermission);
+
+    Exceptional<GuildPermission> findById(GuildPermissionId id);
+
+    void close();
 
     /**
      * Adds the following permissions to the database.
@@ -179,7 +188,11 @@ public interface PermissionService extends ContextCarrier
 
     Set<String> permissions(long guildId, Member member);
 
-    Exceptional<Role> guildRole(Guild guild, String permission);
+    default Exceptional<Role> guildRole(Guild guild, String permission) {
+        return this.findById(new GuildPermissionId(guild.getIdLong(), permission))
+                .map((gp) -> guild.getRoleById(gp.roleId()));
+
+    }
 
     default CompletableFuture<Set<String>> permissions(Guild guild, User user) {
         final long guildId = guild.getIdLong();

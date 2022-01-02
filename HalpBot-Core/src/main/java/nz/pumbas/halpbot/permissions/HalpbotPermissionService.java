@@ -13,6 +13,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,8 +65,28 @@ public class HalpbotPermissionService implements PermissionService
     }
 
     @Override
-    public void updateOrSave(GuildPermission guildPermission) {
-        this.permissionRepository.updateOrSave(guildPermission);
+    public GuildPermission updateOrSave(GuildPermission guildPermission) {
+        return this.permissionRepository.updateOrSave(guildPermission);
+    }
+
+    @Override
+    public GuildPermission update(GuildPermission guildPermission) {
+        return this.permissionRepository.update(guildPermission);
+    }
+
+    @Override
+    public GuildPermission save(GuildPermission guildPermission) {
+        return this.permissionRepository.save(guildPermission);
+    }
+
+    @Override
+    public Exceptional<GuildPermission> findById(GuildPermissionId id) {
+        return this.permissionRepository.findById(id);
+    }
+
+    @Override
+    public void close() {
+        this.permissionRepository.entityManager().close();
     }
 
     @Override
@@ -107,12 +128,6 @@ public class HalpbotPermissionService implements PermissionService
     }
 
     @Override
-    public Exceptional<Role> guildRole(Guild guild, String permission) {
-        return this.permissionRepository.findById(new GuildPermissionId(guild.getIdLong(), permission))
-                .map((gp) -> guild.getRoleById(gp.roleId()));
-    }
-
-    @Override
     public Set<String> permissions() {
         return Collections.unmodifiableSet(this.permissions);
     }
@@ -125,10 +140,18 @@ public class HalpbotPermissionService implements PermissionService
                 .collect(Collectors.toSet());
     }
 
+    @SuppressWarnings("unchecked")
+    private List<GuildPermission> guildPermissions(long guildId) {
+        return (List<GuildPermission>) this.permissionRepository.entityManager()
+                .createQuery("SELECT gp FROM GuildPermission gp WHERE gp.guildId = :guildId")
+                .setParameter("guildId", guildId)
+                .getResultList();
+    }
+
     @Override
     public Map<String, Long> permissionBindings(Guild guild) {
         Map<String, Long> bindings = new HashMap<>();
-        this.permissionRepository.guildPermissions(guild.getIdLong())
+        this.guildPermissions(guild.getIdLong())
                 .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
 
         this.rolePermissions().forEach((permission) -> bindings.putIfAbsent(permission, null));

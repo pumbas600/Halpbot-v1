@@ -60,7 +60,6 @@ public class Halpbot extends ListenerAdapter implements Bot
     public void onReady(ReadyEvent event) {
         this.applicationContext.log()
                 .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
-        this.testDB();
     }
 
     @SubscribeEvent
@@ -76,10 +75,4 @@ public class Halpbot extends ListenerAdapter implements Bot
                 .addEventListeners(this)
                 .setActivity(Activity.of(ActivityType.COMPETING, "The best way to help everyone"));
     }
-
-    private void testDB() {
-        GuildPermission guildPermission = new GuildPermission(2, "halpbot.example.test", 2);
-        this.permissionRepository.updateOrSave(guildPermission);
-    }
-
 }
