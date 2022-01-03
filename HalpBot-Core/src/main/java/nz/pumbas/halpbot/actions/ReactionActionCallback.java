@@ -54,17 +54,15 @@ public class ReactionActionCallback extends AbstractActionCallback
         return this.codepointEmoji;
     }
 
-    @Override
     public @Nullable CooldownTimer cooldownTimer() {
         return null;
     }
 
-    @Override
     public Coolable cooldownTimer(CooldownTimer cooldownTimer) {
         return null;
     }
 
-    @Override
+
     public long cooldownDurationMs() {
         return 0;
     }

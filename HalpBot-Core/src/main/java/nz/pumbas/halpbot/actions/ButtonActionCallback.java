@@ -11,11 +11,10 @@ import java.util.concurrent.TimeUnit;
 
 import nz.pumbas.halpbot.actions.cooldowns.Coolable;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
-import nz.pumbas.halpbot.actions.methods.MethodCallback;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class ButtonActionCallback extends AbstractActionCallback implements MethodCallback, Copyable
+public class ButtonActionCallback extends AbstractActionCallback
 {
     private final Method callback;
     private final Object instance;
@@ -46,18 +45,13 @@ public class ButtonActionCallback extends AbstractActionCallback implements Meth
 
     @Override
     public Exceptional<Object> invokeCallback(HalpbotEvent event) {
-        return this.invoke(
-            HalpbotUtils.combine(
-                new Object[]{ event.event(ButtonClickEvent.class) },
-                this.parameters));
+        return Exceptional.empty();
     }
 
-    @Override
     public Method getMethod() {
         return this.callback;
     }
 
-    @Override
     public @Nullable Object getInstance() {
         return this.instance;
     }
@@ -66,24 +60,20 @@ public class ButtonActionCallback extends AbstractActionCallback implements Meth
         return this.isEphemeral;
     }
 
-    @Override
     public ActionCallbackBuilder copy() {
         return new ActionCallbackBuilder()
             .setButtonAction(this.instance, this.callback)
             .setParameters(this.parameters);
     }
 
-    @Override
     public @Nullable CooldownTimer cooldownTimer() {
         return null;
     }
 
-    @Override
     public Coolable cooldownTimer(CooldownTimer cooldownTimer) {
         return null;
     }
 
-    @Override
     public long cooldownDurationMs() {
         return 0;
     }

@@ -9,14 +9,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import nz.pumbas.halpbot.actions.ActionHandler;
 import nz.pumbas.halpbot.actions.ReactionActionCallback;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-public class ReactionAdapter extends AbstractHalpbotAdapter implements ActionHandler
+public class ReactionAdapter extends AbstractHalpbotAdapter
 {
     protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
     protected final Map<Long, Map<String, ReactionActionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
@@ -39,7 +38,7 @@ public class ReactionAdapter extends AbstractHalpbotAdapter implements ActionHan
             return;
 
         ReactionActionCallback actionCallback = callbacks.get(emoji);
-        this.handle(actionCallback, new MessageEvent(event));
+        //this.handle(actionCallback, new MessageEvent(event));
     }
 
     public static String convertCodepointToValidCase(String codepoint) {
@@ -88,23 +87,23 @@ public class ReactionAdapter extends AbstractHalpbotAdapter implements ActionHan
         }
     }
 
-    @Override
-    public String getActionId(HalpbotEvent event) {
-        return event.event(MessageReactionAddEvent.class).getMessageId();
-    }
+//    @Override
+//    public String getActionId(HalpbotEvent event) {
+//        return event.event(MessageReactionAddEvent.class).getMessageId();
+//    }
 
-    @Override
-    public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
-        MessageReactionAddEvent event = halpbotEvent.event(MessageReactionAddEvent.class);
-        long messageId = event.getMessageIdLong();
-
-        event.retrieveMessage()
-            .queue(m -> {
-                this.reactionCallbacks.get(messageId)
-                    .forEach((registeredEmoji, registeredCallback) ->
-                        m.removeReaction(registeredEmoji, event.getJDA().getSelfUser())
-                            .queue());
-                this.reactionCallbacks.remove(messageId);
-            });
-    }
+//    @Override
+//    public void removeActionCallbacks(HalpbotEvent halpbotEvent) {
+//        MessageReactionAddEvent event = halpbotEvent.event(MessageReactionAddEvent.class);
+//        long messageId = event.getMessageIdLong();
+//
+//        event.retrieveMessage()
+//            .queue(m -> {
+//                this.reactionCallbacks.get(messageId)
+//                    .forEach((registeredEmoji, registeredCallback) ->
+//                        m.removeReaction(registeredEmoji, event.getJDA().getSelfUser())
+//                            .queue());
+//                this.reactionCallbacks.remove(messageId);
+//            });
+//    }
 }

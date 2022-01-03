@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.buttons.ButtonAction;
-import nz.pumbas.halpbot.actions.annotations.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.adapters.ReactionAdapter;
 
 public class ActionCallbackBuilder {
