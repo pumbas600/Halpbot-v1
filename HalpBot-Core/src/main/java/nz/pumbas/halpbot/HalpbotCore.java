@@ -95,6 +95,7 @@ public class HalpbotCore implements ContextCarrier
             throw new ApplicationException("You must specify the id of the bot owner in bot-config.properties");
 
         this.setOwner(config.ownerId());
+        this.permissionService.validateSetup();
         this.adapters.forEach(adapter -> adapter.onCreation(jda));
     }
 

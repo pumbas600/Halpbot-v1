@@ -3,6 +3,7 @@ package nz.pumbas.halpbot.permissions;
 import org.dockbox.hartshorn.core.Key;
 import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.services.ProcessingOrder;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;

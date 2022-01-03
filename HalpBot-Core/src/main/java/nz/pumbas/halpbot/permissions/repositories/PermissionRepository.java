@@ -1,11 +1,13 @@
 package nz.pumbas.halpbot.permissions.repositories;
 
+import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.data.annotations.Query;
 import org.dockbox.hartshorn.data.jpa.JpaRepository;
 
 import java.util.List;
 import java.util.Set;
+
 @Service
 public abstract class PermissionRepository implements JpaRepository<GuildPermission, GuildPermissionId>
 {

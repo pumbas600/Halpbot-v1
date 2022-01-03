@@ -167,6 +167,9 @@ public class BuiltInCommands
             return "This cannot be used in a private message";
         if (newRole == null)
             return "The role specified doesn't exist";
+        if (!this.permissionService.isPermission(permission))
+            return "%s is not a bindable permission".formatted(permission);
+
 
         Exceptional<GuildPermission> oldGp =
                 this.permissionService.findById(new GuildPermissionId(guild.getIdLong(), permission));
