@@ -48,6 +48,8 @@ import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 
 public interface PermissionService extends ContextCarrier
 {
+    boolean useCustomPermissions();
+
     default void validateSetup() { }
 
     /**

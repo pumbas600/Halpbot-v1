@@ -31,7 +31,7 @@ public class HalpbotHelpService implements HelpService
 {
     @Inject private DecoratorService decoratorService;
     @Nullable private MessageEmbed allCommandHelpEmbed;
-    private Map<CommandContext, MessageEmbed> commandHelpEmbeds = HartshornUtils.emptyMap();
+    private final Map<CommandContext, MessageEmbed> commandHelpEmbeds = HartshornUtils.emptyMap();
 
     @Override
     public MessageEmbed build(CommandAdapter commandAdapter) {

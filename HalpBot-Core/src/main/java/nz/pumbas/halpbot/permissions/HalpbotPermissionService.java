@@ -9,6 +9,7 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
+import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.Collections;
@@ -23,7 +24,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.actions.methods.InvokableFactory;
-import nz.pumbas.halpbot.permissions.repositories.DisabledPermissionRepository;
+import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
@@ -40,11 +41,21 @@ public class HalpbotPermissionService implements PermissionService
     private final Set<String> permissions = new HashSet<>();
     private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
 
+    @Getter private boolean useCustomPermissions;
+
     @Override
     public void validateSetup() {
-        if (this.permissionRepository instanceof DisabledPermissionRepository && !this.rolePermissions().isEmpty())
+        this.useCustomPermissions = this.applicationContext.get(BotConfiguration.class).useCustomPermissions();
+
+        if(!this.useCustomPermissions && !this.rolePermissions().isEmpty())
             this.applicationContext.log()
-                    .error("You haven't enabled custom permissions in the bot-config but you have them defined.");
+                    .error("You haven't enabled custom permissions in the bot-config but you have some defined.");
+    }
+
+    private UnsupportedOperationException disabledError() {
+        return new UnsupportedOperationException(
+                "The custom permissions database has been disabled. To use it, set the property " +
+                        "useCustomPermissions to true in the bot-config");
     }
 
     @Override
@@ -54,11 +65,15 @@ public class HalpbotPermissionService implements PermissionService
 
     @Override
     public boolean isPermission(long guildId, long roleId) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         return this.permissionRepository.countPermissionsWithRole(guildId, roleId) != 0;
     }
 
     @Override
     public boolean permissionExists(long guildId, String permission) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         return this.permissionRepository.countPermissions(guildId, permission) != 0;
     }
 
@@ -74,26 +89,36 @@ public class HalpbotPermissionService implements PermissionService
 
     @Override
     public GuildPermission updateOrSave(GuildPermission guildPermission) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         return this.permissionRepository.updateOrSave(guildPermission);
     }
 
     @Override
     public GuildPermission update(GuildPermission guildPermission) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         return this.permissionRepository.update(guildPermission);
     }
 
     @Override
     public GuildPermission save(GuildPermission guildPermission) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         return this.permissionRepository.save(guildPermission);
     }
 
     @Override
     public Exceptional<GuildPermission> findById(GuildPermissionId id) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         return this.permissionRepository.findById(id);
     }
 
     @Override
     public void close() {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         this.permissionRepository.entityManager().close();
     }
 
@@ -127,6 +152,8 @@ public class HalpbotPermissionService implements PermissionService
 
     @Override
     public Set<String> permissions(long guildId, Member member) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
         return this.permissionRepository
                 .permissions(guildId, member.getRoles()
                         .stream()
@@ -150,6 +177,9 @@ public class HalpbotPermissionService implements PermissionService
 
     @Override
     public Map<String, Long> permissionBindings(Guild guild) {
+        if (!this.useCustomPermissions)
+            throw this.disabledError();
+
         Map<String, Long> bindings = new HashMap<>();
         this.permissionRepository.guildPermissions(guild.getIdLong())
                 .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
