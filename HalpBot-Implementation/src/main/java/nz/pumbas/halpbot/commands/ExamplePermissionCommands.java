@@ -36,6 +36,12 @@ public class ExamplePermissionCommands
         return "This command is restricted to people with the *MANAGE_PERMISSIONS* or *MANAGE_ROLES* permissions";
     }
 
+    @Permissions(permissions = "halpbot.example.test")
+    @Command(description = "Tests custom permissions")
+    public String customPermissions() {
+        return "This command is restricted to people with the *halpbot.example.test*";
+    }
+
 //    @Permissions({Permission.ADMINISTRATOR, Permission.MANAGE_SERVER})
 //    @Command(description = "Tests the @Permission decorator")
 //    public String permission() {

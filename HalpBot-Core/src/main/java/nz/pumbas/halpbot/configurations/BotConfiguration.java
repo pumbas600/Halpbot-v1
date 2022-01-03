@@ -17,10 +17,7 @@ import java.nio.file.Path;
 import javax.inject.Singleton;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.permissions.PermissionService;
-import nz.pumbas.halpbot.permissions.repositories.DisabledPermissionRepository;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Getter
 @Configuration(source = "classpath:bot-config", filetype = FileFormats.PROPERTIES)
@@ -46,7 +43,7 @@ public class BotConfiguration
     public PermissionRepository permissionRepository(ApplicationContext applicationContext)
     {
         if (!this.useCustomPermissions) {
-            return applicationContext.get(DisabledPermissionRepository.class);
+            return applicationContext.get(PermissionRepository.class);
         }
 
         Path path = new File("Halpbot-Core-DB").toPath();
