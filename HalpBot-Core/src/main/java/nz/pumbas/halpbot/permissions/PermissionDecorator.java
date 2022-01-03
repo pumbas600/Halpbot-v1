@@ -7,16 +7,13 @@ import net.dv8tion.jda.api.entities.Member;
 import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import java.util.Set;
 
 import javax.inject.Inject;
 
 import lombok.Getter;
-import lombok.Setter;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
@@ -43,8 +40,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         Guild guild = event.guild();
         Member member = event.member();
 
-        if (guild == null || member == null || this.hasPermission(guild, member))
-        {
+        if (guild == null || member == null || this.hasPermission(guild, member)) {
             return super.invoke(invocationContext);
         }
         return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
