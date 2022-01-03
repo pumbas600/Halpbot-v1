@@ -5,6 +5,8 @@ import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.annotations.Cooldown;
@@ -84,5 +86,24 @@ public class DecoratorServiceTests
         Assertions.assertInstanceOf(CommandInvokable.class, actionInvokable);
 
         Assertions.assertEquals(actionInvokable, this.decoratorService.root(commandContext.actionInvokable()));
+    }
+
+    @Test
+    @SuppressWarnings("rawtypes")
+    public void findingDecoratorsOfTypeTest() {
+        CommandContext commandContext = this.commandAdapter.commandContext("decoratedCommandTest");
+        Assertions.assertNotNull(commandContext);
+
+        ActionInvokable<?> actionInvokable = commandContext.actionInvokable();
+        List<PermissionDecorator> permissionDecorators =
+                this.decoratorService.decorators(actionInvokable, PermissionDecorator.class);
+        List<CooldownDecorator> cooldownDecorators =
+                this.decoratorService.decorators(actionInvokable, CooldownDecorator.class);
+        List<LogDecorator> logDecorators =
+                this.decoratorService.decorators(actionInvokable, LogDecorator.class);
+
+        Assertions.assertEquals(2, permissionDecorators.size());
+        Assertions.assertEquals(1, cooldownDecorators.size());
+        Assertions.assertEquals(1, logDecorators.size());
     }
 }

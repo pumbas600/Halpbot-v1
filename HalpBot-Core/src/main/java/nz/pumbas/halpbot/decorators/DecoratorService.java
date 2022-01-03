@@ -12,6 +12,7 @@ import org.dockbox.hartshorn.core.domain.tuple.Tuple;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -119,6 +120,18 @@ public interface DecoratorService extends Enableable, ContextCarrier
             actionInvokable = decorator.actionInvokable();
         }
         return Exceptional.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T extends ActionInvokable<?>> List<T> decorators(ActionInvokable<?> actionInvokable, Class<T> type) {
+        List<T> decorators = new ArrayList<>();
+
+        while (actionInvokable instanceof ActionInvokableDecorator decorator) {
+            if (type.isAssignableFrom(actionInvokable.getClass()))
+                decorators.add((T) actionInvokable);
+            actionInvokable = decorator.actionInvokable();
+        }
+        return decorators;
     }
 
     default ActionInvokable<?> root(ActionInvokable<?> actionInvokable) {
