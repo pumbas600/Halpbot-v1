@@ -2,12 +2,8 @@ package nz.pumbas.halpbot;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
 
 import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
@@ -95,7 +91,7 @@ public class HalpbotCore implements ContextCarrier
             throw new ApplicationException("You must specify the id of the bot owner in bot-config.properties");
 
         this.setOwner(config.ownerId());
-        this.permissionService.validateSetup();
+        this.permissionService.initialise();
         this.adapters.forEach(adapter -> adapter.onCreation(jda));
     }
 

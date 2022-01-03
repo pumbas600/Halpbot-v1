@@ -4,17 +4,16 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
-import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,12 +43,26 @@ public class HalpbotPermissionService implements PermissionService
     @Getter private boolean useCustomPermissions;
 
     @Override
-    public void validateSetup() {
-        this.useCustomPermissions = this.applicationContext.get(BotConfiguration.class).useCustomPermissions();
+    public void initialise() {
+        this.useCustomPermissions = this.applicationContext.get(BotConfiguration.class).useRoleBinding();
 
         if(!this.useCustomPermissions && !this.rolePermissions().isEmpty())
             this.applicationContext.log()
                     .error("You haven't enabled custom permissions in the bot-config but you have some defined.");
+        if (this.useCustomPermissions)
+            this.deleteOldPermissions();
+    }
+
+    private void deleteOldPermissions() {
+        List<GuildPermission> oldPermissions =  this.permissionRepository.findAll()
+                .stream()
+                .filter((gp) -> !this.isPermission(gp.permission()))
+                .toList();
+        if (!oldPermissions.isEmpty()) {
+            this.applicationContext.log().info("Deleting the following deprecated permissions from the database: %s"
+                    .formatted(String.join(", ", oldPermissions.stream().map(GuildPermission::permission).toList())));
+            oldPermissions.forEach(this.permissionRepository::delete);
+        }
     }
 
     private UnsupportedOperationException disabledError() {
