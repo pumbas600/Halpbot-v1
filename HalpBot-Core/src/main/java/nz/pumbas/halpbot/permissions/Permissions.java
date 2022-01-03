@@ -19,4 +19,6 @@ public @interface Permissions
     String[] permissions() default {};
 
     Permission[] value() default {};
+
+    Merger merger() default Merger.AND;
 }
