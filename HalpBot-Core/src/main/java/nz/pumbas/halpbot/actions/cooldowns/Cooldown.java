@@ -1,11 +1,10 @@
-package nz.pumbas.halpbot.actions.annotations;
+package nz.pumbas.halpbot.actions.cooldowns;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
 import nz.pumbas.halpbot.decorators.Decorator;
 import nz.pumbas.halpbot.utilities.Duration;
 

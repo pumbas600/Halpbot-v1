@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.actions.annotations.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;

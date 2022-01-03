@@ -55,8 +55,8 @@ import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.actions.annotations.Action;
 import nz.pumbas.halpbot.buttons.ButtonAction;
-import nz.pumbas.halpbot.actions.annotations.Cooldown;
-import nz.pumbas.halpbot.adapters.OldButtonAdapter;
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
+import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Description;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
@@ -182,7 +182,7 @@ public class ChemmatCommands
 
     @SlashCommand
     @Command(description = "Retrieves a random chemmat quiz")
-    public @Nullable String quiz(OldButtonAdapter buttonAdapter, Interaction interaction,
+    public @Nullable String quiz(ButtonAdapter buttonAdapter, Interaction interaction,
                                  @Description("The id of the quiz") @Unrequired("-1") long quizId,
                                  @Description("The chemmat topic to get quizzed on") @Unrequired("") String topic)
     {

@@ -4,11 +4,9 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.actions.cooldowns.Coolable;
 import nz.pumbas.halpbot.events.HalpbotEvent;
-import nz.pumbas.halpbot.permissions.Permissive;
 
-public interface ActionCallback extends Coolable, Permissive
+public interface ActionCallback
 {
     long getDeleteAfterDuration();
 

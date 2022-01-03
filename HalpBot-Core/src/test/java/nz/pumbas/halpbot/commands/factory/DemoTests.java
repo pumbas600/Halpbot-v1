@@ -22,7 +22,7 @@ import java.lang.reflect.Type;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import nz.pumbas.halpbot.actions.annotations.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.bugtesting.DemoFactory;
 import nz.pumbas.halpbot.commands.bugtesting.DemoImplementation;

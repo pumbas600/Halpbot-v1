@@ -16,7 +16,6 @@ public abstract class AbstractActionCallback implements ActionCallback
     protected final boolean singleUse;
     protected final long displayDuration;
 
-    @Override
     public Set<String> permissions() {
         return Collections.emptySet();
     }

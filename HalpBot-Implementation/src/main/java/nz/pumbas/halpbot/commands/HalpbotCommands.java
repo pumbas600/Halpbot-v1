@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.actions.annotations.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
