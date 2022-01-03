@@ -17,6 +17,8 @@ import java.nio.file.Path;
 import javax.inject.Singleton;
 
 import lombok.Getter;
+import nz.pumbas.halpbot.permissions.PermissionService;
+import nz.pumbas.halpbot.permissions.repositories.DisabledPermissionRepository;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -36,14 +38,19 @@ public class BotConfiguration
     @Value("ownerId")
     private long ownerId = -1;
 
+    @Value("useCustomPermissions")
+    private boolean useCustomPermissions;
+
     @Provider
     @Singleton
     public PermissionRepository permissionRepository(ApplicationContext applicationContext)
-            throws ApplicationException
     {
+        if (!this.useCustomPermissions) {
+            return applicationContext.get(DisabledPermissionRepository.class);
+        }
+
         Path path = new File("Halpbot-Core-DB").toPath();
-        // TODO: Create DerbyFileRemote without username and password
-        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "demo");
+        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
         return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
     }
 

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
+import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
@@ -13,7 +14,6 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.actions.methods.InvokableFactory;
+import nz.pumbas.halpbot.permissions.repositories.DisabledPermissionRepository;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
@@ -38,6 +39,13 @@ public class HalpbotPermissionService implements PermissionService
 
     private final Set<String> permissions = new HashSet<>();
     private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
+
+    @Override
+    public void validateSetup() {
+        if (this.permissionRepository instanceof DisabledPermissionRepository && !this.rolePermissions().isEmpty())
+            this.applicationContext.log()
+                    .error("You haven't enabled custom permissions in the bot-config but you have them defined.");
+    }
 
     @Override
     public boolean isPermission(String permission) {
@@ -140,18 +148,10 @@ public class HalpbotPermissionService implements PermissionService
                 .collect(Collectors.toSet());
     }
 
-    @SuppressWarnings("unchecked")
-    private List<GuildPermission> guildPermissions(long guildId) {
-        return (List<GuildPermission>) this.permissionRepository.entityManager()
-                .createQuery("SELECT gp FROM GuildPermission gp WHERE gp.guildId = :guildId")
-                .setParameter("guildId", guildId)
-                .getResultList();
-    }
-
     @Override
     public Map<String, Long> permissionBindings(Guild guild) {
         Map<String, Long> bindings = new HashMap<>();
-        this.guildPermissions(guild.getIdLong())
+        this.permissionRepository.guildPermissions(guild.getIdLong())
                 .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
 
         this.rolePermissions().forEach((permission) -> bindings.putIfAbsent(permission, null));

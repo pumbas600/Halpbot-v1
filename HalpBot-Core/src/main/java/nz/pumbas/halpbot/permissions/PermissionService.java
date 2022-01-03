@@ -48,6 +48,8 @@ import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 
 public interface PermissionService extends ContextCarrier
 {
+    default void validateSetup() { }
+
     /**
      * Returns true if the {@link String permission} is registered in the database.
      *
