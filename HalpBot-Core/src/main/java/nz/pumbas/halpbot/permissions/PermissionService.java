@@ -50,7 +50,7 @@ public interface PermissionService extends ContextCarrier
 {
     boolean useCustomPermissions();
 
-    default void validateSetup() { }
+    default void initialise() { }
 
     /**
      * Returns true if the {@link String permission} is registered in the database.

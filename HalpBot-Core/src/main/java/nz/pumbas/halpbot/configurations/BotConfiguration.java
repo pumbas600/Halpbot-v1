@@ -4,12 +4,9 @@ import org.dockbox.hartshorn.config.annotations.Configuration;
 import org.dockbox.hartshorn.config.annotations.Value;
 import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.dockbox.hartshorn.data.FileFormats;
 import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
-import org.dockbox.hartshorn.data.remote.JdbcRemoteConfiguration;
 import org.dockbox.hartshorn.data.remote.PersistenceConnection;
-import org.dockbox.hartshorn.data.remote.Remote;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -35,20 +32,20 @@ public class BotConfiguration
     @Value("ownerId")
     private long ownerId = -1;
 
-    @Value("useCustomPermissions")
-    private boolean useCustomPermissions;
+    @Value("useRoleBinding")
+    private boolean useRoleBinding;
 
     @Provider
     @Singleton
     public PermissionRepository permissionRepository(ApplicationContext applicationContext)
     {
-        if (!this.useCustomPermissions) {
+        if (!this.useRoleBinding) {
             return applicationContext.get(PermissionRepository.class);
         }
 
         Path path = new File("Halpbot-Core-DB").toPath();
         PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
+        applicationContext.log().info("Role binding database connection created");
         return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
     }
-
 }

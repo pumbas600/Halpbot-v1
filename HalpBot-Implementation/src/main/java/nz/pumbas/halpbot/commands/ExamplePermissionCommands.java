@@ -36,10 +36,17 @@ public class ExamplePermissionCommands
         return "This command is restricted to people with the *MANAGE_PERMISSIONS* or *MANAGE_ROLES* permissions";
     }
 
-    @Permissions(permissions = "halpbot.example.test")
+    @Permissions(permissions = "halpbot.example.testC")
     @Command(description = "Tests custom permissions")
     public String customPermissions() {
-        return "This command is restricted to people with the *halpbot.example.test*";
+        return "This command is restricted to people with the *halpbot.example.testA* permission";
+    }
+
+    // Note: This combination of permissions doesn't really make sense and is only for demonstration purposes.
+    @Permissions(permissions = {"halpbot.example.testB", HalpbotPermissions.GUILD_OWNER})
+    @Command(description = "Tests multiple custom permissions")
+    public String multipleCustomPermissions() {
+        return "This command is restricted to people with the *halpbot.example.testB* permission and are the guild owner";
     }
 
 //    @Permissions({Permission.ADMINISTRATOR, Permission.MANAGE_SERVER})
