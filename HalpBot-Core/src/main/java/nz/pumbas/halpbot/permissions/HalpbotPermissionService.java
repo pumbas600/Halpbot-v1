@@ -53,10 +53,12 @@ public class HalpbotPermissionService implements PermissionService, Enableable
     public void enable() {
         this.useRoleBinding = this.applicationContext.get(BotConfiguration.class).useRoleBinding();
 
-        Path path = new File("Halpbot-Core-DB").toPath();
-        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
-        this.applicationContext.log().info("Role binding database connection created");
-        this.applicationContext.get(PermissionRepository.class).connection(connection);
+        if (this.useRoleBinding) {
+            Path path = new File("Halpbot-Core-DB").toPath();
+            PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
+            this.applicationContext.log().info("Role binding database connection created");
+            this.applicationContext.get(PermissionRepository.class).connection(connection);
+        }
     }
 
     @Override

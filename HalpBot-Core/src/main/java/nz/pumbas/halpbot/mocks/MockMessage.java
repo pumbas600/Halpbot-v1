@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.ReactionPaginationAction;
+import net.dv8tion.jda.internal.entities.UserImpl;
 
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.HashBag;
@@ -40,8 +41,22 @@ import java.util.LinkedList;
 import java.util.List;
 
 @SuppressWarnings({"ReturnOfNull", "ConstantConditions"})
-public record MockMessage(String content) implements Message
+public class MockMessage implements Message
 {
+    private final String content;
+    private Member member;
+    private Guild guild;
+
+    public MockMessage(String content) {
+        this.content = content;
+    }
+
+    public MockMessage(String content, Guild guild, Member member) {
+        this.content = content;
+        this.member = member;
+        this.guild = guild;
+    }
+
     @Nullable
     @Override
     public MessageReference getMessageReference() {
@@ -126,13 +141,13 @@ public record MockMessage(String content) implements Message
     @NotNull
     @Override
     public User getAuthor() {
-        return User.fromId(0);
+        return new UserImpl(this.member.getIdLong(), MockJDA.INSTANCE);
     }
 
     @Nullable
     @Override
     public Member getMember() {
-        return null;
+        return this.member;
     }
 
     @NotNull
@@ -214,7 +229,7 @@ public record MockMessage(String content) implements Message
     @NotNull
     @Override
     public Guild getGuild() {
-        return null;
+        return this.guild;
     }
 
     @NotNull

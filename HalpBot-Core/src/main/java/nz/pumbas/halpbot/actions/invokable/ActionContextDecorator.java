@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.actions.invokable;
 
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
@@ -32,5 +33,10 @@ public interface ActionContextDecorator<C extends InvocationContext> extends Act
     @Override
     default <R> Exceptional<R> invoke(Object... parameters) {
         return this.actionInvokable().invoke(parameters);
+    }
+
+    @Override
+    default <R> Exceptional<R> invoke(ApplicationContext applicationContext) {
+        return this.actionInvokable().invoke(applicationContext);
     }
 }
