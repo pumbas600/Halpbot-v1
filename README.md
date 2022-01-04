@@ -78,7 +78,7 @@ import nz.pumbas.halpbot.utilities.Duration;
 public class ExampleCommands
 {
     @Command(description = "Displays two test buttons")
-    public void buttons(MessageReceivedEvent event) {
+    public void buttons(MessageReceivedEvent event) { // E.g: $buttons
         event.getChannel().sendMessage("Click on one of these buttons!")
                 .setActionRow(
                         // When the button is clicked, the @ButtonAction with the matching id is invoked
@@ -99,6 +99,56 @@ public class ExampleCommands
     }
 }
 ```
+
+It's also possible to store parameters that are to be passed to the button action when it's clicked, achieving 'dynamic' buttons:
+
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+
+import nz.pumbas.halpbot.buttons.ButtonAction;
+import nz.pumbas.halpbot.buttons.ButtonAdapter;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+```
+
+</p>
+</details>
+
+```java
+@Service
+public class ExampleCommands
+{
+    // The button adapter is a non-command parameter that is automatically passed into the parameters
+    @Command(description = "Tests passing a parameter to a dynamic button")
+    public void quiz(ButtonAdapter buttonAdapter, MessageReceivedEvent event) { // E.g: $quiz        
+        event.getChannel().sendMessage("Is 5 + 7 = 12?")
+                .setActionRow(
+                        // When the button is clicked, the @ButtonAction with the matching id is invoked
+                        buttonAdapter.register(Button.primary("halpbot.example.quiz", "Yes"), true),
+                        buttonAdapter.register(Button.primary("halpbot.example.quiz", "No"), false)
+                ).queue();
+    }
+    
+    // The @Source User is extracted from the event, whereas the boolean (Which isn't a command parameter) is 
+    // supplied by the parameters we registered it with.
+    @ButtonAction(id = "halpbot.example.quiz")
+    public String quizResult(@Source User user, boolean isCorrect) {
+        if (isCorrect)
+            return "Congratulations %s, you're correct!".formatted(user.getName());
+        return "Sorry %s, that wasn't the right answer :(".formatted(user.getName());
+    }
+}
+```
+
+> **NOTE:** These parameters are only saved for as long as the bot is running. If the button is clicked after the bot has been restarted, it will not invoke the action method as these dynamic button's parameters are only stored in memory.
 
 ### Decorators
 
