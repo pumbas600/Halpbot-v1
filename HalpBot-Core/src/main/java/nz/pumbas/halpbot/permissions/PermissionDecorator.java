@@ -50,10 +50,16 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         Guild guild = event.guild();
         Member member = event.member();
 
-        if (guild == null || member == null || this.hasPermissions.test(guild, member)) {
+        if (guild == null || member == null || this.hasPermissions(guild, member))
+        {
             return super.invoke(invocationContext);
         }
         return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
+    }
+
+    protected boolean hasPermissions(Guild guild, Member member) {
+        // The bot owner has permission to use any command
+        return this.permissionService.isOwner(member) || this.hasPermissions.test(guild, member);
     }
 
     protected boolean or(Guild guild, Member member) {

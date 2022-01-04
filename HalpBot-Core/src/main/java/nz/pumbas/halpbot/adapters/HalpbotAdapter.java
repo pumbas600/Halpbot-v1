@@ -7,14 +7,13 @@ import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import nz.pumbas.halpbot.HalpbotCore;
+import nz.pumbas.halpbot.common.CoreCarrier;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
-public interface HalpbotAdapter extends ContextCarrier, Enableable
+public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, Enableable
 {
-    HalpbotCore halpbotCore();
-
     default void onCreation(JDA jda) {}
 
     @Override
