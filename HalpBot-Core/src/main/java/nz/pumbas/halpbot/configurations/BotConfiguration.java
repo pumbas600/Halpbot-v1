@@ -34,18 +34,4 @@ public class BotConfiguration
 
     @Value("useRoleBinding")
     private boolean useRoleBinding;
-
-    @Provider
-    @Singleton
-    public PermissionRepository permissionRepository(ApplicationContext applicationContext)
-    {
-        if (!this.useRoleBinding) {
-            return applicationContext.get(PermissionRepository.class);
-        }
-
-        Path path = new File("Halpbot-Core-DB").toPath();
-        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
-        applicationContext.log().info("Role binding database connection created");
-        return (PermissionRepository) applicationContext.get(PermissionRepository.class).connection(connection);
-    }
 }

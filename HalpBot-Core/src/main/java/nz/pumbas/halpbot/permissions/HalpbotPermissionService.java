@@ -4,12 +4,19 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
+import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
+import org.dockbox.hartshorn.data.remote.PersistenceConnection;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.actions.methods.Invokable;
@@ -30,7 +38,7 @@ import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
 @Service
 @Binds(PermissionService.class)
-public class HalpbotPermissionService implements PermissionService
+public class HalpbotPermissionService implements PermissionService, Enableable
 {
     @Getter
     @Inject private ApplicationContext applicationContext;
@@ -43,9 +51,17 @@ public class HalpbotPermissionService implements PermissionService
     @Getter private boolean useRoleBinding;
 
     @Override
-    public void initialise() {
+    public void enable() {
         this.useRoleBinding = this.applicationContext.get(BotConfiguration.class).useRoleBinding();
 
+        Path path = new File("Halpbot-Core-DB").toPath();
+        PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
+        this.applicationContext.log().info("Role binding database connection created");
+        this.applicationContext.get(PermissionRepository.class).connection(connection);
+    }
+
+    @Override
+    public void initialise() {
         if(!this.useRoleBinding && !this.rolePermissions().isEmpty())
             this.applicationContext.log()
                     .error("You haven't enabled custom permissions in the bot-config but you have some defined.");
