@@ -167,7 +167,7 @@ public class BuiltInCommands
             return "This cannot be used in a private message";
         if (newRole == null)
             return "The role specified doesn't exist";
-        if (!this.permissionService.isPermission(permission))
+        if (!this.permissionService.isRegistered(permission))
             return "%s is not a bindable permission".formatted(permission);
 
 
@@ -196,7 +196,7 @@ public class BuiltInCommands
         if (guild == null)
             return "This cannot be used in a private message";
 
-        Map<String, Long> bindings = this.permissionService.permissionBindings(guild);
+        Map<String, Long> bindings = this.permissionService.roleBindings(guild);
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("%s's Permission Bindings".formatted(guild.getName()))
                 .setColor(Color.ORANGE);
