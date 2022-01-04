@@ -2,19 +2,10 @@ package nz.pumbas.halpbot.configurations;
 
 import org.dockbox.hartshorn.config.annotations.Configuration;
 import org.dockbox.hartshorn.config.annotations.Value;
-import org.dockbox.hartshorn.core.annotations.inject.Provider;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+
 import org.dockbox.hartshorn.data.FileFormats;
-import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
-import org.dockbox.hartshorn.data.remote.PersistenceConnection;
-
-import java.io.File;
-import java.nio.file.Path;
-
-import javax.inject.Singleton;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
 @Getter
 @Configuration(source = "classpath:bot-config", filetype = FileFormats.PROPERTIES)

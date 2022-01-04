@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands.annotations;
+package nz.pumbas.halpbot.permissions;
 
 import org.dockbox.hartshorn.core.annotations.activate.ServiceActivator;
 
@@ -7,12 +7,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import nz.pumbas.halpbot.common.UseDefault;
-
-@UseDefault
 @ServiceActivator(scanPackages = "nz.pumbas.halpbot")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface UseCommands
+public @interface UsePermissions
 {
 }

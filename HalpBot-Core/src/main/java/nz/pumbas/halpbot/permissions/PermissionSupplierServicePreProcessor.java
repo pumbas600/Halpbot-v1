@@ -9,7 +9,7 @@ import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 
 @AutomaticActivation
-public class PermissionSupplierServicePreProcessor implements ServicePreProcessor<UseCommands>
+public class PermissionSupplierServicePreProcessor implements ServicePreProcessor<UsePermissions>
 {
     @Override
     public boolean preconditions(ApplicationContext context, Key<?> key) {
@@ -23,7 +23,7 @@ public class PermissionSupplierServicePreProcessor implements ServicePreProcesso
     }
 
     @Override
-    public Class<UseCommands> activator() {
-        return UseCommands.class;
+    public Class<UsePermissions> activator() {
+        return UsePermissions.class;
     }
 }

@@ -6,12 +6,10 @@ import net.dv8tion.jda.api.entities.Role;
 
 import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
-import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
 import org.dockbox.hartshorn.data.remote.PersistenceConnection;
 
@@ -26,9 +24,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import lombok.Getter;
+import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.actions.methods.Invokable;
 import nz.pumbas.halpbot.actions.methods.InvokableFactory;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
@@ -40,8 +38,9 @@ import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 @Binds(PermissionService.class)
 public class HalpbotPermissionService implements PermissionService, Enableable
 {
-    @Getter
-    @Inject private ApplicationContext applicationContext;
+    @Getter @Inject private ApplicationContext applicationContext;
+    @Getter @Inject private HalpbotCore halpbotCore;
+
     @Inject private InvokableFactory invokableFactory;
     @Inject private PermissionRepository permissionRepository;
 
@@ -165,6 +164,9 @@ public class HalpbotPermissionService implements PermissionService, Enableable
 
     @Override
     public boolean hasPermission(Guild guild, Member member, String permission) {
+        // The owner has permission to use any command
+        if (this.isOwner(member))
+            return true;
         if (this.permissionSuppliers.containsKey(permission))
             return this.evaluatePermissionSupplier(permission, guild, member);
 
