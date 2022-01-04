@@ -83,7 +83,7 @@ public class HalpbotCore implements ContextCarrier
         return this;
     }
 
-    private void onCreation(JDA jda) throws ApplicationException {
+    public void onCreation(JDA jda) throws ApplicationException {
         BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
 
         this.determineDisplayConfiguration(config);

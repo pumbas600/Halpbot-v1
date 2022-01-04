@@ -40,53 +40,47 @@ public class HalpbotPermissionService implements PermissionService
     private final Set<String> permissions = new HashSet<>();
     private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
 
-    @Getter private boolean useCustomPermissions;
+    @Getter private boolean useRoleBinding;
 
     @Override
     public void initialise() {
-        this.useCustomPermissions = this.applicationContext.get(BotConfiguration.class).useRoleBinding();
+        this.useRoleBinding = this.applicationContext.get(BotConfiguration.class).useRoleBinding();
 
-        if(!this.useCustomPermissions && !this.rolePermissions().isEmpty())
+        if(!this.useRoleBinding && !this.rolePermissions().isEmpty())
             this.applicationContext.log()
                     .error("You haven't enabled custom permissions in the bot-config but you have some defined.");
-        if (this.useCustomPermissions)
+        if (this.useRoleBinding)
             this.deleteOldPermissions();
     }
 
     private void deleteOldPermissions() {
         List<GuildPermission> oldPermissions =  this.permissionRepository.findAll()
                 .stream()
-                .filter((gp) -> !this.isPermission(gp.permission()))
+                .filter((gp) -> !this.isRegistered(gp.permission()))
                 .toList();
         if (!oldPermissions.isEmpty()) {
             this.applicationContext.log().info("Deleting the following deprecated permissions from the database: %s"
                     .formatted(String.join(", ", oldPermissions.stream().map(GuildPermission::permission).toList())));
-            oldPermissions.forEach(this.permissionRepository::delete);
+            oldPermissions.forEach(this::delete);
         }
     }
 
-    private UnsupportedOperationException disabledError() {
-        return new UnsupportedOperationException(
-                "The custom permissions database has been disabled. To use it, set the property " +
-                        "useCustomPermissions to true in the bot-config");
-    }
-
     @Override
-    public boolean isPermission(String permission) {
+    public boolean isRegistered(String permission) {
         return this.permissions.contains(permission);
     }
 
     @Override
-    public boolean isPermission(long guildId, long roleId) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+    public boolean isRoleBound(long guildId, long roleId) {
+        if (!this.useRoleBinding)
+            return false;
         return this.permissionRepository.countPermissionsWithRole(guildId, roleId) != 0;
     }
 
     @Override
-    public boolean permissionExists(long guildId, String permission) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+    public boolean isPermissionBound(long guildId, String permission) {
+        if (!this.useRoleBinding)
+            return false;
         return this.permissionRepository.countPermissions(guildId, permission) != 0;
     }
 
@@ -102,36 +96,43 @@ public class HalpbotPermissionService implements PermissionService
 
     @Override
     public GuildPermission updateOrSave(GuildPermission guildPermission) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+        if (!this.useRoleBinding)
+            return guildPermission;
         return this.permissionRepository.updateOrSave(guildPermission);
     }
 
     @Override
     public GuildPermission update(GuildPermission guildPermission) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+        if (!this.useRoleBinding)
+            return guildPermission;
         return this.permissionRepository.update(guildPermission);
     }
 
     @Override
     public GuildPermission save(GuildPermission guildPermission) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+        if (!this.useRoleBinding)
+            return guildPermission;
         return this.permissionRepository.save(guildPermission);
     }
 
     @Override
     public Exceptional<GuildPermission> findById(GuildPermissionId id) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+        if (!this.useRoleBinding)
+            return Exceptional.empty();
         return this.permissionRepository.findById(id);
     }
 
     @Override
+    public void delete(GuildPermission guildPermission) {
+        if (!this.useRoleBinding)
+            return;
+        this.permissionRepository.delete(guildPermission);
+    }
+
+    @Override
     public void close() {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+        if (!this.useRoleBinding)
+            return;
         this.permissionRepository.entityManager().close();
     }
 
@@ -151,6 +152,8 @@ public class HalpbotPermissionService implements PermissionService
         if (this.permissionSuppliers.containsKey(permission))
             return this.evaluatePermissionSupplier(permission, guild, member);
 
+        if (!this.useRoleBinding)
+            return false;
         return Boolean.TRUE.equals(
                 this.permissionRepository.findById(new GuildPermissionId(guild.getIdLong(), permission))
                         .map((gp) -> member.getRoles().contains(guild.getRoleById(gp.roleId())))
@@ -159,14 +162,9 @@ public class HalpbotPermissionService implements PermissionService
     }
 
     @Override
-    public boolean hasPermission(long userId, String permission) {
-        return false;
-    }
-
-    @Override
     public Set<String> permissions(long guildId, Member member) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+        if (!this.useRoleBinding)
+            Collections.emptySet();
         return this.permissionRepository
                 .permissions(guildId, member.getRoles()
                         .stream()
@@ -189,9 +187,9 @@ public class HalpbotPermissionService implements PermissionService
     }
 
     @Override
-    public Map<String, Long> permissionBindings(Guild guild) {
-        if (!this.useCustomPermissions)
-            throw this.disabledError();
+    public Map<String, Long> roleBindings(Guild guild) {
+        if (!this.useRoleBinding)
+            return Collections.emptyMap();
 
         Map<String, Long> bindings = new HashMap<>();
         this.permissionRepository.guildPermissions(guild.getIdLong())
