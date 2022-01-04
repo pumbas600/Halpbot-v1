@@ -4,11 +4,11 @@ Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility
 
 ## Why use Halpbot?
 
-Halpbot is a feature rich library with support for message commands, buttons, decorators along with easy implementation of custom functionality or implementations. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py).
+Halpbot is a feature rich library with support for message commands, buttons, decorators along with easy implementation of custom functionality or implementations. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend taking a browse through the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
 ### Using Commands
 
-Commands in Halpbot can simply be created by annotating a method with `@Command`. The method name will automatically be used as the alias (Although a different alias can be set within the annotation if desired) and the method parameters will act as command parameters. When invoked, it will automatically parse the parameters of the command and invoke the method. The returned result of the method is automatically displayed.
+Commands in Halpbot can simply be created by annotating a method with `@Command`. The method name will automatically be used as the alias (Although a different alias can be set within the annotation if desired) and the method parameters will act as command parameters. When invoked, it will automatically parse the parameters of the command and invoke the method. The returned result of the method is automatically displayed. 
 
 <details>
 <summary>Show Imports</summary>
@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 ```
 
 </p>
@@ -33,23 +34,27 @@ public class ExampleCommands
     public String pong(MessageReceivedEvent event) { // E.g: $pong
         return event.getAuthor().getAsMention();
     }
-    
+
     @Command(description = "Adds two numbers")
     public double add(double num1, double num2) { // E.g: $add 2 4.3
         return num1 + num2;
+    }
+
+    @Command(description = "Randomly chooses one of the items")
+    public String choose(@Implicit String[] choices) { // E.g: $choose yes no maybe
+        // Use of @Implicit means that it's not necessary to surround the choices with [...]
+        return choices[(int)(Math.random() * choices.length)];
     }
 }
 ```
 
 > **NOTE:** As the class is annotated with `@Service`, the commands will be automatically registered during startup. 
 
-By default, Halpbot supports a vast range of parameter types as described [here](https://github.com/pumbas600/HalpBot/wiki/Command-Arguments), however, it's possible to easily create custom parameter converters.
+By default, Halpbot supports a vast range of parameter types as described [here](https://github.com/pumbas600/HalpBot/wiki/Command-Arguments), however, it's possible to easily create custom parameter converters to add support for custom types or annotations.
 
 ### Using Buttons
 
-Halpbot also provides an easy way of working with buttons, along with storing information within buttons by simply annotating the button callbacks with `@ButtonAction`. The method can take any source parameters.
-
-Simple static buttons can simply be creating by setting the id of the `Button` to match the `@ButtonAction`:
+Halpbot also provides an easy way of working with buttons by simply annotating the button callbacks with `@ButtonAction`. These button action methods can take any [source parameters](https://github.com/pumbas600/Halpbot/wiki/Command-Arguments#source-converters) as arguments (A source parameter is anything that can be extracted from the event or injected) and in any order. To reference a button callback, all that you need to do is set the id of the `Button` to match the `@ButtonAction`:
 
 <details>
 <summary>Show Imports</summary>
@@ -100,23 +105,27 @@ public class ExampleCommands
 }
 ```
 
-It's also possible to store parameters that are to be passed to the button action when it's clicked, achieving 'dynamic' buttons:
+> **NOTE:** Like with commands, as the class is annotated with `@Service`, the button actions are automatically registered during startup.
+
+### Decorators
+
+Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halpbot/wiki/Decorators), however, the two main ones are the [cooldown](https://github.com/pumbas600/Halpbot/wiki/Decorators#cooldown) and [permissions](https://github.com/pumbas600/Halpbot/wiki/Decorators#permissions) decorators. Decorators are annotations that can be added to actions (`@Command` or `@ButtonAction`) which can modify how the method is called. 
 
 <details>
 <summary>Show Imports</summary>
 <p>
 
 ```java
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
-import nz.pumbas.halpbot.buttons.ButtonAction;
-import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
+import nz.pumbas.halpbot.permissions.Permissions;
 ```
 
 </p>
@@ -126,31 +135,18 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 @Service
 public class ExampleCommands
 {
-    // The button adapter is a non-command parameter that is automatically passed into the parameters
-    @Command(description = "Tests passing a parameter to a dynamic button")
-    public void quiz(ButtonAdapter buttonAdapter, MessageReceivedEvent event) { // E.g: $quiz        
-        event.getChannel().sendMessage("Is 5 + 7 = 12?")
-                .setActionRow(
-                        // When the button is clicked, the @ButtonAction with the matching id is invoked
-                        buttonAdapter.register(Button.primary("halpbot.example.quiz", "Yes"), true),
-                        buttonAdapter.register(Button.primary("halpbot.example.quiz", "No"), false)
-                ).queue();
-    }
-    
-    // The @Source User is extracted from the event, whereas the boolean (Which isn't a command parameter) is 
-    // supplied by the parameters we registered it with.
-    @ButtonAction(id = "halpbot.example.quiz")
-    public String quizResult(@Source User user, boolean isCorrect) {
-        if (isCorrect)
-            return "Congratulations %s, you're correct!".formatted(user.getName());
-        return "Sorry %s, that wasn't the right answer :(".formatted(user.getName());
+    // Requires the bot to have the KICK_MEMBERS permission and that the bot can interact with the member.
+    @Permissions(self = Permission.KICK_MEMBERS, canInteract = true)
+    @Command(description = "Kicks a member from the guild")
+    public void kick(MessageReceivedEvent event, Member member, // E.g: $kick @pumbas600 or $kick @pumbas600 for being too cool
+                     @Remaining @Unrequired("No reason specified") String reason)
+    {
+        event.getGuild().kick(member, reason)
+                .queue((v) -> event.getChannel()
+                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName())));
     }
 }
 ```
-
-> **NOTE:** These parameters are only saved for as long as the bot is running. If the button is clicked after the bot has been restarted, it will not invoke the action method as these dynamic button's parameters are only stored in memory.
-
-### Decorators
 
 ## Getting Started
 
