@@ -96,80 +96,18 @@ public class BuiltInCommands
             HalpbotUtils.capitalise(jda.getStatus().toString()));
     }
 
-//    @Command(description = "Retrieves the permissions that the specified user has, or the author if no user is specified")
-//    public MessageEmbed permissions(@Source Guild guild, @Source Member author, @Unrequired @Nullable Member member) {
-//        if (null == member) member = author;
-//        User user = member.getUser();
-//
-//        EmbedBuilder embedBuilder = new EmbedBuilder();
-//        embedBuilder.setTitle("Permissions");
-//        embedBuilder.setColor(Color.ORANGE);
-//        embedBuilder.setFooter(user.getName(), user.getAvatarUrl());
-//
-//        StringBuilder builder = new StringBuilder();
-//        Set<String> permissions = this.permissionService.permissions(guild.getIdLong(), member);
-//        if (permissions.isEmpty())
-//            builder.append("No permissions");
-//        else {
-//            for (String permission : permissions) {
-//                builder.append(permission).append('\n');
-//            }
-//        }
-//
-//        embedBuilder.setDescription(builder.toString());
-//        return embedBuilder.build();
-//    }
-
-//    //TODO: Rework
-//    @Command(description = "Returns all the permissions in the database")
-//    public MessageEmbed allPermissions() {
-//        EmbedBuilder embedBuilder = new EmbedBuilder();
-//        embedBuilder.setTitle("Permissions");
-//        embedBuilder.setColor(Color.ORANGE);
-//
-//        StringBuilder builder = new StringBuilder();
-//        List<String> permissions = this.permissionManager.permissions();
-//        if (permissions.isEmpty())
-//            builder.append("No permissions");
-//        else {
-//            for (String permission : permissions) {
-//                builder.append(permission).append('\n');
-//            }
-//        }
-//
-//        embedBuilder.setDescription(builder.toString());
-//        return embedBuilder.build();
-//    }
-
-//    @Permission(HalpbotPermissions.GIVE_PERMISSIONS)
-//    @Command(description = "Gives the user the specified permission")
-//    public String givePermission(@Source User author, User user, String permission) {
-//        permission = permission.toLowerCase(Locale.ROOT);
-//
-//        if (this.permissionManager.hasPermission(user, permission)) {
-//            return "That user already has that permission!";
-//        }
-//        if (!this.permissionManager.isPermission(permission)) {
-//            return "The permission '" + permission + "' doesn't exist";
-//        }
-//        if (!this.permissionManager.hasPermission(author, permission)) {
-//            return "You must have the permission '" + permission + "' to give it to others";
-//        }
-//        this.permissionManager.givePermission(user, permission);
-//        return String.format("Successfully gave the user the permission '%s'", permission);
-//    }
-
     //TODO: Make it so that it automatically throws an error when a field is null
     @Permissions(Permission.MANAGE_PERMISSIONS)
     @Command(description = "Binds a permission to a role")
     public String bind(@Source @Nullable Guild guild, String permission, @Nullable Role newRole) {
+        if (!this.permissionService.useRoleBinding())
+            return "Role binding has been disabled for this bot";
         if (guild == null)
             return "This cannot be used in a private message";
         if (newRole == null)
             return "The role specified doesn't exist";
         if (!this.permissionService.isRegistered(permission))
             return "%s is not a bindable permission".formatted(permission);
-
 
         Exceptional<GuildPermission> oldGp =
                 this.permissionService.findById(new GuildPermissionId(guild.getIdLong(), permission));
@@ -193,6 +131,8 @@ public class BuiltInCommands
     @Permissions(Permission.MANAGE_PERMISSIONS)
     @Command(description = "Returns the role bindings for the permissions in the specified guild")
     public Object guildPermissions(@Source @Nullable Guild guild) {
+        if (!this.permissionService.useRoleBinding())
+            return "Role binding has been disabled for this bot";
         if (guild == null)
             return "This cannot be used in a private message";
 
