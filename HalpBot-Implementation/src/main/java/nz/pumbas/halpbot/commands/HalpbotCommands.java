@@ -157,12 +157,6 @@ public class HalpbotCommands
         return "Action complete!";
     }
 
-    @Command(description = "Randomly chooses one of the items")
-    public String choose(@Implicit String[] choices) {
-        // Use of @Implicit means that it's not necessary to surround the choices with [...]
-        return choices[(int)(Math.random() * choices.length)];
-    }
-
     @Command(alias = "centroid", description = "Finds the centroid defined by the specified shapes")
     public String centroid(@Implicit Shape[] shapes)
     {

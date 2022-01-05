@@ -111,7 +111,7 @@ public class HalpbotHelpService implements HelpService
             if (notAllAndMerger)
                 permissions.append("(");
 
-            List<String> decoratorPermissions = decorator.jdaPermissions()
+            List<String> decoratorPermissions = decorator.userPermissions()
                     .stream()
                     .map((permission) -> HalpbotUtils.capitaliseWords(permission.getName().replace('_', ' ')))
                     .collect(Collectors.toList());

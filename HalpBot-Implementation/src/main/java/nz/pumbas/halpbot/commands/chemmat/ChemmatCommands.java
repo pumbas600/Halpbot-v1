@@ -120,7 +120,7 @@ public class ChemmatCommands
         this.defaultQuestionHandler = new QuestionHandler(this.questionService, this.random);
     }
 
-    @Permissions(Permission.ADMINISTRATOR)
+    @Permissions(user = Permission.ADMINISTRATOR)
     @Command(description = "Checks all the confirmed questions for any image links that are invalid")
     public List<Long> checkLinks() {
         return this.questionService
@@ -172,7 +172,7 @@ public class ChemmatCommands
     }
 
 
-    @Permissions(Permission.ADMINISTRATOR)
+    @Permissions(user = Permission.ADMINISTRATOR)
     @Command(description = "Reloads the questions from the database and reshuffles them at the same time")
     public String reloadQuestions() {
         this.defaultQuestionHandler.shuffleQuestions();

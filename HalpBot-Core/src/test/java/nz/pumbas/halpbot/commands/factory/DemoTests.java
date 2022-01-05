@@ -208,7 +208,7 @@ public class DemoTests
         }
 
         @Override
-        public Permission[] value() {
+        public Permission[] user() {
             return new Permission[0];
         }
 
