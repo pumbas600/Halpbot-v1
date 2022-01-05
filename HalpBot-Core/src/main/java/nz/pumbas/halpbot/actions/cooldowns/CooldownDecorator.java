@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.actions.cooldowns;
 
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.inject.Binds;
@@ -22,28 +23,34 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
 {
     private static final long SECONDS_BETWEEN_COOLDOWN_EMBEDS = 15;
 
-    private final Map<Long, CooldownTimer> cooldownTimers = new ConcurrentHashMap<>();
+    private final CooldownStrategy strategy;
     private final Duration cooldownDuration;
 
     @Bound
     public CooldownDecorator(ActionInvokable<C> actionInvokable, Cooldown cooldown) {
         super(actionInvokable);
         this.cooldownDuration = Duration.of(cooldown.duration().value(), cooldown.duration().unit());
+        this.strategy = cooldown.type().strategy();
     }
 
     @Override
     public <R> Exceptional<R> invoke(C invocableContext) {
         HalpbotEvent event = invocableContext.halpbotEvent();
-        CooldownTimer cooldownTimer = this.cooldownTimers.getOrDefault(event.user().getIdLong(), CooldownTimer.Empty);
+        Guild guild = event.guild();
+
+        long guildId = guild == null ? -1 : guild.getIdLong();
+        long userId = event.user().getIdLong();
+
+        CooldownTimer cooldownTimer = this.strategy.get(guildId, userId);
 
         if (cooldownTimer.hasFinished()) {
             Exceptional<R> result = super.invoke(invocableContext);
-            this.cooldownTimers.put(event.user().getIdLong(), new CooldownTimer(this.cooldownDuration));
+            this.strategy.put(guildId, userId, new CooldownTimer(this.cooldownDuration));
             return result;
         }
 
         if (cooldownTimer.canSendEmbed(SECONDS_BETWEEN_COOLDOWN_EMBEDS))
-            return Exceptional.of(new ExplainedException(this.cooldownTimers.get(event.user().getIdLong()).remainingTimeEmbed()));
+            return Exceptional.of(new ExplainedException(this.strategy.get(guildId, userId).remainingTimeEmbed()));
         if (event.rawEvent() instanceof MessageReceivedEvent messageReceivedEvent)
             // Acknowledge the request with a :stopwatch: reaction
             messageReceivedEvent.getMessage().addReaction("\u23F1").queue();
