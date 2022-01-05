@@ -4,7 +4,7 @@ Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility
 
 ## Why use Halpbot?
 
-Halpbot is a feature rich library with support for message commands, buttons, decorators along with easy implementation of custom functionality or implementations. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend taking a browse through the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
+Halpbot is a feature rich library with support for message commands, buttons, decorators along with easy implementation of custom functionality or implementations. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
 ### Using Commands
 
@@ -188,7 +188,7 @@ public class ExampleCommands
                      @Remaining @Unrequired("No reason specified") String reason)
     {
         event.getGuild().kick(member, reason)
-                .queue((v) -> event.getChannel()
+                .queue((success) -> event.getChannel()
                         .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName())));
     }
 }
