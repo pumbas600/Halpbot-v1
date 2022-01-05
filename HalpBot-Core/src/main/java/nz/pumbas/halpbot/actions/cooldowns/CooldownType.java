@@ -2,9 +2,9 @@ package nz.pumbas.halpbot.actions.cooldowns;
 
 import java.util.function.Supplier;
 
-import nz.pumbas.halpbot.actions.cooldowns.CooldownStrategy.GuildCooldownStrategy;
-import nz.pumbas.halpbot.actions.cooldowns.CooldownStrategy.MemberCooldownStrategy;
-import nz.pumbas.halpbot.actions.cooldowns.CooldownStrategy.UserCooldownStrategy;
+import nz.pumbas.halpbot.actions.cooldowns.strategies.GuildCooldownStrategy;
+import nz.pumbas.halpbot.actions.cooldowns.strategies.MemberCooldownStrategy;
+import nz.pumbas.halpbot.actions.cooldowns.strategies.UserCooldownStrategy;
 
 public enum CooldownType
 {
