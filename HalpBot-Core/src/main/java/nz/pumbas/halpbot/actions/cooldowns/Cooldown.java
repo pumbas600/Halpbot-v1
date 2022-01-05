@@ -14,4 +14,5 @@ import nz.pumbas.halpbot.utilities.Duration;
 public @interface Cooldown
 {
     Duration duration() default @Duration(5);
+    CooldownType type() default CooldownType.MEMBER;
 }

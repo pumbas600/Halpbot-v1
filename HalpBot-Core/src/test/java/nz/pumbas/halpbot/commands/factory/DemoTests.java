@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.CooldownType;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.bugtesting.DemoFactory;
 import nz.pumbas.halpbot.commands.bugtesting.DemoImplementation;
@@ -58,32 +59,7 @@ public class DemoTests
 
     @InjectTest
     public void inheritedFactoryTest(CooldownDecoratorFactory factory) {
-        CooldownDecorator<?> decorator = factory.decorate(new HalpbotCommandInvokable(null, null), new Cooldown() {
-            @Override
-            public Duration duration() {
-                return new Duration() {
-                    @Override
-                    public long value() {
-                        return 10;
-                    }
-
-                    @Override
-                    public ChronoUnit unit() {
-                        return ChronoUnit.SECONDS;
-                    }
-
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return Duration.class;
-                    }
-                };
-            }
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return Cooldown.class;
-            }
-        });
+        CooldownDecorator<?> decorator = factory.decorate(new HalpbotCommandInvokable(null, null), new TestCooldown());
         Assertions.assertNotNull(decorator);
     }
 
@@ -195,6 +171,42 @@ public class DemoTests
         Assertions.assertNotNull(serviceA.permissionService());
     }
 
+    private static class TestCooldown implements Cooldown {
+
+        @Override
+        public Duration duration() {
+            return new TestDuration();
+        }
+
+        @Override
+        public CooldownType type() {
+            return CooldownType.MEMBER;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return Cooldown.class;
+        }
+    }
+
+    private static class TestDuration implements Duration {
+
+        @Override
+        public long value() {
+            return 10;
+        }
+
+        @Override
+        public ChronoUnit unit() {
+            return ChronoUnit.SECONDS;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return Duration.class;
+        }
+    }
+
     private static class TestPermissions implements Permissions
     {
         @Override
@@ -209,6 +221,11 @@ public class DemoTests
 
         @Override
         public Permission[] user() {
+            return new Permission[0];
+        }
+
+        @Override
+        public Permission[] self() {
             return new Permission[0];
         }
 
