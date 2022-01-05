@@ -1,16 +1,25 @@
 package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -21,10 +30,52 @@ import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
-public class ExampleCommands
+public class ExampleCommands extends ListenerAdapter
 {
     private final Map<Long, Integer> bank = new HashMap<>();
     private final Random random = new Random();
+
+    @Inject
+    ApplicationContext applicationContext;
+
+    @Command
+    public void kick(MessageReceivedEvent event, @Remaining String content) {
+        this.onMessageReceived(event);
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        Message message = event.getMessage();
+        String msg = message.getContentDisplay();
+        if (msg.startsWith("$kick")) {
+            if (message.isFromType(ChannelType.TEXT)) {
+                if (message.getMentionedUsers().isEmpty())
+                    event.getChannel().sendMessage("You must mention 1 or more Users to be kicked!").queue();
+                else {
+                    Member selfMember = event.getGuild().getSelfMember();
+                    if (!selfMember.hasPermission(Permission.KICK_MEMBERS)) {
+                        event.getChannel().sendMessage("Sorry! I don't have permission to kick members in this Guild!").queue();
+                        return;
+                    }
+
+                    List<User> mentionedUsers = message.getMentionedUsers();
+                    Member member = event.getGuild().retrieveMember(mentionedUsers.get(0)).complete();
+                    if (!selfMember.canInteract(member)) {
+                        event.getChannel()
+                                .sendMessage("Cannot kick member: %s, they are higher in the heirarchy than I am"
+                                        .formatted(member.getEffectiveName()))
+                                .queue();
+                        return;
+                    }
+                    event.getGuild().kick(member)
+                            .queue((success) -> event.getChannel()
+                                    .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
+                                    .queue());
+                }
+            }
+            else event.getChannel().sendMessage("This is a Guild-Only command!").queue();
+        }
+    }
 
 //    @Command(description = "Simple pong command")
 //    public String pong(MessageReceivedEvent event) { // E.g: $pong
@@ -85,16 +136,23 @@ public class ExampleCommands
 //    }
 
 
-    // Requires the bot to have the KICK_MEMBERS permission and that the bot can interact with the member.
-//    @Permissions(self = Permission.KICK_MEMBERS, canInteract = true)
-//    @Command(description = "Kicks a member from the guild")
-//    public void kick(MessageReceivedEvent event, Member member, // E.g: $kick @pumbas600 or $kick @pumbas600 for being too cool
-//                     @Remaining @Unrequired("No reason specified") String reason)
-//    {
-//        event.getGuild().kick(member, reason)
-//                .queue((v) -> event.getChannel()
-//                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName())));
-//    }
+    // E.g: $kick @pumbas600 or $kick @pumbas600 some reason
+    // Requires that the bot has the KICK_MEMBERS permission.
+    @Nullable
+    @Permissions(self = Permission.KICK_MEMBERS)
+    @Command(description = "Kicks a member from the guild")
+    public String kick(MessageReceivedEvent event, Member member,
+                       @Remaining @Unrequired("No reason specified") String reason)
+    {
+        if (!event.getGuild().getSelfMember().canInteract(member))
+            return "Cannot kick member: %s, they are higher in the heirarchy than I am".formatted(member.getEffectiveName());
+
+        event.getGuild().kick(member, reason)
+                .queue((success) -> event.getChannel()
+                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
+                        .queue());
+        return null; // Don't respond via halpbot as we're queueing a response normally
+    }
 
     // Restrict it so that this user can only call the command once per hour
     @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
