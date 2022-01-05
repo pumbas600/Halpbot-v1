@@ -10,7 +10,7 @@ import nz.pumbas.halpbot.permissions.Merger;
 import nz.pumbas.halpbot.permissions.Permissions;
 
 @Service
-@Permissions(Permission.MANAGE_PERMISSIONS)
+@Permissions(user = Permission.MANAGE_PERMISSIONS)
 public class ExamplePermissionCommands
 {
     @Command(description = "Testing class level permissions")
@@ -18,7 +18,7 @@ public class ExamplePermissionCommands
         return "You need the *MANAGE_PERMISSIONS* permission to use this command";
     }
 
-    @Permissions(Permission.BAN_MEMBERS)
+    @Permissions(user = Permission.BAN_MEMBERS)
     @Command(description = "Testing class level permissions")
     public String actionPermission() {
         return "You need the *MANAGE_PERMISSIONS* and *BAN_MEMBERS* permissions to use this command";
@@ -30,7 +30,7 @@ public class ExamplePermissionCommands
         return "This command is restricted to people who own the guild this command was invoked in";
     }
 
-    @Permissions(value = {Permission.MANAGE_PERMISSIONS, Permission.MANAGE_ROLES}, merger = Merger.OR)
+    @Permissions(user = {Permission.MANAGE_PERMISSIONS, Permission.MANAGE_ROLES}, merger = Merger.OR)
     @Command(description = "Tests the OR merger in the @Permission decorator")
     public String orPermissions() {
         return "This command is restricted to people with the *MANAGE_PERMISSIONS* or *MANAGE_ROLES* permissions";

@@ -18,7 +18,11 @@ public @interface Permissions
 {
     String[] permissions() default {};
 
-    Permission[] value() default {};
+    Permission[] user() default {};
+
+    Permission[] self() default {};
+
+    boolean canInteract() default false;
 
     Merger merger() default Merger.AND;
 }

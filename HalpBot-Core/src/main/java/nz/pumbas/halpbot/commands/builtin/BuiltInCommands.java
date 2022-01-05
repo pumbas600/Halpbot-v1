@@ -97,7 +97,7 @@ public class BuiltInCommands
     }
 
     //TODO: Make it so that it automatically throws an error when a field is null
-    @Permissions(Permission.MANAGE_PERMISSIONS)
+    @Permissions(user = Permission.MANAGE_PERMISSIONS)
     @Command(description = "Binds a permission to a role")
     public String bind(@Source @Nullable Guild guild, String permission, @Nullable Role newRole) {
         if (!this.permissionService.useRoleBinding())
@@ -128,7 +128,7 @@ public class BuiltInCommands
         return result;
     }
 
-    @Permissions(Permission.MANAGE_PERMISSIONS)
+    @Permissions(user = Permission.MANAGE_PERMISSIONS)
     @Command(description = "Returns the role bindings for the permissions in the specified guild")
     public Object guildPermissions(@Source @Nullable Guild guild) {
         if (!this.permissionService.useRoleBinding())

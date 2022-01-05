@@ -28,7 +28,9 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     @Inject
     @Getter private PermissionService permissionService;
     @Getter private final Set<String> customPermissions = new HashSet<>();
-    @Getter private final Set<Permission> jdaPermissions = new HashSet<>();
+    @Getter private final Set<Permission> userPermissions = new HashSet<>();
+    @Getter private final Set<Permission> selfPermissions = new HashSet<>();
+    @Getter private final boolean canInteract;
     @Getter private final Merger merger;
     @Getter private final BiPredicate<Guild, Member> hasPermissions;
 
@@ -36,7 +38,9 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     public PermissionDecorator(ActionInvokable<C> actionInvokable, Permissions permissions) {
         super(actionInvokable);
         this.customPermissions.addAll(Set.of(permissions.permissions()));
-        this.jdaPermissions.addAll(Set.of(permissions.value()));
+        this.userPermissions.addAll(Set.of(permissions.user()));
+        this.selfPermissions.addAll(Set.of(permissions.self()));
+        this.canInteract = permissions.canInteract();
         this.merger = permissions.merger();
         this.hasPermissions = switch (this.merger) {
             case AND -> this::and;
@@ -50,11 +54,18 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         Guild guild = event.guild();
         Member member = event.member();
 
-        if (guild == null || member == null || this.hasPermissions(guild, member))
-        {
+        if (guild == null || member == null)
+            return Exceptional.of(new ExplainedException("This cannot be used in a private message!"));
+        if (!this.botHasPermissions(guild, member))
+            return Exceptional.of(new ExplainedException("The bot doesn't have sufficient permissions to execute this action"));
+        if (this.hasPermissions(guild, member))
             return super.invoke(invocationContext);
-        }
         return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
+    }
+
+    protected boolean botHasPermissions(Guild guild, Member member) {
+        Member self = guild.getSelfMember();
+        return self.hasPermission(this.selfPermissions) && (!this.canInteract || self.canInteract(member));
     }
 
     protected boolean hasPermissions(Guild guild, Member member) {
@@ -63,7 +74,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     }
 
     protected boolean or(Guild guild, Member member) {
-        for (Permission permission : this.jdaPermissions()) {
+        for (Permission permission : this.userPermissions()) {
             if (member.hasPermission(permission))
                 return true;
         }
@@ -75,7 +86,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     }
 
     protected boolean and(Guild guild, Member member) {
-        return member.hasPermission(this.jdaPermissions()) &&
+        return member.hasPermission(this.userPermissions()) &&
                 this.permissionService().hasPermissions(guild, member, this.customPermissions());
     }
 
