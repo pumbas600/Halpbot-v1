@@ -189,7 +189,8 @@ public class ExampleCommands
     {
         event.getGuild().kick(member, reason)
                 .queue((success) -> event.getChannel()
-                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName())));
+                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
+                        .queue());
     }
 }
 ```
