@@ -205,9 +205,4 @@ public class ExampleCommands
 
 ## Getting Started
 
-
-
-
-
-
-HalpBot is an annotation based command framework for JDA. 
+There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
