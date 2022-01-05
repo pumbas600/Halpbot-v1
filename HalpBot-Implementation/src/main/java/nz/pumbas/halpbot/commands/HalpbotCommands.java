@@ -135,10 +135,22 @@ public class HalpbotCommands
         return user.getName() + suffix;
     }
 
-    @Cooldown(duration = @Duration(60), type = CooldownType.USER)
+    @Cooldown(duration = @Duration(90), type = CooldownType.MEMBER)
     @Command(description = "Tests the cooldown decorators")
-    public String cooldown() {
-        return "This command is logged when its invoked and has a 20 second cooldown!";
+    public String cooldownMember() {
+        return "This command is logged when its invoked and has a 90 second cooldown!";
+    }
+
+    @Cooldown(duration = @Duration(90), type = CooldownType.USER)
+    @Command(description = "Tests the cooldown decorators")
+    public String cooldownUser() {
+        return "This command is logged when its invoked and has a 90 second cooldown!";
+    }
+
+    @Cooldown(duration = @Duration(90), type = CooldownType.GUILD)
+    @Command(description = "Tests the cooldown decorators")
+    public String cooldownGuild() {
+        return "This command is logged when its invoked and has a 90 second cooldown!";
     }
 
     @Command(description = "Tests the @Log decorator")
