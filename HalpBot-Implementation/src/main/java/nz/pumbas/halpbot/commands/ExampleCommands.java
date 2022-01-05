@@ -2,7 +2,6 @@ package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -10,7 +9,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.temporal.ChronoUnit;
@@ -18,8 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -34,14 +30,6 @@ public class ExampleCommands extends ListenerAdapter
 {
     private final Map<Long, Integer> bank = new HashMap<>();
     private final Random random = new Random();
-
-    @Inject
-    ApplicationContext applicationContext;
-
-    @Command
-    public void kick(MessageReceivedEvent event, @Remaining String content) {
-        this.onMessageReceived(event);
-    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {

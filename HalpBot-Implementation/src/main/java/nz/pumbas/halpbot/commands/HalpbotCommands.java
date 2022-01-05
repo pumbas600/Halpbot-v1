@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
+import nz.pumbas.halpbot.actions.cooldowns.CooldownType;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -134,8 +135,8 @@ public class HalpbotCommands
         return user.getName() + suffix;
     }
 
-    @Cooldown(duration = @Duration(60))
-    @Command(description = "Tests multiple decorators")
+    @Cooldown(duration = @Duration(60), type = CooldownType.USER)
+    @Command(description = "Tests the cooldown decorators")
     public String cooldown() {
         return "This command is logged when its invoked and has a 20 second cooldown!";
     }

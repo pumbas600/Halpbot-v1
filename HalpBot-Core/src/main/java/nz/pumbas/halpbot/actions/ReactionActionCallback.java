@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.actions.cooldowns.Coolable;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
@@ -55,10 +54,6 @@ public class ReactionActionCallback extends AbstractActionCallback
     }
 
     public @Nullable CooldownTimer cooldownTimer() {
-        return null;
-    }
-
-    public Coolable cooldownTimer(CooldownTimer cooldownTimer) {
         return null;
     }
 

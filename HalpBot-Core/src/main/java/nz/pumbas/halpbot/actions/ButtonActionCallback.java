@@ -1,7 +1,5 @@
 package nz.pumbas.halpbot.actions;
 
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,10 +7,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.actions.cooldowns.Coolable;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownTimer;
 import nz.pumbas.halpbot.events.HalpbotEvent;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ButtonActionCallback extends AbstractActionCallback
 {
@@ -67,10 +63,6 @@ public class ButtonActionCallback extends AbstractActionCallback
     }
 
     public @Nullable CooldownTimer cooldownTimer() {
-        return null;
-    }
-
-    public Coolable cooldownTimer(CooldownTimer cooldownTimer) {
         return null;
     }
 

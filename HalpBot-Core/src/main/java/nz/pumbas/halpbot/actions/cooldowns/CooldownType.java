@@ -8,8 +8,19 @@ import nz.pumbas.halpbot.actions.cooldowns.strategies.UserCooldownStrategy;
 
 public enum CooldownType
 {
+    /**
+     * Make the action cooldown everytime a user invokes it, irrespective of which guild it's invoked within.
+     */
     USER(UserCooldownStrategy::new),
+
+    /**
+     * Make the action cooldown everytime a user invokes it within the same guild.
+     */
     MEMBER(MemberCooldownStrategy::new),
+
+    /**
+     * Make the action cooldown everytime it's used within a guild, irrespective of who invokes it.
+     */
     GUILD(GuildCooldownStrategy::new);
 
     private final Supplier<CooldownStrategy> cooldownStrategy;
