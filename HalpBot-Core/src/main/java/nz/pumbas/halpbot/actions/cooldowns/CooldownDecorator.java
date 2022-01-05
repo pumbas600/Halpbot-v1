@@ -8,8 +8,6 @@ import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
@@ -50,10 +48,11 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
         }
 
         if (cooldownTimer.canSendEmbed(SECONDS_BETWEEN_COOLDOWN_EMBEDS))
-            return Exceptional.of(new ExplainedException(this.strategy.get(guildId, userId).remainingTimeEmbed()));
+            return Exceptional.of(new ExplainedException(this.strategy.get(guildId, userId)
+                    .remainingTimeEmbed(this.strategy.message())));
         if (event.rawEvent() instanceof MessageReceivedEvent messageReceivedEvent)
             // Acknowledge the request with a :stopwatch: reaction
             messageReceivedEvent.getMessage().addReaction("\u23F1").queue();
-        return Exceptional.of(new UndisplayedException("You're currently on cooldown"));
+        return Exceptional.of(new UndisplayedException(this.strategy.message()));
     }
 }

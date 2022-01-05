@@ -32,12 +32,12 @@ public class CooldownTimer
         return this.previousRemainingTime.until(OffsetDateTime.now(), ChronoUnit.SECONDS) >= secondsPassed;
     }
 
-    public MessageEmbed remainingTimeEmbed() {
+    public MessageEmbed remainingTimeEmbed(String title) {
         double remainingTimeSeconds = this.remainingTime() / 1000D;
         this.previousRemainingTime = OffsetDateTime.now();
 
         return new EmbedBuilder()
-            .setTitle("Please wait, you're on cooldown")
+            .setTitle(title)
             .setDescription(String.format("%.2fs Remaining", remainingTimeSeconds))
             .setColor(Color.BLUE)
             .build();
