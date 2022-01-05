@@ -22,7 +22,5 @@ public @interface Permissions
 
     Permission[] self() default {};
 
-    boolean canInteract() default false;
-
     Merger merger() default Merger.AND;
 }
