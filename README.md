@@ -181,16 +181,22 @@ import nz.pumbas.halpbot.permissions.Permissions;
 @Service
 public class ExampleCommands
 {
-    // Requires the bot to have the KICK_MEMBERS permission and that the bot can interact with the member.
-    @Permissions(self = Permission.KICK_MEMBERS, canInteract = true)
+    // E.g: $kick @pumbas600 or $kick @pumbas600 some reason
+    // Requires the bot to have the KICK_MEMBERS permission.
+    @Nullable
+    @Permissions(self = Permission.KICK_MEMBERS)
     @Command(description = "Kicks a member from the guild")
-    public void kick(MessageReceivedEvent event, Member member, // E.g: $kick @pumbas600 or $kick @pumbas600 for being too cool
-                     @Remaining @Unrequired("No reason specified") String reason)
+    public String kick(MessageReceivedEvent event, Member member,
+                       @Remaining @Unrequired("No reason specified") String reason)
     {
+        if (!event.getGuild().getSelfMember().canInteract(member))
+            return "Cannot kick member: %s, they are higher in the heirarchy than I am".formatted(member.getEffectiveName());
+
         event.getGuild().kick(member, reason)
                 .queue((success) -> event.getChannel()
                         .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
                         .queue());
+        return null; // Don't respond via halpbot as we're queueing a response normally
     }
 }
 ```
