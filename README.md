@@ -109,7 +109,53 @@ public class ExampleCommands
 
 ### Decorators
 
-Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halpbot/wiki/Decorators), however, the two main ones are the [cooldown](https://github.com/pumbas600/Halpbot/wiki/Decorators#cooldown) and [permissions](https://github.com/pumbas600/Halpbot/wiki/Decorators#permissions) decorators. Decorators are annotations that can be added to actions (`@Command` or `@ButtonAction`) which can modify how the method is called. 
+Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halpbot/wiki/Decorators), however, the two main ones are the [cooldown](https://github.com/pumbas600/Halpbot/wiki/Decorators#cooldown) and [permissions](https://github.com/pumbas600/Halpbot/wiki/Decorators#permissions) decorators. Decorators are annotations that can be added to actions (`@Command` or `@ButtonAction`) that modify how the method is called, or if it's even called at all. 
+
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.entities.User;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+    
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.utilities.Duration;
+```
+
+</p>
+</details>
+
+```java
+@Service
+public class ExampleCommands
+{
+    private final Map<Long, Integer> bank = new HashMap<>();
+    private final Random random = new Random();
+    
+    // Restrict it so that this user can only call the command once per hour
+    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
+    @Command(description = "Adds a random amount between $0 and $500 to the users account")
+    public String collect(@Source User user) {
+        long userId = user.getIdLong();
+
+        int amount = this.random.nextInt(500);
+        this.bank.putIfAbsent(userId, 0);
+        int newAmount = amount + this.bank.get(userId);
+        this.bank.put(userId, newAmount);
+
+        return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
+    }
+}
+```
 
 <details>
 <summary>Show Imports</summary>
@@ -147,6 +193,8 @@ public class ExampleCommands
     }
 }
 ```
+
+> **NOTE:** It's also possible to add permissions that the user must have, along with creating your own custom [permission suppliers](https://github.com/pumbas600/Halpbot/wiki/Permissions#permission-suppliers).
 
 ## Getting Started
 
