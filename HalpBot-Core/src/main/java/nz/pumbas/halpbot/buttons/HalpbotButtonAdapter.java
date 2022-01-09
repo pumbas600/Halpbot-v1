@@ -100,7 +100,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     }
 
     @Override
-    @SubscribeEvent
     public void onButtonClick(ButtonClickEvent event) {
         if (!this.registeredButtons.containsKey(event.getComponentId())) {
             return;

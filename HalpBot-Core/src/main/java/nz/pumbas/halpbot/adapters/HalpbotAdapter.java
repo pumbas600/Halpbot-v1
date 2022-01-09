@@ -1,20 +1,23 @@
 package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 import org.dockbox.hartshorn.core.Enableable;
 import org.dockbox.hartshorn.core.context.ContextCarrier;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
-import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.common.CoreCarrier;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
-public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, Enableable
+public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListener, Enableable
 {
     default void onCreation(JDA jda) {}
+
+    default void initialise(JDABuilder jdaBuilder) {}
 
     @Override
     default void enable() throws ApplicationException {

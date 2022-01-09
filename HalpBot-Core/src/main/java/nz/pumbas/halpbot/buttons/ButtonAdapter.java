@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.buttons;
 
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.context.element.MethodContext;
@@ -15,6 +15,14 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 
 public interface ButtonAdapter extends HalpbotAdapter
 {
+    @Override
+    default void onEvent(GenericEvent event) {
+        if (event instanceof ButtonClickEvent buttonClickEvent)
+            this.onButtonClick(buttonClickEvent);
+    }
+
+    void onButtonClick(ButtonClickEvent event);
+
     default <T> void registerButtons(TypeContext<T> type) {
         final T instance = this.applicationContext().get(type);
         List<MethodContext<?, T>> buttons = type.methods(ButtonAction.class);
@@ -47,7 +55,4 @@ public interface ButtonAdapter extends HalpbotAdapter
     }
 
     Button register(Button button, Object... parameters);
-
-    @SubscribeEvent
-    void onButtonClick(ButtonClickEvent event);
 }

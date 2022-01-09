@@ -111,7 +111,7 @@ public class HalpbotCore implements ContextCarrier
     }
 
     public JDA build(JDABuilder jdaBuilder) throws ApplicationException {
-        jdaBuilder.setEventManager(new AnnotatedEventManager());
+        this.adapters.forEach((adapter) -> adapter.initialise(jdaBuilder));
         this.adapters.forEach(jdaBuilder::addEventListeners);
 
         try {

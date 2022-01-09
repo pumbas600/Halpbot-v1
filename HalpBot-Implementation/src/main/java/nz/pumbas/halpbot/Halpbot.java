@@ -56,13 +56,13 @@ public class Halpbot extends ListenerAdapter implements Bot
     @Inject private PermissionRepository permissionRepository;
     @Inject private HalpbotCore halpbotCore;
 
-    @SubscribeEvent
+    @Override
     public void onReady(ReadyEvent event) {
         this.applicationContext.log()
                 .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
     }
 
-    @SubscribeEvent
+    @Override
     public void onShutdown(ShutdownEvent event) {
         this.applicationContext.log().info("Shutting down the bot!");
     }

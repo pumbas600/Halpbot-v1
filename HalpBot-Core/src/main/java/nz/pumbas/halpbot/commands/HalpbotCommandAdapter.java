@@ -1,7 +1,8 @@
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 import org.dockbox.hartshorn.core.ArrayListMultiMap;
 import org.dockbox.hartshorn.core.HartshornUtils;
@@ -85,7 +86,6 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
     //TODO: Setting the guild specific prefixes
     @Override
-    @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
@@ -124,6 +124,17 @@ public class HalpbotCommandAdapter implements CommandAdapter
     {
         CommandInvocationContext invocationContext = this.invocationContextFactory.command(content, event);
         return commandContext.invoke(invocationContext);
+    }
+
+    @Override
+    public void initialise(JDABuilder jdaBuilder) {
+        this.registeredCommands.values()
+                .stream()
+                .collect(Collectors.groupingBy(CommandContext::instance))
+                .keySet()
+                .stream()
+                .filter((obj) -> obj instanceof EventListener)
+                .forEach(jdaBuilder::addEventListeners);
     }
 
     @Override

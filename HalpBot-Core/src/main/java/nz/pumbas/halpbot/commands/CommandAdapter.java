@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.commands;
 
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
@@ -33,7 +33,12 @@ public interface CommandAdapter extends HalpbotAdapter
 {
     ParameterAnnotationService parameterAnnotationService();
 
-    @SubscribeEvent
+    @Override
+    default void onEvent(GenericEvent event) {
+        if (event instanceof MessageReceivedEvent messageReceivedEvent)
+            this.onMessageReceived(messageReceivedEvent);
+    }
+
     void onMessageReceived(MessageReceivedEvent event);
 
     String defaultPrefix();
