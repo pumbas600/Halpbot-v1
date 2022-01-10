@@ -111,10 +111,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         Exceptional<Object> result = buttonContext.invoke(invocationContext);
 
         if (result.present()) {
-            DisplayConfiguration displayConfiguration = this.halpbotCore.displayConfiguration();
-            if (buttonContext.isEphemeral())
-                displayConfiguration.displayTemporary(halpbotEvent, result.get(), 0);
-            else displayConfiguration.display(halpbotEvent, result.get(), buttonContext.displayDuration());
+            this.displayResult(halpbotEvent, buttonContext, result.get());
         }
         else if (result.caught()) {
             event.deferEdit(); // Prevent interaction failed event

@@ -86,32 +86,37 @@ public class HalpbotCommandAdapter implements CommandAdapter
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
-        // Remove all the additional whitespace
-        String message = event.getMessage().getContentRaw().replaceAll("\\s+", " ");
+        String message = event.getMessage().getContentRaw();
         String prefix = this.prefix(event.getGuild().getIdLong());
 
         HalpbotEvent halpbotEvent = new MessageEvent(event);
 
         if (message.startsWith(prefix)) {
             message = message.substring(prefix.length()).stripLeading();
+
             String[] splitText = message.split(" ", 2);
             String alias       = splitText[0];
             String content     = (2 == splitText.length) ? splitText[1] : "";
 
-            Exceptional<Object> result = this.commandContextSafely(alias)
-                .absent(() -> this.halpbotCore.displayConfiguration()
-                    .displayTemporary(halpbotEvent,
-                        "The command **" + alias + "** doesn't seem to exist, you may want to check your spelling",
-                        30))
-                .flatMap(commandContext ->
-                    this.handleCommandInvocation(halpbotEvent, commandContext, content));
+            Exceptional<CommandContext> eCommandContext = this.commandContextSafely(alias);
+            if (eCommandContext.present()) {
+                CommandContext commandContext = eCommandContext.get();
+                if (!commandContext.preserveWhitespace())
+                    content = content.replaceAll("\\s+", " ");
 
-            if (result.present())
-                this.halpbotCore.displayConfiguration().display(halpbotEvent, result.get());
-            else if (result.caught()) {
-                this.applicationContext.log().error("Caught the error: ", result.error());
-                this.handleException(halpbotEvent, result.error());
+                Exceptional<Object> result = this.handleCommandInvocation(halpbotEvent, commandContext, content);
+
+                if (result.present())
+                    this.displayResult(halpbotEvent, commandContext, result.get());
+                else if (result.caught()) {
+                    //this.applicationContext.log().error("Caught the error: ", result.error());
+                    this.handleException(halpbotEvent, result.error());
+                }
             }
+            else this.halpbotCore.displayConfiguration()
+                    .displayTemporary(halpbotEvent,
+                            "The command **" + alias + "** doesn't seem to exist, you may want to check your spelling",
+                            30);
         }
     }
     
