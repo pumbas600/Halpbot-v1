@@ -15,5 +15,5 @@ public @interface ButtonAction
 
     boolean isEphemeral() default false;
 
-    Duration displayDuration() default @Duration(-1);
+    Duration display() default @Duration(-1);
 }

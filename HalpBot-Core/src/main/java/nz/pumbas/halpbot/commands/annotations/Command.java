@@ -29,6 +29,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import nz.pumbas.halpbot.utilities.Duration;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Command
@@ -45,4 +47,10 @@ public @interface Command
     String usage() default "";
 
     Class<?>[] reflections() default {};
+
+    Duration display() default @Duration(-1);
+
+    boolean isEphemeral() default false;
+
+    boolean preserveWhitespace() default false;
 }

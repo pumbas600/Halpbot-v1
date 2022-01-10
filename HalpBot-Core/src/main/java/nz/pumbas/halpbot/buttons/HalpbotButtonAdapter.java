@@ -1,7 +1,6 @@
 package nz.pumbas.halpbot.buttons;
 
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
@@ -88,7 +87,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         return this.buttonContextFactory.create(
                 id,
                 buttonAction.isEphemeral(),
-                Duration.of(buttonAction.displayDuration().value(), buttonAction.displayDuration().unit()),
+                Duration.of(buttonAction.display().value(), buttonAction.display().unit()),
                 this.decoratorService.decorate(actionInvokable),
                 passedParameters,
                 this.tokenService.tokens(actionInvokable.executable())

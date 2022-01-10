@@ -4,6 +4,7 @@ import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -20,5 +21,8 @@ public interface CommandContextFactory
                           String usage,
                           ActionInvokable<CommandInvocationContext> actionInvokable,
                           List<Token> tokens,
-                          Set<TypeContext<?>> reflections);
+                          Set<TypeContext<?>> reflections,
+                          Duration displayDuration,
+                          boolean isEphemeral,
+                          boolean preserveWhitespace);
 }

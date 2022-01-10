@@ -4,6 +4,7 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,10 @@ public record HalpbotCommandContext(List<String> aliases,
                                     String usage,
                                     ActionInvokable<CommandInvocationContext> actionInvokable,
                                     List<Token> tokens,
-                                    Set<TypeContext<?>> reflections)
+                                    Set<TypeContext<?>> reflections,
+                                    Duration displayDuration,
+                                    boolean isEphemeral,
+                                    boolean preserveWhitespace)
         implements CommandContext
 {
 

@@ -130,7 +130,7 @@ public class HalpbotCommands
     }
 
     @Time
-    @ButtonAction(id = "halpbot:button:suffix", displayDuration = @Duration(10))
+    @ButtonAction(id = "halpbot:button:suffix", display = @Duration(10))
     public String suffix(@Source User user, String suffix) {
         return user.getName() + suffix;
     }

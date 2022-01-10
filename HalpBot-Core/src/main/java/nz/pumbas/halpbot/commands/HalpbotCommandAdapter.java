@@ -17,6 +17,7 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -47,16 +48,12 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomCons
 import nz.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import nz.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import nz.pumbas.halpbot.commands.usage.UsageBuilder;
-import nz.pumbas.halpbot.common.ExplainedException;
-import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
-import nz.pumbas.halpbot.permissions.PermissionService;
-import nz.pumbas.halpbot.utilities.ErrorManager;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 @Service
@@ -277,7 +274,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 this.usage(command.usage(), methodContext),
                 this.decoratorService.decorate(actionInvokable),
                 this.tokenService.tokens(methodContext),
-                reflections
+                reflections,
+                Duration.of(command.display().value(), command.display().unit()),
+                command.isEphemeral(),
+                command.preserveWhitespace()
         );
     }
 
