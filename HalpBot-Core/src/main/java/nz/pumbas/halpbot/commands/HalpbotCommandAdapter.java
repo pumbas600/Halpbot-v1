@@ -1,6 +1,8 @@
 package nz.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 
@@ -87,7 +89,9 @@ public class HalpbotCommandAdapter implements CommandAdapter
         if (event.getAuthor().isBot()) return;
 
         String message = event.getMessage().getContentRaw();
-        String prefix = this.prefix(event.getGuild().getIdLong());
+        String prefix = event.isFromType(ChannelType.TEXT)
+                ? this.prefix(event.getGuild().getIdLong())
+                : this.defaultPrefix;
 
         HalpbotEvent halpbotEvent = new MessageEvent(event);
 
