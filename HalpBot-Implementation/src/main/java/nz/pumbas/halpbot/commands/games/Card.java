@@ -79,8 +79,8 @@ public enum Card {
         this.value = value;
     }
 
-    public static boolean isAce(Card card) {
-        return ACES.contains(card);
+    public boolean isAce() {
+        return ACES.contains(this);
     }
 
     public static Card random() {

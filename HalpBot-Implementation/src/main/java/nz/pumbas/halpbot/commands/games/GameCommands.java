@@ -25,7 +25,8 @@ public class GameCommands
 {
     private static final Color PALE_GREEN = new Color(135, 231, 21);
     private static final String WON_DESCRIPTION = "You won!";
-    private static final String LOST_DESCRIPTION = "You lost :(";
+    private static final String LOST_DESCRIPTION = "You lost :sob:";
+    private static final String TIE_DESCRIPTION = "You tied";
 
     @Inject
     private ButtonAdapter buttonAdapter;
@@ -36,7 +37,7 @@ public class GameCommands
         BlackjackSet userSet = new BlackjackSet();
         BlackjackSet botSet = new BlackjackSet();
 
-        EmbedBuilder embed = this.blackjackEmbed(event.getAuthor(), userSet, botSet, false);
+        EmbedBuilder embed = this.blackjackEmbed(event.getAuthor(), userSet, botSet);
         List<Button> buttons =
                 Stream.of(
                     Button.primary("halpbot:blackjack:hit", "Hit"),
@@ -58,7 +59,7 @@ public class GameCommands
             return "This is not your game";
 
         userSet.hit();
-        EmbedBuilder updatedEmbed = this.blackjackEmbed(event.getUser(), userSet, botSet, false);
+        EmbedBuilder updatedEmbed = this.blackjackEmbed(event.getUser(), userSet, botSet);
 
         event.editMessageEmbeds(updatedEmbed.build()).queue();
         if (userSet.gameover())
@@ -72,13 +73,22 @@ public class GameCommands
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
 
-        int userDiff = 21 - userSet.value();
-        int botDiff = 21 - botSet.value();
+        int userDiff = BlackjackSet.TARGET - userSet.value();
+        int botDiff = BlackjackSet.TARGET - botSet.value();
 
-        EmbedBuilder updatedEmbed = this.blackjackEmbed(event.getUser(), userSet, botSet, true);
-        if (userDiff < botDiff)
+        if (!userSet.exceeds21() && !botSet.exceeds21()) {
+            while (userDiff < botDiff) {
+                botSet.hit();
+                botDiff = BlackjackSet.TARGET - botSet.value();
+            }
+        }
+
+        EmbedBuilder updatedEmbed = this.blackjackEmbed(event.getUser(), userSet, botSet);
+        if (userSet.value() == botSet.value())
+            updatedEmbed.setDescription(TIE_DESCRIPTION);
+        else if (botSet.exceeds21() || userDiff < botDiff)
             updatedEmbed.setDescription(WON_DESCRIPTION);
-        else if (botDiff < userDiff)
+        else
             updatedEmbed.setDescription(LOST_DESCRIPTION);
 
         event.editMessageEmbeds(updatedEmbed.build()).queue();
@@ -97,12 +107,12 @@ public class GameCommands
                 .toList();
     }
 
-    public EmbedBuilder blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet, boolean revealAll) {
+    public EmbedBuilder blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
                 .setColor(PALE_GREEN)
-                .addField("Your Hand", userSet.fieldString(true), true)
-                .addField("Dealer Hand", botSet.fieldString(revealAll || userSet.gameover()), true);
+                .addField("Your Hand", userSet.fieldString(), true)
+                .addField("Dealer Hand", botSet.fieldString(), true);
 
         if (userSet.is21())
             builder.setDescription(WON_DESCRIPTION);

@@ -31,7 +31,7 @@ public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListen
             this.halpbotCore().displayConfiguration()
                     .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
         }
-        else if (!(exception instanceof UndisplayedException))
+        else if (!(exception instanceof UndisplayedException) && exception.getMessage() != null)
             this.halpbotCore().displayConfiguration()
                     .displayTemporary(halpbotEvent,
                             "There was the following error trying to invoke this action: " + exception.getMessage(),
