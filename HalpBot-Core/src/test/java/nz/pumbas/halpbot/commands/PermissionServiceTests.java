@@ -18,6 +18,7 @@ import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.commands.mocks.MockGuild;
 import nz.pumbas.halpbot.commands.mocks.MockMember;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
@@ -42,7 +43,7 @@ public class PermissionServiceTests
     @Inject private CommandAdapter commandAdapter;
     @Inject private InvocationContextFactory factory;
 
-    private final GuildImpl guild = new GuildImpl(MockJDA.INSTANCE, 1);
+    private final GuildImpl guild = new MockGuild(1);
     private Member guildOwner;
     private Member botOwner;
     private Member randomMember;
