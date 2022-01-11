@@ -55,4 +55,10 @@ public interface ButtonAdapter extends HalpbotAdapter
     }
 
     Button register(Button button, Object... parameters);
+
+    default List<Button> register(List<Button> buttons, Object... parameters) {
+        return buttons.stream()
+                .map((button) -> this.register(button, parameters))
+                .toList();
+    }
 }
