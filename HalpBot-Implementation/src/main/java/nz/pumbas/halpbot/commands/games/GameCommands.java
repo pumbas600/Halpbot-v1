@@ -24,7 +24,7 @@ import nz.pumbas.halpbot.commands.annotations.Command;
 public class GameCommands
 {
     private static final Color PALE_GREEN = new Color(135, 231, 21);
-    private static final String WON_DESCRIPTION = "You won!";
+    private static final String WON_DESCRIPTION = "You won! <a:roocheer:856015238129647667>";
     private static final String LOST_DESCRIPTION = "You lost :sob:";
     private static final String TIE_DESCRIPTION = "You tied";
 
@@ -36,6 +36,9 @@ public class GameCommands
         long userId = event.getAuthor().getIdLong();
         BlackjackSet userSet = new BlackjackSet();
         BlackjackSet botSet = new BlackjackSet();
+        userSet.hit();
+        userSet.hit();
+        botSet.hit();
 
         EmbedBuilder embed = this.blackjackEmbed(event.getAuthor(), userSet, botSet);
         List<Button> buttons =

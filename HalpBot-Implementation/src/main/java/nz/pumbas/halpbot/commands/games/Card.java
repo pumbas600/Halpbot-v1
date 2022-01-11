@@ -69,14 +69,18 @@ public enum Card {
     CK(10);
 
     public static final List<Card> ACES = List.of(HA, DA, SA, CA);
-
     private static final Random random = new Random();
 
-    @Getter
-    private final int value;
+    @Getter private final int value;
+    @Getter private final String emoji;
 
     Card(int value) {
+        this(value, "??");
+    }
+
+    Card(int value, String emoji) {
         this.value = value;
+        this.emoji = emoji;
     }
 
     public boolean isAce() {
