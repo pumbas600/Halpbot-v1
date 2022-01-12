@@ -9,6 +9,8 @@ public class BlackjackSet
     public static final int TARGET = 21;
     public static final int STARTING_CARDS = 2;
 
+    private static final String BLANK_CARD = "<:CardBack:930710260660990014>";
+
     private final List<Card> cards = new ArrayList<>();
     private List<Integer> values = new ArrayList<>();
     private int value;
@@ -84,7 +86,7 @@ public class BlackjackSet
         for (int i = this.cards.size(); i < STARTING_CARDS; i++) {
             if (i != 0)
                 result.append(" ");
-            result.append(Card.BLANK.emoji());
+            result.append(BLANK_CARD);
         }
 
         return result.toString();

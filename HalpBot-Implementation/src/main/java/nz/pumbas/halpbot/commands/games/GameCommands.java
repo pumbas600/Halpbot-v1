@@ -30,7 +30,7 @@ public class GameCommands
 {
     private static final Color PALE_GREEN = new Color(135, 231, 21);
     private static final String WON_DESCRIPTION = "You won! <a:roocheer:856015238129647667>";
-    private static final String LOST_DESCRIPTION = "You lost :sob:";
+    private static final String LOST_DESCRIPTION = "You lost <a:roosad:855361082037239808>";
     private static final String TIE_DESCRIPTION = "You tied";
     private static final String INFO_DESCRIPTION = """
             `Hit`: Take another card

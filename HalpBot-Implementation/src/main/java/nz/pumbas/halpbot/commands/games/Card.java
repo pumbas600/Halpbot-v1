@@ -8,9 +8,6 @@ import lombok.experimental.Accessors;
 
 @Accessors(chain = false)
 public enum Card {
-
-    BLANK(0, "<:CardBack:930710260660990014>"),
-
     // Hearts
     HA(1, "<:AH:930707519804936232>"),
     H2(2, "<:2H:930707519481970740>"),
