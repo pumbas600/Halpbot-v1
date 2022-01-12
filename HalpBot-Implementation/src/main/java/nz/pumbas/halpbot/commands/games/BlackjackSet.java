@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 public class BlackjackSet
 {
     public static final int TARGET = 21;
@@ -13,7 +15,8 @@ public class BlackjackSet
 
     private final List<Card> cards = new ArrayList<>();
     private List<Integer> values = new ArrayList<>();
-    private int value;
+    @Getter private int value;
+    @Getter private boolean isSoft;
 
     public BlackjackSet() {
         this.values.add(0);
@@ -69,6 +72,7 @@ public class BlackjackSet
                 .collect(Collectors.toList());
 
         this.value = this.findValue();
+        this.isSoft = this.count() != 1 && this.values.stream().filter(value -> value <= TARGET).count() > 1;
     }
 
     public void hit() {
@@ -85,10 +89,6 @@ public class BlackjackSet
         return max;
     }
 
-    public int value() {
-        return this.value;
-    }
-
     public String cardsString() {
         String cards = this.cards.stream().map(Card::emoji).collect(Collectors.joining(""));
         if (this.cards.size() >= STARTING_CARDS)
@@ -102,6 +102,6 @@ public class BlackjackSet
     }
 
     public String fieldString() {
-        return "%s\nValue: %d".formatted(this.cardsString(), this.value());
+        return "%s\nValue: %s %d".formatted(this.cardsString(), this.isSoft ? "Soft" : "", this.value());
     }
 }

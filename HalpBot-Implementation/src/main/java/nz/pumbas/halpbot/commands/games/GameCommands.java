@@ -67,7 +67,8 @@ public class GameCommands
             buttons.add(this.buttonAdapter.register(
                     Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
 
-        event.getChannel().sendMessageEmbeds(this.blackjackEmbed(event.getAuthor(), userSet, botSet, description))
+        event.getChannel().sendMessageEmbeds(
+                this.blackjackEmbed(event.getAuthor(), userSet, botSet, description))
                 .setActionRow(buttons)
                 .queue();
     }

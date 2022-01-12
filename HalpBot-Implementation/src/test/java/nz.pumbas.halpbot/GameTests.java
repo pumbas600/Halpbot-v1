@@ -13,9 +13,11 @@ public class GameTests
         BlackjackSet set = new BlackjackSet();
         set.add(Card.DA, Card.D3);
         Assertions.assertEquals(14, set.value());
+        Assertions.assertTrue(set.isSoft());
 
         set.add(Card.DJ);
         Assertions.assertEquals(14, set.value());
+        Assertions.assertFalse(set.isSoft());
     }
 
     @Test
@@ -23,5 +25,6 @@ public class GameTests
         BlackjackSet set = new BlackjackSet();
         set.add(Card.S7, Card.CA, Card.D3, Card.SQ);
         Assertions.assertEquals(21, set.value());
+        Assertions.assertFalse(set.isSoft());
     }
 }
