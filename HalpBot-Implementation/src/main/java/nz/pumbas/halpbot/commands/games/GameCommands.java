@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.commands.games;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -11,7 +12,9 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -49,7 +52,8 @@ public class GameCommands
         userSet.hit();
         botSet.hit();
 
-        EmbedBuilder embed = this.blackjackEmbed(event.getAuthor(), userSet, botSet);
+        String description = this.determineDescription(userSet);
+
         List<Button> buttons =
                 Stream.of(
                     Button.primary("halpbot:blackjack:hit", "Hit"),
@@ -57,9 +61,13 @@ public class GameCommands
                 .map((button) -> userSet.gameover()
                         ? button.asDisabled()
                         : this.buttonAdapter.register(button, userId, userSet, botSet))
-                .toList();
+                .collect(Collectors.toList());
 
-        event.getChannel().sendMessageEmbeds(embed.build())
+        if (userSet.gameover() && botSet.hasHiddenCards())
+            buttons.add(this.buttonAdapter.register(
+                    Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
+
+        event.getChannel().sendMessageEmbeds(this.blackjackEmbed(event.getAuthor(), userSet, botSet, description))
                 .setActionRow(buttons)
                 .queue();
     }
@@ -71,11 +79,16 @@ public class GameCommands
             return "This is not your game";
 
         userSet.hit();
-        EmbedBuilder updatedEmbed = this.blackjackEmbed(event.getUser(), userSet, botSet);
+        String description = this.determineDescription(userSet);
+        event.editMessageEmbeds(this.blackjackEmbed(event.getUser(), userSet, botSet, description)).queue();
 
-        event.editMessageEmbeds(updatedEmbed.build()).queue();
+        List<Button> buttons = this.disabledButtons(event);
+        if (userSet.gameover() && botSet.hasHiddenCards())
+            buttons.add(this.buttonAdapter.register(
+                    Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
+
         if (userSet.gameover())
-            event.getHook().editOriginalComponents(this.disabledButtons(event)).queue();
+            event.getHook().editOriginalComponents(ActionRow.of(buttons)).queue();
         return null;
     }
 
@@ -95,44 +108,64 @@ public class GameCommands
             }
         }
 
-        EmbedBuilder updatedEmbed = this.blackjackEmbed(event.getUser(), userSet, botSet);
-        if (userSet.value() == botSet.value())
-            updatedEmbed.setDescription(TIE_DESCRIPTION);
-        else if (botSet.exceeds21() || userDiff < botDiff)
-            updatedEmbed.setDescription(WON_DESCRIPTION);
-        else
-            updatedEmbed.setDescription(LOST_DESCRIPTION);
+        String description = this.determineStandDescription(userSet, botSet);
 
-        event.editMessageEmbeds(updatedEmbed.build()).queue();
-        event.getHook().editOriginalComponents(this.disabledButtons(event)).queue();
+        event.editMessageEmbeds(this.blackjackEmbed(event.getUser(), userSet, botSet, description)).queue();
+        List<Button> disabledButtons = this.disabledButtons(event);
+
+        event.getHook().editOriginalComponents(ActionRow.of(disabledButtons)).queue();
         return null;
     }
 
-    private List<ActionRow> disabledButtons(ButtonClickEvent event) {
-        return event.getMessage()
-                .getActionRows()
-                .stream()
-                .map((actionRow) -> ActionRow.of(actionRow.getComponents()
-                        .stream()
-                        .map((component) -> component instanceof Button button ? button.asDisabled() : component)
-                        .toList()))
-                .toList();
+    @ButtonAction(id = "halpbot:bj:reveal")
+    public void reveal(ButtonClickEvent event, BlackjackSet userSet, BlackjackSet botSet) {
+        String description = this.determineStandDescription(userSet, botSet);
+
+        botSet.revealHiddenCards();
+        event.editMessageEmbeds(this.blackjackEmbed(event.getUser(), userSet, botSet, description)).queue();
+        event.getHook().editOriginalComponents(ActionRow.of(this.disabledButtons(event))).queue();
     }
 
-    private EmbedBuilder blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet) {
-        EmbedBuilder builder = new EmbedBuilder()
+    private String determineStandDescription(BlackjackSet userSet, BlackjackSet botSet) {
+        int userDiff = BlackjackSet.TARGET - userSet.value();
+        int botDiff = BlackjackSet.TARGET - botSet.value();
+
+        if (userSet.value() == botSet.value())
+            return TIE_DESCRIPTION;
+        else if (botSet.exceeds21() || userDiff < botDiff)
+            return WON_DESCRIPTION;
+        else
+            return LOST_DESCRIPTION;
+    }
+
+    private String determineDescription(BlackjackSet userSet) {
+        if (userSet.is21())
+            return WON_DESCRIPTION;
+        else if (userSet.exceeds21())
+            return LOST_DESCRIPTION;
+        else
+            return INFO_DESCRIPTION;
+    }
+
+    private List<Button> disabledButtons(ButtonClickEvent event) {
+        List<ActionRow> actionRows = event.getMessage().getActionRows();
+        if (!actionRows.isEmpty()) {
+            return actionRows.get(0).getButtons()
+                    .stream()
+                    .map(Button::asDisabled)
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+    private MessageEmbed blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet, String description) {
+        return new EmbedBuilder()
                 .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
                 .setColor(PALE_GREEN)
+                .setDescription(description)
                 .addField("Your Hand", userSet.fieldString(), true)
-                .addField("Dealer Hand", botSet.fieldString(), true);
-
-        if (userSet.is21())
-            builder.setDescription(WON_DESCRIPTION);
-        else if (userSet.exceeds21())
-            builder.setDescription(LOST_DESCRIPTION);
-        else
-            builder.setDescription(INFO_DESCRIPTION);
-        return builder;
+                .addField("Dealer Hand", botSet.fieldString(), true)
+                .build();
     }
 
 }

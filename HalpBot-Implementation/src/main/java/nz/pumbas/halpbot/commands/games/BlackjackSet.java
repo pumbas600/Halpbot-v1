@@ -19,6 +19,19 @@ public class BlackjackSet
         this.values.add(0);
     }
 
+    public int count() {
+        return this.cards.size();
+    }
+
+    public void revealHiddenCards() {
+        while (this.hasHiddenCards())
+            this.hit();
+    }
+
+    public boolean hasHiddenCards() {
+        return this.count() < STARTING_CARDS;
+    }
+
     public boolean is21() {
         return this.value() == TARGET;
     }
@@ -77,17 +90,13 @@ public class BlackjackSet
     }
 
     public String cardsString() {
-        String cards = this.cards.stream().map(Card::emoji).collect(Collectors.joining(" "));
+        String cards = this.cards.stream().map(Card::emoji).collect(Collectors.joining(""));
         if (this.cards.size() >= STARTING_CARDS)
             return cards;
 
         StringBuilder result = new StringBuilder();
         result.append(cards);
-        for (int i = this.cards.size(); i < STARTING_CARDS; i++) {
-            if (i != 0)
-                result.append(" ");
-            result.append(BLANK_CARD);
-        }
+        result.append(BLANK_CARD.repeat(STARTING_CARDS - this.cards.size()));
 
         return result.toString();
     }
