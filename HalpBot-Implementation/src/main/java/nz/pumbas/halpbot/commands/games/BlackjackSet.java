@@ -29,35 +29,43 @@ public class BlackjackSet
         return this.value() >= TARGET;
     }
 
-    public void hit() {
-        Card card = Card.random();
+    public void add(Card... cards) {
+        for (Card card : cards) {
+            this.add(card);
+        }
+    }
+
+    public void add(Card card) {
         this.cards.add(card);
 
         if (card.isAce()) {
             List<Integer> tempValues = new ArrayList<>(this.values);
             this.values.clear();
             this.values.addAll(tempValues.stream()
-                    .map((value) -> value + 11)
-                    .filter((value) -> value <= TARGET)
+                    .map(value -> value + 11)
+                    .filter(value -> value <= TARGET)
                     .toList());
             this.values.addAll(tempValues.stream()
-                    .map((value) -> value + card.value())
-                    .filter((value) -> value <= TARGET)
+                    .map(value -> value + card.value())
                     .toList());
         }
-        else this.values = this.values.stream().map((value) -> value + card.value()).toList();
+        else this.values = this.values.stream()
+                .map((value) -> value + card.value())
+                .collect(Collectors.toList());
 
         this.value = this.findValue();
     }
 
-    private int findValue() {
-        if (this.values.contains(TARGET))
-            return TARGET;
+    public void hit() {
+        this.add(Card.random());
+    }
 
+    private int findValue() {
         int max = this.values.get(0);
         for (int i = 1; i < this.values.size(); i++) {
-            if (this.values.get(i) > max)
-                max = this.values.get(i);
+            int value = this.values.get(i);
+            if (value > max || max > TARGET && value < max)
+                max = value;
         }
         return max;
     }
@@ -67,16 +75,16 @@ public class BlackjackSet
     }
 
     public String cardsString() {
-        String cards = this.cards.stream().map(Card::name).collect(Collectors.joining(" "));
+        String cards = this.cards.stream().map(Card::emoji).collect(Collectors.joining(" "));
         if (this.cards.size() >= STARTING_CARDS)
             return cards;
 
         StringBuilder result = new StringBuilder();
         result.append(cards);
         for (int i = this.cards.size(); i < STARTING_CARDS; i++) {
-            if (i == 0)
-                result.append("XX");
-            else result.append(" XX");
+            if (i != 0)
+                result.append(" ");
+            result.append(Card.BLANK.emoji());
         }
 
         return result.toString();

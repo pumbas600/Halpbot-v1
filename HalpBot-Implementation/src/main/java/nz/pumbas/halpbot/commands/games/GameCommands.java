@@ -19,7 +19,12 @@ import javax.inject.Inject;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.decorators.log.Log;
+import nz.pumbas.halpbot.decorators.time.Time;
+import nz.pumbas.halpbot.utilities.LogLevel;
 
+@Time
+@Log(LogLevel.INFO)
 @Service
 public class GameCommands
 {
@@ -27,6 +32,10 @@ public class GameCommands
     private static final String WON_DESCRIPTION = "You won! <a:roocheer:856015238129647667>";
     private static final String LOST_DESCRIPTION = "You lost :sob:";
     private static final String TIE_DESCRIPTION = "You tied";
+    private static final String INFO_DESCRIPTION = """
+            `Hit`: Take another card
+            `Stand`: End the game
+            """;
 
     @Inject
     private ButtonAdapter buttonAdapter;
@@ -110,7 +119,7 @@ public class GameCommands
                 .toList();
     }
 
-    public EmbedBuilder blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet) {
+    private EmbedBuilder blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
                 .setColor(PALE_GREEN)
@@ -121,6 +130,8 @@ public class GameCommands
             builder.setDescription(WON_DESCRIPTION);
         else if (userSet.exceeds21())
             builder.setDescription(LOST_DESCRIPTION);
+        else
+            builder.setDescription(INFO_DESCRIPTION);
         return builder;
     }
 
