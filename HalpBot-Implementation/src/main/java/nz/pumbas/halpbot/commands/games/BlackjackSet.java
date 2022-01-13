@@ -10,33 +10,38 @@ public class BlackjackSet
 {
     public static final int TARGET = 21;
     public static final int STARTING_CARDS = 2;
+    public static final int DECKS = 2;
 
     private static final String BLANK_CARD = "<:CardBack:930710260660990014>";
 
     private final List<Card> cards = new ArrayList<>();
-    private List<Integer> values = new ArrayList<>();
-    @Getter private int value;
-    @Getter private boolean isSoft;
+    private final List<Card> hiddenCards = new ArrayList<>();
 
-    public BlackjackSet() {
-        this.values.add(0);
-    }
+    @Getter private int value;
+    private int acesAs11Count;
 
     public int count() {
         return this.cards.size();
     }
 
     public void revealHiddenCards() {
-        while (this.hasHiddenCards())
-            this.hit();
+        this.hiddenCards.forEach(this::add);
+    }
+
+    public boolean isSoft() {
+        return this.acesAs11Count != 0;
     }
 
     public boolean hasHiddenCards() {
-        return this.count() < STARTING_CARDS;
+        return !this.hiddenCards.isEmpty();
     }
 
     public boolean is21() {
         return this.value() == TARGET;
+    }
+
+    public boolean isBlackjack() {
+        return this.count() == 2 && this.is21();
     }
 
     public boolean exceeds21() {
@@ -47,6 +52,10 @@ public class BlackjackSet
         return this.value() >= TARGET;
     }
 
+    public void addHidden(Card card) {
+        this.hiddenCards.add(card);
+    }
+
     public void add(Card... cards) {
         for (Card card : cards) {
             this.add(card);
@@ -55,38 +64,18 @@ public class BlackjackSet
 
     public void add(Card card) {
         this.cards.add(card);
+        this.value += card.value();
 
-        if (card.isAce()) {
-            List<Integer> tempValues = new ArrayList<>(this.values);
-            this.values.clear();
-            this.values.addAll(tempValues.stream()
-                    .map(value -> value + 11)
-                    .filter(value -> value <= TARGET)
-                    .toList());
-            this.values.addAll(tempValues.stream()
-                    .map(value -> value + card.value())
-                    .toList());
+        if (card.isAce())
+            this.acesAs11Count++;
+        while (this.exceeds21() && this.isSoft()) {
+            this.value -= 10;
+            this.acesAs11Count--;
         }
-        else this.values = this.values.stream()
-                .map((value) -> value + card.value())
-                .collect(Collectors.toList());
-
-        this.value = this.findValue();
-        this.isSoft = this.count() != 1 && this.values.stream().filter(value -> value <= TARGET).count() > 1;
     }
 
-    public void hit() {
-        this.add(Card.random());
-    }
-
-    private int findValue() {
-        int max = this.values.get(0);
-        for (int i = 1; i < this.values.size(); i++) {
-            int value = this.values.get(i);
-            if (value > max || max > TARGET && value < max)
-                max = value;
-        }
-        return max;
+    public void hit(CardSet cards) {
+        this.add(cards.removeRandom());
     }
 
     public String cardsString() {
@@ -102,6 +91,8 @@ public class BlackjackSet
     }
 
     public String fieldString() {
-        return "%s\nValue: %s %d".formatted(this.cardsString(), this.isSoft ? "Soft" : "", this.value());
+        return "%s\nValue: %s".formatted(this.cardsString(),
+                this.isBlackjack() ? "Blackjack" :
+                        (this.isSoft() ? "Soft " : "") + this.value());
     }
 }

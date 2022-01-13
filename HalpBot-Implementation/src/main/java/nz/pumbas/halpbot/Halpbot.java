@@ -73,6 +73,6 @@ public class Halpbot extends ListenerAdapter implements Bot
         return JDABuilder.createDefault(token)
                 .disableIntents(GatewayIntent.GUILD_PRESENCES)
                 .addEventListeners(this)
-                .setActivity(Activity.of(ActivityType.COMPETING, "The best way to help everyone"));
+                .setActivity(Activity.of(ActivityType.COMPETING, "to help everyone"));
     }
 }

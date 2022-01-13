@@ -45,12 +45,15 @@ public class GameCommands
 
     @Command(alias = { "bj", "blackjack" }, description = "Plays a game of black jack")
     public void blackjack(MessageReceivedEvent event) {
-        long userId = event.getAuthor().getIdLong();
-        BlackjackSet userSet = new BlackjackSet();
-        BlackjackSet botSet = new BlackjackSet();
-        userSet.hit();
-        userSet.hit();
-        botSet.hit();
+        final long userId = event.getAuthor().getIdLong();
+        final BlackjackSet userSet = new BlackjackSet();
+        final BlackjackSet botSet = new BlackjackSet();
+        final CardSet cards = new CardSet(BlackjackSet.DECKS);
+
+        userSet.hit(cards);
+        botSet.hit(cards);
+        userSet.hit(cards);
+        botSet.addHidden(cards.removeRandom());
 
         String description = this.determineDescription(userSet);
 
@@ -60,7 +63,7 @@ public class GameCommands
                     Button.success("halpbot:blackjack:stand", "Stand"))
                 .map((button) -> userSet.gameover()
                         ? button.asDisabled()
-                        : this.buttonAdapter.register(button, userId, userSet, botSet))
+                        : this.buttonAdapter.register(button, userId, userSet, botSet, cards))
                 .collect(Collectors.toList());
 
         if (userSet.gameover() && botSet.hasHiddenCards())
@@ -68,20 +71,25 @@ public class GameCommands
                     Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
 
         event.getChannel().sendMessageEmbeds(
-                this.blackjackEmbed(event.getAuthor(), userSet, botSet, description))
+                this.blackjackEmbed(event.getAuthor(), userSet, botSet,
+                        description, "Cards remaining: " + cards.count()))
                 .setActionRow(buttons)
                 .queue();
     }
 
     @Nullable
     @ButtonAction(id = "halpbot:blackjack:hit", isEphemeral = true)
-    public String hit(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet) {
+    public String hit(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
+        if (cards.isEmpty())
+            this.stand(event, userId, userSet, botSet, cards);
 
-        userSet.hit();
+        userSet.hit(cards);
         String description = this.determineDescription(userSet);
-        event.editMessageEmbeds(this.blackjackEmbed(event.getUser(), userSet, botSet, description)).queue();
+        event.editMessageEmbeds(
+                this.blackjackEmbed(event.getUser(), userSet, botSet, description, "Remaining cards: " + cards.count()))
+                .queue();
 
         List<Button> buttons = this.disabledButtons(event);
         if (userSet.gameover() && botSet.hasHiddenCards())
@@ -95,23 +103,30 @@ public class GameCommands
 
     @Nullable
     @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true)
-    public String stand(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet) {
+    public String stand(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
 
         int userDiff = BlackjackSet.TARGET - userSet.value();
         int botDiff = BlackjackSet.TARGET - botSet.value();
 
-        if (!userSet.exceeds21() && !botSet.exceeds21()) {
-            while (userDiff < botDiff) {
-                botSet.hit();
+        if (!userSet.gameover() && !botSet.exceeds21()) {
+            if (userDiff <= botDiff && botSet.hasHiddenCards()) {
+                botSet.revealHiddenCards();
+                botDiff = BlackjackSet.TARGET - botSet.value();
+            }
+
+            while (userDiff <= botDiff) {
+                botSet.hit(cards);
                 botDiff = BlackjackSet.TARGET - botSet.value();
             }
         }
 
         String description = this.determineStandDescription(userSet, botSet);
 
-        event.editMessageEmbeds(this.blackjackEmbed(event.getUser(), userSet, botSet, description)).queue();
+        event.editMessageEmbeds(
+                this.blackjackEmbed(event.getUser(), userSet, botSet, description, "Remaining cards: " + cards.count()))
+                .queue();
         List<Button> disabledButtons = this.disabledButtons(event);
 
         event.getHook().editOriginalComponents(ActionRow.of(disabledButtons)).queue();
@@ -130,13 +145,14 @@ public class GameCommands
         event.getHook().editOriginalComponents(ActionRow.of(this.disabledButtons(event))).queue();
     }
 
+    @SuppressWarnings("OverlyComplexBooleanExpression")
     private String determineStandDescription(BlackjackSet userSet, BlackjackSet botSet) {
         int userDiff = BlackjackSet.TARGET - userSet.value();
         int botDiff = BlackjackSet.TARGET - botSet.value();
 
-        if (userSet.value() == botSet.value())
+        if (userSet.is21() && botSet.is21() && userSet.isBlackjack() == botSet.isBlackjack())
             return TIE_DESCRIPTION;
-        else if (userSet.exceeds21() || (botDiff < userDiff && !botSet.exceeds21()))
+        else if (userSet.exceeds21() || (botDiff < userDiff && !botSet.exceeds21()) || botSet.isBlackjack())
             return LOST_DESCRIPTION;
         else
             return WON_DESCRIPTION;
@@ -160,10 +176,6 @@ public class GameCommands
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
-    }
-
-    private MessageEmbed blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet, String description) {
-        return this.blackjackEmbed(user, userSet, botSet, description, null);
     }
 
     private MessageEmbed blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet,
