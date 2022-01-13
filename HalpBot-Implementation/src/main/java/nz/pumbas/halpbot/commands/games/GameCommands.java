@@ -124,7 +124,8 @@ public class GameCommands
 
         botSet.revealHiddenCards();
         event.editMessageEmbeds(
-                this.blackjackEmbed(event.getUser(), userSet, botSet, description, "Dealer's cards revealed"))
+                this.blackjackEmbed(event.getUser(), userSet, botSet,
+                        description, "Dealer's cards revealed by " + event.getUser().getAsTag()))
                 .queue();
         event.getHook().editOriginalComponents(ActionRow.of(this.disabledButtons(event))).queue();
     }
