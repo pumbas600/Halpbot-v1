@@ -26,15 +26,20 @@ package nz.pumbas.halpbot.commands.builtin;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
+import java.lang.management.ManagementFactory;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -59,6 +64,29 @@ public class BuiltInCommands
 {
     @Inject private PermissionService permissionService;
     @Inject private HelpService helpService;
+
+    @Command(description = "Displays the current information of this bot")
+    public void info(MessageReceivedEvent event, JDA jda) {
+        final Runtime runtime = Runtime.getRuntime();
+        final User selfUser = jda.getSelfUser();
+
+        jda.getRestPing().queue(ping ->
+            event.getChannel().sendMessageEmbeds(
+                    new EmbedBuilder()
+                            .setTitle("%s's Information".formatted(selfUser.getName()))
+                            .setColor(Color.ORANGE)
+                            .addField("JVM Version:", System.getProperty("java.version"), true)
+                            .addField("JDA Version:", JDAInfo.VERSION, true)
+                            .addBlankField(true)
+                            .addField("Gateway Ping:", jda.getGatewayPing() + "ms", true)
+                            .addField("Rest Ping:", ping + "ms", true)
+                            .addBlankField(true)
+                            .addField("Memory Usage:", ((runtime.totalMemory() - runtime.freeMemory()) >> 20) + "MB / " + (runtime.maxMemory() >> 20) + "MB", true)
+                            .addField("Thread Count:", String.valueOf(ManagementFactory.getThreadMXBean().getThreadCount()), true)
+                            .addBlankField(true)
+                            .build())
+                    .queue());
+    }
 
     @Command(alias = { "help", "halp" }, description = "Displays the help information for the specified command")
     public Object halp(@Source Guild guild, CommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
