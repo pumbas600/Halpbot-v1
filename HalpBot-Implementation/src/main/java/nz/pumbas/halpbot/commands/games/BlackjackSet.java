@@ -75,7 +75,7 @@ public class BlackjackSet
     }
 
     public void hit(CardSet cards) {
-        this.add(cards.removeRandom());
+        this.add(cards.next());
     }
 
     public String cardsString() {

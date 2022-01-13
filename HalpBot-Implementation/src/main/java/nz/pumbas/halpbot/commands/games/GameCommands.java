@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,6 +41,8 @@ public class GameCommands
             `Stand`: End the game
             """;
 
+    private final Random random = new Random();
+
     @Inject
     private ButtonAdapter buttonAdapter;
 
@@ -48,12 +51,12 @@ public class GameCommands
         final long userId = event.getAuthor().getIdLong();
         final BlackjackSet userSet = new BlackjackSet();
         final BlackjackSet botSet = new BlackjackSet();
-        final CardSet cards = new CardSet(BlackjackSet.DECKS);
+        final CardSet cards = new CardSet(BlackjackSet.DECKS, this.random);
 
         userSet.hit(cards);
         botSet.hit(cards);
         userSet.hit(cards);
-        botSet.addHidden(cards.removeRandom());
+        botSet.addHidden(cards.next());
 
         String description = this.determineDescription(userSet);
 
@@ -71,8 +74,7 @@ public class GameCommands
                     Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
 
         event.getChannel().sendMessageEmbeds(
-                this.blackjackEmbed(event.getAuthor(), userSet, botSet,
-                        description, "Cards remaining: " + cards.count()))
+                this.blackjackEmbed(event.getAuthor(), userSet, botSet, description, this.footer(cards)))
                 .setActionRow(buttons)
                 .queue();
     }
@@ -88,7 +90,7 @@ public class GameCommands
         userSet.hit(cards);
         String description = this.determineDescription(userSet);
         event.editMessageEmbeds(
-                this.blackjackEmbed(event.getUser(), userSet, botSet, description, "Remaining cards: " + cards.count()))
+                this.blackjackEmbed(event.getUser(), userSet, botSet, description, this.footer(cards)))
                 .queue();
 
         List<Button> buttons = this.disabledButtons(event);
@@ -125,7 +127,7 @@ public class GameCommands
         String description = this.determineStandDescription(userSet, botSet);
 
         event.editMessageEmbeds(
-                this.blackjackEmbed(event.getUser(), userSet, botSet, description, "Remaining cards: " + cards.count()))
+                this.blackjackEmbed(event.getUser(), userSet, botSet, description, this.footer(cards)))
                 .queue();
         List<Button> disabledButtons = this.disabledButtons(event);
 
@@ -165,6 +167,10 @@ public class GameCommands
             return LOST_DESCRIPTION;
         else
             return INFO_DESCRIPTION;
+    }
+
+    private String footer(CardSet cards) {
+        return "Remaining cards: %d - Decks: %d".formatted(cards.count(), BlackjackSet.DECKS);
     }
 
     private List<Button> disabledButtons(ButtonClickEvent event) {
