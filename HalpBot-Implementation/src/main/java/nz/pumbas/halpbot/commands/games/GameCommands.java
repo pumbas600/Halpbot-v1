@@ -123,7 +123,9 @@ public class GameCommands
         String description = this.determineStandDescription(userSet, botSet);
 
         botSet.revealHiddenCards();
-        event.editMessageEmbeds(this.blackjackEmbed(event.getUser(), userSet, botSet, description)).queue();
+        event.editMessageEmbeds(
+                this.blackjackEmbed(event.getUser(), userSet, botSet, description, "Dealer's cards revealed"))
+                .queue();
         event.getHook().editOriginalComponents(ActionRow.of(this.disabledButtons(event))).queue();
     }
 
@@ -133,10 +135,10 @@ public class GameCommands
 
         if (userSet.value() == botSet.value())
             return TIE_DESCRIPTION;
-        else if (botSet.exceeds21() || userDiff < botDiff)
-            return WON_DESCRIPTION;
-        else
+        else if (userSet.exceeds21() || (botDiff < userDiff && !botSet.exceeds21()))
             return LOST_DESCRIPTION;
+        else
+            return WON_DESCRIPTION;
     }
 
     private String determineDescription(BlackjackSet userSet) {
@@ -160,12 +162,18 @@ public class GameCommands
     }
 
     private MessageEmbed blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet, String description) {
+        return this.blackjackEmbed(user, userSet, botSet, description, null);
+    }
+
+    private MessageEmbed blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet,
+                                        String description, @Nullable String footer) {
         return new EmbedBuilder()
                 .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
                 .setColor(PALE_GREEN)
                 .setDescription(description)
                 .addField("Your Hand", userSet.fieldString(), true)
                 .addField("Dealer Hand", botSet.fieldString(), true)
+                .setFooter(footer)
                 .build();
     }
 
