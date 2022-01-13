@@ -27,4 +27,19 @@ public class GameTests
         Assertions.assertEquals(21, set.value());
         Assertions.assertFalse(set.isSoft());
     }
+
+    @Test
+    public void tieTest() {
+        BlackjackSet userSet = new BlackjackSet();
+        BlackjackSet botSet = new BlackjackSet();
+        userSet.add(Card.HA, Card.HJ);
+        botSet.add(Card.CA, Card.CJ);
+
+        Assertions.assertTrue(userSet.isBlackjack());
+        Assertions.assertTrue(botSet.isBlackjack());
+        Assertions.assertTrue(userSet.is21());
+        Assertions.assertTrue(botSet.is21());
+
+        Assertions.assertTrue(userSet.is21() && botSet.is21() && userSet.isBlackjack() == botSet.isBlackjack());
+    }
 }
