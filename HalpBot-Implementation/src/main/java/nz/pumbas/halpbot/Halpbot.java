@@ -44,12 +44,14 @@ import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.common.Bot;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
+import nz.pumbas.halpbot.triggers.UseTriggers;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 @Activator
 @UseButtons
 @UseCommands
+@UseTriggers
 public class Halpbot extends ListenerAdapter implements Bot
 {
     @Inject private ApplicationContext applicationContext;

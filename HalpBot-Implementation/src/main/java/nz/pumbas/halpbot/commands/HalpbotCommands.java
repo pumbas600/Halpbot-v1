@@ -50,6 +50,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.permissions.PermissionService;
+import nz.pumbas.halpbot.triggers.Trigger;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
 
@@ -72,6 +73,11 @@ public class HalpbotCommands
     @Command(alias = "suggestion")
     public String suggestion() {
         return "You can note issues and suggestions for me here: https://github.com/pumbas600/HalpBot/issues";
+    }
+
+    @Trigger({"hey", "hi", "hello"})
+    public String hi(@Source User user) {
+        return "Hey " + user.getName();
     }
 
     @Command

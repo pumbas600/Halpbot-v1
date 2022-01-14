@@ -32,4 +32,8 @@ public interface InvocationContextFactory
     default ButtonInvocationContext button(HalpbotEvent halpbotEvent, ButtonContext buttonContext) {
         return this.button(halpbotEvent, buttonContext.nonCommandParameterTokens(), buttonContext.passedParameters());
     }
+
+    @Factory
+    SourceInvocationContext source(HalpbotEvent halpbotEvent,
+                                   List<ParsingToken> nonCommandParameterTokens);
 }
