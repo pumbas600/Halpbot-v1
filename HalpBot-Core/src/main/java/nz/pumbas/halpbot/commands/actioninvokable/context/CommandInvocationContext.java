@@ -84,9 +84,4 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
                 .findFirst()
                 .map(annotation -> (T) annotation));
     }
-
-    @Override
-    default String contextString() {
-        return this.content();
-    }
 }
