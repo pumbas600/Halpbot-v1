@@ -1,0 +1,33 @@
+name: 'Bug report'
+description: 'If you have found a bug, please report it here.'
+labels: ['bug']
+body:
+  - type: input
+    id: halpbot-version
+    attributes:
+      label: 'Halpbot-Core Version'
+      description: 'What version of Halpbot-Core are you using? E.g: 2.0.0.'
+    validations:
+      required: true
+  - type: input
+    id: jda-version
+    attributes:
+      label: 'JDA Version'
+      description: 'What version of JDA are you using? E.g: 4.3.0_333.'
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 'Problem'
+      description: 'Please describe the problem you are trying to solve.'
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 'Proposed Solution'
+      description: |
+        'Specify how you would like the solution to be developed. If you have a specific plan, please describe it here.'
+    validations:
+      required: false
