@@ -10,6 +10,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -88,5 +89,10 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
         );
 
         this.triggerContexts.add(context);
+    }
+
+    @Override
+    public List<TriggerContext> triggerContexts() {
+        return Collections.unmodifiableList(this.triggerContexts);
     }
 }

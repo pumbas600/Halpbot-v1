@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
+import java.util.List;
+
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 
 public interface TriggerAdapter extends HalpbotAdapter
@@ -35,5 +37,5 @@ public interface TriggerAdapter extends HalpbotAdapter
 
     <T> void registerTrigger(T instance, MethodContext<?, T> methodContext);
 
-
+    List<TriggerContext> triggerContexts();
 }
