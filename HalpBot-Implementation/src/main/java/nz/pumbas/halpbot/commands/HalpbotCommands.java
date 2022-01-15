@@ -76,9 +76,9 @@ public class HalpbotCommands
         return "You can note issues and suggestions for me here: https://github.com/pumbas600/HalpBot/issues";
     }
 
-    @Trigger(value = {"halpbot", "show", "easter egg"}, require = Require.ALL)
+    @Trigger(value = {"halpbot", "show", "easter egg"}, require = Require.ALL, display = @Duration(20))
     public String easterEgg() {
-        return "Haha, you found an easter egg :sparkles:";
+        return "Here's the easter egg! :sparkles:";
     }
 
     @Command
