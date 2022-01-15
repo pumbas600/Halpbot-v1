@@ -1,85 +1,103 @@
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.jetbrains.annotations.Nullable;
 
+import java.awt.Color;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
-import nz.pumbas.halpbot.permissions.Permissions;
+import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
-public class ExampleCommands extends ListenerAdapter
+public class ExampleCommands
 {
-    private final Map<Long, Integer> bank = new HashMap<>();
-    private final Random random = new Random();
+//    private final Map<Long, Integer> bank = new HashMap<>();
+//    private final Random random = new Random();
 
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        Message message = event.getMessage();
-        String msg = message.getContentDisplay();
-        if (msg.startsWith("$kick")) {
-            if (message.isFromType(ChannelType.TEXT)) {
-                if (message.getMentionedUsers().isEmpty())
-                    event.getChannel().sendMessage("You must mention 1 or more Users to be kicked!").queue();
-                else {
-                    Member selfMember = event.getGuild().getSelfMember();
-                    if (!selfMember.hasPermission(Permission.KICK_MEMBERS)) {
-                        event.getChannel().sendMessage("Sorry! I don't have permission to kick members in this Guild!").queue();
-                        return;
-                    }
+//    @Override
+//    public void onMessageReceived(MessageReceivedEvent event) {
+//        Message message = event.getMessage();
+//        String msg = message.getContentDisplay();
+//        if (msg.startsWith("$kick")) {
+//            if (message.isFromType(ChannelType.TEXT)) {
+//                if (message.getMentionedUsers().isEmpty())
+//                    event.getChannel().sendMessage("You must mention 1 or more Users to be kicked!").queue();
+//                else {
+//                    Member selfMember = event.getGuild().getSelfMember();
+//                    if (!selfMember.hasPermission(Permission.KICK_MEMBERS)) {
+//                        event.getChannel().sendMessage("Sorry! I don't have permission to kick members in this Guild!").queue();
+//                        return;
+//                    }
+//
+//                    List<User> mentionedUsers = message.getMentionedUsers();
+//                    Member member = event.getGuild().retrieveMember(mentionedUsers.get(0)).complete();
+//                    if (!selfMember.canInteract(member)) {
+//                        event.getChannel()
+//                                .sendMessage("Cannot kick member: %s, they are higher in the heirarchy than I am"
+//                                        .formatted(member.getEffectiveName()))
+//                                .queue();
+//                        return;
+//                    }
+//                    event.getGuild().kick(member)
+//                            .queue((success) -> event.getChannel()
+//                                    .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
+//                                    .queue());
+//                }
+//            }
+//            else event.getChannel().sendMessage("This is a Guild-Only command!").queue();
+//        }
+//    }
 
-                    List<User> mentionedUsers = message.getMentionedUsers();
-                    Member member = event.getGuild().retrieveMember(mentionedUsers.get(0)).complete();
-                    if (!selfMember.canInteract(member)) {
-                        event.getChannel()
-                                .sendMessage("Cannot kick member: %s, they are higher in the heirarchy than I am"
-                                        .formatted(member.getEffectiveName()))
-                                .queue();
-                        return;
-                    }
-                    event.getGuild().kick(member)
-                            .queue((success) -> event.getChannel()
-                                    .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
-                                    .queue());
-                }
-            }
-            else event.getChannel().sendMessage("This is a Guild-Only command!").queue();
-        }
+    // E.g: $pong
+    @Command(description = "Simple pong command")
+    public String pong(MessageReceivedEvent event) {
+        return event.getAuthor().getAsMention();
     }
 
-//    @Command(description = "Simple pong command")
-//    public String pong(MessageReceivedEvent event) { // E.g: $pong
-//        return event.getAuthor().getAsMention();
-//    }
-//
-//    @Command(description = "Adds two numbers")
-//    public double add(double num1, double num2) { // E.g: $add 2 4.3
-//        return num1 + num2;
-//    }
-//
-//    @Command(description = "Randomly chooses one of the items")
-//    public String choose(@Implicit String[] choices) { // E.g: $choose yes no maybe
-//        // Use of @Implicit means that it's not necessary to surround the choices with [...]
-//        return choices[(int)(Math.random() * choices.length)];
-//    }
+    // E.g: $add 2 4.3
+    @Command(description = "Adds two numbers")
+    public double add(double num1, double num2) {
+        return num1 + num2;
+    }
+
+    // E.g: $pick yes no maybe or $choose yes no maybe
+    @Command(alias = { "pick", "choose" }, description = "Randomly chooses one of the items")
+    public String choose(@Implicit String[] choices) {
+        // Use of @Implicit means that it's not necessary to surround the choices with [...]
+        return choices[(int)(Math.random() * choices.length)];
+    }
+
+    // E.g: $whois @pumbas600
+    // By specifing the display duration, the returned result of this method is deleted after 2 minutes
+    @Command(description = "Display the information for a member", display = @Duration(value = 2, unit = ChronoUnit.MINUTES))
+    public MessageEmbed whoIs(Member member) {
+        User user = member.getUser();
+        List<Role> roles = member.getRoles();
+        String joinedRoles = roles.stream().map(Role::getAsMention).collect(Collectors.joining(" "));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM uuuu"); // Formats the date as: 16 Jan 2022
+
+        return new EmbedBuilder()
+                .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+                .setThumbnail(user.getAvatarUrl())
+                .setColor(Color.ORANGE)
+                .setDescription(user.getAsMention())
+                .addField("Joined", member.getTimeJoined().format(formatter), true)
+                .addField("Registered", user.getTimeCreated().format(formatter), true)
+                .addField("Roles [%d]".formatted(roles.size()), joinedRoles, false)
+                .setFooter("ID: " + user.getId())
+                .build();
+    }
 
 //
 //    @Command(description = "Displays two test buttons")
@@ -126,33 +144,33 @@ public class ExampleCommands extends ListenerAdapter
 
     // E.g: $kick @pumbas600 or $kick @pumbas600 some reason
     // Requires that the bot has the KICK_MEMBERS permission.
-    @Nullable
-    @Permissions(self = Permission.KICK_MEMBERS)
-    @Command(description = "Kicks a member from the guild")
-    public String kick(MessageReceivedEvent event, Member member,
-                       @Remaining @Unrequired("No reason specified") String reason)
-    {
-        if (!event.getGuild().getSelfMember().canInteract(member))
-            return "Cannot kick member: %s, they are higher in the heirarchy than I am".formatted(member.getEffectiveName());
-
-        event.getGuild().kick(member, reason)
-                .queue((success) -> event.getChannel()
-                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
-                        .queue());
-        return null; // Don't respond via halpbot as we're queueing a response normally
-    }
-
-    // Restrict it so that this user can only call the command once per hour
-    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
-    @Command(description = "Adds a random amount between $0 and $500 to the users account")
-    public String collect(@Source User user) {
-        long userId = user.getIdLong();
-
-        int amount = this.random.nextInt(500);
-        this.bank.putIfAbsent(userId, 0);
-        int newAmount = amount + this.bank.get(userId);
-        this.bank.put(userId, newAmount);
-
-        return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
-    }
+//    @Nullable
+//    @Permissions(self = Permission.KICK_MEMBERS)
+//    @Command(description = "Kicks a member from the guild")
+//    public String kick(MessageReceivedEvent event, Member member,
+//                       @Remaining @Unrequired("No reason specified") String reason)
+//    {
+//        if (!event.getGuild().getSelfMember().canInteract(member))
+//            return "Cannot kick member: %s, they are higher in the heirarchy than I am".formatted(member.getEffectiveName());
+//
+//        event.getGuild().kick(member, reason)
+//                .queue((success) -> event.getChannel()
+//                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
+//                        .queue());
+//        return null; // Don't respond via halpbot as we're queueing a response normally
+//    }
+//
+//    // Restrict it so that this user can only call the command once per hour
+//    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
+//    @Command(description = "Adds a random amount between $0 and $500 to the users account")
+//    public String collect(@Source User user) {
+//        long userId = user.getIdLong();
+//
+//        int amount = this.random.nextInt(500);
+//        this.bank.putIfAbsent(userId, 0);
+//        int newAmount = amount + this.bank.get(userId);
+//        this.bank.put(userId, newAmount);
+//
+//        return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
+//    }
 }

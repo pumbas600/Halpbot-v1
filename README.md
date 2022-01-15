@@ -1,14 +1,21 @@
 # Halpbot ![JDK16](https://img.shields.io/badge/JDK-16-orange)
 
-Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility framework built using [Hartshorn](https://github.com/GuusLieben/Hartshorn) that provides a unique, annotation based approach to handling actions. It's key purpose is to alleviate as much unnecessary boilerplate code while simultaneously being both intuitive and customisable. To get started, check out the wiki [here](https://github.com/pumbas600/Halpbot/wiki).
+Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility framework built using [Hartshorn](https://github.com/GuusLieben/Hartshorn) that provides a unique, annotation based approach to handling actions. It's key purpose is to alleviate as much unnecessary boilerplate code while simultaneously being both intuitive and customisable. For more detailed information on the various features Halpbot has to offer, including a getting started tutorial for people new to Java, check out the [wiki](https://github.com/pumbas600/Halpbot/wiki).
 
 ## Why use Halpbot?
 
-Halpbot is a feature rich library with support for message commands, buttons, decorators along with easy implementation of custom functionality or implementations. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
+Halpbot is a feature rich library with support for message commands, triggers, buttons and decorators. Halpbot makes **virtually all** default implementations overridable if you desire. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
-### Using Commands
+### 2.1 Commands
 
-Commands in Halpbot can simply be created by annotating a method with `@Command`. The method name will automatically be used as the alias (Although a different alias can be set within the annotation if desired) and the method parameters will act as command parameters. When invoked, it will automatically parse the parameters of the command and invoke the method. The returned result of the method is automatically displayed. 
+Commands in Halpbot can simply be created by annotating a method with `@Command`. The method name will automatically be used as the alias (Although additional aliases can be set within the annotation if desired using the `alias` field). Command methods **must** be public; A warning will be logged during startup if you try and register non-public command methods. In Command methods, the parameters will act as command parameters.
+
+
+There are two types of command parameters:
+1. [Source Parameters]() - These are either injected services or information extracted from the event.
+2. [Command Parameters]() - These are non-source parameters which are expected to be specified when invoking the command. These are automatically parsed from the command.
+
+If a parameter was expected but wasn't present or didn't match the expected format, then the command will not be invoked and a temporary message will be sent to the user with the error. By default, Halpbot has support for most common built-in types, however, it's easy to create your own [custom parameter converters]() if you want! Finally, the returned result of the method is then automatically displayed to the user. 
 
 <details>
 <summary>Show Imports</summary>
@@ -30,18 +37,21 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 @Service
 public class ExampleCommands
 {
+    // E.g: $pong
     @Command(description = "Simple pong command")
-    public String pong(MessageReceivedEvent event) { // E.g: $pong
+    public String pong(MessageReceivedEvent event) { 
         return event.getAuthor().getAsMention();
     }
 
+    // E.g: $add 2 4.3
     @Command(description = "Adds two numbers")
-    public double add(double num1, double num2) { // E.g: $add 2 4.3
+    public double add(double num1, double num2) { 
         return num1 + num2;
     }
 
-    @Command(description = "Randomly chooses one of the items")
-    public String choose(@Implicit String[] choices) { // E.g: $choose yes no maybe
+    // E.g: $pick yes no maybe or $choose yes no maybe
+    @Command(aliases = { "pick", "choose" }, description = "Randomly chooses one of the items")
+    public String choose(@Implicit String[] choices) { 
         // Use of @Implicit means that it's not necessary to surround the choices with [...]
         return choices[(int)(Math.random() * choices.length)];
     }
@@ -49,6 +59,8 @@ public class ExampleCommands
 ```
 
 > **NOTE:** As the class is annotated with `@Service`, the commands will be automatically registered during startup. 
+
+> **NOTE:** Command methods **must** be public. 
 
 By default, Halpbot supports a vast range of parameter types as described [here](https://github.com/pumbas600/HalpBot/wiki/Command-Arguments), however, it's possible to easily create custom parameter converters to add support for custom types or annotations.
 
