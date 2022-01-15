@@ -18,6 +18,10 @@ public @interface Trigger
 
     TriggerStrategy strategy() default TriggerStrategy.START;
 
+    /**
+     * If using {@link Merger#AND}, this will force the trigger strategy to be {@link TriggerStrategy#ANYWHERE}
+     * regardless of what is manually set.
+     */
     Merger merger() default Merger.OR;
 
     Duration display() default @Duration(-1);
