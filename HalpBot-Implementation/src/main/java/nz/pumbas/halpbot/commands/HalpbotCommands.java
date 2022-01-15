@@ -101,32 +101,6 @@ public class HalpbotCommands
                 : "You don't have the permission :(";
     }
 
-    @Command(description = "Tests adding buttons to messages")
-    public void buttons(MessageReceivedEvent event) {
-        event.getChannel()
-                .sendMessage("Click on one of these buttons!")
-                .setActionRow(
-                        Button.primary("halpbot:primary", "Click Me"),
-                        Button.secondary("halpbot:secondary", "Or me!"),
-                        Button.danger("halpbot:danger", "Or... Me...")
-                ).queue();
-    }
-
-    @ButtonAction(id = "halpbot:primary")
-    public String primary(ButtonClickEvent event) {
-        return "You clicked the primary button!";
-    }
-
-    @ButtonAction(id = "halpbot:secondary")
-    public String secondary(ButtonClickEvent event) {
-        return "You clicked the secondary button!";
-    }
-
-    @ButtonAction(id = "halpbot:danger", isEphemeral = true)
-    public String danger(ButtonClickEvent event) {
-        return "You clicked the danger button!";
-    }
-
     @Time
     @Command(description = "Tests dynamic buttons")
     public MessageAction dynamicDemo(MessageReceivedEvent event, ButtonAdapter buttonAdapter, @Remaining String suffix) {
