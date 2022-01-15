@@ -12,7 +12,7 @@ There is currently not a version of Halpbot available on Maven as some work stil
 
 ## 2.1 Commands
 
-Commands in Halpbot can simply be created by annotating a method with `@Command`. The method name will automatically be used as the alias (Although additional aliases can be set within the annotation if desired using the `alias` field). Command methods **must** be public; A warning will be logged during startup if you try and register non-public command methods. In Command methods, the parameters will act as command parameters.
+In Halpbot, commands are simply created by annotating a method with `@Command`. You can enable commands in Halpbot by adding `@UseCommands` to your bot class. The method name will automatically be used as the alias (Although additional aliases can be set within the annotation if desired using the `alias` field). Command methods **must be public**; A warning will be logged during startup if you try and register non-public command methods. In Command methods, the parameters will act as command parameters.
 
 There are two types of command parameters:
 1. [Source Parameters]() - These are either injected services or information extracted from the event.
@@ -25,24 +25,12 @@ If a parameter was expected but wasn't present or didn't match the expected form
 <p>
 
 ```java
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
-import java.awt.Color;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
-import nz.pumbas.halpbot.utilities.Duration;
 ```
 
 </p>
@@ -70,7 +58,43 @@ public class ExampleCommands
         // Use of @Implicit means that it's not necessary to surround the choices with [...]
         return choices[(int)(Math.random() * choices.length)];
     }
+}
+```
 
+> **NOTE:** Command aliases are **not** case sensitive.
+
+Alternatively, if you want to make the returned result of the command be deleted after a period of time, you can specify a display duration. After which, the message will automatically be deleted. In the below example, the `MessageEmbed` is deleted after 2 minutes.
+
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+
+import java.awt.Color;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.utilities.Duration;
+```
+
+</p>
+</details>
+
+```java
+@Service
+public class ExampleCommands
+{
     // E.g: $whois @pumbas600
     // By specifing the display duration, the returned result of this method is deleted after 2 minutes
     @Command(description = "Display the information for a member", display = @Duration(value = 2, unit = ChronoUnit.MINUTES))
@@ -98,13 +122,70 @@ public class ExampleCommands
 
 ## 2.2 Triggers
 
-Sometimes you want to respond to messages that contains certain words or phrases. This can be achieved in Halpbot using the `@Trigger` annotation.
+Sometimes you want to respond to messages that contains certain words or phrases. This can be achieved in Halpbot using the `@Trigger` annotation. To enable triggers, add the `@UseTriggers` annotation to your bot class. The triggers for a method are **not** case sensitive. Like with commands, triggers can take in parameters, however, they only support [source parameters](). You can also return any object from the trigger method and it will automatically be sent to the channel. 
 
-> **NOTE:** Trigger methods only support source parameters.
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+
+import java.awt.Color;
+
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.utilities.Require;
+import nz.pumbas.halpbot.triggers.Trigger;
+import nz.pumbas.halpbot.triggers.TriggerStrategy;
+import nz.pumbas.halpbot.utilities.Duration;
+```
+
+</p>
+</details>
+
+```java
+@Service
+public class ExampleTriggers
+{
+    // Respond to any messages that start with any of the following triggers
+    @Trigger({"hi", "hello", "hey"})
+    public String sayHello(@Source Member member) {
+        return "Hey %s!".formatted(member.getEffectiveName());
+    }
+
+    // Repond to any messages that contain 'my id' or 'discord id' anywhere with their id for 30 seconds
+    @Trigger(value = { "my id", "discord id" }, strategy = TriggerStrategy.ANYWHERE, display = @Duration(30))
+    public MessageEmbed usersId(@Source User user) {
+        return new EmbedBuilder()
+                .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+                .setColor(Color.CYAN)
+                .setDescription("Your id is: " + user.getId())
+                .build();
+    }
+
+    // Respond to any messages that contains all the triggers. Require.ALL automatically sets the strategy to ANYWHERE
+    @Trigger(value = {"found", "bug"}, require = Require.ALL)
+    public String foundBug() {
+        return this.howToReportIssue();
+    }
+
+    @Trigger(value = {"how", "report", "issue"}, require = Require.ALL)
+    public String howToReportIssue() {
+        return "You can report any issues you find here: https://github.com/pumbas600/Halpbot/issues/new/choose";
+    }
+}
+```
+
+> **NOTE:** By default, the `TriggerStrategy` is `START`, which checks if the message starts with the specified triggers.
 
 ## 2.3 Buttons
 
-Halpbot also provides an easy way of working with buttons by simply annotating the button callbacks with `@ButtonAction`. These button action methods can take any [source parameters](https://github.com/pumbas600/Halpbot/wiki/Command-Arguments#source-converters) as arguments (A source parameter is anything that can be extracted from the event or injected) and in any order. To reference a button callback, all that you need to do is set the id of the `Button` to match the `@ButtonAction`:
+Halpbot also provides an easy way of working with buttons by simply annotating the button callbacks with `@ButtonAction`. These button action methods can only take [source parameters]() as arguments. These parameters can be in any order. To reference a button callback, all that you need to do is set the id of the `Button` to match the `@ButtonAction`. It will then automatically invoke the matching button action when the button is pressed.
 
 <details>
 <summary>Show Imports</summary>

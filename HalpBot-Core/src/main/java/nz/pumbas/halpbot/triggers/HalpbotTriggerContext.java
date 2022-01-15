@@ -9,7 +9,7 @@ import java.util.List;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.SourceInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.permissions.Require;
+import nz.pumbas.halpbot.utilities.Require;
 
 @Binds(TriggerContext.class)
 public record HalpbotTriggerContext(List<String> triggers,

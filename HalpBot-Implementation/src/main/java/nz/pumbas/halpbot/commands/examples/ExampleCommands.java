@@ -1,23 +1,6 @@
-package nz.pumbas.halpbot.commands;
-
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+package nz.pumbas.halpbot.commands.examples;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-
-import java.awt.Color;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
-import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
 public class ExampleCommands
@@ -59,45 +42,45 @@ public class ExampleCommands
 //        }
 //    }
 
-    // E.g: $pong
-    @Command(description = "Simple pong command")
-    public String pong(MessageReceivedEvent event) {
-        return event.getAuthor().getAsMention();
-    }
+//    // E.g: $pong
+//    @Command(description = "Simple pong command")
+//    public String pong(MessageReceivedEvent event) {
+//        return event.getAuthor().getAsMention();
+//    }
+//
+//    // E.g: $add 2 4.3
+//    @Command(description = "Adds two numbers")
+//    public double add(double num1, double num2) {
+//        return num1 + num2;
+//    }
+//
+//    // E.g: $pick yes no maybe or $choose yes no maybe
+//    @Command(alias = { "pick", "choose" }, description = "Randomly chooses one of the items")
+//    public String choose(@Implicit String[] choices) {
+//        // Use of @Implicit means that it's not necessary to surround the choices with [...]
+//        return choices[(int)(Math.random() * choices.length)];
+//    }
 
-    // E.g: $add 2 4.3
-    @Command(description = "Adds two numbers")
-    public double add(double num1, double num2) {
-        return num1 + num2;
-    }
-
-    // E.g: $pick yes no maybe or $choose yes no maybe
-    @Command(alias = { "pick", "choose" }, description = "Randomly chooses one of the items")
-    public String choose(@Implicit String[] choices) {
-        // Use of @Implicit means that it's not necessary to surround the choices with [...]
-        return choices[(int)(Math.random() * choices.length)];
-    }
-
-    // E.g: $whois @pumbas600
-    // By specifing the display duration, the returned result of this method is deleted after 2 minutes
-    @Command(description = "Display the information for a member", display = @Duration(value = 2, unit = ChronoUnit.MINUTES))
-    public MessageEmbed whoIs(Member member) {
-        User user = member.getUser();
-        List<Role> roles = member.getRoles();
-        String joinedRoles = roles.stream().map(Role::getAsMention).collect(Collectors.joining(" "));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM uuuu"); // Formats the date as: 16 Jan 2022
-
-        return new EmbedBuilder()
-                .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
-                .setThumbnail(user.getAvatarUrl())
-                .setColor(Color.ORANGE)
-                .setDescription(user.getAsMention())
-                .addField("Joined", member.getTimeJoined().format(formatter), true)
-                .addField("Registered", user.getTimeCreated().format(formatter), true)
-                .addField("Roles [%d]".formatted(roles.size()), joinedRoles, false)
-                .setFooter("ID: " + user.getId())
-                .build();
-    }
+//    // E.g: $whois @pumbas600
+//    // By specifing the display duration, the returned result of this method is deleted after 2 minutes
+//    @Command(description = "Display the information for a member", display = @Duration(value = 2, unit = ChronoUnit.MINUTES))
+//    public MessageEmbed whoIs(Member member) {
+//        User user = member.getUser();
+//        List<Role> roles = member.getRoles();
+//        String joinedRoles = roles.stream().map(Role::getAsMention).collect(Collectors.joining(" "));
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM uuuu"); // Formats the date as: 16 Jan 2022
+//
+//        return new EmbedBuilder()
+//                .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+//                .setThumbnail(user.getAvatarUrl())
+//                .setColor(Color.ORANGE)
+//                .setDescription(user.getAsMention())
+//                .addField("Joined", member.getTimeJoined().format(formatter), true)
+//                .addField("Registered", user.getTimeCreated().format(formatter), true)
+//                .addField("Roles [%d]".formatted(roles.size()), joinedRoles, false)
+//                .setFooter("ID: " + user.getId())
+//                .build();
+//    }
 
 //
 //    @Command(description = "Displays two test buttons")
@@ -140,7 +123,6 @@ public class ExampleCommands
 //            return "Congratulations %s, you're correct!".formatted(user.getName());
 //        return "Sorry %s, that wasn't the right answer :(".formatted(user.getName());
 //    }
-
 
     // E.g: $kick @pumbas600 or $kick @pumbas600 some reason
     // Requires that the bot has the KICK_MEMBERS permission.

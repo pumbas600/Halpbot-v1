@@ -22,7 +22,7 @@ import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.permissions.PermissionDecorator;
-import nz.pumbas.halpbot.permissions.Require;
+import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
