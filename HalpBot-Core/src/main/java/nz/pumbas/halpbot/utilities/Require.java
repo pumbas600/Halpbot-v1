@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.permissions;
+package nz.pumbas.halpbot.utilities;
 
 public enum Require
 {

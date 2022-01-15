@@ -26,7 +26,7 @@ import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
-import nz.pumbas.halpbot.permissions.Require;
+import nz.pumbas.halpbot.utilities.Require;
 
 @Service
 @Binds(TriggerAdapter.class)

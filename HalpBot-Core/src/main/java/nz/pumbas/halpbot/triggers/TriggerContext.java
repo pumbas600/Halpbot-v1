@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import nz.pumbas.halpbot.actions.DisplayableResult;
 import nz.pumbas.halpbot.actions.invokable.SourceContext;
 import nz.pumbas.halpbot.actions.invokable.SourceInvocationContext;
-import nz.pumbas.halpbot.permissions.Require;
+import nz.pumbas.halpbot.utilities.Require;
 
 public interface TriggerContext extends SourceContext<SourceInvocationContext>, DisplayableResult
 {

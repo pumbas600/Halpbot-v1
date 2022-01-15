@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot.commands;
+package nz.pumbas.halpbot.commands.examples;
 
 import net.dv8tion.jda.api.Permission;
 
@@ -6,7 +6,7 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.Require;
+import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.permissions.Permissions;
 
 @Service

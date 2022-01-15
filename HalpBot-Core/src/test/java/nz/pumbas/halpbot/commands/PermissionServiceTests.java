@@ -25,7 +25,7 @@ import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.mocks.MockJDA;
 import nz.pumbas.halpbot.mocks.MockMessageEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.Require;
+import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.permissions.PermissionSupplier;
 import nz.pumbas.halpbot.permissions.Permissions;

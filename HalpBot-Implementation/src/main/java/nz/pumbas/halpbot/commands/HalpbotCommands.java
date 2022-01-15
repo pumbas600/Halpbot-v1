@@ -50,7 +50,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.permissions.PermissionService;
-import nz.pumbas.halpbot.permissions.Require;
+import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.triggers.Trigger;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;

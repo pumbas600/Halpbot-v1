@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 import nz.pumbas.halpbot.decorators.Decorator;
 import nz.pumbas.halpbot.decorators.DecoratorMerge;
 import nz.pumbas.halpbot.decorators.Order;
+import nz.pumbas.halpbot.utilities.Require;
 
 @Decorator(value = PermissionDecoratorFactory.class, order = Order.FIRST, merge = DecoratorMerge.KEEP_BOTH)
 @Target({ElementType.METHOD, ElementType.TYPE})

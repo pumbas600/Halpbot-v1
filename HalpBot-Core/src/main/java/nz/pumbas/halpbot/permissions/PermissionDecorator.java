@@ -21,6 +21,7 @@ import nz.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.utilities.Require;
 
 @Binds(PermissionDecorator.class)
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> implements Enableable
