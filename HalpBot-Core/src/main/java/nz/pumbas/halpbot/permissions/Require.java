@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.permissions;
 
-public enum Merger
+public enum Require
 {
-    OR, AND;
+    ANY, ALL;
 }

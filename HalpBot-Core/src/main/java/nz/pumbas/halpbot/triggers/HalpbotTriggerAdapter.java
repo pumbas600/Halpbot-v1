@@ -25,7 +25,7 @@ import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 
 @Service
 @Binds(TriggerAdapter.class)
@@ -73,7 +73,7 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
                         .map(String::toLowerCase)
                         .toList(),
                 trigger.description(),
-                trigger.merger() == Merger.AND ? TriggerStrategy.ANYWHERE : trigger.strategy(),
+                trigger.merger() == Require.ALL ? TriggerStrategy.ANYWHERE : trigger.strategy(),
                 trigger.merger(),
                 this.tokenService.tokens(methodContext)
                         .stream()

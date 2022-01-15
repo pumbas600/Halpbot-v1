@@ -25,7 +25,7 @@ import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.mocks.MockJDA;
 import nz.pumbas.halpbot.mocks.MockMessageEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.permissions.PermissionSupplier;
 import nz.pumbas.halpbot.permissions.Permissions;
@@ -153,7 +153,7 @@ public class PermissionServiceTests
                 .present());
     }
 
-    @Permissions(permissions = {RANDOM_MEMBER, HalpbotPermissions.GUILD_OWNER}, merger = Merger.OR)
+    @Permissions(permissions = {RANDOM_MEMBER, HalpbotPermissions.GUILD_OWNER}, merger = Require.ANY)
     @Command(alias = "orPermissionTest", description = "Tests that the @Permissions annotation works")
     public int orPermissionTest(int a, int b) {
         return a + b;

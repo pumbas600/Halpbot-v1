@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 import nz.pumbas.halpbot.utilities.Duration;
 
 @Target(ElementType.METHOD)
@@ -19,10 +19,10 @@ public @interface Trigger
     TriggerStrategy strategy() default TriggerStrategy.START;
 
     /**
-     * If using {@link Merger#AND}, this will force the trigger strategy to be {@link TriggerStrategy#ANYWHERE}
+     * If using {@link Require#ALL}, this will force the trigger strategy to be {@link TriggerStrategy#ANYWHERE}
      * regardless of what is manually set.
      */
-    Merger merger() default Merger.OR;
+    Require merger() default Require.ANY;
 
     Duration display() default @Duration(-1);
 

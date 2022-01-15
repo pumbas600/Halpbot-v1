@@ -6,7 +6,7 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 import nz.pumbas.halpbot.permissions.Permissions;
 
 @Service
@@ -30,7 +30,7 @@ public class ExamplePermissionCommands
         return "This command is restricted to people who own the guild this command was invoked in";
     }
 
-    @Permissions(user = {Permission.MANAGE_PERMISSIONS, Permission.MANAGE_ROLES}, merger = Merger.OR)
+    @Permissions(user = {Permission.MANAGE_PERMISSIONS, Permission.MANAGE_ROLES}, merger = Require.ANY)
     @Command(description = "Tests the OR merger in the @Permission decorator")
     public String orPermissions() {
         return "This command is restricted to people with the *MANAGE_PERMISSIONS* or *MANAGE_ROLES* permissions";
