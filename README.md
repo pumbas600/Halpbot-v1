@@ -2,32 +2,47 @@
 
 Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility framework built using [Hartshorn](https://github.com/GuusLieben/Hartshorn) that provides a unique, annotation based approach to handling actions. It's key purpose is to alleviate as much unnecessary boilerplate code while simultaneously being both intuitive and customisable. For more detailed information on the various features Halpbot has to offer, including a getting started tutorial for people new to Java, check out the [wiki](https://github.com/pumbas600/Halpbot/wiki).
 
-## Why use Halpbot?
+# Why use Halpbot?
 
 Halpbot is a feature rich library with support for message commands, triggers, buttons and decorators. Halpbot makes **virtually all** default implementations overridable if you desire. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
-### 2.1 Commands
+## 1.1 Getting Started
+
+There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
+
+## 2.1 Commands
 
 Commands in Halpbot can simply be created by annotating a method with `@Command`. The method name will automatically be used as the alias (Although additional aliases can be set within the annotation if desired using the `alias` field). Command methods **must** be public; A warning will be logged during startup if you try and register non-public command methods. In Command methods, the parameters will act as command parameters.
-
 
 There are two types of command parameters:
 1. [Source Parameters]() - These are either injected services or information extracted from the event.
 2. [Command Parameters]() - These are non-source parameters which are expected to be specified when invoking the command. These are automatically parsed from the command.
 
-If a parameter was expected but wasn't present or didn't match the expected format, then the command will not be invoked and a temporary message will be sent to the user with the error. By default, Halpbot has support for most common built-in types, however, it's easy to create your own [custom parameter converters]() if you want! Finally, the returned result of the method is then automatically displayed to the user. 
+If a parameter was expected but wasn't present or didn't match the expected format, then the command will not be invoked and a temporary message will be sent to the user with the error. By default, Halpbot supports a vast range of parameter types as described [here](https://github.com/pumbas600/HalpBot/wiki/Command-Arguments), however, it's also possible to create parameter converters to add support for custom types or annotations. Finally, the returned result of the method is then automatically displayed to the user. 
 
 <details>
 <summary>Show Imports</summary>
 <p>
 
 ```java
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
+import java.awt.Color;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
+import nz.pumbas.halpbot.utilities.Duration;
 ```
 
 </p>
@@ -39,32 +54,55 @@ public class ExampleCommands
 {
     // E.g: $pong
     @Command(description = "Simple pong command")
-    public String pong(MessageReceivedEvent event) { 
+    public String pong(MessageReceivedEvent event) {
         return event.getAuthor().getAsMention();
     }
 
     // E.g: $add 2 4.3
     @Command(description = "Adds two numbers")
-    public double add(double num1, double num2) { 
+    public double add(double num1, double num2) {
         return num1 + num2;
     }
 
     // E.g: $pick yes no maybe or $choose yes no maybe
-    @Command(aliases = { "pick", "choose" }, description = "Randomly chooses one of the items")
-    public String choose(@Implicit String[] choices) { 
+    @Command(alias = { "pick", "choose" }, description = "Randomly chooses one of the items")
+    public String choose(@Implicit String[] choices) {
         // Use of @Implicit means that it's not necessary to surround the choices with [...]
         return choices[(int)(Math.random() * choices.length)];
+    }
+
+    // E.g: $whois @pumbas600
+    // By specifing the display duration, the returned result of this method is deleted after 2 minutes
+    @Command(description = "Display the information for a member", display = @Duration(value = 2, unit = ChronoUnit.MINUTES))
+    public MessageEmbed whoIs(Member member) {
+        User user = member.getUser();
+        List<Role> roles = member.getRoles();
+        String joinedRoles = roles.stream().map(Role::getAsMention).collect(Collectors.joining(" "));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM uuuu"); // Formats the date as: 16 Jan 2022
+
+        return new EmbedBuilder()
+                .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+                .setThumbnail(user.getAvatarUrl())
+                .setColor(Color.ORANGE)
+                .setDescription(user.getAsMention())
+                .addField("Joined", member.getTimeJoined().format(formatter), true)
+                .addField("Registered", user.getTimeCreated().format(formatter), true)
+                .addField("Roles [%d]".formatted(roles.size()), joinedRoles, false)
+                .setFooter("ID: " + user.getId())
+                .build();
     }
 }
 ```
 
 > **NOTE:** As the class is annotated with `@Service`, the commands will be automatically registered during startup. 
 
-> **NOTE:** Command methods **must** be public. 
+## 2.2 Triggers
 
-By default, Halpbot supports a vast range of parameter types as described [here](https://github.com/pumbas600/HalpBot/wiki/Command-Arguments), however, it's possible to easily create custom parameter converters to add support for custom types or annotations.
+Sometimes you want to respond to messages that contains certain words or phrases. This can be achieved in Halpbot using the `@Trigger` annotation.
 
-### Using Buttons
+> **NOTE:** Trigger methods only support source parameters.
+
+## 2.3 Buttons
 
 Halpbot also provides an easy way of working with buttons by simply annotating the button callbacks with `@ButtonAction`. These button action methods can take any [source parameters](https://github.com/pumbas600/Halpbot/wiki/Command-Arguments#source-converters) as arguments (A source parameter is anything that can be extracted from the event or injected) and in any order. To reference a button callback, all that you need to do is set the id of the `Button` to match the `@ButtonAction`:
 
@@ -119,7 +157,7 @@ public class ExampleCommands
 
 > **NOTE:** Like with commands, as the class is annotated with `@Service`, the button actions are automatically registered during startup.
 
-### Decorators
+## 2.4 Decorators
 
 Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halpbot/wiki/Decorators), however, the two main ones are the [cooldown](https://github.com/pumbas600/Halpbot/wiki/Decorators#cooldown) and [permissions](https://github.com/pumbas600/Halpbot/wiki/Decorators#permissions) decorators. Decorators are annotations that can be added to actions (`@Command` or `@ButtonAction`) that modify how the method is called, or if it's even called at all. 
 
@@ -214,7 +252,3 @@ public class ExampleCommands
 ```
 
 > **NOTE:** It's also possible to add permissions that the user must have, along with creating your own custom [permission suppliers](https://github.com/pumbas600/Halpbot/wiki/Permissions#permission-suppliers).
-
-## Getting Started
-
-There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
