@@ -16,12 +16,12 @@ public interface TriggerContext extends SourceContext<SourceInvocationContext>, 
 
     TriggerStrategy strategy();
 
-    Require merger();
+    Require require();
 
     default boolean matches(String message) {
         Stream<String> stream = this.triggers().stream();
 
-        return switch (this.merger()) {
+        return switch (this.require()) {
             case ALL -> stream.allMatch(trigger -> this.strategy().contains(message, trigger));
             case ANY -> stream.anyMatch(trigger -> this.strategy().contains(message, trigger));
         };

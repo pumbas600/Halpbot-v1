@@ -50,6 +50,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.permissions.PermissionService;
+import nz.pumbas.halpbot.permissions.Require;
 import nz.pumbas.halpbot.triggers.Trigger;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
@@ -78,6 +79,11 @@ public class HalpbotCommands
     @Trigger({"hey", "hi", "hello"})
     public String hi(@Source User user) {
         return "Hey " + user.getName();
+    }
+
+    @Trigger(value = {"halpbot", "easter egg"}, require = Require.ALL)
+    public String easterEgg() {
+        return "Haha, you found an easter egg :sparkles:";
     }
 
     @Command

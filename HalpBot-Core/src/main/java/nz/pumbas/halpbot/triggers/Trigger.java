@@ -22,7 +22,7 @@ public @interface Trigger
      * If using {@link Require#ALL}, this will force the trigger strategy to be {@link TriggerStrategy#ANYWHERE}
      * regardless of what is manually set.
      */
-    Require merger() default Require.ANY;
+    Require require() default Require.ANY;
 
     Duration display() default @Duration(-1);
 

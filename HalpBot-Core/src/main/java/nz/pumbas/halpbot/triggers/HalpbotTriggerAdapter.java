@@ -43,6 +43,8 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) return;
+
         String message = event.getMessage().getContentDisplay().toLowerCase(Locale.ROOT);
         HalpbotEvent halpbotEvent = new MessageEvent(event);
 
@@ -73,8 +75,8 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
                         .map(String::toLowerCase)
                         .toList(),
                 trigger.description(),
-                trigger.merger() == Require.ALL ? TriggerStrategy.ANYWHERE : trigger.strategy(),
-                trigger.merger(),
+                trigger.require() == Require.ALL ? TriggerStrategy.ANYWHERE : trigger.strategy(),
+                trigger.require(),
                 this.tokenService.tokens(methodContext)
                         .stream()
                         .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
