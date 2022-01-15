@@ -6,6 +6,7 @@ import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
+import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
 
 @Service
@@ -41,12 +43,21 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String message = event.getMessage().getContentDisplay().toLowerCase(Locale.ROOT);
+        HalpbotEvent halpbotEvent = new MessageEvent(event);
+
 
         for (TriggerContext triggerContext : this.triggerContexts) {
-            if (triggerContext.matches(message))
-                triggerContext.invoke(this.invocationContextFactory.source(
-                        new MessageEvent(event),
+            if (triggerContext.matches(message)) {
+                Exceptional<Object> result = triggerContext.invoke(this.invocationContextFactory.source(
+                        halpbotEvent,
                         triggerContext.nonCommandParameterTokens()));
+
+                if (result.present())
+                    this.displayResult(halpbotEvent, triggerContext, result.get());
+                else if (result.caught()) {
+                    this.handleException(halpbotEvent, result.error());
+                }
+            }
         }
     }
 
