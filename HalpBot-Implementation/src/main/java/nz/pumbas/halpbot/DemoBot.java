@@ -36,7 +36,7 @@ public class DemoBot implements Bot
     }
 
     @Override
-    public JDABuilder initialise() {
+    public JDABuilder initialise(String[] args) {
         // Retrieve the discord token
         String token = HalpbotUtils.firstLine("Token.txt");
 

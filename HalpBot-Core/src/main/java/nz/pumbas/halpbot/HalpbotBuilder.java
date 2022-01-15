@@ -22,7 +22,7 @@ public final class HalpbotBuilder
         HalpbotCore halpbotCore = applicationContext.get(HalpbotCore.class);
         Bot botInstance = applicationContext.get(bot);
 
-        JDABuilder builder = botInstance.initialise();
+        JDABuilder builder = botInstance.initialise(args);
         halpbotCore.build(builder);
         botInstance.onCreation(applicationContext, halpbotCore);
 

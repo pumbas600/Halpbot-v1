@@ -326,8 +326,7 @@ import nz.pumbas.halpbot.permissions.Permissions;
 public class ExampleCommands
 {
     // E.g: $kick @pumbas600 or $kick @pumbas600 some reason
-    // Requires the bot to have the KICK_MEMBERS permission.
-    @Nullable
+    // Requires that the bot has the KICK_MEMBERS permission
     @Permissions(self = Permission.KICK_MEMBERS)
     @Command(description = "Kicks a member from the guild")
     public String kick(MessageReceivedEvent event, Member member,
