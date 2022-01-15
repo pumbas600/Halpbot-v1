@@ -30,7 +30,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     @Getter private final Set<String> customPermissions = new HashSet<>();
     @Getter private final Set<Permission> userPermissions = new HashSet<>();
     @Getter private final Set<Permission> selfPermissions = new HashSet<>();
-    @Getter private final Merger merger;
+    @Getter private final Require require;
     @Getter private final BiPredicate<Guild, Member> hasPermissions;
 
     @Bound
@@ -39,10 +39,10 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         this.customPermissions.addAll(Set.of(permissions.permissions()));
         this.userPermissions.addAll(Set.of(permissions.user()));
         this.selfPermissions.addAll(Set.of(permissions.self()));
-        this.merger = permissions.merger();
-        this.hasPermissions = switch (this.merger) {
-            case AND -> this::and;
-            case OR -> this::or;
+        this.require = permissions.merger();
+        this.hasPermissions = switch (this.require) {
+            case ALL -> this::all;
+            case ANY -> this::any;
         };
     }
 
@@ -70,7 +70,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         return this.permissionService.isOwner(member) || this.hasPermissions.test(guild, member);
     }
 
-    protected boolean or(Guild guild, Member member) {
+    protected boolean any(Guild guild, Member member) {
         for (Permission permission : this.userPermissions()) {
             if (member.hasPermission(permission))
                 return true;
@@ -82,7 +82,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         return false;
     }
 
-    protected boolean and(Guild guild, Member member) {
+    protected boolean all(Guild guild, Member member) {
         return member.hasPermission(this.userPermissions()) &&
                 this.permissionService().hasPermissions(guild, member, this.customPermissions());
     }

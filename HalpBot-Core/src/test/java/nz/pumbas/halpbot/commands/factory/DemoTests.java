@@ -33,7 +33,7 @@ import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
 import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
 import nz.pumbas.halpbot.permissions.PermissionDecoratorFactory;
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.utilities.Duration;
@@ -230,8 +230,8 @@ public class DemoTests
         }
 
         @Override
-        public Merger merger() {
-            return Merger.AND;
+        public Require merger() {
+            return Require.ALL;
         }
     }
 }

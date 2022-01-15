@@ -22,5 +22,5 @@ public @interface Permissions
 
     Permission[] self() default {};
 
-    Merger merger() default Merger.AND;
+    Require merger() default Require.ALL;
 }

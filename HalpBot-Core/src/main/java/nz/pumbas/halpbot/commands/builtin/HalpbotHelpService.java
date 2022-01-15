@@ -22,7 +22,7 @@ import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.permissions.PermissionDecorator;
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
@@ -102,11 +102,11 @@ public class HalpbotHelpService implements HelpService
     public String permissions(List<PermissionDecorator<?>> permissionDecorators) {
         StringBuilder permissions = new StringBuilder();
         boolean notAllAndMerger = permissionDecorators.stream()
-                .anyMatch((decorator) -> decorator.merger() != Merger.AND);
+                .anyMatch((decorator) -> decorator.require() != Require.ALL);
 
         for (int i = 0; i < permissionDecorators.size(); i++) {
             PermissionDecorator<?> decorator = permissionDecorators.get(i);
-            String delimeter = " %s ".formatted(decorator.merger().name().toLowerCase(Locale.ROOT));
+            String delimeter = " %s ".formatted(decorator.require().name().toLowerCase(Locale.ROOT));
 
             if (notAllAndMerger)
                 permissions.append("(");

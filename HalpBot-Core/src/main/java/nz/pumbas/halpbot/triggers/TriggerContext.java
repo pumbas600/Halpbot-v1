@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import nz.pumbas.halpbot.actions.DisplayableResult;
 import nz.pumbas.halpbot.actions.invokable.SourceContext;
 import nz.pumbas.halpbot.actions.invokable.SourceInvocationContext;
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 
 public interface TriggerContext extends SourceContext<SourceInvocationContext>, DisplayableResult
 {
@@ -16,14 +16,14 @@ public interface TriggerContext extends SourceContext<SourceInvocationContext>, 
 
     TriggerStrategy strategy();
 
-    Merger merger();
+    Require merger();
 
     default boolean matches(String message) {
         Stream<String> stream = this.triggers().stream();
 
         return switch (this.merger()) {
-            case AND -> stream.allMatch(trigger -> this.strategy().contains(message, trigger));
-            case OR  -> stream.anyMatch(trigger -> this.strategy().contains(message, trigger));
+            case ALL -> stream.allMatch(trigger -> this.strategy().contains(message, trigger));
+            case ANY -> stream.anyMatch(trigger -> this.strategy().contains(message, trigger));
         };
     }
 }

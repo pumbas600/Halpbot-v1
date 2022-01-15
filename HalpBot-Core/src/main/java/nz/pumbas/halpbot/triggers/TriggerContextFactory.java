@@ -9,7 +9,7 @@ import java.util.List;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.SourceInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.permissions.Merger;
+import nz.pumbas.halpbot.permissions.Require;
 
 @Service
 public interface TriggerContextFactory
@@ -18,7 +18,7 @@ public interface TriggerContextFactory
     TriggerContext create(List<String> triggers,
                           String description,
                           TriggerStrategy strategy,
-                          Merger merger,
+                          Require require,
                           List<ParsingToken> nonCommandParameterTokens,
                           ActionInvokable<SourceInvocationContext> actionInvokable,
                           Duration displayDuration,
