@@ -6,9 +6,15 @@ Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility
 
 Halpbot is a feature rich library with support for message commands, triggers, buttons and decorators. Halpbot makes **virtually all** default implementations overridable if you desire. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
-## 1.1 Getting Started
+## 1.1 Getting started
 
 There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
+
+## 1.2 Setting up your bot class
+
+## 1.3 Bot config
+
+
 
 ## 2.1 Commands
 
@@ -211,25 +217,25 @@ import nz.pumbas.halpbot.utilities.Duration;
 
 ```java
 @Service
-public class ExampleCommands
+public class ExampleButtons
 {
     @Command(description = "Displays two test buttons")
-    public void buttons(MessageReceivedEvent event) { // E.g: $buttons
+    public void buttons(MessageReceivedEvent event) {
         event.getChannel().sendMessage("Click on one of these buttons!")
                 .setActionRow(
                         // When the button is clicked, the @ButtonAction with the matching id is invoked
-                        Button.primary("halpbot.example.primary", "Primary button!"), 
-                        Button.secondary("halpbot.example.secondary", "Secondary button!")
+                        Button.primary("halpbot:example:primary", "Primary button!"),
+                        Button.secondary("halpbot:example:secondary", "Secondary button!")
                 ).queue();
     }
 
-    @ButtonAction(id = "halpbot.example.primary")
+    @ButtonAction(id = "halpbot:example:primary")
     public String primary(ButtonClickEvent event) { // You can directly pass the event
         return "%s clicked the primary button!".formatted(event.getUser().getName());
     }
-    
-    // The display duration field specifies that the result should only be displayed for 20 seconds
-    @ButtonAction(id = "halpbot.example.secondary", displayDuration = @Duration(20))
+
+    // The display field specifies that the result should only be displayed for 20 seconds before being deleted
+    @ButtonAction(id = "halpbot:example:secondary", display = @Duration(20))
     public String secondary(@Source User user) { // Alternatively, you can retrieve fields from the event using @Source
         return "%s clicked the secondary button!".formatted(user.getName());
     }
@@ -238,28 +244,31 @@ public class ExampleCommands
 
 > **NOTE:** Like with commands, as the class is annotated with `@Service`, the button actions are automatically registered during startup.
 
+Halpbot also has support for storing objects with button instances which can be passed to the button action when invoked. This can be ideal in certain situations where you want to update an object based on the click of a specific button. For more information on these dynamic buttons, refer to the documentation [here]().
+
 ## 2.4 Decorators
 
-Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halpbot/wiki/Decorators), however, the two main ones are the [cooldown](https://github.com/pumbas600/Halpbot/wiki/Decorators#cooldown) and [permissions](https://github.com/pumbas600/Halpbot/wiki/Decorators#permissions) decorators. Decorators are annotations that can be added to actions (`@Command` or `@ButtonAction`) that modify how the method is called, or if it's even called at all. 
+Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halpbot/wiki/Decorators), however, the two main ones are the [cooldown](https://github.com/pumbas600/Halpbot/wiki/Decorators#cooldown) and [permissions](https://github.com/pumbas600/Halpbot/wiki/Decorators#permissions) decorators. Decorators are annotations that can be added to actions (`@Command`, `@Trigger`, or `@ButtonAction`) that modify how the method is called, or if it's even called at all. If you want to create your own decorators or override the default decorators, this can easily be done as described in the wiki [here](https://github.com/pumbas600/Halpbot/wiki/Custom-Decorators).
 
 <details>
 <summary>Show Imports</summary>
 <p>
 
 ```java
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-    
+
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.utilities.Duration;
+import nz.pumbas.halpbot.utilities.Duration
 ```
 
 </p>
@@ -269,19 +278,23 @@ import nz.pumbas.halpbot.utilities.Duration;
 @Service
 public class ExampleCommands
 {
-    private final Map<Long, Integer> bank = new HashMap<>();
+    private final Map<Long, Map<Long, Integer>> bank = new ConcurrentHashMap<>();
     private final Random random = new Random();
-    
-    // Restrict it so that this user can only call the command once per hour
+
+    // Restrict it so that this member can only call the command once per hour per guild
     @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
     @Command(description = "Adds a random amount between $0 and $500 to the users account")
-    public String collect(@Source User user) {
-        long userId = user.getIdLong();
+    public String collect(@Source Guild guild, @Source Member member) {
+        long memberId = member.getIdLong();
 
         int amount = this.random.nextInt(500);
-        this.bank.putIfAbsent(userId, 0);
-        int newAmount = amount + this.bank.get(userId);
-        this.bank.put(userId, newAmount);
+
+        // If there is no map for this guild, create a new one and return either the existing map or the newly created one
+        Map<Long, Integer> guildBank = this.bank.computeIfAbsent(
+                guild.getIdLong(), guildId -> new ConcurrentHashMap<>());
+
+        int newAmount = amount + guildBank.getOrDefault(memberId, 0);
+        guildBank.put(memberId, newAmount);
 
         return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
     }

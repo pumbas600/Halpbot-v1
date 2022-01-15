@@ -54,8 +54,8 @@ public class GameCommands
         final CardSet cards = new CardSet(BlackjackSet.DECKS, this.random);
 
         userSet.hit(cards);
-        botSet.hit(cards);
         userSet.hit(cards);
+        botSet.hit(cards);
         botSet.addHidden(cards.next());
 
         String description = this.determineDescription(userSet);

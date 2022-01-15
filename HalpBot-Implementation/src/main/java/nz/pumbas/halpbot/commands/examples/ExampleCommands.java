@@ -1,13 +1,23 @@
 package nz.pumbas.halpbot.commands.examples;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+
+import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
+import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.utilities.Duration;
 
 @Service
 public class ExampleCommands
 {
-//    private final Map<Long, Integer> bank = new HashMap<>();
-//    private final Random random = new Random();
-
 //    @Override
 //    public void onMessageReceived(MessageReceivedEvent event) {
 //        Message message = event.getMessage();
@@ -83,26 +93,6 @@ public class ExampleCommands
 //    }
 
 //
-//    @Command(description = "Displays two test buttons")
-//    public void buttons(MessageReceivedEvent event) {
-//        event.getChannel().sendMessage("Click on one of these buttons!")
-//                .setActionRow(
-//                        // When the button is clicked, the @ButtonAction with the matching id is invoked
-//                        Button.primary("halpbot.example.primary", "Primary button!"),
-//                        Button.secondary("halpbot.example.secondary", "Secondary button!")
-//                ).queue();
-//    }
-//
-//    @ButtonAction(id = "halpbot.example.primary")
-//    public String primary(ButtonClickEvent event) { // You can directly pass the event
-//        return "%s clicked the primary button!".formatted(event.getUser().getName());
-//    }
-//
-//    // The display duration field specifies that the result should only be displayed for 20 seconds
-//    @ButtonAction(id = "halpbot.example.secondary", displayDuration = @Duration(20))
-//    public String secondary(@Source User user) { // Alternatively, you can retrieve fields from the event using @Source
-//        return "%s clicked the secondary button!".formatted(user.getName());
-//    }
 //
 //    // The button adapter is a non-command parameter that is automatically passed into the parameters
 //    @Command(description = "Tests passing a parameter to a dynamic button")
@@ -142,17 +132,24 @@ public class ExampleCommands
 //        return null; // Don't respond via halpbot as we're queueing a response normally
 //    }
 //
-//    // Restrict it so that this user can only call the command once per hour
-//    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
-//    @Command(description = "Adds a random amount between $0 and $500 to the users account")
-//    public String collect(@Source User user) {
-//        long userId = user.getIdLong();
-//
-//        int amount = this.random.nextInt(500);
-//        this.bank.putIfAbsent(userId, 0);
-//        int newAmount = amount + this.bank.get(userId);
-//        this.bank.put(userId, newAmount);
-//
-//        return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
-//    }
+    private final Map<Long, Map<Long, Integer>> bank = new ConcurrentHashMap<>();
+    private final Random random = new Random();
+
+    // Restrict it so that this member can only call the command once per hour per guild
+    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
+    @Command(description = "Adds a random amount between $0 and $500 to the users account")
+    public String collect(@Source Guild guild, @Source Member member) {
+        long memberId = member.getIdLong();
+
+        int amount = this.random.nextInt(500);
+
+        // If there is no map for this guild, create a new one and return either the existing map or the newly created one
+        Map<Long, Integer> guildBank = this.bank.computeIfAbsent(
+                guild.getIdLong(), guildId -> new ConcurrentHashMap<>());
+
+        int newAmount = amount + guildBank.getOrDefault(memberId, 0);
+        guildBank.put(memberId, newAmount);
+
+        return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
+    }
 }
