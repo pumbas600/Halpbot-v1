@@ -9,7 +9,7 @@ import nz.pumbas.halpbot.HalpbotCore;
 
 public interface Bot
 {
-    JDABuilder initialise() throws ApplicationException;
+    JDABuilder initialise(String[] args) throws ApplicationException;
 
     default void onCreation(ApplicationContext applicationContext, HalpbotCore halpbotCore) {}
 }

@@ -1,19 +1,16 @@
 package nz.pumbas.halpbot.commands.examples;
 
-import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.jetbrains.annotations.Nullable;
 
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-
-import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.utilities.Duration;
+import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
+import nz.pumbas.halpbot.permissions.Permissions;
 
 @Service
 public class ExampleCommands
@@ -115,41 +112,41 @@ public class ExampleCommands
 //    }
 
     // E.g: $kick @pumbas600 or $kick @pumbas600 some reason
-    // Requires that the bot has the KICK_MEMBERS permission.
-//    @Nullable
-//    @Permissions(self = Permission.KICK_MEMBERS)
-//    @Command(description = "Kicks a member from the guild")
-//    public String kick(MessageReceivedEvent event, Member member,
-//                       @Remaining @Unrequired("No reason specified") String reason)
-//    {
-//        if (!event.getGuild().getSelfMember().canInteract(member))
-//            return "Cannot kick member: %s, they are higher in the heirarchy than I am".formatted(member.getEffectiveName());
-//
-//        event.getGuild().kick(member, reason)
-//                .queue((success) -> event.getChannel()
-//                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
-//                        .queue());
-//        return null; // Don't respond via halpbot as we're queueing a response normally
-//    }
-//
-    private final Map<Long, Map<Long, Integer>> bank = new ConcurrentHashMap<>();
-    private final Random random = new Random();
+    // Requires that the bot has the KICK_MEMBERS permission
+    @Nullable
+    @Permissions(self = Permission.KICK_MEMBERS)
+    @Command(description = "Kicks a member from the guild")
+    public String kick(MessageReceivedEvent event, Member member,
+                       @Remaining @Unrequired("No reason specified") String reason)
+    {
+        if (!event.getGuild().getSelfMember().canInteract(member))
+            return "Cannot kick member: %s, they are higher in the heirarchy than I am".formatted(member.getEffectiveName());
 
-    // Restrict it so that this member can only call the command once per hour per guild
-    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
-    @Command(description = "Adds a random amount between $0 and $500 to the users account")
-    public String collect(@Source Guild guild, @Source Member member) {
-        long memberId = member.getIdLong();
-
-        int amount = this.random.nextInt(500);
-
-        // If there is no map for this guild, create a new one and return either the existing map or the newly created one
-        Map<Long, Integer> guildBank = this.bank.computeIfAbsent(
-                guild.getIdLong(), guildId -> new ConcurrentHashMap<>());
-
-        int newAmount = amount + guildBank.getOrDefault(memberId, 0);
-        guildBank.put(memberId, newAmount);
-
-        return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
+        event.getGuild().kick(member, reason)
+                .queue((success) -> event.getChannel()
+                        .sendMessage("Successfully kicked %s!".formatted(member.getEffectiveName()))
+                        .queue());
+        return null; // Don't respond via halpbot as we're queueing a response normally
     }
+//
+//    private final Map<Long, Map<Long, Integer>> bank = new ConcurrentHashMap<>();
+//    private final Random random = new Random();
+//
+//    // Restrict it so that this member can only call the command once per hour per guild
+//    @Cooldown(duration = @Duration(value = 1, unit = ChronoUnit.HOURS))
+//    @Command(description = "Adds a random amount between $0 and $500 to the users account")
+//    public String collect(@Source Guild guild, @Source Member member) {
+//        long memberId = member.getIdLong();
+//
+//        int amount = this.random.nextInt(500);
+//
+//        // If there is no map for this guild, create a new one and return either the existing map or the newly created one
+//        Map<Long, Integer> guildBank = this.bank.computeIfAbsent(
+//                guild.getIdLong(), guildId -> new ConcurrentHashMap<>());
+//
+//        int newAmount = amount + guildBank.getOrDefault(memberId, 0);
+//        guildBank.put(memberId, newAmount);
+//
+//        return "You collected %d. You now have %d in your account".formatted(amount, newAmount);
+//    }
 }
