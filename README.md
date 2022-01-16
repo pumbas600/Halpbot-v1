@@ -6,6 +6,8 @@ Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility
 
 Halpbot is a feature rich library with support for message commands, triggers, buttons and decorators. Halpbot makes **virtually all** default implementations overridable if you desire. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
+As Halpbot utilises Hartshorn, it has full support for dependency injection like that seen in Spring. This allows you to `@Inject` services into other classes where required. For more information regarding this, refer to [Hartshorn's documentation](https://hartshorn.dockbox.org/core/cdi/).
+
 ## Summary
 
 1. Getting Started
@@ -24,11 +26,11 @@ Halpbot is a feature rich library with support for message commands, triggers, b
 
 # 1. Getting Started
 
-## 1.1 Adding the Halpbot dependency
+### 1.1 Adding the Halpbot dependency
 
 There is currently not a version of Halpbot available on Maven as some work still needs to be done before I'm happy to make that available. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
 
-## 1.2 Setting up your bot class
+### 1.2 Setting up your bot class
 
 Halpbot is initialised from a `Bot` class. This class consists of 4 things of note:
 
@@ -138,13 +140,22 @@ public class ExampleBot extends ListenerAdapter implements Bot
 }
 ```
 
-## 1.3 Bot config
+### 1.3 Bot config
 
+The final step to finish setting up your bot in Halpbot is to create your `bot-config.properties` file. This must be located within the `resources` folder of your project. This file allows you to adjust certain aspects of how your bot works. For more informations about what you can set there, refer to the [wiki](https://github.com/pumbas600/Halpbot/wiki/bot-config.properties). There is only two required properties your bot config file should contain: `ownerId` and `defaultPrefix`. An example of what it should look like is:
 
+> **TIP:** Not sure how to find your discord id? Refer to the tutorial [here](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).
+
+```properties
+ownerId=260930648330469387 
+defaultPrefix=$
+```
+
+> **NOTE:** `defaultPrefix` only has to be specified if you've enabled commands by adding `@UseCommands` to your bot class.
 
 # 2. Halpbot Features
 
-## 2.1 Commands
+### 2.1 Commands
 
 In Halpbot, commands are simply created by annotating a method with `@Command`. You can enable commands in Halpbot by adding `@UseCommands` to your bot class. The method name will automatically be used as the alias (Although additional aliases can be set within the annotation if desired using the `alias` field). Command methods **must be public**; A warning will be logged during startup if you try and register non-public command methods. In Command methods, the parameters will act as command parameters.
 
@@ -254,7 +265,7 @@ public class ExampleCommands
 
 > **NOTE:** As the class is annotated with `@Service`, the commands will be automatically registered during startup. 
 
-## 2.2 Triggers
+### 2.2 Triggers
 
 Sometimes you want to respond to messages that contains certain words or phrases. This can be achieved in Halpbot using the `@Trigger` annotation. To enable triggers, add the `@UseTriggers` annotation to your bot class. The triggers for a method are **not** case sensitive. Like with commands, triggers can take in parameters, however, they only support [source parameters](). You can also return any object from the trigger method and it will automatically be sent to the channel. 
 
@@ -317,7 +328,7 @@ public class ExampleTriggers
 
 > **NOTE:** By default, the `TriggerStrategy` is `START`, which checks if the message starts with the specified triggers.
 
-## 2.3 Buttons
+### 2.3 Buttons
 
 Halpbot also provides an easy way of working with buttons by simply annotating the button callbacks with `@ButtonAction`. To enable buttons, annotate your bot class with `@UseButtons`. These button action methods can only take [source parameters]() as arguments; These parameters can be in any order. To reference a button callback, all that you need to do is set the id of the `Button` to match the `@ButtonAction`. It will then automatically invoke the matching button action when the button is pressed.
 
@@ -374,7 +385,7 @@ public class ExampleButtons
 
 Halpbot also has support for storing objects within button instances which can be passed to the button action when invoked. This can be ideal in certain situations where you want to update an object based on the click of a *specific* button. For more information on these dynamic buttons, refer to the documentation [here]().
 
-## 2.4 Decorators
+### 2.4 Decorators
 
 Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halpbot/wiki/Decorators), however, the two main ones are the [cooldown](https://github.com/pumbas600/Halpbot/wiki/Decorators#cooldown) and [permissions](https://github.com/pumbas600/Halpbot/wiki/Decorators#permissions) decorators. Decorators are annotations that can be added to actions (`@Command`, `@Trigger`, or `@ButtonAction`) that modify how the method is called, or if it's even called at all. If you want to create your own decorators or override the default decorators, this can easily be done as described in the wiki [here](https://github.com/pumbas600/Halpbot/wiki/Custom-Decorators).
 
@@ -476,7 +487,7 @@ public class ExampleCommands
 
 # Future Plans
 
-## 3.1 W.I.P. Features
+### 3.1 W.I.P. Features
 
 - Descriptive errors
 - Slash command support
