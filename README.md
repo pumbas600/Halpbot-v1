@@ -9,26 +9,24 @@ Halpbot is a feature rich library with support for message commands, triggers, b
 ## Summary
 
 1. Getting Started
-
-    [1.1 Adding the Halpbot dependency]()
-
-    [1.2 Setting up your bot class]()
-
-    [1.3 Bot config]()
+    - [1.1 Adding the Halpbot dependency]()
+    - [1.2 Setting up your bot class]()
+    - [1.3 Bot config]()
 
 2. Halpbot Features  
-   
-    [2.1 Commands]()
+    - [2.1 Commands]()
+    - [2.2 Triggers]()
+    - [2.3 Buttons]()
+    - [2.4 Decorators]()
 
-    [2.2 Triggers]()
+3. Future Plans
+    - [3.1 W.I.P. Features]()
 
-    [2.3 Buttons]()
-
-    [2.4 Decorators]()
+# 1. Getting Started
 
 ## 1.1 Adding the Halpbot dependency
 
-There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand smoothing out some of the existing issues. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
+There is currently not a version of Halpbot available on Maven as some work still needs to be done before I'm happy to make that available. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
 
 ## 1.2 Setting up your bot class
 
@@ -143,6 +141,8 @@ public class ExampleBot extends ListenerAdapter implements Bot
 ## 1.3 Bot config
 
 
+
+# 2. Halpbot Features
 
 ## 2.1 Commands
 
@@ -473,3 +473,12 @@ public class ExampleCommands
 ```
 
 > **NOTE:** It's also possible to add permissions that the user must have, along with creating your own custom [permission suppliers](https://github.com/pumbas600/Halpbot/wiki/Permissions#permission-suppliers).
+
+# Future Plans
+
+## 3.1 W.I.P. Features
+
+- Descriptive errors
+- Slash command support
+- Subcommands
+- Pagination
