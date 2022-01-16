@@ -25,9 +25,6 @@ import java.util.List;
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownType;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
-import nz.pumbas.halpbot.commands.bugtesting.DemoFactory;
-import nz.pumbas.halpbot.commands.bugtesting.DemoImplementation;
-import nz.pumbas.halpbot.commands.bugtesting.DemoInterface;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
 import nz.pumbas.halpbot.commands.CommandAdapter;
@@ -98,15 +95,6 @@ public class DemoTests
         Assertions.assertNotNull(commandAdapter.parameterAnnotationService());
     }
 
-    @InjectTest
-    public void demoPriortityTest(DemoFactory demoFactory) {
-        DemoInterface demo = demoFactory.create("Test");
-
-        Assertions.assertNotNull(demo);
-        Assertions.assertInstanceOf(DemoImplementation.class, demo);
-        Assertions.assertEquals("Test", demo.name());
-    }
-
     @Test
     public void genericTypeTests() {
         ParameterContext<?> parameter = TypeContext.of(this).method("genericTestMethod", List.class)
@@ -159,14 +147,6 @@ public class DemoTests
 
     @InjectTest
     public void permissionDecorator(DemoServiceA<?> serviceA) {
-        Assertions.assertNotNull(serviceA);
-        Assertions.assertNotNull(serviceA.permissionService());
-    }
-
-    @InjectTest
-    public void serviceFactory(DemoFactory factory) {
-        DemoInterface<?> serviceA = factory.create("test");
-        Assertions.assertNotNull(factory);
         Assertions.assertNotNull(serviceA);
         Assertions.assertNotNull(serviceA.permissionService());
     }

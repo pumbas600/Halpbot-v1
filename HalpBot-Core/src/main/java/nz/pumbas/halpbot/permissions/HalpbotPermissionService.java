@@ -5,8 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
 import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -24,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.HalpbotCore;
@@ -34,8 +34,8 @@ import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
-@Service
-@Binds(PermissionService.class)
+@Singleton
+@ComponentBinding(PermissionService.class)
 public class HalpbotPermissionService implements PermissionService, Enableable
 {
     @Getter @Inject private ApplicationContext applicationContext;

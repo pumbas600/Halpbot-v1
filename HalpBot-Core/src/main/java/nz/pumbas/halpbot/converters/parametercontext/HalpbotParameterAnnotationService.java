@@ -1,7 +1,6 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
@@ -11,11 +10,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 
-@Service
-@Binds(ParameterAnnotationService.class)
+@Singleton
+@ComponentBinding(ParameterAnnotationService.class)
 public class HalpbotParameterAnnotationService implements ParameterAnnotationService
 {
     private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap

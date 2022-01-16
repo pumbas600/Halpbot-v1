@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
 import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
@@ -23,7 +23,7 @@ import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.Require;
 
-@Binds(PermissionDecorator.class)
+@ComponentBinding(PermissionDecorator.class)
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> implements Enableable
 {
     @Inject

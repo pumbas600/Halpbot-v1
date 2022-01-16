@@ -3,8 +3,8 @@ package nz.pumbas.halpbot.actions.cooldowns;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
 import java.time.Duration;
@@ -16,7 +16,7 @@ import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
-@Binds(CooldownDecorator.class)
+@ComponentBinding(CooldownDecorator.class)
 public class CooldownDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     private static final long SECONDS_BETWEEN_COOLDOWN_EMBEDS = 15;

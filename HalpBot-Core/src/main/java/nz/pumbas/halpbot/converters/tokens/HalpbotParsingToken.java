@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.converters.tokens;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import nz.pumbas.halpbot.converters.Converter;
 
-@Binds(ParsingToken.class)
+@ComponentBinding(ParsingToken.class)
 public record HalpbotParsingToken(ParameterContext<?> parameterContext,
                                   List<TypeContext<? extends Annotation>> sortedAnnotations,
                                   Converter<?, ?> converter,

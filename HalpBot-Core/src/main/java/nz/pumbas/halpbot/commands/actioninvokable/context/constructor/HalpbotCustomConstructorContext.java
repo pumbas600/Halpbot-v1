@@ -1,8 +1,7 @@
 package nz.pumbas.halpbot.commands.actioninvokable.context.constructor;
 
-
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
 import java.util.List;
@@ -12,7 +11,7 @@ import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
-@Binds(CustomConstructorContext.class)
+@ComponentBinding(CustomConstructorContext.class)
 public record HalpbotCustomConstructorContext(String usage,
                                               ActionInvokable<CommandInvocationContext> actionInvokable,
                                               Set<TypeContext<?>> reflections,

@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.commands.actioninvokable.context;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
@@ -46,7 +46,7 @@ import nz.pumbas.halpbot.converters.tokens.Token;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
-@Binds(CommandInvocationContext.class)
+@ComponentBinding(CommandInvocationContext.class)
 @Accessors(chain = false)
 public class HalpbotCommandInvocationContext implements CommandInvocationContext
 {

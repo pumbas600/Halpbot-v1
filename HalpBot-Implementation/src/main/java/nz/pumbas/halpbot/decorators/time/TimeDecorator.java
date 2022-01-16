@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.decorators.time;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
@@ -13,7 +13,7 @@ import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.utilities.LogLevel;
 
 // Bind the TimeDecorator to this instance so that the factory knows to instantiate this
-@Binds(TimeDecorator.class)
+@ComponentBinding(TimeDecorator.class)
 public class TimeDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     private final LogLevel logLevel;

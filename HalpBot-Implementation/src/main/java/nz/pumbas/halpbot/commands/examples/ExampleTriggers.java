@@ -18,12 +18,6 @@ import nz.pumbas.halpbot.utilities.Duration;
 @Service
 public class ExampleTriggers
 {
-    // Respond to any messages that start with any of the following triggers
-    @Trigger({"hi", "hello", "hey"})
-    public String sayHello(@Source Member member) {
-        return "Hey %s!".formatted(member.getEffectiveName());
-    }
-
     // Repond to any messages that contain 'my id' or 'discord id' anywhere with their id for 30 seconds
     @Trigger(value = { "my id", "discord id" }, strategy = TriggerStrategy.ANYWHERE, display = @Duration(30))
     public MessageEmbed usersId(@Source User user) {

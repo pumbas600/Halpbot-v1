@@ -1,8 +1,7 @@
 package nz.pumbas.halpbot.converters.tokens;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.boot.ExceptionHandler;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
@@ -15,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -24,8 +24,8 @@ import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.utilities.HalpbotStringTraverser;
 import nz.pumbas.halpbot.utilities.StringTraverser;
 
-@Service
-@Binds(TokenService.class)
+@Singleton
+@ComponentBinding(TokenService.class)
 public class HalpbotTokenService implements TokenService
 {
     private final Map<ExecutableElementContext<?, ?>, List<Token>> cache = HartshornUtils.emptyMap();
@@ -33,9 +33,8 @@ public class HalpbotTokenService implements TokenService
     @Inject
     @Getter private ApplicationContext applicationContext;
 
-    //TODO: Get this fixed
     @Inject private TokenFactory tokenFactory;
-    //@Inject private CommandAdapter commandAdapter;
+    @Inject private CommandAdapter commandAdapter;
     @Inject private ConverterHandler converterHandler;
 
     @Override
@@ -58,7 +57,7 @@ public class HalpbotTokenService implements TokenService
                     int currentIndex = stringTraverser.currentIndex();
 
                     if (!this.converterHandler.isCommandParameter(currentParameter) ||
-                       stringTraverser.next().equalsIgnoreCase(this.applicationContext.get(CommandAdapter.class).typeAlias(currentParameter.type())))
+                       stringTraverser.next().equalsIgnoreCase(this.commandAdapter.typeAlias(currentParameter.type())))
                     {
                         tokens.add(this.tokenFactory.createParsing(currentParameter));
                         parameterIndex++;

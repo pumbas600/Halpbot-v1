@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.actions.invokable;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -18,7 +18,7 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 
 @Getter
 @Accessors(chain = false)
-@Binds(SourceInvocationContext.class)
+@ComponentBinding(SourceInvocationContext.class)
 @RequiredArgsConstructor(onConstructor_ = @Bound)
 public class HalpbotSourceInvocationContext implements SourceInvocationContext
 {

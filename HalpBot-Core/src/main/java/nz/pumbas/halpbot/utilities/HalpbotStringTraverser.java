@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.utilities;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(chain = false)
 @RequiredArgsConstructor
-@Binds(StringTraverser.class)
+@ComponentBinding(StringTraverser.class)
 public class HalpbotStringTraverser implements StringTraverser
 {
     private final String content;

@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
-@Binds(HelpService.class)
+@ComponentBinding(HelpService.class)
 public class HalpbotHelpService implements HelpService
 {
     @Inject private DecoratorService decoratorService;

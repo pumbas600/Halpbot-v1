@@ -3,7 +3,7 @@ package nz.pumbas.halpbot.decorators.log;
 import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.Guild;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 
@@ -14,7 +14,7 @@ import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.LogLevel;
 
-@Binds(LogDecorator.class)
+@ComponentBinding(LogDecorator.class)
 public class LogDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
     @Getter private final LogLevel logLevel;

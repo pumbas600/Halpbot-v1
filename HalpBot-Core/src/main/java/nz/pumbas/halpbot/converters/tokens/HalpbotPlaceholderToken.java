@@ -24,7 +24,7 @@
 
 package nz.pumbas.halpbot.converters.tokens;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
@@ -34,8 +34,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationConte
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command: {@code
  * <my name is> #String}, the text 'my name is' are {@link HalpbotPlaceholderToken placeholder tokens}.
  */
-@Service
-@Binds(PlaceholderToken.class)
+@ComponentBinding(PlaceholderToken.class)
 public record HalpbotPlaceholderToken(boolean isOptional, String placeholder)
         implements PlaceholderToken
 {

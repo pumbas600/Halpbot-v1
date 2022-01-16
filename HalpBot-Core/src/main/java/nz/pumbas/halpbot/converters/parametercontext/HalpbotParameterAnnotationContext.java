@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
@@ -17,7 +17,7 @@ import nz.pumbas.halpbot.converters.annotations.Any;
 
 @Getter
 @Accessors(chain = false)
-@Binds(ParameterAnnotationContext.class)
+@ComponentBinding(ParameterAnnotationContext.class)
 @AllArgsConstructor(onConstructor_ = @Bound)
 public class HalpbotParameterAnnotationContext implements ParameterAnnotationContext
 {

@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.triggers;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 
 import java.time.Duration;
@@ -11,7 +11,7 @@ import nz.pumbas.halpbot.actions.invokable.SourceInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.utilities.Require;
 
-@Binds(TriggerContext.class)
+@ComponentBinding(TriggerContext.class)
 public record HalpbotTriggerContext(List<String> triggers,
                                     String description,
                                     TriggerStrategy strategy,

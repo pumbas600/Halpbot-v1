@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.HalpbotCore;
@@ -28,8 +29,8 @@ import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
 
-@Service
-@Binds(ButtonAdapter.class)
+@Singleton
+@ComponentBinding(ButtonAdapter.class)
 public class HalpbotButtonAdapter implements ButtonAdapter
 {
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();

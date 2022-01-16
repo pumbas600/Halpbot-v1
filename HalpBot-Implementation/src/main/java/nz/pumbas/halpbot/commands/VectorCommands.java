@@ -29,7 +29,6 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.customparameters.math.Vector3;
 
-@Service
 public class VectorCommands
 {
 

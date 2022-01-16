@@ -1,6 +1,6 @@
 package nz.pumbas.halpbot.commands.actioninvokable.context.command;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 
@@ -12,7 +12,7 @@ import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
-@Binds(CommandContext.class)
+@ComponentBinding(CommandContext.class)
 public record HalpbotCommandContext(List<String> aliases,
                                     String description,
                                     String usage,

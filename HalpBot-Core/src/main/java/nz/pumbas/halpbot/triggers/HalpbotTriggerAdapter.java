@@ -2,8 +2,7 @@ package nz.pumbas.halpbot.triggers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -16,6 +15,7 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 import nz.pumbas.halpbot.HalpbotCore;
@@ -28,8 +28,8 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.utilities.Require;
 
-@Service
-@Binds(TriggerAdapter.class)
+@Singleton
+@ComponentBinding(TriggerAdapter.class)
 public class HalpbotTriggerAdapter implements TriggerAdapter
 {
     @Getter @Inject private ApplicationContext applicationContext;

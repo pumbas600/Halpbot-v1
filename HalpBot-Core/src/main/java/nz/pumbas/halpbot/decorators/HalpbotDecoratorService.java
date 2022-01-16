@@ -1,7 +1,7 @@
 package nz.pumbas.halpbot.decorators;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
-import org.dockbox.hartshorn.core.annotations.inject.Binds;
+import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
@@ -11,11 +11,12 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 
-@Service
-@Binds(DecoratorService.class)
+@Singleton
+@ComponentBinding(DecoratorService.class)
 public class HalpbotDecoratorService implements DecoratorService
 {
     private final Map<TypeContext<? extends Annotation>, DecoratorFactory<?, ?, ?>> decorators = HartshornUtils.emptyMap();
