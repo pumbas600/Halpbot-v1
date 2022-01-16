@@ -2,15 +2,14 @@ package nz.pumbas.halpbot.hibernate.models;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import nz.pumbas.halpbot.objects.DiscordString;
+import nz.pumbas.halpbot.objects.DiscordObject;
 
 //@Entity
 @Table(name = "USER_STATISTICS")
-public class UserStatistics implements DiscordString, Serializable
+public class UserStatistics implements DiscordObject, Serializable
 {
     public final static int IS_ON_FIRE_THRESHOLD = 5;
 

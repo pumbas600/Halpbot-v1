@@ -115,9 +115,9 @@ public class HalpbotCore implements ContextCarrier
         this.adapters.forEach(jdaBuilder::addEventListeners);
 
         try {
-            this.jda = jdaBuilder.build();
+            this.jda = jdaBuilder.build().awaitReady();
             this.onCreation(this.jda);
-        } catch (LoginException e) {
+        } catch (LoginException | InterruptedException e) {
             ExceptionHandler.unchecked(e);
         }
 

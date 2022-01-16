@@ -13,7 +13,7 @@ As Halpbot utilises Hartshorn, it has full support for dependency injection like
 1. Getting Started
     - [1.1 Adding the Halpbot dependency]()
     - [1.2 Setting up your bot class]()
-    - [1.3 Bot config]()
+    - [1.3 Configuring your bot]()
 
 2. Halpbot Features  
     - [2.1 Commands]()
@@ -32,11 +32,11 @@ There is currently not a version of Halpbot available on Maven as some work stil
 
 ### 1.2 Setting up your bot class
 
-Halpbot is initialised from a `Bot` class. This class consists of 4 things of note:
+Halpbot is initialised from a `Bot` class. There are 4 things to note within this class:
 
-1. Your bot class must be annotated with `@Service` and `@Activator`. You can also add additional activators to enable the various features Halpbot has to offer such as `@UseButtons` and `@UseCommands`.
-2. The bot class must implement the `Bot` interface.
-3. Within the main method, you can call `HalpbotBuilder#build` with the bot class and the main args. This constructs your bot and automatically begins registering the actions defined by your bot.
+1. Your bot class must be annotated with `@Service` and `@Activator`. You can also add additional activators to enable the various features Halpbot has to offer such as `@UseButtons`, `@UseCommands` and `@UseTriggers`.
+2. The class must implement the `Bot` interface and the required initialise method.
+3. Within the main method, you can call `HalpbotBuilder#build` with the bot class and the main args. This constructs your bot and automatically begins registering commands, button actions, etc.
 4. The initialise method allows you create the JDABuilder and configure it as you would like, before returning it to be used by Halpbot to register additional event listeners.
 
 <details>
@@ -118,7 +118,8 @@ import nz.pumbas.halpbot.common.Bot;
 @UseCommands
 public class ExampleBot extends ListenerAdapter implements Bot
 {
-    @Inject private ApplicationContext applicationContext;
+    @Inject
+    private ApplicationContext applicationContext;
     
     public static void main(String[] args) throws ApplicationException {
         HalpbotBuilder.build(ExampleBot.class, args);
@@ -140,9 +141,11 @@ public class ExampleBot extends ListenerAdapter implements Bot
 }
 ```
 
-### 1.3 Bot config
+> **NOTE:** As Halpbot utilities Hartshorn, it has complete support for dependency injection of components using `@Inject`.
 
-The final step to finish setting up your bot in Halpbot is to create your `bot-config.properties` file. This must be located within the `resources` folder of your project. This file allows you to adjust certain aspects of how your bot works. For more informations about what you can set there, refer to the [wiki](https://github.com/pumbas600/Halpbot/wiki/bot-config.properties). There is only two required properties your bot config file should contain: `ownerId` and `defaultPrefix`. An example of what it should look like is:
+### 1.3 Configuring your bot
+
+The final step to finish setting up your bot is to create your `bot-config.properties` file. This must be located within the `resources` folder of your project. This file allows you to adjust certain aspects of how your bot works. For more informations about what you can set there, refer to the [wiki](https://github.com/pumbas600/Halpbot/wiki/bot-config.properties). There is only two required properties this file should contain: `ownerId` and `defaultPrefix`. An example of what it should look like is shown below.
 
 > **TIP:** Not sure how to find your discord id? Refer to the tutorial [here](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).
 
@@ -157,13 +160,15 @@ defaultPrefix=$
 
 ### 2.1 Commands
 
-In Halpbot, commands are simply created by annotating a method with `@Command`. You can enable commands in Halpbot by adding `@UseCommands` to your bot class. The method name will automatically be used as the alias (Although additional aliases can be set within the annotation if desired using the `alias` field). Command methods **must be public**; A warning will be logged during startup if you try and register non-public command methods. In Command methods, the parameters will act as command parameters.
+In Halpbot, commands are simply created by annotating a method with `@Command`. You can enable commands in Halpbot by adding `@UseCommands` to your bot class. The method name will automatically be used as the alias (Although additional aliases can be set within the annotation if desired using the `alias` field). Command methods **must be public**; A warning will be logged during startup if you try and register non-public command methods.
 
-There are two types of command parameters:
+There are two types of method parameters:
 1. [Source Parameters]() - These are either injected services or information extracted from the event.
-2. [Command Parameters]() - These are non-source parameters which are expected to be specified when invoking the command. These are automatically parsed from the command.
+2. [Command Parameters]() - These are non-source parameters which are expected to be specified when invoking the command. These are automatically parsed when the command is invoked.
 
-If a parameter was expected but wasn't present or didn't match the expected format, then the command will not be invoked and a temporary message will be sent to the user with the error. By default, Halpbot supports a vast range of parameter types as described [here](https://github.com/pumbas600/HalpBot/wiki/Command-Arguments), however, it's also possible to create parameter converters to add support for custom types or annotations. Finally, the returned result of the method is then automatically displayed to the user. 
+If a parameter was expected but wasn't present or didn't match the expected format, then the command will not be invoked and a temporary message will be sent to the user with the error. By default, Halpbot supports a vast range of parameter types as described [here](https://github.com/pumbas600/HalpBot/wiki/Command-Arguments), however, it's also possible to create parameter converters to add support for custom types or annotations.
+
+Finally, the returned result of the method is then automatically displayed to the user. If the object is a `MessageEmbed` it will use the appropriate JDA `#sendEmbeds` methods. Otherwise, it will check if the object is an instance of `DiscordObject`, which allows you to override how objects should be converted to a string when being displayed to discord. Finally, it uses `#toString` if all else fails.
 
 <details>
 <summary>Show Imports</summary>

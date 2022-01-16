@@ -25,7 +25,7 @@
 package nz.pumbas.halpbot.objects;
 
 @SuppressWarnings("InterfaceMayBeAnnotatedFunctional")
-public interface DiscordString
+public interface DiscordObject
 {
     String toDiscordString();
 }

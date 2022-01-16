@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import nz.pumbas.halpbot.objects.DiscordString;
+import nz.pumbas.halpbot.objects.DiscordObject;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -29,8 +29,8 @@ public interface DisplayConfiguration
             restAction.queue();
         else if (object instanceof MessageEmbed messageEmbed)
             this.display(event, messageEmbed);
-        else if (object instanceof DiscordString discordString)
-            this.display(event, HalpbotUtils.limitMessageLength(discordString.toDiscordString()));
+        else if (object instanceof DiscordObject discordObject)
+            this.display(event, HalpbotUtils.limitMessageLength(discordObject.toDiscordString()));
         else
             this.display(event, HalpbotUtils.limitMessageLength(object.toString()));
     }
@@ -46,8 +46,8 @@ public interface DisplayConfiguration
             action.queue();
         else if (object instanceof MessageEmbed messageEmbed)
             this.displayTemporary(event, messageEmbed, seconds);
-        else if (object instanceof DiscordString discordString)
-            this.displayTemporary(event, HalpbotUtils.limitMessageLength(discordString.toDiscordString()), seconds);
+        else if (object instanceof DiscordObject discordObject)
+            this.displayTemporary(event, HalpbotUtils.limitMessageLength(discordObject.toDiscordString()), seconds);
         else
             this.displayTemporary(event, HalpbotUtils.limitMessageLength(object.toString()), seconds);
     }
