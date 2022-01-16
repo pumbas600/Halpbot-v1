@@ -70,8 +70,8 @@ public class QuestionConfirmationCommands
         boolean startThread = -1 == this.displayChangesChannel;
         this.displayChangesChannel = textChannel.getIdLong();
         if (startThread) {
-            HalpbotUtils.context().get(ConcurrentManager.class)
-                .scheduleRegularly(1, 5, TimeUnit.MINUTES, this::checkForNewChanges);
+//            HalpbotUtils.context().get(ConcurrentManager.class)
+//                .scheduleRegularly(1, 5, TimeUnit.MINUTES, this::checkForNewChanges);
         }
         return "Set the current channel as the location to automatically display new changes";
     }

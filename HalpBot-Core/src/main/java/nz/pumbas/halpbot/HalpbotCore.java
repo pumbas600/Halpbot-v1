@@ -47,8 +47,6 @@ public class HalpbotCore implements ContextCarrier
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
 
-    private final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
-
     /**
      * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke
      * {@link HalpbotCore#registerAdapter(HalpbotAdapter)}. Note that the Halpbot adapters will also need to extend

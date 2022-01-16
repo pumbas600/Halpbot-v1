@@ -68,11 +68,11 @@ public class QuestionModificationService
     }
 
     private void startRepositoryChecks() {
-        HalpbotUtils.context().get(ConcurrentManager.class)
-            .scheduleRegularly(
-                QuestionModificationService.CHECK_FOR_NEW_MODIFICATION_INTERVAL,
-                QuestionModificationService.CHECK_FOR_NEW_MODIFICATION_INTERVAL,
-                TimeUnit.MINUTES, this::updateIds);
+//        HalpbotUtils.context().get(ConcurrentManager.class)
+//            .scheduleRegularly(
+//                QuestionModificationService.CHECK_FOR_NEW_MODIFICATION_INTERVAL,
+//                QuestionModificationService.CHECK_FOR_NEW_MODIFICATION_INTERVAL,
+//                TimeUnit.MINUTES, this::updateIds);
     }
 
     public QuestionModificationService addListener(Consumer<QuestionModification> listener) {

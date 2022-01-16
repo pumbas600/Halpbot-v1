@@ -24,7 +24,6 @@
 
 package nz.pumbas.halpbot.utilities;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -52,23 +51,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.utilities.context.ContextManager;
-import nz.pumbas.halpbot.utilities.context.ContextManagerImpl;
 import nz.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
 
 public final class HalpbotUtils
 {
     public static final Color Blurple = new Color(85, 57, 204);
-    //A constant 'empty' UUID
-    public static final UUID emptyUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     public static final float fullRotation = 360F;
     public static final float threeQuarterRotation = 270F;
@@ -76,21 +69,7 @@ public final class HalpbotUtils
     public static final float quarterRotation = 90F;
     public static final Object IGNORE_RESULT = new Object();
 
-    private static final ContextManager contextManager = new ContextManagerImpl(); //TODO: Remove
-    private static JDA jda; //TODO: Remove
-
     private HalpbotUtils() {}
-
-    public static ContextManager context() {
-        return contextManager;
-    } //TODO: Remove
-    public static JDA getJDA() {
-        return jda;
-    } //TODO: Remove
-    public static void setJDA(JDA jdaInstance) {
-        jda = jdaInstance;
-    } //TODO: Remove
-
 
     /**
      * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than

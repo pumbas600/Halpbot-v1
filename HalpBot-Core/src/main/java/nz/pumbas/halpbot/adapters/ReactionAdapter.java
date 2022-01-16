@@ -10,14 +10,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nz.pumbas.halpbot.actions.ReactionActionCallback;
-import nz.pumbas.halpbot.events.HalpbotEvent;
-import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.utilities.ConcurrentManager;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public class ReactionAdapter extends AbstractHalpbotAdapter
 {
-    protected final ConcurrentManager concurrentManager = HalpbotUtils.context().get(ConcurrentManager.class);
+    protected final ConcurrentManager concurrentManager = new ConcurrentManager();
     protected final Map<Long, Map<String, ReactionActionCallback>> reactionCallbacks = new ConcurrentHashMap<>();
 
     @Override

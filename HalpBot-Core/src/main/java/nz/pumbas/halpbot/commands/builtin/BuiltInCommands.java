@@ -56,7 +56,6 @@ import nz.pumbas.halpbot.permissions.Permissions;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.GuildPermissionId;
-import nz.pumbas.halpbot.sql.SQLManager;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
@@ -180,15 +179,5 @@ public class BuiltInCommands
             embedBuilder.appendDescription("`%s` - `%s`\n".formatted(permission, role));
         }
         return embedBuilder.build();
-    }
-
-    @Deprecated(forRemoval = true)
-    @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
-    @Command(description = "Forces all the SQLDrivers to invoke their reload listeners, refreshing any cached database information")
-    public String reloadDatabase() {
-        HalpbotUtils.context().get(SQLManager.class)
-            .reloadAllDrivers();
-
-        return "Reloaded database drivers";
     }
 }
