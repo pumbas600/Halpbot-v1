@@ -1,14 +1,14 @@
 package nz.pumbas.halpbot.commands.factory;
 
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import lombok.Getter;
 
 @Singleton
-@ComponentBinding(DemoServiceB.class)
+@ComponentBinding(value = DemoServiceB.class)
 public class DemoServiceB
 {
     @Getter

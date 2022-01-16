@@ -116,22 +116,6 @@ public class DemoTests
         Assertions.assertEquals(0, genericType.typeParameters().size());
     }
 
-    public void genericTestMethod(List<List<String>> nestedGeneric) { }
-
-    @Test
-    public void genericTypeContextTest() throws NoSuchMethodException {
-        Parameter parameter = DemoTests.class.getDeclaredMethod("genericTestMethod", List.class)
-                .getParameters()[0];
-        Type type = parameter.getParameterizedType();
-
-        Assertions.assertInstanceOf(ParameterizedType.class, type);
-        final ParameterizedType parameterizedType = (ParameterizedType) type;
-
-        TypeContext<?> genericType = TypeContext.of(parameterizedType);
-        Assertions.assertTrue(genericType.is(List.class));
-        Assertions.assertEquals(1, genericType.typeParameters().size());
-    }
-
     @InjectTest
     public void permissionService(PermissionService permissionService) {
         Assertions.assertNotNull(permissionService);

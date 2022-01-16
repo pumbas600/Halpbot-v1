@@ -65,7 +65,6 @@ allprojects {
 //            implementation 'org.reflections:reflections:0.10.2'
 //            implementation 'org.javassist:javassist:3.28.0-GA'
 //            implementation 'javax.inject:javax.inject:1'
-//            implementation 'org.mockito:mockito-core:4.2.0'
 //            implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
 //            implementation 'org.hibernate:hibernate-core:5.6.3.Final'
 //            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.13.1'
@@ -74,6 +73,8 @@ allprojects {
 //            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
 //            implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
 
+            implementation 'org.mockito:mockito-core:4.2.0'
+
             implementation 'org.apache.derby:derby:10.14.2.0'
 
             implementation 'javax.persistence:javax.persistence-api:2.2'
@@ -81,7 +82,7 @@ allprojects {
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
             testImplementation 'ch.qos.logback:logback-classic:1.2.10'
 
-            implementation fileTree(dir: 'libs', include: 'hartshorn-core-4.2.5-test-fixtures.jar')
+            implementation fileTree(dir: 'libs', include: '*.jar')
             implementation 'org.dockbox.hartshorn:hartshorn-core:22.1'
             implementation 'org.dockbox.hartshorn:hartshorn-data:22.1'
             implementation 'org.dockbox.hartshorn:hartshorn-config:22.1'

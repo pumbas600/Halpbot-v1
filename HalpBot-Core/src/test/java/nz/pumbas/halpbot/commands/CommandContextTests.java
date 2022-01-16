@@ -454,7 +454,7 @@ public class CommandContextTests
         Assertions.assertEquals(1, tokens.size());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[1 2 3] [1 4 6]]")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[1 4 5] [1 4]]")).present());
-        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 4 5] [1 3] [4 3]")).present());
+        Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 4 5] [1 3] [4 3]")).absent());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[2 2] [1.2]]")).absent());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[2 4] [1 4]")).absent());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[[2 4] [1 4]]]")).absent());
