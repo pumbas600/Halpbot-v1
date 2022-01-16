@@ -80,7 +80,6 @@ import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
-import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
@@ -106,7 +105,7 @@ public class ExampleBot extends ListenerAdapter implements Bot
     }
     
     @Override
-    public void onReady(@NotNull ReadyEvent event) {
+    public void onReady(ReadyEvent event) {
         // When the bot starts up, log the number of guilds it's in
         this.applicationContext.log().info("Bot running in %d guilds".formatted(event.getGuildTotalCount()));
     }
