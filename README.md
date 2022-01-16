@@ -352,7 +352,7 @@ public class ExampleButtons
 
 > **NOTE:** Like with commands, as the class is annotated with `@Service`, the button actions are automatically registered during startup.
 
-Halpbot also has support for storing objects with button instances which can be passed to the button action when invoked. This can be ideal in certain situations where you want to update an object based on the click of a specific button. For more information on these dynamic buttons, refer to the documentation [here]().
+Halpbot also has support for storing objects within button instances which can be passed to the button action when invoked. This can be ideal in certain situations where you want to update an object based on the click of a *specific* button. For more information on these dynamic buttons, refer to the documentation [here]().
 
 ## 2.4 Decorators
 
