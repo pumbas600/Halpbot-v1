@@ -24,7 +24,7 @@ As Halpbot utilises Hartshorn, it has full support for dependency injection like
 3. Future Plans
     - [3.1 W.I.P. Features]()
 
-# 1. Getting Started
+## 1. Getting Started
 
 ### 1.1 Adding the Halpbot dependency
 
@@ -153,7 +153,7 @@ defaultPrefix=$
 
 > **NOTE:** `defaultPrefix` only has to be specified if you've enabled commands by adding `@UseCommands` to your bot class.
 
-# 2. Halpbot Features
+## 2. Halpbot Features
 
 ### 2.1 Commands
 
@@ -485,7 +485,7 @@ public class ExampleCommands
 
 > **NOTE:** It's also possible to add permissions that the user must have, along with creating your own custom [permission suppliers](https://github.com/pumbas600/Halpbot/wiki/Permissions#permission-suppliers).
 
-# Future Plans
+## Future Plans
 
 ### 3.1 W.I.P. Features
 
