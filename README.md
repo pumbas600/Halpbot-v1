@@ -11,18 +11,18 @@ As Halpbot utilises Hartshorn, it has full support for dependency injection like
 ## Summary
 
 1. Getting Started
-    - [1.1 Adding the Halpbot dependency]()
-    - [1.2 Setting up your bot class]()
-    - [1.3 Configuring your bot]()
+    - [1.1 Adding the Halpbot dependency](https://github.com/pumbas600/Halpbot#11-adding-the-halpbot-dependency)
+    - [1.2 Setting up your bot class](https://github.com/pumbas600/Halpbot#11-adding-the-halpbot-dependency)
+    - [1.3 Configuring your bot](https://github.com/pumbas600/Halpbot#13-configuring-your-bot)
 
 2. Halpbot Features  
-    - [2.1 Commands]()
-    - [2.2 Triggers]()
-    - [2.3 Buttons]()
-    - [2.4 Decorators]()
+    - [2.1 Commands](https://github.com/pumbas600/Halpbot#21-commands)
+    - [2.2 Triggers](https://github.com/pumbas600/Halpbot#22-triggers)
+    - [2.3 Buttons](https://github.com/pumbas600/Halpbot#23-buttons)
+    - [2.4 Decorators](https://github.com/pumbas600/Halpbot#24-decorators)
 
 3. Future Plans
-    - [3.1 W.I.P. Features]()
+    - [3.1 W.I.P. Features](https://github.com/pumbas600/Halpbot#31-wip-features)
 
 ## 1. Getting Started
 
