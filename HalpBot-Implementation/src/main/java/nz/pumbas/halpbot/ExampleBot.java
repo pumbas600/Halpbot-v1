@@ -3,7 +3,6 @@ package nz.pumbas.halpbot;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -11,17 +10,17 @@ import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.commands.annotations.Command;
+import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.common.Bot;
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 @Activator
+@UseButtons
 @UseCommands
 public class ExampleBot extends ListenerAdapter implements Bot
 {
@@ -32,21 +31,16 @@ public class ExampleBot extends ListenerAdapter implements Bot
     }
 
     @Override
-    public void onReady(ReadyEvent event) {
-        this.applicationContext.log()
-                .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
+    public void onReady(@NotNull ReadyEvent event) {
+        // When the bot starts up, log the number of guilds it's in
+        this.applicationContext.log().info("Bot running in %d guilds".formatted(event.getGuildTotalCount()));
     }
 
     @Override
     public JDABuilder initialise(String[] args) {
-        String token = HalpbotUtils.firstLine("Token.txt");
+        String token = args[0]; // The token is the first argument
         return JDABuilder.createDefault(token)
-                .addEventListeners(this)
+                .addEventListeners(this) // Add this class as an event listener
                 .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!"));
-    }
-
-    @Command(description = "Pongs a user")
-    public String ping(@Source User user) {
-        return "Pong %s".formatted(user.getAsMention());
     }
 }
