@@ -6,7 +6,27 @@ Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility
 
 Halpbot is a feature rich library with support for message commands, triggers, buttons and decorators. Halpbot makes **virtually all** default implementations overridable if you desire. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
-## 1.1 Getting started
+## Summary
+
+1. Getting Started
+
+    [1.1 Adding the Halpbot dependency]()
+
+    [1.2 Setting up your bot class]()
+
+    [1.3 Bot config]()
+
+2. Halpbot Features  
+   
+    [2.1 Commands]()
+
+    [2.2 Triggers]()
+
+    [2.3 Buttons]()
+
+    [2.4 Decorators]()
+
+## 1.1 Adding the Halpbot dependency
 
 There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand smoothing out some of the existing issues. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
 
