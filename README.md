@@ -496,5 +496,6 @@ public class ExampleCommands
 
 - Descriptive errors
 - Slash command support
+- Async support
 - Subcommands
 - Pagination
