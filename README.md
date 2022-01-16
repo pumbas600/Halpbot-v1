@@ -8,9 +8,118 @@ Halpbot is a feature rich library with support for message commands, triggers, b
 
 ## 1.1 Getting started
 
-There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
+There is currently not a version of Halpbot available on Maven as some work still needs to be done beforehand smoothing out some of the existing issues. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
 
 ## 1.2 Setting up your bot class
+
+Halpbot is initialised from a `Bot` class. This class consists of 4 things of note:
+
+1. Your bot class must be annotated with `@Service` and `@Activator`. You can also add additional activators to enable the various features Halpbot has to offer such as `@UseButtons` and `@UseCommands`.
+2. The bot class must implement the `Bot` interface.
+3. Within the main method, you can call `HalpbotBuilder#build` with the bot class and the main args. This constructs your bot and automatically begins registering the actions defined by your bot.
+4. The initialise method allows you create the JDABuilder and configure it as you would like, before returning it to be used by Halpbot to register additional event listeners.
+
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Activity.ActivityType;
+
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+
+import nz.pumbas.halpbot.buttons.UseButtons;
+import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.common.Bot;
+```
+
+</p>
+</details>
+
+```java
+// 1. You must annotate your bot with @Service and @Activator. Additional activators can also be added to this class,
+// such as @UseButtons and @UseCommands. 
+@Service
+@Activator
+@UseButtons
+@UseCommands
+public class ExampleBot implements Bot // 2. Your bot class must implement the Bot interface
+{
+    public static void main(String[] args) throws ApplicationException {
+        HalpbotBuilder.build(ExampleBot.class, args); // 3. Starts the bot using this class
+    }
+
+    // 4. The initialise method allows you to configure the JDABuilder as you like
+    @Override
+    public JDABuilder initialise(String[] args) {
+        String token = args[0]; // The token is the first argument
+        return JDABuilder.createDefault(token)
+                .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!"));
+    }
+}
+```
+
+If you want, you can make your bot class extend `ListenerAdapter` to utilise JDA's built in events, for example:
+
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Activity.ActivityType;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+
+import org.dockbox.hartshorn.core.annotations.activate.Activator;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.jetbrains.annotations.NotNull;
+
+import javax.inject.Inject;
+
+import nz.pumbas.halpbot.buttons.UseButtons;
+import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.common.Bot;
+```
+
+</p>
+</details>
+
+```java
+@Service
+@Activator
+@UseButtons
+@UseCommands
+public class ExampleBot extends ListenerAdapter implements Bot
+{
+    @Inject private ApplicationContext applicationContext;
+    
+    public static void main(String[] args) throws ApplicationException {
+        HalpbotBuilder.build(ExampleBot.class, args);
+    }
+    
+    @Override
+    public void onReady(@NotNull ReadyEvent event) {
+        // When the bot starts up, log the number of guilds it's in
+        this.applicationContext.log().info("Bot running in %d guilds".formatted(event.getGuildTotalCount()));
+    }
+
+    @Override
+    public JDABuilder initialise(String[] args) {
+        String token = args[0]; // The token is the first argument
+        return JDABuilder.createDefault(token)
+                .addEventListeners(this) // Add this class as an event listener
+                .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!"));
+    }
+}
+```
 
 ## 1.3 Bot config
 
@@ -191,7 +300,7 @@ public class ExampleTriggers
 
 ## 2.3 Buttons
 
-Halpbot also provides an easy way of working with buttons by simply annotating the button callbacks with `@ButtonAction`. These button action methods can only take [source parameters]() as arguments. These parameters can be in any order. To reference a button callback, all that you need to do is set the id of the `Button` to match the `@ButtonAction`. It will then automatically invoke the matching button action when the button is pressed.
+Halpbot also provides an easy way of working with buttons by simply annotating the button callbacks with `@ButtonAction`. To enable buttons, annotate your bot class with `@UseButtons`. These button action methods can only take [source parameters]() as arguments; These parameters can be in any order. To reference a button callback, all that you need to do is set the id of the `Button` to match the `@ButtonAction`. It will then automatically invoke the matching button action when the button is pressed.
 
 <details>
 <summary>Show Imports</summary>
