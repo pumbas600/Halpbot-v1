@@ -36,7 +36,7 @@ import nz.pumbas.halpbot.commands.annotations.Reflective;
 import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.TypeConverter;
-import nz.pumbas.halpbot.objects.DiscordString;
+import nz.pumbas.halpbot.objects.DiscordObject;
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
@@ -45,7 +45,7 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
 @Getter
 @Service
-public class Matrix implements DiscordString
+public class Matrix implements DiscordObject
 {
     public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);
     public static final Matrix XReflection = new Matrix(2, 2, 1, 0, 0, -1);
