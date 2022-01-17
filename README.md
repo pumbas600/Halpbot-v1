@@ -28,7 +28,7 @@ As Halpbot utilises Hartshorn, it has full support for dependency injection like
 
 ### 1.1 Adding the Halpbot dependency
 
-There is currently not a version of Halpbot available on Maven as some work still needs to be done before I'm happy to make that available. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to build the latest version of [Hartshorn](https://github.com/GuusLieben/Hartshorn) for `hartshorn-core`, `hartshorn-data` and `harshorn-configuration`.
+There is currently not a version of Halpbot available on Maven as some work still needs to be done before I'm happy to make that available. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to implement version 22.1 of [Hartshorn](https://github.com/GuusLieben/Hartshorn).
 
 ### 1.2 Setting up your bot class
 
@@ -157,6 +157,8 @@ defaultPrefix=$
 > **NOTE:** `defaultPrefix` only has to be specified if you've enabled commands by adding `@UseCommands` to your bot class.
 
 ## 2. Halpbot Features
+
+All of Halpbot's actions (`@Command`, `@Trigger`, `@ButtonAction`, etc) are automatically registered as long as the class they're contained within is annotated with `@Service`. This means you never have to go back to your bot class to manually register them!
 
 ### 2.1 Commands
 
