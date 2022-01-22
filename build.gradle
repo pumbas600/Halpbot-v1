@@ -2,9 +2,10 @@ plugins {
     id 'java'
     id 'org.cadixdev.licenser' version '0.6.1'
     id 'io.freefair.lombok' version '6.2.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
-def halpBotVerson = '2.0.4'
+def halpBotVerson = '2.0.5'
 
 group 'nz.pumbas.halpbot'
 version halpBotVerson
@@ -25,6 +26,7 @@ subprojects { Project subProject ->
     apply plugin: 'java'
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'io.freefair.lombok'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
     group 'nz.pumbas.halpbot'
     version halpBotVerson
