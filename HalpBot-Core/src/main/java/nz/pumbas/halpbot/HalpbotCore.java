@@ -111,7 +111,11 @@ public class HalpbotCore implements ContextCarrier
     public JDA build(JDABuilder jdaBuilder) throws ApplicationException {
         this.adapters.forEach((adapter) -> adapter.initialise(jdaBuilder));
         this.adapters.forEach(jdaBuilder::addEventListeners);
+
+        // Prevent any event listeners being automatically registered twice
+        jdaBuilder.removeEventListeners(this.eventListeners.toArray());
         this.eventListeners.forEach(jdaBuilder::addEventListeners);
+
         this.eventListeners.clear(); // Free up the memory space, we don't to store this anymore
 
         try {
