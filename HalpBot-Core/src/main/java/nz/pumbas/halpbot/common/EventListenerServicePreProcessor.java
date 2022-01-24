@@ -3,13 +3,14 @@ package nz.pumbas.halpbot.common;
 import net.dv8tion.jda.api.hooks.EventListener;
 
 import org.dockbox.hartshorn.core.Key;
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
+import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import nz.pumbas.halpbot.HalpbotCore;
 
-public class EventListenerServicePreProcessor implements ServicePreProcessor<Activator>
+@AutomaticActivation
+public class EventListenerServicePreProcessor implements ServicePreProcessor<UseDefault>
 {
 
     @Override
@@ -24,7 +25,7 @@ public class EventListenerServicePreProcessor implements ServicePreProcessor<Act
     }
 
     @Override
-    public Class<Activator> activator() {
-        return Activator.class;
+    public Class<UseDefault> activator() {
+        return UseDefault.class;
     }
 }
