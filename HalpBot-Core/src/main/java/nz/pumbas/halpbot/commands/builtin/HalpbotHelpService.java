@@ -40,7 +40,7 @@ public class HalpbotHelpService implements HelpService
                     .setColor(Color.ORANGE)
                     .setTitle("HALP");
 
-            Map<Object, List<CommandContext>> commands = commandAdapter.registeredCommands()
+            Map<Object, List<CommandContext>> commands = commandAdapter.commands()
                     .values()
                     .stream()
                     .collect(Collectors.groupingBy(ActionInvokable::instance));

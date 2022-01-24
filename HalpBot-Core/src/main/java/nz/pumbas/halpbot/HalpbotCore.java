@@ -3,6 +3,7 @@ package nz.pumbas.halpbot;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.dockbox.hartshorn.core.annotations.inject.Provider;
@@ -29,8 +30,6 @@ import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.configurations.DisplayConfiguration;
-import nz.pumbas.halpbot.utilities.ConcurrentManager;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 public class HalpbotCore implements ContextCarrier
@@ -46,6 +45,7 @@ public class HalpbotCore implements ContextCarrier
     @Nullable private JDA jda;
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
+    private final List<EventListener> eventListeners = new ArrayList<>();
 
     /**
      * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke
@@ -111,6 +111,8 @@ public class HalpbotCore implements ContextCarrier
     public JDA build(JDABuilder jdaBuilder) throws ApplicationException {
         this.adapters.forEach((adapter) -> adapter.initialise(jdaBuilder));
         this.adapters.forEach(jdaBuilder::addEventListeners);
+        this.eventListeners.forEach(jdaBuilder::addEventListeners);
+        this.eventListeners.clear(); // Free up the memory space, we don't to store this anymore
 
         try {
             this.jda = jdaBuilder.build().awaitReady();
@@ -127,39 +129,15 @@ public class HalpbotCore implements ContextCarrier
         return this;
     }
 
+    public void registerEventListener(EventListener eventListener) {
+        this.eventListeners.add(eventListener);
+    }
+
     @Provider
     public JDA jda() {
         if (this.jda == null)
             ExceptionHandler.unchecked(
                     new ApplicationException("You are trying to access the JDA instance before it has been created"));
         return this.jda;
-    }
-
-    @Nullable
-    public <T> T get(final Class<T> implementation) {
-        return this.get(TypeContext.of(implementation));
-    }
-
-    @Nullable
-    public <T> T get(final TypeContext<T> implementation) {
-        return this.getSafely(implementation).orNull();
-    }
-
-    /**
-     * Retrieves an {@link Exceptional} of the instance of the specified {@link Class contract}.
-     *
-     * @param contract
-     *     The {@link Class contract} of the instance to retrieve
-     *
-     * @return An {@link Exceptional} of the instance, or {@link Exceptional#empty()} if there isn't one registered.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> Exceptional<T> getSafely(final TypeContext<T> contract) {
-        return Exceptional.of(
-            this.adapters
-            .stream()
-            .filter(adapter -> TypeContext.of(adapter).childOf(contract))
-            .findFirst()
-            .map(adapter -> (T)adapter));
     }
 }

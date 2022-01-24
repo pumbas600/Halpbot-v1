@@ -124,7 +124,7 @@ public interface CommandAdapter extends HalpbotAdapter
                                                         Set<TypeContext<?>> reflections);
 
 
-    Map<String, CommandContext> registeredCommands();
+    Map<String, CommandContext> commands();
 
     Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext);
 
