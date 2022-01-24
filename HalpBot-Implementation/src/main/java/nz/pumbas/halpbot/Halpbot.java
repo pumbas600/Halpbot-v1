@@ -74,7 +74,6 @@ public class Halpbot extends ListenerAdapter implements Bot
         String token = HalpbotUtils.firstLine("Token.txt");
         return JDABuilder.createDefault(token)
                 .disableIntents(GatewayIntent.GUILD_PRESENCES)
-                .addEventListeners(this)
                 .setActivity(Activity.of(ActivityType.COMPETING, "to help everyone"));
     }
 }
