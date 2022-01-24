@@ -95,27 +95,6 @@ public class DemoTests
         Assertions.assertNotNull(commandAdapter.parameterAnnotationService());
     }
 
-    @Test
-    public void genericTypeTests() {
-        ParameterContext<?> parameter = TypeContext.of(this).method("genericTestMethod", List.class)
-                .get()
-                .parameters()
-                .get(0);
-
-        TypeContext<?> genericType = parameter.genericType();
-
-        Assertions.assertTrue(genericType.is(List.class));
-        Assertions.assertEquals(1, genericType.typeParameters().size());
-
-        genericType = genericType.typeParameters().get(0);
-        Assertions.assertTrue(genericType.is(List.class));
-        Assertions.assertEquals(1, genericType.typeParameters().size());
-
-        genericType = genericType.typeParameters().get(0);
-        Assertions.assertTrue(genericType.is(String.class));
-        Assertions.assertEquals(0, genericType.typeParameters().size());
-    }
-
     @InjectTest
     public void permissionService(PermissionService permissionService) {
         Assertions.assertNotNull(permissionService);

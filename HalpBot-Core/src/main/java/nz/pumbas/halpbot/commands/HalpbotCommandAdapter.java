@@ -1,9 +1,7 @@
 package nz.pumbas.halpbot.commands;
 
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 
 import org.dockbox.hartshorn.core.ArrayListMultiMap;
 import org.dockbox.hartshorn.core.HartshornUtils;
@@ -63,9 +61,8 @@ import nz.pumbas.halpbot.utilities.Reflect;
 public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
-    private final Map<String, CommandContext> registeredCommands = HartshornUtils.emptyMap();
-    private final Map<TypeContext<?>, MultiMap<String, CommandContext>> registeredReflectiveCommands =
-            HartshornUtils.emptyMap();
+    private final Map<String, CommandContext> commands = HartshornUtils.emptyMap();
+    private final Map<TypeContext<?>, MultiMap<String, CommandContext>> reflectiveCommands = HartshornUtils.emptyMap();
 
     private final Map<TypeContext<?>, String> typeAliases = HartshornUtils.emptyMap();
     private final Map<Long, String> guildPrefixes = HartshornUtils.emptyMap();
@@ -132,20 +129,9 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     @Override
-    public void initialise(JDABuilder jdaBuilder) {
-        this.registeredCommands.values()
-                .stream()
-                .collect(Collectors.groupingBy(CommandContext::instance))
-                .keySet()
-                .stream()
-                .filter((obj) -> obj instanceof EventListener)
-                .forEach(jdaBuilder::addEventListeners);
-    }
-
-    @Override
     @Nullable
     public CommandContext commandContext(String alias) {
-        return this.registeredCommands.get(alias.toLowerCase(Locale.ROOT));
+        return this.commands.get(alias.toLowerCase(Locale.ROOT));
     }
 
     @Override
@@ -153,10 +139,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
                                                                String methodName,
                                                                Set<TypeContext<?>> reflections)
     {
-        if (!this.registeredReflectiveCommands.containsKey(targetType))
+        if (!this.reflectiveCommands.containsKey(targetType))
             return Collections.emptyList();
 
-        return this.registeredReflectiveCommands.get(targetType).get(methodName.toLowerCase(Locale.ROOT))
+        return this.reflectiveCommands.get(targetType).get(methodName.toLowerCase(Locale.ROOT))
                 .stream()
                 .filter(commandContext -> commandContext.executable() instanceof MethodContext methodContext
                         && reflections.contains(methodContext.parent()))
@@ -183,14 +169,14 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 new HalpbotCommandInvokable(instance, methodContext));
 
         for (String alias : aliases) {
-            if (this.registeredCommands.containsKey(alias)) {
+            if (this.commands.containsKey(alias)) {
                 this.applicationContext.log().warn(
                         "The alias '%s' is already being used by the command '%s'. The command %s will not be registered under this alias"
-                                .formatted(alias, this.registeredCommands.get(alias).toString(), commandContext.toString()));
+                                .formatted(alias, this.commands.get(alias).toString(), commandContext.toString()));
                 continue;
             }
 
-            this.registeredCommands.put(alias, commandContext);
+            this.commands.put(alias, commandContext);
         }
     }
 
@@ -226,10 +212,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 new HalpbotCommandInvokable(null, methodContext));
 
         TypeContext<?> returnType = methodContext.genericReturnType();
-        if (!this.registeredReflectiveCommands.containsKey(returnType))
-            this.registeredReflectiveCommands.put(returnType, new ArrayListMultiMap<>());
+        if (!this.reflectiveCommands.containsKey(returnType))
+            this.reflectiveCommands.put(returnType, new ArrayListMultiMap<>());
 
-        MultiMap<String, CommandContext> aliasMappings = this.registeredReflectiveCommands.get(returnType);
+        MultiMap<String, CommandContext> aliasMappings = this.reflectiveCommands.get(returnType);
 
         for (String alias : aliases) {
             aliasMappings.put(alias.toLowerCase(Locale.ROOT), commandContext);
@@ -326,8 +312,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     @Override
-    public Map<String, CommandContext> registeredCommands() {
-        return Collections.unmodifiableMap(this.registeredCommands);
+    public Map<String, CommandContext> commands() {
+        return Collections.unmodifiableMap(this.commands);
     }
 
     @Override

@@ -407,8 +407,9 @@ public final class DefaultConverters
 
     public static final SourceConverter<HalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
             SourceConverter.builder(HalpbotAdapter.class)
-                    .convert(invocationContext -> invocationContext.applicationContext().get(HalpbotCore.class)
-                            .getSafely((TypeContext<HalpbotAdapter>) invocationContext.currentType()))
+                    .convert(invocationContext -> Exceptional.of(
+                            (HalpbotAdapter) invocationContext.applicationContext()
+                                    .get(invocationContext.currentType())))
                     .build();
     public static final SourceConverter<JDA> JDA_CONVERTER = SourceConverter.builder(JDA.class)
             .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().jda()))
