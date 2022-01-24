@@ -26,7 +26,7 @@ public class CustomLogDecorator<C extends InvocationContext> extends LogDecorato
                     "[%s] %s".formatted(messageEvent.getClass().getSimpleName(), messageEvent.getMessage().getContentRaw()));
         }
 
-        // Invoke the old decorator like normally
+        // Invoke the old decorator like normal
         return super.invoke(invocationContext);
     }
 }
