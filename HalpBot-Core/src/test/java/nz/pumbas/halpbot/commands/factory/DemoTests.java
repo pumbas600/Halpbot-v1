@@ -28,6 +28,7 @@ import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import nz.pumbas.halpbot.actions.cooldowns.CooldownDecoratorFactory;
 import nz.pumbas.halpbot.commands.CommandAdapter;
+import nz.pumbas.halpbot.commands.TestService;
 import nz.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
 import nz.pumbas.halpbot.permissions.PermissionDecoratorFactory;
 import nz.pumbas.halpbot.utilities.Require;
@@ -112,6 +113,16 @@ public class DemoTests
     public void permissionDecorator(DemoServiceA<?> serviceA) {
         Assertions.assertNotNull(serviceA);
         Assertions.assertNotNull(serviceA.permissionService());
+    }
+
+    @InjectTest
+    public void proxyThisEquality(TestService testService) {
+        Assertions.assertTrue(testService.test());
+    }
+
+    @InjectTest
+    public void proxyEquality(TestService testService1, TestService testService2) {
+        Assertions.assertEquals(testService1, testService2);
     }
 
     private static class TestCooldown implements Cooldown {
