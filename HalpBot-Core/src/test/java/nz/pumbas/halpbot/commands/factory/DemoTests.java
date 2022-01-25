@@ -117,7 +117,8 @@ public class DemoTests
 
     @InjectTest
     public void proxyThisEquality(TestService testService) {
-        Assertions.assertTrue(testService.test());
+        Assertions.assertEquals(testService, testService);
+        Assertions.assertTrue(testService.test(testService));
     }
 
     @InjectTest
