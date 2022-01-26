@@ -80,6 +80,11 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         return button.withId(newId);
     }
 
+    @Override
+    public void unregister(String id) {
+        this.registeredButtons.remove(id);
+    }
+
     private <T> ButtonContext createButton(String id,
                                            ButtonAction buttonAction,
                                            ActionInvokable<ButtonInvocationContext> actionInvokable,
