@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
@@ -42,7 +41,6 @@ import javax.inject.Inject;
 import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.common.Bot;
-import nz.pumbas.halpbot.permissions.repositories.GuildPermission;
 import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 import nz.pumbas.halpbot.triggers.UseTriggers;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -74,7 +72,6 @@ public class Halpbot extends ListenerAdapter implements Bot
         String token = HalpbotUtils.firstLine("Token.txt");
         return JDABuilder.createDefault(token)
                 .disableIntents(GatewayIntent.GUILD_PRESENCES)
-                .addEventListeners(this)
                 .setActivity(Activity.of(ActivityType.COMPETING, "to help everyone"));
     }
 }
