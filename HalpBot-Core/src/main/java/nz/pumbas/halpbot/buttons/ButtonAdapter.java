@@ -56,6 +56,14 @@ public interface ButtonAdapter extends HalpbotAdapter
 
     Button register(Button button, Object... parameters);
 
+    void unregister(String id);
+
+    default void unregister(Button button) {
+        String id = button.getId();
+        if (id != null)
+            this.unregister(button.getId());
+    }
+
     default List<Button> register(List<Button> buttons, Object... parameters) {
         return buttons.stream()
                 .map((button) -> this.register(button, parameters))
