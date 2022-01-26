@@ -179,6 +179,7 @@ public class GameCommands
             return actionRows.get(0).getButtons()
                     .stream()
                     .map(Button::asDisabled)
+                    .peek(this.buttonAdapter::unregister)
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
