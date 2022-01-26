@@ -38,8 +38,7 @@ public class ExampleBot extends ListenerAdapter implements Bot
     @Override
     public JDABuilder initialise(String[] args) {
         String token = args[0]; // The token is the first argument
-        return JDABuilder.createDefault(token)
-                .addEventListeners(this) // Add this class as an event listener
+        return JDABuilder.createDefault(token) // This bot class is automatically registered as an event listener
                 .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!"));
     }
 }
