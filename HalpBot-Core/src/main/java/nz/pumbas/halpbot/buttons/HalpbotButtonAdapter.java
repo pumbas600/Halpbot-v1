@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -33,6 +34,7 @@ import nz.pumbas.halpbot.events.InteractionEvent;
 @ComponentBinding(ButtonAdapter.class)
 public class HalpbotButtonAdapter implements ButtonAdapter
 {
+    private int idSuffix;
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
 
     @Inject private TokenService tokenService;
@@ -64,13 +66,19 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Override
     public Button register(Button button, Object... parameters) {
+        String id = button.getId();
+        if (id == null) {
+            this.applicationContext.log().warn("You cannot register a button that has no id with the button adapter");
+            return button;
+        }
+
         ButtonContext buttonContext = this.buttonContext( button.getId());
         if (buttonContext == null)
             throw new IllegalArgumentException(
                     "You cannot register a button with the id %s as there is no matching button action for it"
                             .formatted(button.getId()));
 
-        String newId = button.getId() + System.currentTimeMillis();
+        String newId = this.generateId(id);
         ButtonContext newButtonContext = this.buttonContextFactory
                 .create(newId, parameters, buttonContext);
 
@@ -78,6 +86,12 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         //TODO: Remove after awhile
 
         return button.withId(newId);
+    }
+
+    public String generateId(String currentId) {
+        // The id suffix prevents buttons registered within the same millisecond having the same id
+        this.idSuffix = (this.idSuffix + 1) % Integer.MAX_VALUE;
+        return "%s-%d-%d".formatted(currentId, System.currentTimeMillis(), this.idSuffix);
     }
 
     @Override
