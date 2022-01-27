@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
@@ -13,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -25,7 +23,6 @@ import lombok.experimental.Accessors;
 import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
-import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
@@ -82,7 +79,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                     "You cannot register a button with the id %s as there is no matching button action for it"
                             .formatted(button.getId()));
 
-        String newId = this.generateId(id);
+        String newId = this.generateDynamicId(id);
         ButtonContext newButtonContext = this.buttonContextFactory
                 .create(newId, parameters, buttonContext);
 

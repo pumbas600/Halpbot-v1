@@ -10,12 +10,16 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 
 public interface ButtonAdapter extends HalpbotAdapter
 {
-    String DYNAMIC_PREFIX = "HB-DYN";
+    String DYNAMIC_PREFIX = "DYN-BTN";
+    String DYNAMIC_ID_FORMAT = DYNAMIC_PREFIX + "$$%s$$%d-%d";
+    Pattern DYNAMIC_ID_EXTRACTION_PATTERN = Pattern.compile(".*\\$\\$(.*)\\$\\$.*");
 
     int idSuffix();
 
@@ -76,10 +80,31 @@ public interface ButtonAdapter extends HalpbotAdapter
                 .toList();
     }
 
-    default String generateId(String currentId) {
-        // The id suffix prevents buttons registered within the same millisecond having the same id
-        this.idSuffix((this.idSuffix() + 1) % Integer.MAX_VALUE);
-        return "%s-%s-%d-%d".formatted(DYNAMIC_PREFIX, currentId, System.currentTimeMillis(), this.idSuffix());
+    default String generateDynamicId(String currentId) {
+        // The id suffix prevents buttons registered within the same millisecond having the same id. 1000 is used so
+        // that it won't take up any more than 3 characters
+        this.idSuffix((this.idSuffix() + 1) % 1000);
+        return DYNAMIC_ID_FORMAT.formatted(currentId, System.currentTimeMillis(), this.idSuffix());
+    }
+
+    default Exceptional<String> extractOriginalIdSafely(String dynamicId) {
+        String extractedId = this.extractOriginalId(dynamicId);
+
+        if (extractedId == null)
+            return Exceptional.of(
+                    new IllegalArgumentException("The specified id did not match the dynamic id format of '%s'"
+                            .formatted(DYNAMIC_ID_FORMAT)));
+
+        return Exceptional.of(extractedId);
+    }
+
+    @Nullable
+    default String extractOriginalId(String dynamicId) {
+        Matcher matcher = DYNAMIC_ID_EXTRACTION_PATTERN.matcher(dynamicId);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     default boolean isDynamic(String id) {
