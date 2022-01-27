@@ -8,7 +8,6 @@ import java.util.List;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.converters.tokens.Token;
 
 @ComponentBinding(ButtonContext.class)
 public record HalpbotButtonContext(String id,
@@ -16,7 +15,9 @@ public record HalpbotButtonContext(String id,
                                    Duration displayDuration,
                                    ActionInvokable<ButtonInvocationContext> actionInvokable,
                                    Object[] passedParameters,
-                                   List<ParsingToken> nonCommandParameterTokens)
+                                   List<ParsingToken> nonCommandParameterTokens,
+                                   int afterUsages,
+                                   Duration after)
     implements ButtonContext
 {
     @Bound
