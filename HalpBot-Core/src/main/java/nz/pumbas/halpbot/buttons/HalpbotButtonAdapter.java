@@ -20,6 +20,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
@@ -31,11 +33,13 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
 
 @Singleton
+@Accessors(chain = false)
 @ComponentBinding(ButtonAdapter.class)
 public class HalpbotButtonAdapter implements ButtonAdapter
 {
-    private int idSuffix;
+    @Getter @Setter private int idSuffix;
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
+    private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
 
     @Inject private TokenService tokenService;
     @Inject private DecoratorService decoratorService;
@@ -82,16 +86,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         ButtonContext newButtonContext = this.buttonContextFactory
                 .create(newId, parameters, buttonContext);
 
-        this.registeredButtons.put(newId, newButtonContext);
+        this.dynamicButtons.put(newId, newButtonContext);
         //TODO: Remove after awhile
 
         return button.withId(newId);
-    }
-
-    public String generateId(String currentId) {
-        // The id suffix prevents buttons registered within the same millisecond having the same id
-        this.idSuffix = (this.idSuffix + 1) % Integer.MAX_VALUE;
-        return "%s-%d-%d".formatted(currentId, System.currentTimeMillis(), this.idSuffix);
     }
 
     @Override
@@ -99,10 +97,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         this.registeredButtons.remove(id);
     }
 
-    private <T> ButtonContext createButton(String id,
-                                           ButtonAction buttonAction,
-                                           ActionInvokable<ButtonInvocationContext> actionInvokable,
-                                           Object[] passedParameters)
+    private ButtonContext createButton(String id,
+                                       ButtonAction buttonAction,
+                                       ActionInvokable<ButtonInvocationContext> actionInvokable,
+                                       Object[] passedParameters)
     {
         return this.buttonContextFactory.create(
                 id,
@@ -120,12 +118,24 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Override
     public void onButtonClick(ButtonClickEvent event) {
-        if (!this.registeredButtons.containsKey(event.getComponentId())) {
-            return;
-        }
+        String id = event.getComponentId();
 
-        ButtonContext buttonContext = this.registeredButtons.get(event.getComponentId());
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
+        ButtonContext buttonContext;
+        if (this.isDynamic(id)) {
+            if (this.dynamicButtons.containsKey(id))
+                buttonContext = this.dynamicButtons.get(id);
+            else { // The button has expired
+                this.halpbotCore().displayConfiguration()
+                        .displayTemporary(halpbotEvent, "This button has expired", 30);
+                return;
+            }
+        }
+        else if (this.registeredButtons.containsKey(id)) {
+            buttonContext = this.registeredButtons.get(id);
+        }
+        else return; // Not a halpbot button
+
         ButtonInvocationContext invocationContext = this.invocationContextFactory.button(new InteractionEvent(event), buttonContext);
 
         Exceptional<Object> result = buttonContext.invoke(invocationContext);

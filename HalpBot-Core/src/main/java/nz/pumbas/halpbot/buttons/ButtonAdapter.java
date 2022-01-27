@@ -15,6 +15,12 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 
 public interface ButtonAdapter extends HalpbotAdapter
 {
+    String DYNAMIC_PREFIX = "HB-DYN";
+
+    int idSuffix();
+
+    void idSuffix(int idSuffix);
+
     @Override
     default void onEvent(GenericEvent event) {
         if (event instanceof ButtonClickEvent buttonClickEvent)
@@ -68,5 +74,20 @@ public interface ButtonAdapter extends HalpbotAdapter
         return buttons.stream()
                 .map((button) -> this.register(button, parameters))
                 .toList();
+    }
+
+    default String generateId(String currentId) {
+        // The id suffix prevents buttons registered within the same millisecond having the same id
+        this.idSuffix((this.idSuffix() + 1) % Integer.MAX_VALUE);
+        return "%s-%s-%d-%d".formatted(DYNAMIC_PREFIX, currentId, System.currentTimeMillis(), this.idSuffix());
+    }
+
+    default boolean isDynamic(String id) {
+        return id.startsWith(DYNAMIC_PREFIX);
+    }
+
+    default boolean isDynamic(Button button) {
+        String id = button.getId();
+        return id != null && this.isDynamic(id);
     }
 }
