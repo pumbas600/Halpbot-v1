@@ -19,8 +19,11 @@ public interface ButtonContextFactory
                          Duration displayDuration,
                          ActionInvokable<ButtonInvocationContext> actionInvokable,
                          Object[] passedParameters,
-                         List<ParsingToken> nonCommandParameterTokens);
+                         List<ParsingToken> nonCommandParameterTokens,
+                         int afterUsages,
+                         Duration after);
 
+    //TODO: This
     default ButtonContext create(String id, Object[] passedParameters, ButtonContext buttonContext) {
         return this.create(
                 id,
@@ -28,6 +31,8 @@ public interface ButtonContextFactory
                 buttonContext.displayDuration(),
                 buttonContext.actionInvokable(),
                 passedParameters,
-                buttonContext.nonCommandParameterTokens());
+                buttonContext.nonCommandParameterTokens(),
+                -1,
+                null);
     }
 }
