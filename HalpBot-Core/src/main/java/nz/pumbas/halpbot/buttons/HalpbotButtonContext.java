@@ -1,14 +1,11 @@
 package nz.pumbas.halpbot.buttons;
 
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.function.Function;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +26,7 @@ public class HalpbotButtonContext implements ButtonContext
     private final List<ParsingToken> nonCommandParameterTokens;
     private int afterUsages;
     private final Duration after;
-    private final Function<ButtonClickEvent, List<ActionRow>> afterRemoval;
+    @Nullable private final AfterRemovalStrategy afterRemoval;
 
 
     @Override

@@ -1,20 +1,20 @@
 package nz.pumbas.halpbot.buttons;
 
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
-import java.util.List;
-import java.util.function.Function;
+import org.jetbrains.annotations.Nullable;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
+@RequiredArgsConstructor
 public enum AfterRemoval
 {
     /**
      * Just remove the dynamic component, but do nothing afterwards.
      */
-    NOTHING(e -> e.getMessage().getActionRows()),
+    NOTHING(null),
 
     /**
      * Disable the specific component removed.
@@ -43,9 +43,6 @@ public enum AfterRemoval
             .toList());
 
     @Getter
-    private final Function<ButtonClickEvent, List<ActionRow>> strategy;
-
-    AfterRemoval(Function<ButtonClickEvent, List<ActionRow>> strategy) {
-        this.strategy = strategy;
-    }
+    @Nullable
+    private final AfterRemovalStrategy strategy;
 }
