@@ -1,10 +1,14 @@
 package nz.pumbas.halpbot.buttons;
 
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+
 import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.function.Function;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
@@ -20,9 +24,14 @@ public interface ButtonContextFactory
                          Object[] passedParameters,
                          List<ParsingToken> nonCommandParameterTokens,
                          int afterUsages,
-                         Duration after);
+                         Duration after,
+                         Function<ButtonClickEvent, List<ActionRow>> afterRemoval);
 
-    default ButtonContext create(String id, Object[] passedParameters, ButtonContext buttonContext) {
+    default ButtonContext create(String id,
+                                 Object[] passedParameters,
+                                 ButtonContext buttonContext,
+                                 Function<ButtonClickEvent, List<ActionRow>> afterRemoval)
+    {
         return this.create(
                 id,
                 buttonContext.isEphemeral(),
@@ -31,6 +40,7 @@ public interface ButtonContextFactory
                 passedParameters,
                 buttonContext.nonCommandParameterTokens(),
                 buttonContext.afterUsages(),
-                buttonContext.after());
+                buttonContext.after(),
+                afterRemoval);
     }
 }
