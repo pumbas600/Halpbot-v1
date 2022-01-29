@@ -132,15 +132,36 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         );
     }
 
+    private ButtonContext retrieveDynamicButtonContext(String id) {
+        boolean remove = false;
+        ButtonContext buttonContext = this.dynamicButtons.get(id);
+        if (buttonContext.isUsingUsages()) {
+            buttonContext.deductUsage();
+            if (!buttonContext.isUsingUsages())
+                remove = true;
+        }
+        if (!remove && buttonContext.isUsingDuration() &&
+            OffsetDateTime.now().isAfter(this.dynamicButtonExpirations.get(id))) {
+                remove = true;
+        }
+
+        if (remove) // Remove the button if it's expired
+            this.removeDynamicButton(id);
+        return buttonContext;
+    }
+
+
     @Override
     public void onButtonClick(ButtonClickEvent event) {
         String id = event.getComponentId();
 
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
         ButtonContext buttonContext;
+
         if (this.isDynamic(id)) {
-            if (this.dynamicButtons.containsKey(id))
-                buttonContext = this.dynamicButtons.get(id);
+            if (this.dynamicButtons.containsKey(id)) {
+                buttonContext = this.retrieveDynamicButtonContext(id);
+            }
             else { // The button has expired
                 this.halpbotCore().displayConfiguration()
                         .displayTemporary(halpbotEvent, "This button has expired", -30);

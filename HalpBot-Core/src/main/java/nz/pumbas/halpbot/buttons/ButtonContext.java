@@ -13,6 +13,8 @@ public interface ButtonContext extends SourceContext<ButtonInvocationContext>, D
 
     int afterUsages();
 
+    void deductUsage();
+
     Duration after();
 
     default boolean isUsingUsages() {
