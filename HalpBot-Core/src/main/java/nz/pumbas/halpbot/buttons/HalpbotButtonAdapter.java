@@ -10,8 +10,11 @@ import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
+import java.lang.annotation.Annotation;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -38,6 +41,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     @Getter @Setter private int idSuffix;
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
     private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
+    private final Map<String, OffsetDateTime> dynamicButtonExpirations = new ConcurrentHashMap<>();
 
     @Inject private TokenService tokenService;
     @Inject private DecoratorService decoratorService;
@@ -81,8 +85,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                             .formatted(button.getId()));
 
         String newId = this.generateDynamicId(id);
-        ButtonContext newButtonContext = this.buttonContextFactory
-                .create(newId, parameters, buttonContext);
+        ButtonContext newButtonContext = this.buttonContextFactory.create(newId, parameters, buttonContext);
 
         this.dynamicButtons.put(newId, newButtonContext);
         //TODO: Remove after awhile
@@ -92,7 +95,19 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Override
     public void unregister(String id) {
-        this.registeredButtons.remove(id);
+        if (this.registeredButtons.containsKey(id))
+            this.registeredButtons.remove(id);
+        else this.removeDynamicButton(id);
+    }
+
+    private void removeDynamicButton(String id) {
+        if (!this.dynamicButtons.containsKey(id))
+            return;
+
+        ButtonContext buttonContext = this.dynamicButtons.remove(id);
+        if (buttonContext.isUsingDuration()) {
+            this.dynamicButtonExpirations.remove(id);
+        }
     }
 
     private ButtonContext createButton(String id,
