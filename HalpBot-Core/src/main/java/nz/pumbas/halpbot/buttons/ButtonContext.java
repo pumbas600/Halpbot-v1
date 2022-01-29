@@ -16,6 +16,10 @@ public interface ButtonContext extends SourceContext<ButtonInvocationContext>, D
     Duration after();
 
     default boolean isUsingUsages() {
-        return this.afterUsages() >= 0;
+        return this.afterUsages() > 0;
+    }
+
+    default boolean isUsingDuration() {
+        return this.after().isNegative();
     }
 }
