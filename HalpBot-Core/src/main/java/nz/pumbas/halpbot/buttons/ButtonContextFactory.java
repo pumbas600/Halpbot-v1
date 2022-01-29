@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,12 +26,12 @@ public interface ButtonContextFactory
                          List<ParsingToken> nonCommandParameterTokens,
                          int afterUsages,
                          Duration after,
-                         Function<ButtonClickEvent, List<ActionRow>> afterRemoval);
+                         @Nullable AfterRemovalStrategy afterRemoval);
 
     default ButtonContext create(String id,
                                  Object[] passedParameters,
                                  ButtonContext buttonContext,
-                                 Function<ButtonClickEvent, List<ActionRow>> afterRemoval)
+                                 @Nullable AfterRemovalStrategy afterRemoval)
     {
         return this.create(
                 id,

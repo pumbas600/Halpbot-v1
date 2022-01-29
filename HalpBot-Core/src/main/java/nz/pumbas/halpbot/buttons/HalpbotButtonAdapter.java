@@ -14,6 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,6 +45,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
     private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
     private final Map<String, OffsetDateTime> dynamicButtonExpirations = new ConcurrentHashMap<>();
+    private final Queue<ButtonContext> removedButtonContexts = new PriorityQueue<>();
 
     @Inject private TokenService tokenService;
     @Inject private DecoratorService decoratorService;
@@ -73,7 +76,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Override
     public Button register(Button button, Object... parameters) {
-        if (!this.isValidButton(button))
+        if (this.isInvalid(button))
             return button;
 
         String id = button.getId();
@@ -92,19 +95,21 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     }
 
     @Override
-    public Button register(Button button, Function<ButtonClickEvent, List<ActionRow>> afterRemoval, Object... parameters) {
-        if (!this.isValidButton(button))
+    public Button register(Button button,
+                           @Nullable AfterRemovalStrategy afterRemoval,
+                           Object... parameters) {
+        if (this.isInvalid(button))
             return button;
 
         ButtonContext buttonContext = this.registeredButtons.get(button.getId());
         return this.register(button, buttonContext.afterRemoval(), parameters);
     }
 
-    private boolean isValidButton(Button button) {
+    private boolean isInvalid(Button button) {
         String id = button.getId();
         if (id == null) {
             this.applicationContext.log().warn("You cannot register a button that has no id with the button adapter");
-            return false;
+            return true;
         }
 
         ButtonContext buttonContext = this.buttonContext( button.getId());
@@ -112,9 +117,9 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             this.applicationContext.log().error(
                     "You cannot register a button with the id %s as there is no matching button action for it"
                             .formatted(button.getId()));
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -132,6 +137,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         if (buttonContext.isUsingDuration()) {
             this.dynamicButtonExpirations.remove(id);
         }
+        this.removedButtonContexts.add(buttonContext);
     }
 
     private ButtonContext createButton(String id,
@@ -207,6 +213,13 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         else if (result.caught()) {
             event.deferEdit(); // Prevent interaction failed event
             this.handleException(halpbotEvent, result.error());
+        }
+
+        // TODO: Fix the issue that currently each subsequent change overwrites the previous one
+        while (!this.removedButtonContexts.isEmpty()) {
+            AfterRemovalStrategy afterRemoval = this.removedButtonContexts.poll().afterRemoval();
+            if (afterRemoval == null) continue;
+            event.getHook().editOriginalComponents(afterRemoval.apply(event)).queue();
         }
     }
 }

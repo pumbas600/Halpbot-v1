@@ -68,7 +68,7 @@ public interface ButtonAdapter extends HalpbotAdapter
 
     Button register(Button button, Object... parameters);
 
-    Button register(Button button, Function<ButtonClickEvent, List<ActionRow>> afterRemoval, Object... parameters);
+    Button register(Button button, AfterRemovalStrategy afterRemoval, Object... parameters);
 
     void unregister(String id);
 
