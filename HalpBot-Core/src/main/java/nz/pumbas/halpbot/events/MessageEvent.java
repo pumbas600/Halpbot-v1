@@ -101,17 +101,13 @@ public class MessageEvent implements HalpbotEvent
 
     @Override
     public void replyTemporarily(String message, long seconds) {
-        if (0 >= seconds)
-            throw new IllegalArgumentException("The number of seconds for a temporary response must be greater than 0");
         this.event.getChannel().sendMessage(message)
-            .queue(m -> m.delete().queueAfter(seconds, TimeUnit.SECONDS));
+            .queue(m -> m.delete().queueAfter(Math.abs(seconds), TimeUnit.SECONDS));
     }
 
     @Override
     public void replyTemporarily(MessageEmbed embed, long seconds) {
-        if (0 >= seconds)
-            throw new IllegalArgumentException("The number of seconds for a temporary response must be greater than 0");
         this.event.getChannel().sendMessageEmbeds(embed)
-            .queue(m -> m.delete().queueAfter(seconds, TimeUnit.SECONDS));
+            .queue(m -> m.delete().queueAfter(Math.abs(seconds), TimeUnit.SECONDS));
     }
 }

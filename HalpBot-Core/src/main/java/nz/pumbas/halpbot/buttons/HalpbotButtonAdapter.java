@@ -88,7 +88,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         ButtonContext newButtonContext = this.buttonContextFactory.create(newId, parameters, buttonContext);
 
         this.dynamicButtons.put(newId, newButtonContext);
-        //TODO: Remove after awhile
+        if (newButtonContext.isUsingDuration())
+            this.dynamicButtonExpirations.put(newId, OffsetDateTime.now().plus(newButtonContext.displayDuration()));
 
         return button.withId(newId);
     }
@@ -142,7 +143,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                 buttonContext = this.dynamicButtons.get(id);
             else { // The button has expired
                 this.halpbotCore().displayConfiguration()
-                        .displayTemporary(halpbotEvent, "This button has expired", 30);
+                        .displayTemporary(halpbotEvent, "This button has expired", -30);
                 return;
             }
         }
