@@ -8,7 +8,6 @@ import java.util.List;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
-import nz.pumbas.halpbot.converters.tokens.Token;
 
 @Service
 public interface ButtonContextFactory
@@ -23,7 +22,6 @@ public interface ButtonContextFactory
                          int afterUsages,
                          Duration after);
 
-    //TODO: This
     default ButtonContext create(String id, Object[] passedParameters, ButtonContext buttonContext) {
         return this.create(
                 id,
@@ -32,7 +30,7 @@ public interface ButtonContextFactory
                 buttonContext.actionInvokable(),
                 passedParameters,
                 buttonContext.nonCommandParameterTokens(),
-                -1,
-                null);
+                buttonContext.afterUsages(),
+                buttonContext.after());
     }
 }
