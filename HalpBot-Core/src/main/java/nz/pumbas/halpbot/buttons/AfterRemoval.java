@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import java.util.List;
 import java.util.function.Function;
 
+import lombok.Getter;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public enum AfterRemoval
@@ -41,13 +42,10 @@ public enum AfterRemoval
                     .toList()))
             .toList());
 
+    @Getter
     private final Function<ButtonClickEvent, List<ActionRow>> strategy;
 
     AfterRemoval(Function<ButtonClickEvent, List<ActionRow>> strategy) {
         this.strategy = strategy;
-    }
-
-    public List<ActionRow> apply(ButtonClickEvent event) {
-        return this.strategy.apply(event);
     }
 }

@@ -1,6 +1,7 @@
 package nz.pumbas.halpbot.buttons;
 
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
@@ -11,8 +12,10 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -70,26 +73,48 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Override
     public Button register(Button button, Object... parameters) {
-        String id = button.getId();
-        if (id == null) {
-            this.applicationContext.log().warn("You cannot register a button that has no id with the button adapter");
+        if (!this.isValidButton(button))
             return button;
-        }
 
-        ButtonContext buttonContext = this.buttonContext( button.getId());
-        if (buttonContext == null)
-            throw new IllegalArgumentException(
-                    "You cannot register a button with the id %s as there is no matching button action for it"
-                            .formatted(button.getId()));
+        String id = button.getId();
+        ButtonContext buttonContext = this.registeredButtons.get(id);
 
+        assert id != null; // id will never be null as this would invalidate the button
         String newId = this.generateDynamicId(id);
-        ButtonContext newButtonContext = this.buttonContextFactory.create(newId, parameters, buttonContext);
+        ButtonContext newButtonContext = this.buttonContextFactory
+                .create(newId, parameters, buttonContext, buttonContext.afterRemoval());
 
         this.dynamicButtons.put(newId, newButtonContext);
         if (newButtonContext.isUsingDuration())
             this.dynamicButtonExpirations.put(newId, OffsetDateTime.now().plus(newButtonContext.displayDuration()));
 
         return button.withId(newId);
+    }
+
+    @Override
+    public Button register(Button button, Function<ButtonClickEvent, List<ActionRow>> afterRemoval, Object... parameters) {
+        if (!this.isValidButton(button))
+            return button;
+
+        ButtonContext buttonContext = this.registeredButtons.get(button.getId());
+        return this.register(button, buttonContext.afterRemoval(), parameters);
+    }
+
+    private boolean isValidButton(Button button) {
+        String id = button.getId();
+        if (id == null) {
+            this.applicationContext.log().warn("You cannot register a button that has no id with the button adapter");
+            return false;
+        }
+
+        ButtonContext buttonContext = this.buttonContext( button.getId());
+        if (buttonContext == null) {
+            this.applicationContext.log().error(
+                    "You cannot register a button with the id %s as there is no matching button action for it"
+                            .formatted(button.getId()));
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -126,7 +151,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                         .map(token -> (ParsingToken) token)
                         .collect(Collectors.toList()),
                 buttonAction.afterUsages(),
-                HalpbotUtils.asDuration(buttonAction.after())
+                HalpbotUtils.asDuration(buttonAction.after()),
+                buttonAction.afterRemoval().strategy()
         );
     }
 

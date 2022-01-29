@@ -20,4 +20,6 @@ public @interface ButtonAction
     int afterUsages() default -1;
 
     Duration after() default @Duration(-1);
+
+    AfterRemoval afterRemoval() default AfterRemoval.NOTHING;
 }
