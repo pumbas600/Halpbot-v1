@@ -26,6 +26,9 @@ package nz.pumbas.halpbot.utilities;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.NotNull;
@@ -539,5 +542,23 @@ public final class HalpbotUtils
      */
     public static String splitVariableName(String text) {
         return text.replaceAll("([a-z])([A-Z])", "$1 $2");
+    }
+
+    /**
+     * returns the disabled version of a {@link Component} by checking if it's either a {@link Button} or a
+     * {@link SelectionMenu} and calling their appropriate {@code #asDisabled} method. If the component is neither of
+     * those then it's returned as is.
+     *
+     * @param component
+     *      The {@link Component} to disable
+     *
+     * @return The disabled component
+     */
+    public static Component disable(Component component) {
+        if (component instanceof Button button)
+            return button.asDisabled();
+        else if (component instanceof SelectionMenu selectionMenu)
+            return selectionMenu.asDisabled();
+        return component;
     }
 }
