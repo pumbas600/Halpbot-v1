@@ -100,7 +100,7 @@ public class InteractionEvent implements HalpbotEvent
     @Override
     public void replyTemporarily(String message, long seconds) {
         ReplyAction replyAction = this.interaction.reply(message);
-        if (1 > seconds)
+        if (seconds < 1)
             replyAction.setEphemeral(true).queue();
         else replyAction.queue(
             m -> m.deleteOriginal().queueAfter(seconds, TimeUnit.SECONDS));
@@ -118,7 +118,7 @@ public class InteractionEvent implements HalpbotEvent
     @Override
     public void replyTemporarily(MessageEmbed embed, long seconds) {
         ReplyAction replyAction = this.interaction.replyEmbeds(embed);
-        if (1 > seconds)
+        if (seconds < 1)
             replyAction.setEphemeral(true).queue();
         else replyAction.queue(
             m -> m.deleteOriginal().queueAfter(seconds, TimeUnit.SECONDS));
