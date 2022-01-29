@@ -6,20 +6,29 @@ import org.dockbox.hartshorn.core.annotations.inject.Bound;
 import java.time.Duration;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
 
+
+@Getter
 @ComponentBinding(ButtonContext.class)
-public record HalpbotButtonContext(String id,
-                                   boolean isEphemeral,
-                                   Duration displayDuration,
-                                   ActionInvokable<ButtonInvocationContext> actionInvokable,
-                                   Object[] passedParameters,
-                                   List<ParsingToken> nonCommandParameterTokens,
-                                   int afterUsages,
-                                   Duration after)
-    implements ButtonContext
+@AllArgsConstructor(onConstructor_ = @Bound)
+public class HalpbotButtonContext implements ButtonContext
 {
-    @Bound
-    public HalpbotButtonContext {}
+    private final String id;
+    private final boolean isEphemeral;
+    private final Duration displayDuration;
+    private final ActionInvokable<ButtonInvocationContext> actionInvokable;
+    private final Object[] passedParameters;
+    private final List<ParsingToken> nonCommandParameterTokens;
+    private int afterUsages;
+    private final Duration after;
+
+
+    @Override
+    public void deductUsage() {
+        this.afterUsages--;
+    }
 }
