@@ -53,6 +53,7 @@ import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 @Singleton
@@ -269,7 +270,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 this.decoratorService.decorate(actionInvokable),
                 this.tokenService.tokens(methodContext),
                 reflections,
-                Duration.of(command.display().value(), command.display().unit()),
+                HalpbotUtils.asDuration(command.display()),
                 command.isEphemeral(),
                 command.preserveWhitespace()
         );

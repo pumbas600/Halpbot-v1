@@ -15,6 +15,7 @@ import nz.pumbas.halpbot.actions.invokable.InvocationContext;
 import nz.pumbas.halpbot.common.ExplainedException;
 import nz.pumbas.halpbot.common.UndisplayedException;
 import nz.pumbas.halpbot.events.HalpbotEvent;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @ComponentBinding(CooldownDecorator.class)
 public class CooldownDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
@@ -27,7 +28,7 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
     @Bound
     public CooldownDecorator(ActionInvokable<C> actionInvokable, Cooldown cooldown) {
         super(actionInvokable);
-        this.cooldownDuration = Duration.of(cooldown.duration().value(), cooldown.duration().unit());
+        this.cooldownDuration = HalpbotUtils.asDuration(cooldown.duration());
         this.strategy = cooldown.type().strategy();
     }
 

@@ -28,6 +28,7 @@ import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Singleton
 @Accessors(chain = false)
@@ -102,14 +103,16 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         return this.buttonContextFactory.create(
                 id,
                 buttonAction.isEphemeral(),
-                Duration.of(buttonAction.display().value(), buttonAction.display().unit()),
+                HalpbotUtils.asDuration(buttonAction.display()),
                 this.decoratorService.decorate(actionInvokable),
                 passedParameters,
                 this.tokenService.tokens(actionInvokable.executable())
                         .stream()
                         .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
                         .map(token -> (ParsingToken) token)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                buttonAction.afterUsages(),
+                HalpbotUtils.asDuration(buttonAction.after())
         );
     }
 
