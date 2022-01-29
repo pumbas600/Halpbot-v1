@@ -26,6 +26,7 @@ import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.MessageEvent;
+import nz.pumbas.halpbot.utilities.HalpbotUtils;
 import nz.pumbas.halpbot.utilities.Require;
 
 @Singleton
@@ -84,7 +85,7 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
                         .map(token -> (ParsingToken) token)
                         .toList(),
                 this.decoratorService.decorate(new HalpbotSourceInvokable(instance, methodContext)),
-                Duration.of(trigger.display().value(), trigger.display().unit()),
+                HalpbotUtils.asDuration(trigger.display()),
                 trigger.isEphemeral()
         );
 

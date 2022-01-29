@@ -72,6 +72,18 @@ public final class HalpbotUtils
     private HalpbotUtils() {}
 
     /**
+     * Converts the {@link Duration} annotation to the built-in {@link java.time.Duration}.
+     *
+     * @param duration
+     *      The duration annotation to represent as a {@link java.time.Duration}
+     *
+     * @return The converted duration
+     */
+    public static java.time.Duration asDuration(Duration duration) {
+        return java.time.Duration.of(duration.value(), duration.unit());
+    }
+
+    /**
      * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than
      * {@link MessageEmbed#DESCRIPTION_MAX_LENGTH} it will cause an error to be thrown. This method simply checks if
      * the description exceeds this limit and if it does, then it creates a substring of the maximum displayable
