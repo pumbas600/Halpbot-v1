@@ -13,14 +13,14 @@ public interface ButtonContext extends SourceContext<ButtonInvocationContext>, D
 
     Object[] passedParameters();
 
-    int afterUsages();
+    int uses();
 
-    void deductUsage();
+    void deductUse();
 
     Duration after();
 
-    default boolean isUsingUsages() {
-        return this.afterUsages() > 0;
+    default boolean hasUses() {
+        return this.uses() > 0;
     }
 
     default boolean isUsingDuration() {

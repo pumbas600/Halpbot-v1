@@ -60,8 +60,7 @@ public class GameCommands
 
         String description = this.determineDescription(userSet);
 
-        List<Button> buttons =
-                Stream.of(
+        List<Button> buttons = Stream.of(
                     Button.primary("halpbot:blackjack:hit", "Hit"),
                     Button.success("halpbot:blackjack:stand", "Stand"))
                 .map((button) -> userSet.gameover()
@@ -93,7 +92,7 @@ public class GameCommands
                 this.blackjackEmbed(event.getUser(), userSet, botSet, description, this.footer(cards)))
                 .queue();
 
-        List<Button> buttons = this.disabledButtons(event);
+        List<Button> buttons = this.disableButtons(event);
         if (userSet.gameover() && botSet.hasHiddenCards())
             buttons.add(this.buttonAdapter.register(
                     Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
@@ -104,7 +103,7 @@ public class GameCommands
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true)
+    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true, uses = 1)
     public String stand(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
@@ -129,13 +128,13 @@ public class GameCommands
         event.editMessageEmbeds(
                 this.blackjackEmbed(event.getUser(), userSet, botSet, description, this.footer(cards)))
                 .queue();
-        List<Button> disabledButtons = this.disabledButtons(event);
-
-        event.getHook().editOriginalComponents(ActionRow.of(disabledButtons)).queue();
+//        List<Button> disabledButtons = this.disabledButtons(event);
+//
+//        event.getHook().editOriginalComponents(ActionRow.of(disabledButtons)).queue();
         return null;
     }
 
-    @ButtonAction(id = "halpbot:bj:reveal")
+    @ButtonAction(id = "halpbot:bj:reveal", uses = 1)
     public void reveal(ButtonClickEvent event, BlackjackSet userSet, BlackjackSet botSet) {
         String description = this.determineStandDescription(userSet, botSet);
 
@@ -144,7 +143,6 @@ public class GameCommands
                 this.blackjackEmbed(event.getUser(), userSet, botSet,
                         description, "Dealer's cards revealed by " + event.getUser().getAsTag()))
                 .queue();
-        event.getHook().editOriginalComponents(ActionRow.of(this.disabledButtons(event))).queue();
     }
 
     @SuppressWarnings("OverlyComplexBooleanExpression")
@@ -173,7 +171,7 @@ public class GameCommands
         return "Remaining cards: %d - Decks: %d".formatted(cards.count(), BlackjackSet.DECKS);
     }
 
-    private List<Button> disabledButtons(ButtonClickEvent event) {
+    private List<Button> disableButtons(ButtonClickEvent event) {
         List<ActionRow> actionRows = event.getMessage().getActionRows();
         if (!actionRows.isEmpty()) {
             return actionRows.get(0).getButtons()
