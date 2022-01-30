@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @RequiredArgsConstructor
-public enum AfterRemoval
+public enum Removal
 {
     /**
      * Just remove the dynamic component, but do nothing afterwards.

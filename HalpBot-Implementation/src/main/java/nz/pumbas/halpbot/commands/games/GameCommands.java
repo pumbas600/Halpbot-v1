@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import nz.pumbas.halpbot.buttons.Removal;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -79,7 +80,7 @@ public class GameCommands
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:hit", isEphemeral = true)
+    @ButtonAction(id = "halpbot:blackjack:hit", isEphemeral = true, afterRemoval = Removal.DISABLE)
     public String hit(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
@@ -103,7 +104,7 @@ public class GameCommands
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true, uses = 1)
+    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true, uses = 1, afterRemoval = Removal.DISABLE)
     public String stand(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
@@ -134,7 +135,7 @@ public class GameCommands
         return null;
     }
 
-    @ButtonAction(id = "halpbot:bj:reveal", uses = 1)
+    @ButtonAction(id = "halpbot:bj:reveal", uses = 1, afterRemoval = Removal.DISABLE)
     public void reveal(ButtonClickEvent event, BlackjackSet userSet, BlackjackSet botSet) {
         String description = this.determineStandDescription(userSet, botSet);
 
