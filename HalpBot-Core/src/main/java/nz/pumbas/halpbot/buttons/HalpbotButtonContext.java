@@ -2,7 +2,6 @@ package nz.pumbas.halpbot.buttons;
 
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.List;
@@ -26,7 +25,7 @@ public class HalpbotButtonContext implements ButtonContext
     private final List<ParsingToken> nonCommandParameterTokens;
     private int afterUsages;
     private final Duration after;
-    @Nullable private final AfterRemovalStrategy afterRemoval;
+    private final AfterRemovalFunction afterRemoval;
 
 
     @Override

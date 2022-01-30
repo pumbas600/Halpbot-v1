@@ -2,7 +2,6 @@ package nz.pumbas.halpbot.buttons;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.context.element.MethodContext;
@@ -11,7 +10,6 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,7 +66,7 @@ public interface ButtonAdapter extends HalpbotAdapter
 
     Button register(Button button, Object... parameters);
 
-    Button register(Button button, AfterRemovalStrategy afterRemoval, Object... parameters);
+    Button register(Button button, AfterRemovalFunction afterRemoval, Object... parameters);
 
     void unregister(String id);
 
