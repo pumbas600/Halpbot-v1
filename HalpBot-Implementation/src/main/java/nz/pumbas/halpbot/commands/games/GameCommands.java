@@ -80,7 +80,7 @@ public class GameCommands
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:hit", isEphemeral = true)
+    @ButtonAction(id = "halpbot:blackjack:hit", isEphemeral = true, retreieveMessage = true)
     public String hit(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
