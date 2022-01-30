@@ -27,6 +27,7 @@ public class HalpbotButtonContext implements ButtonContext
     private int uses;
     private final Duration after;
     @Nullable private final AfterRemovalFunction afterRemoval;
+    private final boolean retrieveMessage;
 
 
     @Override

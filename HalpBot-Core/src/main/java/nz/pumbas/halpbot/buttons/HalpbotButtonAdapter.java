@@ -161,7 +161,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                         .collect(Collectors.toList()),
                 buttonAction.uses(),
                 HalpbotUtils.asDuration(buttonAction.after()),
-                buttonAction.afterRemoval().strategy()
+                buttonAction.afterRemoval().strategy(),
+                buttonAction.retreieveMessage()
         );
     }
 
@@ -218,11 +219,11 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         }
 
         if (!this.afterRemovalFunctions.isEmpty()) {
-            this.handleRemovalFunctions(event);
+            this.handleRemovalFunctions(buttonContext, event);
         }
     }
 
-    private void handleRemovalFunctions(GenericComponentInteractionCreateEvent event) {
+    private void handleRemovalFunctions(ButtonContext buttonContext, GenericComponentInteractionCreateEvent event) {
         boolean changedComponent = false;
         List<ActionRow> rows = new ArrayList<>();
 
@@ -240,8 +241,13 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             rows.add(ActionRow.of(components));
         }
 
-        if (changedComponent)
-            event.getHook().editOriginalComponents(rows).queue();
+        if (changedComponent) {
+            if (buttonContext.retrieveMessage())
+                event.getChannel().retrieveMessageById(event.getMessageId())
+                        .submit()
+                        .thenAcceptAsync(msg -> msg.editMessageComponents(rows));
 
+            else event.getHook().editOriginalComponents(rows).queue();
+        }
     }
 }

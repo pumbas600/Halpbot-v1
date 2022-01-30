@@ -22,7 +22,8 @@ public interface ButtonContextFactory
                          List<ParsingToken> nonCommandParameterTokens,
                          int uses,
                          Duration after,
-                         @Nullable AfterRemovalFunction afterRemoval);
+                         @Nullable AfterRemovalFunction afterRemoval,
+                         boolean retrieveMessage);
 
     default ButtonContext create(String id,
                                  Object[] passedParameters,
@@ -38,6 +39,7 @@ public interface ButtonContextFactory
                 buttonContext.nonCommandParameterTokens(),
                 buttonContext.uses(),
                 buttonContext.after(),
-                afterRemoval);
+                afterRemoval,
+                buttonContext.retrieveMessage());
     }
 }
