@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.buttons;
 
+import org.jetbrains.annotations.Nullable;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
@@ -10,7 +12,7 @@ public enum AfterRemoval
     /**
      * Just remove the dynamic component, but do nothing afterwards.
      */
-    NOTHING(component -> component),
+    NOTHING(null),
 
     /**
      * Disable the specific component removed.
@@ -18,5 +20,6 @@ public enum AfterRemoval
     DISABLE(HalpbotUtils::disable);
 
     @Getter
+    @Nullable
     private final AfterRemovalFunction strategy;
 }
