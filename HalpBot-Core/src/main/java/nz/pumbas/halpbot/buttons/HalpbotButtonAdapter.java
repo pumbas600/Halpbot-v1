@@ -84,7 +84,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Override
     public Button register(Button button,
-                           AfterRemovalFunction afterRemoval,
+                           @Nullable AfterRemovalFunction afterRemoval,
                            Object... parameters) {
         if (this.isInvalid(button))
             return button;
@@ -136,7 +136,9 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         if (buttonContext.isUsingDuration()) {
             this.dynamicButtonExpirations.remove(id);
         }
-        this.afterRemovalFunctions.put(id, buttonContext.afterRemoval());
+        AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
+        if (afterRemoval != null)
+            this.afterRemovalFunctions.put(id, buttonContext.afterRemoval());
     }
 
     private ButtonContext createButton(String id,

@@ -2,6 +2,7 @@ package nz.pumbas.halpbot.buttons;
 
 import org.dockbox.hartshorn.core.annotations.Factory;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.List;
@@ -21,12 +22,12 @@ public interface ButtonContextFactory
                          List<ParsingToken> nonCommandParameterTokens,
                          int afterUsages,
                          Duration after,
-                         AfterRemovalFunction afterRemoval);
+                         @Nullable AfterRemovalFunction afterRemoval);
 
     default ButtonContext create(String id,
                                  Object[] passedParameters,
                                  ButtonContext buttonContext,
-                                 AfterRemovalFunction afterRemoval)
+                                 @Nullable AfterRemovalFunction afterRemoval)
     {
         return this.create(
                 id,

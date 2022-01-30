@@ -1,5 +1,7 @@
 package nz.pumbas.halpbot.buttons;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.time.Duration;
 
 import nz.pumbas.halpbot.actions.DisplayableResult;
@@ -25,5 +27,6 @@ public interface ButtonContext extends SourceContext<ButtonInvocationContext>, D
         return this.after().isNegative();
     }
 
+    @Nullable
     AfterRemovalFunction afterRemoval();
 }
