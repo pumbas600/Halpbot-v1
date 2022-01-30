@@ -1,8 +1,11 @@
 package nz.pumbas.halpbot.buttons;
 
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.Component;
 
 import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
@@ -12,6 +15,7 @@ import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -204,8 +208,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         }
         else return; // Not a halpbot button
 
-        ButtonInvocationContext invocationContext = this.invocationContextFactory.button(new InteractionEvent(event), buttonContext);
-
+        ButtonInvocationContext invocationContext = this.invocationContextFactory.button(halpbotEvent, buttonContext);
         Exceptional<Object> result = buttonContext.invoke(invocationContext);
 
         if (result.present()) {
@@ -217,21 +220,30 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         }
 
         if (!this.afterRemovalFunctions.isEmpty()) {
-            List<ActionRow> rows = event.getMessage().getActionRows()
-                    .stream()
-                    .map(row -> ActionRow.of(row.getComponents()
-                            .stream()
-                            .map(component -> {
-                                AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(component.getId());
-                                if (null == afterRemoval)
-                                    return component;
-                                return afterRemoval.apply(component);
-                            })
-                            .toList()))
-                    .toList();
-
-            event.getHook().editOriginalComponents(rows).queue();
-            this.afterRemovalFunctions.clear();
+            this.handleRemovalFunctions(event);
         }
+    }
+
+    private void handleRemovalFunctions(GenericComponentInteractionCreateEvent event) {
+        boolean changedComponent = false;
+        List<ActionRow> rows = new ArrayList<>();
+
+        for (ActionRow row : event.getMessage().getActionRows()) {
+            List<Component> components = new ArrayList<>();
+            for (Component component : row.getComponents()) {
+                AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(component.getId());
+                if (null != afterRemoval) {
+                    components.add(afterRemoval.apply(component));
+                    changedComponent = true;
+                    continue;
+                }
+                components.add(component);
+            }
+            rows.add(ActionRow.of(components));
+        }
+
+        if (changedComponent)
+            event.getHook().editOriginalComponents(rows).queue();
+
     }
 }
