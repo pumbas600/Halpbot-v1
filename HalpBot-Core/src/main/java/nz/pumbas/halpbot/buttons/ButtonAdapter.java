@@ -17,9 +17,11 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 
 public interface ButtonAdapter extends HalpbotAdapter
 {
-    String DYNAMIC_PREFIX = "DYN-BTN";
-    String DYNAMIC_ID_FORMAT = DYNAMIC_PREFIX + "$$%s$$%d-%d";
+    String DYNAMIC_PREFIX_FORMAT = "HB-%S";
+    String DYNAMIC_ID_FORMAT = "%s$$%s$$%d-%d";
     Pattern DYNAMIC_ID_EXTRACTION_PATTERN = Pattern.compile(".*\\$\\$(.*)\\$\\$.*");
+
+    String dynamicPrefix();
 
     int idSuffix();
 
@@ -86,7 +88,7 @@ public interface ButtonAdapter extends HalpbotAdapter
         // The id suffix prevents buttons registered within the same millisecond having the same id. 1000 is used so
         // that it won't take up any more than 3 characters
         this.idSuffix((this.idSuffix() + 1) % 1000);
-        return DYNAMIC_ID_FORMAT.formatted(currentId, System.currentTimeMillis(), this.idSuffix());
+        return DYNAMIC_ID_FORMAT.formatted(this.dynamicPrefix(), currentId, System.currentTimeMillis(), this.idSuffix());
     }
 
     default Exceptional<String> extractOriginalIdSafely(String dynamicId) {
@@ -110,7 +112,7 @@ public interface ButtonAdapter extends HalpbotAdapter
     }
 
     default boolean isDynamic(String id) {
-        return id.startsWith(DYNAMIC_PREFIX);
+        return id.startsWith(this.dynamicPrefix());
     }
 
     default boolean isDynamic(Button button) {

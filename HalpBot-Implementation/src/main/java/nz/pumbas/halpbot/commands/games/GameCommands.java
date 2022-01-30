@@ -94,18 +94,21 @@ public class GameCommands
                 .queue();
 
         if (userSet.gameover()) {
-            List<Button> buttons = this.disableButtons(event);
-            if (botSet.hasHiddenCards())
-                buttons.add(this.buttonAdapter.register(
-                        Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
+            this.unregisterButtons(event);
 
-            event.getHook().editOriginalComponents(ActionRow.of(buttons)).queue();
+            if (botSet.hasHiddenCards()) {
+                List<Button> buttons = new ArrayList<>(event.getMessage().getButtons());
+                Button reveal = Button.secondary("halpbot:bj:reveal", "Reveal");
+                buttons.add(this.buttonAdapter.register(reveal, userSet, botSet));
+
+                event.getHook().editOriginalComponents(ActionRow.of(buttons)).queue();
+            }
         }
         return null;
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true)
+    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true, uses = 1)
     public String stand(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
@@ -131,8 +134,7 @@ public class GameCommands
                 this.blackjackEmbed(event.getUser(), userSet, botSet, description, this.footer(cards)))
                 .queue();
 
-        List<Button> disabledButtons = this.disableButtons(event);
-        event.getHook().editOriginalComponents(ActionRow.of(disabledButtons)).queue();
+        this.unregisterButtons(event);
         return null;
     }
 
@@ -173,16 +175,10 @@ public class GameCommands
         return "Remaining cards: %d - Decks: %d".formatted(cards.count(), BlackjackSet.DECKS);
     }
 
-    private List<Button> disableButtons(ButtonClickEvent event) {
-        List<ActionRow> actionRows = event.getMessage().getActionRows();
-        if (!actionRows.isEmpty()) {
-            return actionRows.get(0).getButtons()
-                    .stream()
-                    .map(Button::asDisabled)
-                    .peek(this.buttonAdapter::unregister)
-                    .collect(Collectors.toList());
-        }
-        return new ArrayList<>();
+    private void unregisterButtons(ButtonClickEvent event) {
+        event.getMessage()
+                .getButtons()
+                .forEach(this.buttonAdapter::unregister);
     }
 
     private MessageEmbed blackjackEmbed(User user, BlackjackSet userSet, BlackjackSet botSet,

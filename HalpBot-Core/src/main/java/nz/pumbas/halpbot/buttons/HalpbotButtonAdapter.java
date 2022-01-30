@@ -1,5 +1,6 @@
 package nz.pumbas.halpbot.buttons;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -42,6 +43,8 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 public class HalpbotButtonAdapter implements ButtonAdapter
 {
     @Getter @Setter private int idSuffix;
+    @Getter @Setter private String dynamicPrefix;
+
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
     private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
     private final Map<String, OffsetDateTime> dynamicButtonExpirations = new ConcurrentHashMap<>();
@@ -54,6 +57,11 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Inject @Getter private ApplicationContext applicationContext;
     @Inject @Getter private HalpbotCore halpbotCore;
+
+    @Override
+    public void onCreation(JDA jda) {
+        this.dynamicPrefix("HB-" + jda.getSelfUser().getAsTag());
+    }
 
     @Override
     public <T> void registerButton(T instance, MethodContext<?, T> methodContext) {
@@ -139,8 +147,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             this.dynamicButtonExpirations.remove(id);
         }
         AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
-        if (afterRemoval != null)
-            this.afterRemovalFunctions.put(id, buttonContext.afterRemoval());
+        if (afterRemoval != null) {
+            this.afterRemovalFunctions.put(id, afterRemoval);
+            this.applicationContext.log().info("Added removal function for: " + id);
+        }
     }
 
     private ButtonContext createButton(String id,
