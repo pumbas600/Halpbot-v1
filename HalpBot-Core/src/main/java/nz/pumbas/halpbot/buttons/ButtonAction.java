@@ -17,7 +17,7 @@ public @interface ButtonAction
 
     Duration display() default @Duration(-1);
 
-    int afterUsages() default -1;
+    int uses() default -1;
 
     Duration after() default @Duration(-1);
 

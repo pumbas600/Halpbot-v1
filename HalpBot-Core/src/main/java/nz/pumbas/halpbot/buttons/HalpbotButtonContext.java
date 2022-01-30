@@ -24,13 +24,13 @@ public class HalpbotButtonContext implements ButtonContext
     private final ActionInvokable<ButtonInvocationContext> actionInvokable;
     private final Object[] passedParameters;
     private final List<ParsingToken> nonCommandParameterTokens;
-    private int afterUsages;
+    private int uses;
     private final Duration after;
     @Nullable private final AfterRemovalFunction afterRemoval;
 
 
     @Override
-    public void deductUsage() {
-        this.afterUsages--;
+    public void deductUse() {
+        this.uses--;
     }
 }

@@ -20,7 +20,7 @@ public interface ButtonContextFactory
                          ActionInvokable<ButtonInvocationContext> actionInvokable,
                          Object[] passedParameters,
                          List<ParsingToken> nonCommandParameterTokens,
-                         int afterUsages,
+                         int uses,
                          Duration after,
                          @Nullable AfterRemovalFunction afterRemoval);
 
@@ -36,7 +36,7 @@ public interface ButtonContextFactory
                 buttonContext.actionInvokable(),
                 passedParameters,
                 buttonContext.nonCommandParameterTokens(),
-                buttonContext.afterUsages(),
+                buttonContext.uses(),
                 buttonContext.after(),
                 afterRemoval);
     }

@@ -2,7 +2,6 @@ package nz.pumbas.halpbot.buttons;
 
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
@@ -18,8 +17,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -89,7 +86,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     @Override
     public Button register(Button button,
                            @Nullable AfterRemovalFunction afterRemoval,
-                           Object... parameters) {
+                           Object... parameters)
+    {
         if (this.isInvalid(button))
             return button;
 
@@ -161,7 +159,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                         .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
                         .map(token -> (ParsingToken) token)
                         .collect(Collectors.toList()),
-                buttonAction.afterUsages(),
+                buttonAction.uses(),
                 HalpbotUtils.asDuration(buttonAction.after()),
                 buttonAction.afterRemoval().strategy()
         );
@@ -170,9 +168,9 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     private ButtonContext retrieveDynamicButtonContext(String id) {
         boolean remove = false;
         ButtonContext buttonContext = this.dynamicButtons.get(id);
-        if (buttonContext.isUsingUsages()) {
-            buttonContext.deductUsage();
-            if (!buttonContext.isUsingUsages())
+        if (buttonContext.hasUses()) {
+            buttonContext.deductUse();
+            if (!buttonContext.hasUses())
                 remove = true;
         }
         if (!remove && buttonContext.isUsingDuration() &&
