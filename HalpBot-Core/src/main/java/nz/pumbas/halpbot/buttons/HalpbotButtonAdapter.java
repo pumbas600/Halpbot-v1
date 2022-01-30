@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -45,7 +44,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
     private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
     private final Map<String, OffsetDateTime> dynamicButtonExpirations = new ConcurrentHashMap<>();
-    private final Queue<ButtonContext> removedButtonContexts = new PriorityQueue<>();
+    private final Map<String, AfterRemovalFunction> afterRemovalFunctions = new ConcurrentHashMap<>();
 
     @Inject private TokenService tokenService;
     @Inject private DecoratorService decoratorService;
@@ -79,6 +78,17 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         if (this.isInvalid(button))
             return button;
 
+        ButtonContext buttonContext = this.registeredButtons.get(button.getId());
+        return this.register(button, buttonContext.afterRemoval(), parameters);
+    }
+
+    @Override
+    public Button register(Button button,
+                           AfterRemovalFunction afterRemoval,
+                           Object... parameters) {
+        if (this.isInvalid(button))
+            return button;
+
         String id = button.getId();
         ButtonContext buttonContext = this.registeredButtons.get(id);
 
@@ -92,17 +102,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             this.dynamicButtonExpirations.put(newId, OffsetDateTime.now().plus(newButtonContext.displayDuration()));
 
         return button.withId(newId);
-    }
-
-    @Override
-    public Button register(Button button,
-                           @Nullable AfterRemovalStrategy afterRemoval,
-                           Object... parameters) {
-        if (this.isInvalid(button))
-            return button;
-
-        ButtonContext buttonContext = this.registeredButtons.get(button.getId());
-        return this.register(button, buttonContext.afterRemoval(), parameters);
     }
 
     private boolean isInvalid(Button button) {
@@ -137,7 +136,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         if (buttonContext.isUsingDuration()) {
             this.dynamicButtonExpirations.remove(id);
         }
-        this.removedButtonContexts.add(buttonContext);
+        this.afterRemovalFunctions.put(id, buttonContext.afterRemoval());
     }
 
     private ButtonContext createButton(String id,
@@ -215,11 +214,22 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             this.handleException(halpbotEvent, result.error());
         }
 
-        // TODO: Fix the issue that currently each subsequent change overwrites the previous one
-        while (!this.removedButtonContexts.isEmpty()) {
-            AfterRemovalStrategy afterRemoval = this.removedButtonContexts.poll().afterRemoval();
-            if (afterRemoval == null) continue;
-            event.getHook().editOriginalComponents(afterRemoval.apply(event)).queue();
+        if (!this.afterRemovalFunctions.isEmpty()) {
+            List<ActionRow> rows = event.getMessage().getActionRows()
+                    .stream()
+                    .map(row -> ActionRow.of(row.getComponents()
+                            .stream()
+                            .map(component -> {
+                                AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(component.getId());
+                                if (null == afterRemoval)
+                                    return component;
+                                return afterRemoval.apply(component);
+                            })
+                            .toList()))
+                    .toList();
+
+            event.getHook().editOriginalComponents(rows).queue();
+            this.afterRemovalFunctions.clear();
         }
     }
 }
