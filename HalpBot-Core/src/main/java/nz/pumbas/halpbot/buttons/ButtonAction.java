@@ -21,5 +21,7 @@ public @interface ButtonAction
 
     Duration after() default @Duration(-1);
 
-    Removal afterRemoval() default Removal.NOTHING;
+    Removal afterRemoval() default Removal.DISABLE;
+
+    boolean retreieveMessage() default false;
 }

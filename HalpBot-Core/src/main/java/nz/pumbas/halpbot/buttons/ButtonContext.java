@@ -24,9 +24,11 @@ public interface ButtonContext extends SourceContext<ButtonInvocationContext>, D
     }
 
     default boolean isUsingDuration() {
-        return this.after().isNegative();
+        return !this.after().isNegative();
     }
 
     @Nullable
     AfterRemovalFunction afterRemoval();
+
+    boolean retrieveMessage();
 }

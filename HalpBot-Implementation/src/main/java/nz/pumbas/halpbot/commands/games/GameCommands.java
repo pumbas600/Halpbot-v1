@@ -80,7 +80,7 @@ public class GameCommands
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:hit", isEphemeral = true, afterRemoval = Removal.DISABLE)
+    @ButtonAction(id = "halpbot:blackjack:hit", isEphemeral = true)
     public String hit(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
@@ -93,18 +93,19 @@ public class GameCommands
                 this.blackjackEmbed(event.getUser(), userSet, botSet, description, this.footer(cards)))
                 .queue();
 
-        List<Button> buttons = this.disableButtons(event);
-        if (userSet.gameover() && botSet.hasHiddenCards())
-            buttons.add(this.buttonAdapter.register(
-                    Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
+        if (userSet.gameover()) {
+            List<Button> buttons = this.disableButtons(event);
+            if (botSet.hasHiddenCards())
+                buttons.add(this.buttonAdapter.register(
+                        Button.secondary("halpbot:bj:reveal", "Reveal"), userSet, botSet));
 
-        if (userSet.gameover())
             event.getHook().editOriginalComponents(ActionRow.of(buttons)).queue();
+        }
         return null;
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true, uses = 1, afterRemoval = Removal.DISABLE)
+    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true)
     public String stand(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
@@ -129,13 +130,13 @@ public class GameCommands
         event.editMessageEmbeds(
                 this.blackjackEmbed(event.getUser(), userSet, botSet, description, this.footer(cards)))
                 .queue();
-//        List<Button> disabledButtons = this.disabledButtons(event);
-//
-//        event.getHook().editOriginalComponents(ActionRow.of(disabledButtons)).queue();
+
+        List<Button> disabledButtons = this.disableButtons(event);
+        event.getHook().editOriginalComponents(ActionRow.of(disabledButtons)).queue();
         return null;
     }
 
-    @ButtonAction(id = "halpbot:bj:reveal", uses = 1, afterRemoval = Removal.DISABLE)
+    @ButtonAction(id = "halpbot:bj:reveal", uses = 1)
     public void reveal(ButtonClickEvent event, BlackjackSet userSet, BlackjackSet botSet) {
         String description = this.determineStandDescription(userSet, botSet);
 
