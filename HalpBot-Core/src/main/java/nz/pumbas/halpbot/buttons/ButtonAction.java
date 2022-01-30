@@ -21,5 +21,5 @@ public @interface ButtonAction
 
     Duration after() default @Duration(-1);
 
-    AfterRemoval afterRemoval() default AfterRemoval.NOTHING;
+    Removal afterRemoval() default Removal.NOTHING;
 }
