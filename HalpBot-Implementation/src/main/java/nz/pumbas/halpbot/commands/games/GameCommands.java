@@ -12,7 +12,6 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -20,7 +19,6 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.buttons.Removal;
 import nz.pumbas.halpbot.buttons.ButtonAction;
 import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
