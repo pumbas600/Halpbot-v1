@@ -17,7 +17,6 @@ import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 
 public interface ButtonAdapter extends HalpbotAdapter
 {
-    String DYNAMIC_PREFIX_FORMAT = "HB-%S";
     String DYNAMIC_ID_FORMAT = "%s$$%s$$%d-%d";
     Pattern DYNAMIC_ID_EXTRACTION_PATTERN = Pattern.compile(".*\\$\\$(.*)\\$\\$.*");
 
