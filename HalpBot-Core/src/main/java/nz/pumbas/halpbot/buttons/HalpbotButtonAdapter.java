@@ -172,8 +172,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                         .collect(Collectors.toList()),
                 buttonAction.uses(),
                 HalpbotUtils.asDuration(buttonAction.after()),
-                buttonAction.afterRemoval().strategy(),
-                buttonAction.retreieveMessage()
+                buttonAction.afterRemoval().strategy()
         );
     }
 
@@ -229,53 +228,34 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             this.handleException(halpbotEvent, result.error());
         }
 
-        this.handleRemovalFunctions(buttonContext, event);
+        this.handleRemovalFunctions(event);
     }
 
-    private void handleRemovalFunctions(ButtonContext buttonContext, ButtonClickEvent event) {
+    private void handleRemovalFunctions(ButtonClickEvent event) {
         if (!this.afterRemovalFunctions.isEmpty()) {
-            if (buttonContext.retrieveMessage()) {
-                event.getChannel().retrieveMessageById(event.getMessageId())
-                        .queue(msg -> {
-                            Tuple<Boolean, List<ActionRow>> newRows = this.updateActionRows(msg.getActionRows());
-                            if (newRows.getKey()) {
-                                msg.editMessageComponents(newRows.getValue()).queue(m -> {}, e -> {
-                                    this.applicationContext.log().error("There was an error editing the components", e);
-                                });
-                                this.applicationContext.log().info("Edited components");
-                            }
-                        });
-            }
-            else {
-                Tuple<Boolean, List<ActionRow>> newRows = this.updateActionRows(event.getMessage().getActionRows());
-                if (newRows.getKey())
-                    event.getHook().editOriginalComponents(newRows.getValue()).queue();
-            }
-        }
-    }
+            boolean changedComponent = false;
+            final List<ActionRow> rows = new ArrayList<>();
 
-    private Tuple<Boolean, List<ActionRow>> updateActionRows(List<ActionRow> actionRows) {
-        boolean changedComponent = false;
-        final List<ActionRow> rows = new ArrayList<>();
+            for (ActionRow row : event.getMessage().getActionRows()) {
+                List<Component> components = new ArrayList<>();
+                this.applicationContext.log().info(row.getComponents().toString());
+                for (Component component : row.getComponents()) {
+                    final String componentId = component.getId();
+                    final AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(componentId);
 
-        for (ActionRow row : actionRows) {
-            List<Component> components = new ArrayList<>();
-            this.applicationContext.log().info(row.getComponents().toString());
-            for (Component component : row.getComponents()) {
-                final String componentId = component.getId();
-                final AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(componentId);
-
-                if (null != afterRemoval) {
-                    this.applicationContext.log().info("Applying removal function to: %s".formatted(this.extractOriginalId(componentId)));
-                    components.add(afterRemoval.apply(component));
-                    changedComponent = true;
-                    continue;
+                    if (null != afterRemoval) {
+                        this.applicationContext.log().info("Applying removal function to: %s".formatted(this.extractOriginalId(componentId)));
+                        components.add(afterRemoval.apply(component));
+                        changedComponent = true;
+                        continue;
+                    }
+                    components.add(component);
                 }
-                components.add(component);
+                rows.add(ActionRow.of(components));
             }
-            rows.add(ActionRow.of(components));
-        }
+            if (changedComponent)
+                event.getHook().editOriginalComponents(rows).queue();
 
-        return Tuple.of(changedComponent, rows);
+        }
     }
 }
