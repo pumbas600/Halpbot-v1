@@ -47,6 +47,14 @@ public class GameCommands
     @Inject
     private ButtonAdapter buttonAdapter;
 
+    @Command(description = "Flips a coin")
+    public String flip() {
+        boolean isHeads = Math.random() < 0.5;
+        return isHeads
+                ? "https://tenor.com/view/heads-coinflip-flip-a-coin-coin-coins-gif-21479854"
+                : "https://tenor.com/view/coins-tails-coin-flip-a-coin-coinflip-gif-21479856";
+    }
+
     @Command(alias = { "bj", "blackjack" }, description = "Plays a game of black jack")
     public void blackjack(MessageReceivedEvent event) {
         final long userId = event.getAuthor().getIdLong();
@@ -100,7 +108,7 @@ public class GameCommands
                         .peek(button -> this.buttonAdapter.unregister(button, false))
                         .map(Button::asDisabled)
                         .collect(Collectors.toList());
-                
+
                 Button reveal = Button.secondary("halpbot:bj:reveal", "Reveal");
                 buttons.add(this.buttonAdapter.register(reveal, userSet, botSet));
 
