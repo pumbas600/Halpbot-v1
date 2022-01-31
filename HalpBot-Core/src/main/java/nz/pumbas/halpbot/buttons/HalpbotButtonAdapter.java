@@ -2,7 +2,6 @@ package nz.pumbas.halpbot.buttons;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
@@ -12,10 +11,12 @@ import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.domain.tuple.Tuple;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -228,20 +229,44 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             this.handleException(halpbotEvent, result.error());
         }
 
+        this.handleRemovalFunctions(buttonContext, event);
+    }
+
+    private void handleRemovalFunctions(ButtonContext buttonContext, ButtonClickEvent event) {
         if (!this.afterRemovalFunctions.isEmpty()) {
-            this.handleRemovalFunctions(buttonContext, event);
+            if (buttonContext.retrieveMessage()) {
+                event.getChannel().retrieveMessageById(event.getMessageId())
+                        .queue(msg -> {
+                            Tuple<Boolean, List<ActionRow>> newRows = this.updateActionRows(msg.getActionRows());
+                            if (newRows.getKey()) {
+                                msg.editMessageComponents(newRows.getValue()).queue(m -> {}, e -> {
+                                    this.applicationContext.log().error("There was an error editing the components", e);
+                                });
+                                this.applicationContext.log().info("Edited components");
+                            }
+                        });
+            }
+            else {
+                Tuple<Boolean, List<ActionRow>> newRows = this.updateActionRows(event.getMessage().getActionRows());
+                if (newRows.getKey())
+                    event.getHook().editOriginalComponents(newRows.getValue()).queue();
+            }
         }
     }
 
-    private void handleRemovalFunctions(ButtonContext buttonContext, GenericComponentInteractionCreateEvent event) {
+    private Tuple<Boolean, List<ActionRow>> updateActionRows(List<ActionRow> actionRows) {
         boolean changedComponent = false;
-        List<ActionRow> rows = new ArrayList<>();
+        final List<ActionRow> rows = new ArrayList<>();
 
-        for (ActionRow row : event.getMessage().getActionRows()) {
+        for (ActionRow row : actionRows) {
             List<Component> components = new ArrayList<>();
+            this.applicationContext.log().info(row.getComponents().toString());
             for (Component component : row.getComponents()) {
-                AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(component.getId());
+                final String componentId = component.getId();
+                final AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(componentId);
+
                 if (null != afterRemoval) {
+                    this.applicationContext.log().info("Applying removal function to: %s".formatted(this.extractOriginalId(componentId)));
                     components.add(afterRemoval.apply(component));
                     changedComponent = true;
                     continue;
@@ -251,13 +276,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             rows.add(ActionRow.of(components));
         }
 
-        if (changedComponent) {
-            if (buttonContext.retrieveMessage())
-                event.getChannel().retrieveMessageById(event.getMessageId())
-                        .submit()
-                        .thenAcceptAsync(msg -> msg.editMessageComponents(rows));
-
-            else event.getHook().editOriginalComponents(rows).queue();
-        }
+        return Tuple.of(changedComponent, rows);
     }
 }
