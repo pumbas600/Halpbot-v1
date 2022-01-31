@@ -133,13 +133,13 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     }
 
     @Override
-    public void unregister(String id) {
+    public void unregister(String id, boolean applyRemovalFunction) {
         if (this.registeredButtons.containsKey(id))
             this.registeredButtons.remove(id);
-        else this.removeDynamicButton(id);
+        else this.removeDynamicButton(id, applyRemovalFunction);
     }
 
-    private void removeDynamicButton(String id) {
+    private void removeDynamicButton(String id, boolean applyRemovalFunction) {
         if (!this.dynamicButtons.containsKey(id))
             return;
 
@@ -147,10 +147,12 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         if (buttonContext.isUsingDuration()) {
             this.dynamicButtonExpirations.remove(id);
         }
-        AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
-        if (afterRemoval != null) {
-            this.afterRemovalFunctions.put(id, afterRemoval);
-            this.applicationContext.log().info("Added removal function for: " + id);
+
+        if (applyRemovalFunction) {
+            AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
+            if (afterRemoval != null) {
+                this.afterRemovalFunctions.put(id, afterRemoval);
+            }
         }
     }
 
@@ -190,7 +192,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         }
 
         if (remove) // Remove the button if it's expired
-            this.removeDynamicButton(id);
+            this.removeDynamicButton(id, true);
         return buttonContext;
     }
 
@@ -244,7 +246,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                     final AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(componentId);
 
                     if (null != afterRemoval) {
-                        this.applicationContext.log().info("Applying removal function to: %s".formatted(this.extractOriginalId(componentId)));
                         components.add(afterRemoval.apply(component));
                         changedComponent = true;
                         continue;

@@ -94,15 +94,19 @@ public class GameCommands
                 .queue();
 
         if (userSet.gameover()) {
-            this.unregisterButtons(event);
-
             if (botSet.hasHiddenCards()) {
-                List<Button> buttons = new ArrayList<>(event.getMessage().getButtons());
+                List<Button> buttons = event.getMessage().getButtons()
+                        .stream()
+                        .peek(button -> this.buttonAdapter.unregister(button, false))
+                        .map(Button::asDisabled)
+                        .collect(Collectors.toList());
+                
                 Button reveal = Button.secondary("halpbot:bj:reveal", "Reveal");
                 buttons.add(this.buttonAdapter.register(reveal, userSet, botSet));
 
                 event.getHook().editOriginalComponents(ActionRow.of(buttons)).queue();
             }
+            else this.unregisterButtons(event);
         }
         return null;
     }

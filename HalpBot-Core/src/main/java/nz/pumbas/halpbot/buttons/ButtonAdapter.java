@@ -69,12 +69,20 @@ public interface ButtonAdapter extends HalpbotAdapter
 
     Button register(Button button, AfterRemovalFunction afterRemoval, Object... parameters);
 
-    void unregister(String id);
+    void unregister(String id, boolean applyRemovalFunction);
 
-    default void unregister(Button button) {
+    default void unregister(String id) {
+        this.unregister(id, true);
+    }
+
+    default void unregister(Button button, boolean applyRemovalFunction) {
         String id = button.getId();
         if (id != null)
-            this.unregister(button.getId());
+            this.unregister(button.getId(), applyRemovalFunction);
+    }
+
+    default void unregister(Button button) {
+        this.unregister(button, true);
     }
 
     default List<Button> register(List<Button> buttons, Object... parameters) {
