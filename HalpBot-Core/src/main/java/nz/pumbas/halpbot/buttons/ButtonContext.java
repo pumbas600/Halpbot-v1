@@ -29,6 +29,4 @@ public interface ButtonContext extends SourceContext<ButtonInvocationContext>, D
 
     @Nullable
     AfterRemovalFunction afterRemoval();
-
-    boolean retrieveMessage();
 }
