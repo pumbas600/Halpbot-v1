@@ -28,7 +28,6 @@ public class HalpbotButtonContext implements ButtonContext
     private final Duration after;
     @Nullable private final AfterRemovalFunction afterRemoval;
 
-
     @Override
     public void deductUse() {
         this.uses--;
