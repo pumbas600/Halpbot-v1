@@ -20,8 +20,8 @@ public interface ButtonContextFactory
                          ActionInvokable<ButtonInvocationContext> actionInvokable,
                          Object[] passedParameters,
                          List<ParsingToken> nonCommandParameterTokens,
-                         int uses,
-                         Duration after,
+                         int remainingUses,
+                         Duration removeAfter,
                          @Nullable AfterRemovalFunction afterRemoval);
 
     default ButtonContext create(String id,
@@ -36,8 +36,8 @@ public interface ButtonContextFactory
                 buttonContext.actionInvokable(),
                 passedParameters,
                 buttonContext.nonCommandParameterTokens(),
-                buttonContext.uses(),
-                buttonContext.after(),
+                buttonContext.remainingUses(),
+                buttonContext.removeAfter(),
                 afterRemoval);
     }
 }

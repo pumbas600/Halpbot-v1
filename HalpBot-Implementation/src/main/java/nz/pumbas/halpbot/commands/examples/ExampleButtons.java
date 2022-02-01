@@ -31,7 +31,7 @@ public class ExampleButtons
     }
 
     // The display field specifies that the result should only be displayed for 20 seconds before being deleted
-    @ButtonAction(id = "halpbot:example:secondary", display = @Duration(20))
+    @ButtonAction(id = "halpbot:example:secondary", display = @Duration(20), removeAfter = @Duration(20))
     public String secondary(@Source User user) { // Alternatively, you can retrieve fields from the event using @Source
         return "%s clicked the secondary button!".formatted(user.getName());
     }

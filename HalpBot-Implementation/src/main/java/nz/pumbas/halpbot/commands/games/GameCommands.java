@@ -118,7 +118,7 @@ public class GameCommands
     }
 
     @Nullable
-    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true, uses = 1)
+    @ButtonAction(id = "halpbot:blackjack:stand", isEphemeral = true, maxUses = 1)
     public String stand(ButtonClickEvent event, long userId, BlackjackSet userSet, BlackjackSet botSet, CardSet cards) {
         if (event.getUser().getIdLong() != userId)
             return "This is not your game";
@@ -148,7 +148,7 @@ public class GameCommands
         return null;
     }
 
-    @ButtonAction(id = "halpbot:bj:reveal", uses = 1)
+    @ButtonAction(id = "halpbot:bj:reveal", maxUses = 1)
     public void reveal(ButtonClickEvent event, BlackjackSet userSet, BlackjackSet botSet) {
         String description = this.determineStandDescription(userSet, botSet);
 
