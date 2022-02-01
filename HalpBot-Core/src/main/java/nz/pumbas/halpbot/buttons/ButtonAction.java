@@ -17,9 +17,9 @@ public @interface ButtonAction
 
     Duration display() default @Duration(-1);
 
-    int uses() default -1;
+    int maxUses() default -1;
 
-    Duration after() default @Duration(-1);
+    Duration removeAfter() default @Duration(-1);
 
     Removal afterRemoval() default Removal.DISABLE;
 }

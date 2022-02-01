@@ -230,7 +230,7 @@ public class ChemmatCommands
     }
 
     @Cooldown
-    @ButtonAction
+    @ButtonAction(id = "halpbot:answerquestion")
     @Action(listeningDuration = LISTENING_DURATION, displayDuration = 25)
     private MessageEmbed answeredQuestion(ButtonClickEvent event, boolean isCorrect) {
         User user = event.getUser();
@@ -267,7 +267,7 @@ public class ChemmatCommands
     }
 
     @Cooldown
-    @ButtonAction(isEphemeral = true)
+    @ButtonAction(id = "halpbot:revealanswers", isEphemeral = true)
     @Action(listeningDuration = LISTENING_DURATION)
     private MessageEmbed revealAnswer(ButtonClickEvent event, Question question) {
         EmbedBuilder builder = new EmbedBuilder();

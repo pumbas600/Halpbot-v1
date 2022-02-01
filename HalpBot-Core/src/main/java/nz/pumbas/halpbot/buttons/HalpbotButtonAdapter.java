@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -175,8 +174,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                         .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
                         .map(token -> (ParsingToken) token)
                         .collect(Collectors.toList()),
-                buttonAction.uses(),
-                HalpbotUtils.asDuration(buttonAction.after()),
+                buttonAction.maxUses(),
+                HalpbotUtils.asDuration(buttonAction.removeAfter()),
                 buttonAction.afterRemoval().strategy()
         );
     }
