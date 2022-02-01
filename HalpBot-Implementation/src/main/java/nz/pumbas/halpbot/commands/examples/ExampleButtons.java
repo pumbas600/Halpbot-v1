@@ -7,14 +7,24 @@ import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
+
+import javax.inject.Inject;
+
 import nz.pumbas.halpbot.buttons.ButtonAction;
+import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
+import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.utilities.Duration;
+import nz.pumbas.halpbot.utilities.Int;
 
 @Service
 public class ExampleButtons
 {
+    @Inject
+    private ButtonAdapter buttonAdapter;
+
     @Command(description = "Displays two test buttons")
     public void buttons(MessageReceivedEvent event) {
         event.getChannel().sendMessage("Click on one of these buttons!")
@@ -31,8 +41,24 @@ public class ExampleButtons
     }
 
     // The display field specifies that the result should only be displayed for 20 seconds before being deleted
-    @ButtonAction(id = "halpbot:example:secondary", display = @Duration(20), removeAfter = @Duration(20))
+    @ButtonAction(id = "halpbot:example:secondary", display = @Duration(20))
     public String secondary(@Source User user) { // Alternatively, you can retrieve fields from the event using @Source
         return "%s clicked the secondary button!".formatted(user.getName());
+    }
+
+    @Command(description = "Creates an example dynamic button which updates the number by one")
+    public void count(MessageReceivedEvent event, @Unrequired("1") int startingNumber) {
+        event.getChannel().sendMessage("Number: " + startingNumber)
+                .setActionRow(
+                        this.buttonAdapter.register(
+                                Button.success("halpbot:example:plusOne", "+1"),
+                                new Int(startingNumber)))
+                .queue();
+    }
+
+    @ButtonAction(id = "halpbot:example:plusOne", removeAfter = @Duration(value = 2, unit = ChronoUnit.MINUTES))
+    public void dynamicButton(ButtonClickEvent event, Int num) {
+        num.incrementBefore();
+        event.editMessage("Number: " + num).queue();
     }
 }

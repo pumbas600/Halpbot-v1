@@ -110,7 +110,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
         this.dynamicButtons.put(newId, newButtonContext);
         if (newButtonContext.isUsingDuration()) {
-            OffsetDateTime expiration = OffsetDateTime.now().plus(newButtonContext.displayDuration());
+            OffsetDateTime expiration = OffsetDateTime.now().plus(newButtonContext.removeAfter());
             this.dynamicButtonExpirations.add(Tuple.of(newId, expiration));
         }
 
@@ -188,7 +188,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
             // The first non-expired button we reach means that all subsequent times will also be after
             // the time now as they're sorted by the expiration time.
-            if (expiration.getValue().isAfter(now))
+            if (now.isBefore(expiration.getValue()))
                 break;
 
             this.dynamicButtonExpirations.poll(); // Remove the expired button from the queue
@@ -204,10 +204,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
         if (buttonContext.hasUses()) {
             buttonContext.deductUse();
+            // Now check if it no longer has any uses
+            if (!buttonContext.hasUses())
+                this.removeDynamicButton(id, true);
         }
-        // Now check if it no longer has any uses
-        if (!buttonContext.hasUses())
-            this.removeDynamicButton(id, true);
 
         return buttonContext;
     }
