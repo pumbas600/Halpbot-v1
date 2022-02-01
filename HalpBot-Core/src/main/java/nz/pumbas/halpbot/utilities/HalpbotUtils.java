@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,10 +55,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import nz.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
@@ -149,9 +152,9 @@ public final class HalpbotUtils
     }
 
     public static String firstLine(String filename) {
-        return retrieveReader(filename)
+        return Objects.requireNonNull(retrieveReader(filename)
                 .map(in -> parseFile(in, BufferedReader::readLine, ""))
-                .or("");
+                .or(""));
     }
 
     /**
@@ -228,22 +231,22 @@ public final class HalpbotUtils
                 String.format("The filename, %s does not end with .properties", filename));
 
         Map<String, String> propertyMap = new HashMap<>();
-        return retrieveReader(filename)
-            .map(inputStream -> {
-                Properties properties = new Properties();
+        return Objects.requireNonNull(retrieveReader(filename)
+                .map(inputStream -> {
+                    Properties properties = new Properties();
 
-                try {
-                    properties.load(inputStream);
-                    for (Entry<Object, Object> entry : properties.entrySet()) {
-                        propertyMap.put((String) entry.getKey(), (String) entry.getValue());
+                    try {
+                        properties.load(inputStream);
+                        for (Entry<Object, Object> entry : properties.entrySet()) {
+                            propertyMap.put((String) entry.getKey(), (String) entry.getValue());
+                        }
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return propertyMap;
+                    return propertyMap;
 
-            }).or(propertyMap);
+                }).or(propertyMap));
     }
 
     /**
@@ -260,31 +263,6 @@ public final class HalpbotUtils
             return Exceptional.empty();
         return Exceptional.of(url.getPath());
     }
-
-    /**
-     * A simple csv parser, which automatically splits the rows.
-     *
-     * @param filename
-     *     The name of the csv to parse
-     *
-     * @return A {@link List} of split rows.
-     */
-//    public static List<String[]> parseCSVFile(String filename) {
-//        if (!filename.endsWith(".csv"))
-//            throw new IllegalArgumentException(
-//                String.format("The filename, %s does not end with .csv", filename));
-//
-//        return parseFile(filename, bufferedReader -> {
-//            List<String[]> lines = new ArrayList<>();
-//
-//            String line;
-//            while (null != (line = bufferedReader.readLine())) {
-//                lines.add(line.split(","));
-//            }
-//            return lines;
-//
-//        }, new ArrayList<>());
-//    }
 
     /**
      * Replaces the first occurance of the target in the passed str with the replacement without using regex.
@@ -321,8 +299,7 @@ public final class HalpbotUtils
      * @return The capitalised {@link String}
      */
     public static String capitalise(String str) {
-        if (null == str || str.isEmpty())
-            return str;
+        if (str.isEmpty()) return str;
 
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
@@ -454,6 +431,30 @@ public final class HalpbotUtils
     public static <TV, TC extends Collection<TV>> TC addAll(TC collection, TC toAdd) {
         collection.addAll(toAdd);
         return collection;
+    }
+
+    /**
+     * Removes the first element in the collection that passes the filter wrapped in an {@link Exceptional}. If no
+     * elements in the collection pass the filter than nothing is removed and an empty exceptional is returned.
+     *
+     * @param collection
+     *      The collection to remove the element from
+     * @param filter
+     *      The filter which returns true if the element is to be removed
+     * @param <T>
+     *      The type of the elements in the collection
+     *
+     * @return The removed element wrapped in an {@link Exceptional}.
+     */
+    public static <T> Exceptional<T> removeFirst(Collection<T> collection, Predicate<T> filter) {
+        for (T next : collection) {
+            if (filter.test(next)) {
+                collection.remove(next);
+                return Exceptional.of(next);
+            }
+        }
+
+        return Exceptional.empty();
     }
 
     /**

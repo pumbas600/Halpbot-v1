@@ -148,7 +148,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
         ButtonContext buttonContext = this.dynamicButtons.remove(id);
         if (buttonContext.isUsingDuration()) {
-            this.dynamicButtonExpirations.remove(id);
+            HalpbotUtils.removeFirst(this.dynamicButtonExpirations, expiration -> expiration.getKey().equals(id));
         }
 
         if (applyRemovalFunction) {
