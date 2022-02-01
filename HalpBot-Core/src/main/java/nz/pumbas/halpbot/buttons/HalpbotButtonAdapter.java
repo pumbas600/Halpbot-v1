@@ -218,6 +218,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             else { // The button has expired
                 this.halpbotCore().displayConfiguration()
                         .displayTemporary(halpbotEvent, "This button has expired", -30);
+                this.handleRemovalFunctions(event);
                 return;
             }
         }
@@ -240,30 +241,34 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         this.handleRemovalFunctions(event);
     }
 
+    private boolean removalFunctionsApplies(ButtonClickEvent event) {
+        return event.getMessage().getButtons().stream()
+                .anyMatch(button -> {
+                    final String id = button.getId();
+                    return id != null && this.afterRemovalFunctions.containsKey(id);
+                });
+    }
+
     private void handleRemovalFunctions(ButtonClickEvent event) {
-        if (!this.afterRemovalFunctions.isEmpty()) {
-            boolean changedComponent = false;
+        if (!this.afterRemovalFunctions.isEmpty() && this.removalFunctionsApplies(event)) {
             final List<ActionRow> rows = new ArrayList<>();
 
             for (ActionRow row : event.getMessage().getActionRows()) {
                 List<Component> components = new ArrayList<>();
-                this.applicationContext.log().info(row.getComponents().toString());
                 for (Component component : row.getComponents()) {
                     final String componentId = component.getId();
                     final AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(componentId);
 
                     if (null != afterRemoval) {
-                        components.add(afterRemoval.apply(component));
-                        changedComponent = true;
+                        Component modifiedComponent = afterRemoval.apply(component);
+                        components.add(modifiedComponent);
                         continue;
                     }
                     components.add(component);
                 }
                 rows.add(ActionRow.of(components));
             }
-            if (changedComponent)
-                event.getHook().editOriginalComponents(rows).queue();
-
+            event.getHook().editMessageComponentsById(event.getMessageIdLong(), rows).queue();
         }
     }
 }

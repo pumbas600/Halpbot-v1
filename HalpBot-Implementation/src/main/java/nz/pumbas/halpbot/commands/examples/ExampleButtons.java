@@ -56,7 +56,7 @@ public class ExampleButtons
                 .queue();
     }
 
-    @ButtonAction(id = "halpbot:example:plusOne", removeAfter = @Duration(value = 2, unit = ChronoUnit.MINUTES))
+    @ButtonAction(id = "halpbot:example:plusOne", removeAfter = @Duration(20))
     public void dynamicButton(ButtonClickEvent event, Int num) {
         num.incrementBefore();
         event.editMessage("Number: " + num).queue();
