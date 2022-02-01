@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -51,7 +52,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
     private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
     private final Map<String, AfterRemovalFunction> afterRemovalFunctions = new ConcurrentHashMap<>();
-    private final Queue<Tuple<String, OffsetDateTime>> dynamicButtonExpirations = new PriorityQueue<>(Map.Entry.comparingByValue());
+    private final Map<String, ScheduledFuture<?>> scheduledExpirations = new ConcurrentHashMap<>();
 
     @Inject private TokenService tokenService;
     @Inject private DecoratorService decoratorService;
@@ -105,15 +106,20 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         ButtonContext buttonContext = this.registeredButtons.get(id);
 
         assert id != null; // id will never be null as this would invalidate the button
-        String newId = this.generateDynamicId(id);
+        final String newId = this.generateDynamicId(id);
         ButtonContext newButtonContext = this.buttonContextFactory
                 .create(newId, parameters, buttonContext, buttonContext.afterRemoval());
 
         this.dynamicButtons.put(newId, newButtonContext);
         if (newButtonContext.isUsingDuration()) {
             AsyncDuration duration = newButtonContext.removeAfter();
-            this.halpbotCore.threadpool()
-                    .schedule(() -> this.removeDynamicButton(id, true), duration.value(), duration.unit());
+
+            // Store the completable future so that it can be cancelled later if the dynamic button is unregistered
+            this.scheduledExpirations.put(newId, this.halpbotCore.threadpool()
+                    .schedule(
+                            () -> this.removeDynamicButton(newId, true),
+                            duration.value(),
+                            duration.unit()));
         }
 
         return button.withId(newId);
@@ -148,8 +154,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             return;
 
         ButtonContext buttonContext = this.dynamicButtons.remove(id);
-        if (buttonContext.isUsingDuration()) {
-            HalpbotUtils.removeFirst(this.dynamicButtonExpirations, expiration -> expiration.getKey().equals(id));
+        if (this.scheduledExpirations.containsKey(id)) {
+            this.scheduledExpirations.get(id).cancel(false);
         }
 
         if (applyRemovalFunction) {
