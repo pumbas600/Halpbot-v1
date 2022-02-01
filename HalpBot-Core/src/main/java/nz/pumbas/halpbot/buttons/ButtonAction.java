@@ -11,7 +11,7 @@ import nz.pumbas.halpbot.utilities.Duration;
 @Target(ElementType.METHOD)
 public @interface ButtonAction
 {
-    String id() default "";
+    String id();
 
     boolean isEphemeral() default false;
 
