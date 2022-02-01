@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.objects.AsyncDuration;
 
 
 @Getter
@@ -25,7 +26,7 @@ public class HalpbotButtonContext implements ButtonContext
     private final Object[] passedParameters;
     private final List<ParsingToken> nonCommandParameterTokens;
     private int remainingUses;
-    private final Duration removeAfter;
+    private final AsyncDuration removeAfter;
     @Nullable private final AfterRemovalFunction afterRemoval;
 
     @Override
