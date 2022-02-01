@@ -64,15 +64,14 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     @Override
     public <T> void registerButton(T instance, MethodContext<?, T> methodContext) {
-        ButtonAction button = methodContext.annotation(ButtonAction.class).get();
-        String id = this.id(button, methodContext);
+        ButtonAction buttonAction = methodContext.annotation(ButtonAction.class).get();
         ButtonContext buttonContext = this.createButton(
-                id,
-                button,
+                buttonAction.id(),
+                buttonAction,
                 new HalpbotButtonInvokable(instance, methodContext), //TODO: Use factory instead
                 new Object[0]);
 
-        this.registeredButtons.put(id, buttonContext);
+        this.registeredButtons.put(buttonAction.id(), buttonContext);
     }
 
     @Override
