@@ -11,12 +11,16 @@ import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.core.domain.tuple.Tuple;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -46,8 +50,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
     private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
-    private final Map<String, OffsetDateTime> dynamicButtonExpirations = new ConcurrentHashMap<>();
     private final Map<String, AfterRemovalFunction> afterRemovalFunctions = new ConcurrentHashMap<>();
+    private final Queue<Tuple<String, OffsetDateTime>> dynamicButtonExpirations = new PriorityQueue<>(Map.Entry.comparingByValue());
 
     @Inject private TokenService tokenService;
     @Inject private DecoratorService decoratorService;
@@ -106,8 +110,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                 .create(newId, parameters, buttonContext, buttonContext.afterRemoval());
 
         this.dynamicButtons.put(newId, newButtonContext);
-        if (newButtonContext.isUsingDuration())
-            this.dynamicButtonExpirations.put(newId, OffsetDateTime.now().plus(newButtonContext.displayDuration()));
+        if (newButtonContext.isUsingDuration()) {
+            OffsetDateTime expiration = OffsetDateTime.now().plus(newButtonContext.displayDuration());
+            this.dynamicButtonExpirations.add(Tuple.of(newId, expiration));
+        }
 
         return button.withId(newId);
     }
@@ -175,21 +181,35 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         );
     }
 
+    private void handleExpiredButtons() {
+        OffsetDateTime now = OffsetDateTime.now();
+
+        while (!this.dynamicButtonExpirations.isEmpty()) {
+            Tuple<String, OffsetDateTime> expiration = this.dynamicButtonExpirations.peek();
+
+            // The first non-expired button we reach means that all subsequent times will also be after
+            // the time now as they're sorted by the expiration time.
+            if (expiration.getValue().isAfter(now))
+                break;
+
+            this.dynamicButtonExpirations.poll(); // Remove the expired button from the queue
+            this.removeDynamicButton(expiration.getKey(), true);
+        }
+    }
+
+
     private ButtonContext retrieveDynamicButtonContext(String id) {
-        boolean remove = false;
         ButtonContext buttonContext = this.dynamicButtons.get(id);
+        // The button context has already been checked to make sure it's not past it's expiration time (If
+        // applicable) so we only need to determine if it still has any uses left.
+
         if (buttonContext.hasUses()) {
             buttonContext.deductUse();
-            if (!buttonContext.hasUses())
-                remove = true;
         }
-        if (!remove && buttonContext.isUsingDuration() &&
-            OffsetDateTime.now().isAfter(this.dynamicButtonExpirations.get(id))) {
-                remove = true;
-        }
-
-        if (remove) // Remove the button if it's expired
+        // Now check if it no longer has any uses
+        if (!buttonContext.hasUses())
             this.removeDynamicButton(id, true);
+
         return buttonContext;
     }
 
@@ -200,6 +220,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
         ButtonContext buttonContext;
+
+        this.handleExpiredButtons();
 
         if (this.isDynamic(id)) {
             if (this.dynamicButtons.containsKey(id)) {
