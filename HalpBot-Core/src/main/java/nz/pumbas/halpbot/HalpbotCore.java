@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
 import javax.security.auth.login.LoginException;
@@ -39,11 +41,16 @@ public class HalpbotCore implements ContextCarrier
     @Inject private PermissionService permissionService;
 
     @Getter private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
+    @Getter private final ScheduledExecutorService threadpool;
 
     @Nullable private JDA jda;
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
     private final List<EventListener> eventListeners = new ArrayList<>();
+
+    public HalpbotCore() {
+        this.threadpool = Executors.newSingleThreadScheduledExecutor();
+    }
 
     /**
      * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke

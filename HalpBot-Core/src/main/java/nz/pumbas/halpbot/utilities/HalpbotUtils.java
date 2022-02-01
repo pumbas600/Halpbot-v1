@@ -59,10 +59,12 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import nz.pumbas.halpbot.objects.AsyncDuration;
 import nz.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
 
 public final class HalpbotUtils
@@ -87,6 +89,10 @@ public final class HalpbotUtils
      */
     public static java.time.Duration asDuration(Duration duration) {
         return java.time.Duration.of(duration.value(), duration.unit());
+    }
+
+    public static AsyncDuration asAsyncDuration(Duration duration) {
+        return new AsyncDuration(duration.value(), TimeUnit.of(duration.unit()));
     }
 
     /**

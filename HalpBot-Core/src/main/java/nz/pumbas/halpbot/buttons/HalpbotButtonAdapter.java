@@ -37,6 +37,7 @@ import nz.pumbas.halpbot.converters.tokens.TokenService;
 import nz.pumbas.halpbot.decorators.DecoratorService;
 import nz.pumbas.halpbot.events.HalpbotEvent;
 import nz.pumbas.halpbot.events.InteractionEvent;
+import nz.pumbas.halpbot.objects.AsyncDuration;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Singleton
@@ -110,8 +111,9 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
         this.dynamicButtons.put(newId, newButtonContext);
         if (newButtonContext.isUsingDuration()) {
-            OffsetDateTime expiration = OffsetDateTime.now().plus(newButtonContext.removeAfter());
-            this.dynamicButtonExpirations.add(Tuple.of(newId, expiration));
+            AsyncDuration duration = newButtonContext.removeAfter();
+            this.halpbotCore.threadpool()
+                    .schedule(() -> this.removeDynamicButton(id, true), duration.value(), duration.unit());
         }
 
         return button.withId(newId);
@@ -175,27 +177,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
                         .map(token -> (ParsingToken) token)
                         .collect(Collectors.toList()),
                 buttonAction.maxUses(),
-                HalpbotUtils.asDuration(buttonAction.removeAfter()),
+                HalpbotUtils.asAsyncDuration(buttonAction.removeAfter()),
                 buttonAction.afterRemoval().strategy()
         );
     }
-
-    private void handleExpiredButtons() {
-        OffsetDateTime now = OffsetDateTime.now();
-
-        while (!this.dynamicButtonExpirations.isEmpty()) {
-            Tuple<String, OffsetDateTime> expiration = this.dynamicButtonExpirations.peek();
-
-            // The first non-expired button we reach means that all subsequent times will also be after
-            // the time now as they're sorted by the expiration time.
-            if (now.isBefore(expiration.getValue()))
-                break;
-
-            this.dynamicButtonExpirations.poll(); // Remove the expired button from the queue
-            this.removeDynamicButton(expiration.getKey(), true);
-        }
-    }
-
 
     private ButtonContext retrieveDynamicButtonContext(String id) {
         ButtonContext buttonContext = this.dynamicButtons.get(id);
@@ -219,8 +204,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
         HalpbotEvent halpbotEvent = new InteractionEvent(event);
         ButtonContext buttonContext;
-
-        this.handleExpiredButtons();
 
         if (this.isDynamic(id)) {
             if (this.dynamicButtons.containsKey(id)) {

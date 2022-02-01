@@ -6,6 +6,7 @@ import java.time.Duration;
 
 import nz.pumbas.halpbot.actions.DisplayableResult;
 import nz.pumbas.halpbot.actions.invokable.SourceContext;
+import nz.pumbas.halpbot.objects.AsyncDuration;
 
 public interface ButtonContext extends SourceContext<ButtonInvocationContext>, DisplayableResult
 {
@@ -17,7 +18,7 @@ public interface ButtonContext extends SourceContext<ButtonInvocationContext>, D
 
     void deductUse();
 
-    Duration removeAfter();
+    AsyncDuration removeAfter();
 
     default boolean hasUses() {
         return this.remainingUses() > 0;

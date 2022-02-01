@@ -9,6 +9,7 @@ import java.util.List;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
 import nz.pumbas.halpbot.converters.tokens.ParsingToken;
+import nz.pumbas.halpbot.objects.AsyncDuration;
 
 @Service
 public interface ButtonContextFactory
@@ -21,7 +22,7 @@ public interface ButtonContextFactory
                          Object[] passedParameters,
                          List<ParsingToken> nonCommandParameterTokens,
                          int remainingUses,
-                         Duration removeAfter,
+                         AsyncDuration removeAfter,
                          @Nullable AfterRemovalFunction afterRemoval);
 
     default ButtonContext create(String id,
