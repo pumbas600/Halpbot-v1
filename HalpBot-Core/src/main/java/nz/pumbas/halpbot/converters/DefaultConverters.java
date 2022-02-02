@@ -131,13 +131,12 @@ public final class DefaultConverters
             .convert(invocationContext -> Exceptional.of(invocationContext::remaining))
             .build();
 
-    @SuppressWarnings("OverlyComplexBooleanExpression")
     public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
             .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Boolean.class))
                     .map(in -> {
                         String lowered = in.toLowerCase(Locale.ROOT);
                         return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered)
-                                || "y".equals(lowered) | "1".equals(lowered);
+                                || "y".equals(lowered) || "1".equals(lowered);
                     }))
             .optionType(OptionType.BOOLEAN)
             .build();
