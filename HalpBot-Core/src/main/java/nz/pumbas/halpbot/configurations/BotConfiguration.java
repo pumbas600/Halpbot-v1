@@ -1,14 +1,15 @@
 package nz.pumbas.halpbot.configurations;
 
-import org.dockbox.hartshorn.config.annotations.Configuration;
-import org.dockbox.hartshorn.config.annotations.Value;
 
-import org.dockbox.hartshorn.data.FileFormats;
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.data.annotations.Configuration;
+import org.dockbox.hartshorn.data.annotations.Value;
 
 import lombok.Getter;
 
 @Getter
-@Configuration(source = "classpath:bot-config", filetype = FileFormats.PROPERTIES)
+@Service
+@Configuration(source = "classpath:bot-config.properties")
 public class BotConfiguration
 {
     @Value("defaultPrefix")

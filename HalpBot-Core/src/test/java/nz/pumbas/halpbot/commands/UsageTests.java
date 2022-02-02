@@ -27,7 +27,6 @@ package nz.pumbas.halpbot.commands;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import org.dockbox.hartshorn.config.annotations.UseConfigurations;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
@@ -41,7 +40,6 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
 @UseCommands
-@UseConfigurations
 @HartshornTest
 public class UsageTests
 {
