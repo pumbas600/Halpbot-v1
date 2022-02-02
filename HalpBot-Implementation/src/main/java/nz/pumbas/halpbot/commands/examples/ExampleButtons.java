@@ -46,17 +46,17 @@ public class ExampleButtons
         return "%s clicked the secondary button!".formatted(user.getName());
     }
 
-    @Command(description = "Creates an example dynamic button which updates the number by one")
+    @Command(description = "Creates an example dynamic button which allows you to increment a number by one")
     public void count(MessageReceivedEvent event, @Unrequired("1") int startingNumber) {
         event.getChannel().sendMessage("Number: " + startingNumber)
                 .setActionRow(
                         this.buttonAdapter.register(
-                                Button.success("halpbot:example:plusOne", "+1"),
+                                Button.success("halpbot:plusone", "+1"),
                                 new Int(startingNumber)))
                 .queue();
     }
 
-    @ButtonAction(id = "halpbot:example:plusOne", removeAfter = @Duration(20))
+    @ButtonAction(id = "halpbot:plusone", removeAfter = @Duration(20))
     public void dynamicButton(ButtonClickEvent event, Int num) {
         num.incrementBefore();
         event.editMessage("Number: " + num).queue();
