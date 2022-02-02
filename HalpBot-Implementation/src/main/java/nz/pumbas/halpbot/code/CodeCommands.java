@@ -112,7 +112,8 @@ public class CodeCommands extends ListenerAdapter
     public Object aliases(String language) {
         language = language.toLowerCase(Locale.ROOT);
         if (!this.aliases.containsKey(language)) {
-            return "The language `%s` isn't supported".formatted(language);
+            return "The language `%s` isn't supported. Use the `languages` command to see a list of the supported languages"
+                    .formatted(language);
         }
 
         String aliases = this.aliases.get(language);
