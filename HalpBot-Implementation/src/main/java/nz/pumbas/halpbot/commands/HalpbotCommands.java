@@ -160,25 +160,6 @@ public class HalpbotCommands
         return "Action complete!";
     }
 
-    @Command(description = "Runs a piece of code", preserveWhitespace = true)
-    public String run(String language, @Remaining String code) {
-        if (language.startsWith("```") && code.endsWith("```")) {
-            language = language.substring(3).toLowerCase(Locale.ROOT);
-            code = code.substring(0, code.length() - 3);
-        }
-
-        if (code.isBlank())
-            return "You must provide some code to run";
-
-        return """
-               Language: `%s`
-               Code:
-               ```%s
-               %s
-               ```
-               """.formatted(language, language, code);
-    }
-
     @Command(alias = "centroid", description = "Finds the centroid defined by the specified shapes")
     public String centroid(@Implicit Shape[] shapes)
     {
