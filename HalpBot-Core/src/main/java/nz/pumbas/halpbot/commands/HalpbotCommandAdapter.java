@@ -101,7 +101,19 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
             Exceptional<CommandContext> eCommandContext = this.commandContextSafely(alias);
             if (eCommandContext.present()) {
+                this.applicationContext.log().info("[RAW     ] " + event.getMessage().getContentRaw());
+                this.applicationContext.log().info("[DISPLAY ] " + event.getMessage().getContentDisplay());
+                this.applicationContext.log().info("[STRIPPED] " + event.getMessage().getContentStripped());
+
                 CommandContext commandContext = eCommandContext.get();
+                if (commandContext.content() != Content.RAW) {
+                    String tempContent = commandContext.content().parse(event);
+                    int startIndex = tempContent.indexOf(alias);
+                    if (startIndex != -1) {
+                        content = tempContent.substring(startIndex + alias.length());
+                    }
+                }
+
                 if (!commandContext.preserveWhitespace())
                     content = content.replaceAll("\\s+", " ");
 
@@ -272,7 +284,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 reflections,
                 HalpbotUtils.asDuration(command.display()),
                 command.isEphemeral(),
-                command.preserveWhitespace()
+                command.preserveWhitespace(),
+                command.content()
         );
     }
 
