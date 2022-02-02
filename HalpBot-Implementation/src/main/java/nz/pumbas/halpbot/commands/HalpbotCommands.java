@@ -38,6 +38,7 @@ import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -159,19 +160,18 @@ public class HalpbotCommands
         return "Action complete!";
     }
 
-    @Command(description = "Test get display content", preserveWhitespace = true)
-    public String run(@Remaining String content) {
-        if (content.startsWith("```") && content.endsWith("```"))
-            content = content.substring(3, content.length() - 3);
+    @Command(description = "Runs a piece of code", preserveWhitespace = true)
+    public String run(String language, @Remaining String code) {
+        if (language.startsWith("```") && code.endsWith("```")) {
+            language = language.substring(3).toLowerCase(Locale.ROOT);
+            code = code.substring(0, code.length() - 3);
+        }
 
-        Exceptional<String> next = StringTraverser.next(content, Reflect.getSyntax(String.class));
-        if (next.absent() || next.get().isBlank())
-            return "You need to provide the code language";
+        if (code.isBlank())
+            return "You must provide some code to run";
 
-        final String language = next.get();
-        final String code = content.substring(language.length()).stripLeading();
         return """
-               Language: %s
+               Language: `%s`
                Code:
                ```%s
                %s

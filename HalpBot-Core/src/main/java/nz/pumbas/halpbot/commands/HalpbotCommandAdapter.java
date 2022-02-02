@@ -95,7 +95,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         if (message.startsWith(prefix)) {
             message = message.substring(prefix.length()).stripLeading();
 
-            String[] splitText = message.split(" ", 2);
+            String[] splitText = message.split("\\s", 2);
             String alias       = splitText[0];
             String content     = (2 == splitText.length) ? splitText[1] : "";
 
