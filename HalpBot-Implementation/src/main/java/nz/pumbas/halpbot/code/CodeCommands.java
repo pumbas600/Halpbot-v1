@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import nz.pumbas.halpbot.RequestUtil;
 import nz.pumbas.halpbot.code.ExecutionResponse.Run;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
@@ -34,14 +35,9 @@ public class CodeCommands extends ListenerAdapter
 {
     @Inject private ObjectMapper objectMapper;
     @Inject private ApplicationContext applicationContext;
+    @Inject private RequestUtil requestUtil;
 
     private final List<String> supportedLanguages = new ArrayList<>();
-    private final HttpClient client;
-    private static final int OK = 200;
-
-    public CodeCommands() {
-        this.client = HttpClient.newHttpClient();
-    }
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
@@ -49,23 +45,16 @@ public class CodeCommands extends ListenerAdapter
     }
 
     private void requestRuntimes() {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://emkc.org/api/v2/piston/runtimes"))
-                .GET()
-                .build();
-
-        this.client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenAccept(response -> {
-                    if (response.statusCode() == OK) {
-                        this.objectMapper.read(response.body(), Language[].class)
-                                .present(languages -> {
-                                    for (Language language : languages) {
-                                        this.supportedLanguages.addAll(language.allAliases());
-                                    }
-                                    this.applicationContext.log().info("Parsed request runtimes");
-                                })
-                                .caught(e -> this.applicationContext.log().error("Error parsing runtimes request response", e));
+        this.requestUtil.getAsync("https://emkc.org/api/v2/piston/runtimes", Language[].class)
+                .thenAccept(languages -> {
+                    for (Language language : languages) {
+                        this.supportedLanguages.addAll(language.allAliases());
                     }
+                    this.applicationContext.log().info("Parsed request runtimes");
+                })
+                .exceptionally(e -> {
+                    this.applicationContext.log().error("Error parsing runtimes request response", e);
+                    return null;
                 });
     }
 
@@ -87,21 +76,12 @@ public class CodeCommands extends ListenerAdapter
 
         Exceptional<String> json = CodeExecution.json(this.objectMapper, language, code);
         if (json.present()) {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://emkc.org/api/v2/piston/execute"))
-                    .POST(BodyPublishers.ofString(json.get()))
-                    .build();
-
-            this.client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenAccept(response -> {
-                        if (response.statusCode() == OK) {
-                            this.objectMapper.read(response.body(), ExecutionResponse.class)
-                                    .present(executionResponse -> this.handleResponse(event, executionResponse))
-                                    .caught(e -> this.applicationContext.log()
-                                            .error("Caught the following error while parsing the execution response", e));
-                        }
+            this.requestUtil.postAsync("https://emkc.org/api/v2/piston/execute", json.get(), ExecutionResponse.class)
+                    .thenAccept(executionResponse -> this.handleResponse(event, executionResponse))
+                    .exceptionally(e -> {
+                        this.applicationContext.log().error("Caught the following error while parsing the execution response", e);
+                        return null;
                     });
-
         }
         else return "There was an issue trying to parse the code into json";
         return null;
