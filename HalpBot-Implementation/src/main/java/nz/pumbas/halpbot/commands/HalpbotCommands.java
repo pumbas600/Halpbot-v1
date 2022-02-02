@@ -37,6 +37,9 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
@@ -154,9 +157,11 @@ public class HalpbotCommands
     }
 
     @Command(description = "Test get display content", preserveWhitespace = true)
-    public String display(@Remaining String content) {
-        this.applicationContext.log().info(content);
-        return content;
+    public String run(@Remaining String content) {
+        if (content.startsWith("```") && content.endsWith("```"))
+            content = content.substring(3, content.length() - 3);
+        content.indexOf("")
+        return "That didn't match the expected format!";
     }
 
     @Command(alias = "centroid", description = "Finds the centroid defined by the specified shapes")
