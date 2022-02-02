@@ -2,6 +2,7 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.36.0.2'
     implementation project(':HalpBot-Core')
     implementation 'ch.qos.logback:logback-classic:1.2.10'
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.1"
 }
 
 tasks.build {
