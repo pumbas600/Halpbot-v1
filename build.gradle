@@ -6,6 +6,7 @@ plugins {
 }
 
 def halpBotVerson = '2.0.6'
+def root = file('/')
 
 group 'nz.pumbas.halpbot'
 version halpBotVerson
@@ -63,17 +64,16 @@ allprojects {
             implementation 'net.dv8tion:JDA:4.3.0_333'
             implementation 'org.checkerframework:checker-qual:3.18.1'
 
-//            implementation fileTree(dir: 'libs', include: '*.jar')
-//            implementation 'org.reflections:reflections:0.10.2'
-//            implementation 'org.javassist:javassist:3.28.0-GA'
-//            implementation 'javax.inject:javax.inject:1'
-//            implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
-//            implementation 'org.hibernate:hibernate-core:5.6.3.Final'
-//            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.13.1'
-//            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1'
-//            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-toml:2.13.1'
-//            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
-//            implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
+            implementation 'org.reflections:reflections:0.10.2'
+            implementation 'org.javassist:javassist:3.28.0-GA'
+            implementation 'javax.inject:javax.inject:1'
+            implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
+            implementation 'org.hibernate:hibernate-core:5.6.3.Final'
+            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.13.1'
+            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1'
+            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-toml:2.13.1'
+            implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
+            implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
 
             implementation 'org.mockito:mockito-core:4.2.0'
 
@@ -84,10 +84,9 @@ allprojects {
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
             testImplementation 'ch.qos.logback:logback-classic:1.2.10'
 
-            implementation fileTree(dir: '$rootDir/libs', include: '*.jar')
-            implementation 'org.dockbox.hartshorn:hartshorn-core:22.1'
-            implementation 'org.dockbox.hartshorn:hartshorn-data:22.1'
-            implementation 'org.dockbox.hartshorn:hartshorn-config:22.1'
+            implementation fileTree(dir: root.absolutePath + '/libs', include: '*.jar')
+//            implementation 'org.dockbox.hartshorn:hartshorn-core:22.1'
+//            implementation 'org.dockbox.hartshorn:hartshorn-data:22.1'
         }
 
         test {

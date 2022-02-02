@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot;
 
+import org.dockbox.hartshorn.core.Modifiers;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 public final class Main
@@ -31,6 +32,6 @@ public final class Main
     private Main() {}
 
     public static void main(String[] args) throws ApplicationException {
-        HalpbotBuilder.build(Halpbot.class, args);
+        HalpbotBuilder.build(Halpbot.class, args, Modifiers.DEBUG);
     }
 }

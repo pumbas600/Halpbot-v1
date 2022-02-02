@@ -1,8 +1,8 @@
 package nz.pumbas.halpbot.common;
 
-import org.dockbox.hartshorn.config.annotations.UseConfigurations;
 import org.dockbox.hartshorn.core.annotations.activate.ServiceActivator;
 import org.dockbox.hartshorn.core.annotations.activate.UseServiceProvision;
+import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
