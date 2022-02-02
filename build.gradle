@@ -5,7 +5,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
-def halpBotVerson = '2.0.5'
+def halpBotVerson = '2.0.6'
 
 group 'nz.pumbas.halpbot'
 version halpBotVerson
@@ -84,7 +84,7 @@ allprojects {
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
             testImplementation 'ch.qos.logback:logback-classic:1.2.10'
 
-            implementation fileTree(dir: 'libs', include: '*.jar')
+            implementation fileTree(dir: '$rootDir/libs', include: '*.jar')
             implementation 'org.dockbox.hartshorn:hartshorn-core:22.1'
             implementation 'org.dockbox.hartshorn:hartshorn-data:22.1'
             implementation 'org.dockbox.hartshorn:hartshorn-config:22.1'

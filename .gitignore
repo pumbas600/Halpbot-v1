@@ -24,6 +24,7 @@ Halpbot-Core-DB/
 
 # Package Files #
 *.jar
+!libs/*
 *.war
 *.nar
 *.ear
