@@ -44,11 +44,6 @@ public class CodeCommands extends ListenerAdapter
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         this.requestRuntimes();
-
-        this.objectMapper.write(new CodeExecution("py", "print('Hello world!')"))
-                .present(json -> this.applicationContext.log().info(json.replace(", null", "")))
-                .caught(e -> this.applicationContext.log()
-                        .error("Caught the following error while parsing the executable code", e));
     }
 
     private void requestRuntimes() {
@@ -88,11 +83,11 @@ public class CodeCommands extends ListenerAdapter
         if (code.isBlank())
             return "You must provide some code to run";
 
-        Exceptional<String> json = this.objectMapper.write(new CodeExecution(language, code));
+        Exceptional<String> json = CodeExecution.json(this.objectMapper, language, code);
         if (json.present()) {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://emkc.org/api/v2/piston/execute"))
-                    .POST(BodyPublishers.ofString(json.get().replace(", null", "")))
+                    .POST(BodyPublishers.ofString(json.get()))
                     .build();
 
             this.client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
