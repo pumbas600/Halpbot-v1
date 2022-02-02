@@ -77,47 +77,41 @@ public final class DefaultConverters
     //region Simple Converters
 
     public static final TypeConverter<Byte> BYTE_CONVERTER = TypeConverter.builder(Byte.class)
-            .convert(invocationContext ->
-                    invocationContext.next(Reflect.getSyntax(Byte.class))
-                            .map(Byte::parseByte))
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Byte.class))
+                    .map(Byte::parseByte))
             .optionType(OptionType.INTEGER)
             .build();
 
     public static final TypeConverter<Short> SHORT_CONVERTER = TypeConverter.builder(Short.class)
-            .convert(invocationContext ->
-                    invocationContext.next(Reflect.getSyntax(Short.class))
-                            .map(Short::parseShort))
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Short.class))
+                    .map(Short::parseShort))
             .optionType(OptionType.INTEGER)
             .build();
 
     public static final TypeConverter<Integer> INTEGER_CONVERTER = TypeConverter.builder(Integer.class)
-            .convert(invocationContext ->
-                    invocationContext.next(Reflect.getSyntax(Integer.class))
-                            .map(Integer::parseInt))
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Integer.class))
+                    .map(Integer::parseInt))
             .optionType(OptionType.INTEGER)
             .build();
 
     public static final TypeConverter<Long> LONG_CONVERTER = TypeConverter.builder(Long.class)
-            .convert(invocationContext ->
-                    invocationContext.next(Reflect.getSyntax(Long.class))
-                            .map(number -> {
-                                if (number.startsWith("-"))
-                                    return Long.parseLong(number);
-                                else return Long.parseUnsignedLong(number);
-                            }))
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Long.class))
+                    .map(number -> {
+                        if (number.startsWith("-"))
+                            return Long.parseLong(number);
+                        else return Long.parseUnsignedLong(number);
+                    }))
             .optionType(OptionType.INTEGER)
             .build();
 
     public static final TypeConverter<Float> FLOAT_CONVERTER = TypeConverter.builder(Float.class)
-            .convert(invocationContext ->
-                    invocationContext.next(Reflect.getSyntax(Float.class))
-                            .map(Float::parseFloat))
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Float.class))
+                    .map(Float::parseFloat))
             .build();
 
     public static final TypeConverter<Double> DOUBLE_CONVERTER = TypeConverter.builder(Double.class)
-            .convert(invocationContext ->
-                    invocationContext.next(Reflect.getSyntax(Double.class))
-                            .map(Double::parseDouble))
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Double.class))
+                    .map(Double::parseDouble))
             .build();
 
     public static final TypeConverter<Character> CHARACTER_CONVERTER = TypeConverter.builder(Character.class)
@@ -128,7 +122,7 @@ public final class DefaultConverters
             .build();
 
     public static final TypeConverter<String> STRING_CONVERTER = TypeConverter.builder(String.class)
-            .convert(CommandInvocationContext::nextSafe)
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(String.class)))
             .optionType(OptionType.STRING)
             .build();
 
@@ -139,13 +133,12 @@ public final class DefaultConverters
 
     @SuppressWarnings("OverlyComplexBooleanExpression")
     public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
-            .convert(invocationContext ->
-                    invocationContext.next(Reflect.getSyntax(Boolean.class))
-                            .map(in -> {
-                                String lowered = in.toLowerCase(Locale.ROOT);
-                                return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered)
-                                        || "y".equals(lowered) | "1".equals(lowered);
-                            }))
+            .convert(invocationContext -> invocationContext.next(Reflect.getSyntax(Boolean.class))
+                    .map(in -> {
+                        String lowered = in.toLowerCase(Locale.ROOT);
+                        return "true".equals(lowered) || "yes".equals(lowered) || "t".equals(lowered)
+                                || "y".equals(lowered) | "1".equals(lowered);
+                    }))
             .optionType(OptionType.BOOLEAN)
             .build();
 

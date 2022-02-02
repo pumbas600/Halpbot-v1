@@ -59,7 +59,7 @@ public final class Reflect
      * An {@link Map} of the built-in {@link Class classes} and their regex syntax.
      */
     private static final Map<Class<?>, Pattern> TypeParsers = Map.of(
-        String.class, Pattern.compile(".*"),
+        String.class, Pattern.compile("[^\\s]+\\s"),
         Byte.class, IntegerPattern,
         Short.class, IntegerPattern,
         Integer.class, IntegerPattern,

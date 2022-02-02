@@ -221,11 +221,10 @@ public interface StringTraverser
 
     /**
      * @return The remaining strings
-     * @throws IllegalFormatException If there are no remaining strings
      */
     default String remaining() {
         if (!this.hasNext())
-            throw new IllegalFormatException("There are no remaining strings");
+            return "";
 
         String remaining = this.content().substring(this.currentIndex());
         this.currentIndex(this.content().length());
