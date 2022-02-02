@@ -1,5 +1,8 @@
 package nz.pumbas.halpbot.code;
 
+import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.data.mapping.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,11 @@ public class CodeExecution
         this.language = language;
         this.files.add(new CodeFile(content));
         this.files.add(null);
+    }
+
+    public static Exceptional<String> json(ObjectMapper mapper, String language, String content) {
+        return mapper.write(new CodeExecution(language, content))
+                .map(json -> json.replace(", null", ""));
     }
 
     @Getter
