@@ -59,11 +59,9 @@ import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.triggers.Trigger;
-import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
-import nz.pumbas.halpbot.utilities.StringTraverser;
 
-@Log(LogLevel.INFO)
+@Log
 @Service
 public class HalpbotCommands
 {

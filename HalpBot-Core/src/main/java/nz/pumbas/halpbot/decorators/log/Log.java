@@ -14,5 +14,5 @@ import nz.pumbas.halpbot.utilities.LogLevel;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Log
 {
-    LogLevel value() default LogLevel.DEBUG;
+    LogLevel value() default LogLevel.INFO;
 }
