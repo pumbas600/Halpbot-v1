@@ -15,8 +15,6 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.code.ExecutionResponse;
-
 @Service
 public class RequestUtil
 {
