@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import nz.pumbas.halpbot.actions.invokable.ActionInvokable;
+import nz.pumbas.halpbot.commands.Content;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.converters.tokens.Token;
 
@@ -21,7 +22,8 @@ public record HalpbotCommandContext(List<String> aliases,
                                     Set<TypeContext<?>> reflections,
                                     Duration displayDuration,
                                     boolean isEphemeral,
-                                    boolean preserveWhitespace)
+                                    boolean preserveWhitespace,
+                                    Content content)
         implements CommandContext
 {
 

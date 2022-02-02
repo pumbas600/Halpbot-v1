@@ -27,6 +27,7 @@ package nz.pumbas.halpbot.commands.actioninvokable.context.command;
 import java.util.List;
 
 import nz.pumbas.halpbot.actions.DisplayableResult;
+import nz.pumbas.halpbot.commands.Content;
 import nz.pumbas.halpbot.commands.actioninvokable.context.TokenActionContext;
 
 public interface CommandContext extends TokenActionContext, DisplayableResult
@@ -51,4 +52,6 @@ public interface CommandContext extends TokenActionContext, DisplayableResult
     String usage();
 
     boolean preserveWhitespace();
+
+    Content content();
 }

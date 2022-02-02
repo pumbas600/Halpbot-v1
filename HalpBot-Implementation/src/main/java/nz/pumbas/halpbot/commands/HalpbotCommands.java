@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import org.checkerframework.checker.units.qual.Time;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -60,6 +61,7 @@ import nz.pumbas.halpbot.utilities.Duration;
 public class HalpbotCommands
 {
     @Inject private PermissionService permissionService;
+    @Inject private ApplicationContext applicationContext;
 
     @Command(alias = "source")
     public String source() {
@@ -149,6 +151,12 @@ public class HalpbotCommands
         }
 
         return "Action complete!";
+    }
+
+    @Command(description = "Test get display content", preserveWhitespace = true)
+    public String display(@Remaining String content) {
+        this.applicationContext.log().info(content);
+        return content;
     }
 
     @Command(alias = "centroid", description = "Finds the centroid defined by the specified shapes")
