@@ -32,7 +32,6 @@ import nz.pumbas.halpbot.RequestUtil;
 import nz.pumbas.halpbot.code.ExecutionResponse.Run;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
-import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
