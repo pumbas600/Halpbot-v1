@@ -24,10 +24,9 @@ import nz.pumbas.halpbot.buttons.ButtonAdapter;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.decorators.time.Time;
-import nz.pumbas.halpbot.utilities.LogLevel;
 
+@Log
 @Time
-@Log(LogLevel.INFO)
 @Service
 public class GameCommands
 {

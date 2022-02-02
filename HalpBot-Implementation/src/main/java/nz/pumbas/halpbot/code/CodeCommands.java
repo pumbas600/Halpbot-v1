@@ -26,7 +26,9 @@ import javax.inject.Inject;
 import nz.pumbas.halpbot.code.ExecutionResponse.Run;
 import nz.pumbas.halpbot.commands.annotations.Command;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import nz.pumbas.halpbot.decorators.log.Log;
 
+@Log
 @Service
 public class CodeCommands extends ListenerAdapter
 {
@@ -110,8 +112,8 @@ public class CodeCommands extends ListenerAdapter
         String message;
         if (!run.stderr().isBlank())
             message = """
-                    ```diff
-                    - %s
+                    ```fix
+                    %s
                     ```
                     """.formatted(run.stderr());
         else if (!run.stdout().isBlank())
