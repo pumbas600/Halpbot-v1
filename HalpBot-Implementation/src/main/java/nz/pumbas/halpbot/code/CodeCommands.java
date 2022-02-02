@@ -116,7 +116,7 @@ public class CodeCommands extends ListenerAdapter
         if (!run.stderr().isBlank())
             message = """
                     ```diff
-                    - ERROR: %s
+                    - %s
                     ```
                     """.formatted(run.stderr());
         else if (!run.stdout().isBlank())
@@ -128,7 +128,7 @@ public class CodeCommands extends ListenerAdapter
         else message = "```No output```";
 
         if (message.length() > Message.MAX_CONTENT_LENGTH)
-            message = message.substring(0, Message.MAX_CONTENT_LENGTH - 3) + "...";
+            message = message.substring(0, Message.MAX_CONTENT_LENGTH - 6) + "...```";
 
         event.getChannel().sendMessage(message).queue();
 
