@@ -43,7 +43,7 @@ public interface StringTraverser
 
         String match = this.content().substring(this.currentIndex(), endIndex);
         this.currentIndex(endIndex + 1);
-        this.skipPastSpaces();
+        this.skipPastWhitespaces();
 
         return Exceptional.of(match);
     }
@@ -97,7 +97,7 @@ public interface StringTraverser
 
         if (stepPast) {
             this.currentIndex(this.currentIndex() + until.length());
-            this.skipPastSpaces();
+            this.skipPastWhitespaces();
         }
         return Exceptional.of(match);
     }
@@ -124,12 +124,21 @@ public interface StringTraverser
                 if (this.hasNext() && ' ' == this.content().charAt(this.currentIndex()))
                     this.incrementIndex();
 
-                this.skipPastSpaces();
+                this.skipPastWhitespaces();
                 return Exceptional.of(match);
             }
         }
         return Exceptional.of(
                 new IllegalFormatException("The start of " + this.next() + " doesn't match the expected format"));
+    }
+
+    static Exceptional<String> next(String content, Pattern pattern) {
+        Matcher matcher = pattern.matcher(content);
+        if (matcher.lookingAt()) { // Will return true if the start of the string matches the Regex
+            String match = content.substring(0, matcher.end());
+            return Exceptional.of(match);
+        }
+        return Exceptional.empty();
     }
 
     /**
@@ -194,7 +203,7 @@ public interface StringTraverser
 
         if (stepPast) {
             this.currentIndex(this.currentIndex() + stop.length());
-            this.skipPastSpaces();
+            this.skipPastWhitespaces();
         }
 
         return Exceptional.of(match);
@@ -212,7 +221,7 @@ public interface StringTraverser
         int endIndex = this.currentIndex() + next.length();
         if (endIndex < this.content().length() && this.content().substring(this.currentIndex(), endIndex).equalsIgnoreCase(next)) {
             this.currentIndex(endIndex);
-            if (this.currentlyOnSpace())
+            if (this.currentlyOnWhitespace())
                 this.incrementIndex();
             return true;
         }
@@ -232,17 +241,17 @@ public interface StringTraverser
     }
 
     /**
-     * @return If the current character is a space
+     * @return If the current character is whitespace
      */
-    default boolean currentlyOnSpace() {
-        return this.hasNext() && ' ' == this.content().charAt(this.currentIndex());
+    default boolean currentlyOnWhitespace() {
+        return this.hasNext() && Character.isWhitespace(this.content().charAt(this.currentIndex()));
     }
 
     /**
-     * While the current index is on a space, it will continue incrementing the current index.
+     * While the current index is on a whitespace, it will continue incrementing the current index.
      */
-    default void skipPastSpaces() {
-        while (this.currentlyOnSpace())
+    default void skipPastWhitespaces() {
+        while (this.currentlyOnWhitespace())
             this.incrementIndex();
     }
 
@@ -280,7 +289,7 @@ public interface StringTraverser
 
         if (isNext && stepPast) {
             this.incrementIndex();
-            this.skipPastSpaces();
+            this.skipPastWhitespaces();
         }
         return isNext;
     }

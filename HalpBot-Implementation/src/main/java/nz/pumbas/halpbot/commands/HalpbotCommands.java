@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.checkerframework.checker.units.qual.Time;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
@@ -54,10 +55,12 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import nz.pumbas.halpbot.customparameters.Shape;
 import nz.pumbas.halpbot.decorators.log.Log;
 import nz.pumbas.halpbot.permissions.PermissionService;
+import nz.pumbas.halpbot.utilities.Reflect;
 import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.triggers.Trigger;
 import nz.pumbas.halpbot.utilities.LogLevel;
 import nz.pumbas.halpbot.utilities.Duration;
+import nz.pumbas.halpbot.utilities.StringTraverser;
 
 @Log(LogLevel.INFO)
 @Service
@@ -160,8 +163,20 @@ public class HalpbotCommands
     public String run(@Remaining String content) {
         if (content.startsWith("```") && content.endsWith("```"))
             content = content.substring(3, content.length() - 3);
-        content.indexOf("")
-        return "That didn't match the expected format!";
+
+        Exceptional<String> next = StringTraverser.next(content, Reflect.getSyntax(String.class));
+        if (next.absent() || next.get().isBlank())
+            return "You need to provide the code language";
+
+        final String language = next.get();
+        final String code = content.substring(language.length()).stripLeading();
+        return """
+               Language: %s
+               Code:
+               ```%s
+               %s
+               ```
+               """.formatted(language, language, code);
     }
 
     @Command(alias = "centroid", description = "Finds the centroid defined by the specified shapes")
