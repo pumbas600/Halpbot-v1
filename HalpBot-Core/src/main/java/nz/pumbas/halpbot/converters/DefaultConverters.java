@@ -47,7 +47,6 @@ import nz.pumbas.halpbot.HalpbotCore;
 import nz.pumbas.halpbot.commands.CommandAdapter;
 import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import nz.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContext;
-import nz.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 import nz.pumbas.halpbot.converters.annotations.Ignore;
 import nz.pumbas.halpbot.converters.annotations.parameter.Source;
 import nz.pumbas.halpbot.commands.exceptions.CommandException;
@@ -67,11 +66,9 @@ import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 
 @Service
-@SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields"})
-public final class DefaultConverters
+@SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields", "NonFinalUtilityClass"})
+public class DefaultConverters
 {
-    private DefaultConverters() {}
-
     //region Converters
 
     //region Simple Converters

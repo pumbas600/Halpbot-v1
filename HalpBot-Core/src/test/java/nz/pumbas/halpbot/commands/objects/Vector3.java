@@ -28,7 +28,7 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
-@Service
+@Service(singleton = false)
 public class Vector3
 {
     public static final Vector3 Zero = new Vector3(0, 0, 0);
