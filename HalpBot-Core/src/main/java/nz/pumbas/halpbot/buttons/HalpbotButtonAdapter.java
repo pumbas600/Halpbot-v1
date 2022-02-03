@@ -42,7 +42,8 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 public class HalpbotButtonAdapter implements ButtonAdapter
 {
     @Getter @Setter private int idSuffix;
-    @Getter @Setter private String dynamicPrefix;
+    // This will be overwritten when the bot starts such that the prefix is unique to this particular bot
+    @Getter @Setter private String dynamicPrefix = "HB-TEMP";
 
     private final Map<String, ButtonContext> registeredButtons = new ConcurrentHashMap<>();
     private final Map<String, ButtonContext> dynamicButtons = new ConcurrentHashMap<>();

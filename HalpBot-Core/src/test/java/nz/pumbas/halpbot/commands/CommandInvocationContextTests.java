@@ -26,6 +26,7 @@ package nz.pumbas.halpbot.commands;
 
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
@@ -34,6 +35,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationConte
 import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 
 @HartshornTest
+@UseConfigurations
 @Activator(scanPackages = "nz.pumbas.halpbot")
 public class CommandInvocationContextTests
 {
