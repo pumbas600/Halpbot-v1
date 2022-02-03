@@ -44,7 +44,7 @@ import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
 @Getter
-@Service
+@Service(singleton = false)
 public class Matrix implements DiscordObject
 {
     public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);

@@ -1,22 +1,17 @@
 package nz.pumbas.halpbot.hibernate.services;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import nz.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import nz.pumbas.halpbot.hibernate.models.QuestionModification;
 import nz.pumbas.halpbot.hibernate.repositories.QuestionModificationRepository;
-import nz.pumbas.halpbot.utilities.ConcurrentManager;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
-@Service
 public class QuestionModificationService
 {
     private final Set<Long> ids = new HashSet<>();
@@ -25,7 +20,6 @@ public class QuestionModificationService
 
     private final QuestionModificationRepository questionModificationRepository;
 
-    //@Autowired
     public QuestionModificationService(QuestionModificationRepository questionModificationRepository) {
         this.questionModificationRepository = questionModificationRepository;
         this.ids.addAll(this.questionModificationRepository.getAllIds());

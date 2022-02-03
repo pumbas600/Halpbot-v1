@@ -28,7 +28,7 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
-@Service
+@Service(singleton = false)
 public class Resistor extends ElectricalComponent {
 
     protected double resistance;

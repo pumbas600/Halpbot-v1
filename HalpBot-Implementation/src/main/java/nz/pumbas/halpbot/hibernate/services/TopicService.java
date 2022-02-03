@@ -42,6 +42,10 @@ public class TopicService
     private final Map<Long, String> topicMappings = new HashMap<>();
     private final TopicRepository topicRepository;
 
+    public TopicService() {
+        this.topicRepository = null;
+    }
+
     //@Autowired
     public TopicService(TopicRepository topicRepository) {
         this.topicRepository = topicRepository;

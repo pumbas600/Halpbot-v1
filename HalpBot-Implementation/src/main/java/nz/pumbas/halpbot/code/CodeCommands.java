@@ -142,7 +142,7 @@ public class CodeCommands extends ListenerAdapter
         if (code.isBlank())
             return "You must provide some code to run";
 
-        Exceptional<String> json = CodeExecution.json(this.objectMapper, language, code);
+        Exceptional<String> json = this.objectMapper.write(new CodeExecution(language, code));
         if (json.present()) {
             this.requestUtil.postAsync("https://emkc.org/api/v2/piston/execute", json.get(), ExecutionResponse.class)
                     .thenAccept(executionResponse -> this.handleResponse(event, executionResponse))

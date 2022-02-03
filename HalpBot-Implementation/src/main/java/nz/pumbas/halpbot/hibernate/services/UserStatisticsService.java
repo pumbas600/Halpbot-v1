@@ -20,6 +20,10 @@ public class UserStatisticsService
 
     private final UserStatisticsRepository userStatisticsRepository;
 
+    public UserStatisticsService() {
+        this.userStatisticsRepository = null;
+    }
+
     //@Autowired
     public UserStatisticsService(UserStatisticsRepository userStatisticsRepository) {
         this.userStatisticsRepository = userStatisticsRepository;
