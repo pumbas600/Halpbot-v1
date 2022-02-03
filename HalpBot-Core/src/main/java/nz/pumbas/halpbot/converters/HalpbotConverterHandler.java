@@ -51,6 +51,7 @@ import nz.pumbas.halpbot.utilities.Reflect;
 public class HalpbotConverterHandler implements ConverterHandler
 {
     private final MultiMap<TypeContext<?>, Converter<?, ?>> converters = new ArrayListMultiMap<>();
+    private static final TypeContext<Object> OBJECT_TYPE = TypeContext.of(Object.class);
 
     private final Set<TypeContext<?>> nonCommandTypes = HartshornUtils.emptyConcurrentSet();
     private final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = HartshornUtils.emptyConcurrentSet();
@@ -84,12 +85,12 @@ public class HalpbotConverterHandler implements ConverterHandler
         }
 
         if (!this.converters.containsKey(typeContext)) {
-            // Check in case there is a key that is a child of the type context
+            // Check in case there is a key that is a parent of the type context
             // (E.g: ArrayTypeContext will equal any arrays)
             return (Converter<C, T>) this.converters.keySet()
                     .stream()
                     .filter(type -> type.parentOf(typeContext))
-                    .min(Comparator.comparing(type -> type.is(Object.class))) // Prioritise types that aren't Object.class
+                    .min(Comparator.comparing(type -> type.equals(OBJECT_TYPE))) // Prioritise types that aren't Object.class
                     .map(type -> this.from(type, targetAnnotationType))
                     .orElse(Reflect.cast(DefaultConverters.OBJECT_CONVERTER));
         }
