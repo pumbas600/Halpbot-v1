@@ -5,10 +5,6 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.1"
 }
 
-tasks.build {
-    dependsOn tasks.updateLicenses, tasks.shadowJar
-}
-
 jar {
     manifest {
         attributes 'Main-Class': 'nz.pumbas.halpbot.Main'
