@@ -34,9 +34,10 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 
+import org.dockbox.hartshorn.core.annotations.activate.UseServiceProvision;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;
@@ -46,13 +47,11 @@ import java.util.Set;
 
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.HalpbotCore;
-import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
-import nz.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import nz.pumbas.halpbot.commands.objects.ShapeType;
 import nz.pumbas.halpbot.commands.objects.Vector3;
 import nz.pumbas.halpbot.converters.Converter;
 import nz.pumbas.halpbot.converters.SourceConverter;
+import nz.pumbas.halpbot.converters.UseConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Children;
 import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
@@ -63,7 +62,8 @@ import nz.pumbas.halpbot.converters.ConverterHandler;
 import nz.pumbas.halpbot.converters.DefaultConverters;
 import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
-@UseCommands
+@UseConfigurations
+@UseConverters
 @HartshornTest
 public class ConverterHandlerTests
 {
@@ -156,34 +156,6 @@ public class ConverterHandlerTests
 
         Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.CHILDREN_TYPE_CONVERTER, converter);
-    }
-
-    @InjectTest
-    public void parsingRemainingStringsTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
-        CommandInvocationContext invocationContext = invocationContextFactory.command("This is a test sentence.");
-
-        Converter<CommandInvocationContext, String> converter = converterHandler
-                .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
-
-        Exceptional<String> sentence = converter.apply(invocationContext);
-
-        Assertions.assertTrue(sentence.present());
-        Assertions.assertEquals("This is a test sentence.", sentence.get());
-    }
-
-    @InjectTest
-    public void parsingArrayTest(InvocationContextFactory invocationContextFactory, ConverterHandler converterHandler) {
-        CommandInvocationContext invocationContext = invocationContextFactory.command("[5 1 3 12 20]");
-        invocationContext.currentType(TypeContext.of(Integer[].class));
-        Converter<CommandInvocationContext, Integer[]> converter = converterHandler.from(Integer[].class);
-
-        Integer[] array = converter.apply(invocationContext).get();
-
-        Assertions.assertEquals(5,  array[0]);
-        Assertions.assertEquals(1,  array[1]);
-        Assertions.assertEquals(3,  array[2]);
-        Assertions.assertEquals(12, array[3]);
-        Assertions.assertEquals(20, array[4]);
     }
 
     @InjectTest
