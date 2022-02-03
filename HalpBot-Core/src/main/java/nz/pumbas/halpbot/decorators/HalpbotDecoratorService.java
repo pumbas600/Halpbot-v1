@@ -1,14 +1,13 @@
 package nz.pumbas.halpbot.decorators;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,7 +18,7 @@ import lombok.Getter;
 @ComponentBinding(DecoratorService.class)
 public class HalpbotDecoratorService implements DecoratorService
 {
-    private final Map<TypeContext<? extends Annotation>, DecoratorFactory<?, ?, ?>> decorators = HartshornUtils.emptyMap();
+    private final Map<TypeContext<? extends Annotation>, DecoratorFactory<?, ?, ?>> decorators = new ConcurrentHashMap<>();
 
     @Getter @Inject private ApplicationContext applicationContext;
 

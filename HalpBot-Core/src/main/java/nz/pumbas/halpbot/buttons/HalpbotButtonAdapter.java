@@ -6,20 +6,15 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.context.element.MethodContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.domain.tuple.Tuple;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
@@ -49,8 +44,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     @Getter @Setter private int idSuffix;
     @Getter @Setter private String dynamicPrefix;
 
-    private final Map<String, ButtonContext> registeredButtons = HartshornUtils.emptyMap();
-    private final Map<String, ButtonContext> dynamicButtons = HartshornUtils.emptyMap();
+    private final Map<String, ButtonContext> registeredButtons = new ConcurrentHashMap<>();
+    private final Map<String, ButtonContext> dynamicButtons = new ConcurrentHashMap<>();
     private final Map<String, AfterRemovalFunction> afterRemovalFunctions = new ConcurrentHashMap<>();
     private final Map<String, ScheduledFuture<?>> scheduledExpirations = new ConcurrentHashMap<>();
 

@@ -3,7 +3,6 @@ package nz.pumbas.halpbot.commands.builtin;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -31,7 +31,7 @@ public class HalpbotHelpService implements HelpService
 {
     @Inject private DecoratorService decoratorService;
     @Nullable private MessageEmbed allCommandHelpEmbed;
-    private final Map<CommandContext, MessageEmbed> commandHelpEmbeds = HartshornUtils.emptyMap();
+    private final Map<CommandContext, MessageEmbed> commandHelpEmbeds = new ConcurrentHashMap<>();
 
     @Override
     public MessageEmbed build(CommandAdapter commandAdapter) {

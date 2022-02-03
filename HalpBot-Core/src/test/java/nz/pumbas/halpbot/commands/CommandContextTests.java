@@ -28,7 +28,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

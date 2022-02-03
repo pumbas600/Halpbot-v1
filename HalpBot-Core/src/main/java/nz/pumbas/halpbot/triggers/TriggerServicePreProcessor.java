@@ -10,8 +10,8 @@ import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 public class TriggerServicePreProcessor implements ServicePreProcessor<UseTriggers>
 {
     @Override
-    public ProcessingOrder order() {
-        return ProcessingOrder.LATE;
+    public Integer order() {
+        return 1;
     }
 
     @Override
