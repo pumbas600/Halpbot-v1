@@ -33,7 +33,6 @@ subprojects { Project subProject ->
     version halpBotVerson
 
     license {
-        skipExistingHeaders = true
         header = rootProject.file('LICENSE')
         ignoreFailures = true
         include '**/*.java'
