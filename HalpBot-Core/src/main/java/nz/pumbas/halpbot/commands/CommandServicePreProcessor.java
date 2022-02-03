@@ -3,7 +3,6 @@ package nz.pumbas.halpbot.commands;
 import org.dockbox.hartshorn.core.Key;
 import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.services.ProcessingOrder;
 import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 
 import nz.pumbas.halpbot.commands.annotations.Command;
@@ -13,9 +12,11 @@ import nz.pumbas.halpbot.commands.annotations.UseCommands;
 public class CommandServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
     @Override
-    public ProcessingOrder order() {
-        return ProcessingOrder.LATE;
+    public Integer order() {
+        return 1;
     }
+
+
 
     @Override
     public Class<UseCommands> activator() {

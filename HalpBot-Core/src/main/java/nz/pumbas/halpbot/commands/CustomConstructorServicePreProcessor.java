@@ -14,8 +14,8 @@ import nz.pumbas.halpbot.commands.annotations.UseCommands;
 public class CustomConstructorServicePreProcessor implements ServicePreProcessor<UseCommands>
 {
     @Override
-    public ProcessingOrder order() {
-        return ProcessingOrder.LATE;
+    public Integer order() {
+        return 1;
     }
 
     @Override

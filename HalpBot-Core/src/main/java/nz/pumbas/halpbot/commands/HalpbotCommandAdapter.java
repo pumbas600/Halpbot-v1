@@ -15,13 +15,13 @@ import org.dockbox.hartshorn.core.context.element.TypeContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,11 +62,11 @@ import nz.pumbas.halpbot.utilities.Reflect;
 public class HalpbotCommandAdapter implements CommandAdapter
 {
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
-    private final Map<String, CommandContext> commands = HartshornUtils.emptyMap();
-    private final Map<TypeContext<?>, MultiMap<String, CommandContext>> reflectiveCommands = HartshornUtils.emptyMap();
+    private final Map<String, CommandContext> commands = new ConcurrentHashMap<>();
+    private final Map<TypeContext<?>, MultiMap<String, CommandContext>> reflectiveCommands = new ConcurrentHashMap<>();
 
-    private final Map<TypeContext<?>, String> typeAliases = HartshornUtils.emptyMap();
-    private final Map<Long, String> guildPrefixes = HartshornUtils.emptyMap();
+    private final Map<TypeContext<?>, String> typeAliases = new ConcurrentHashMap<>();
+    private final Map<Long, String> guildPrefixes = new ConcurrentHashMap<>();
 
     @Setter @Getter private String defaultPrefix;
     @Setter @Getter private UsageBuilder usageBuilder;

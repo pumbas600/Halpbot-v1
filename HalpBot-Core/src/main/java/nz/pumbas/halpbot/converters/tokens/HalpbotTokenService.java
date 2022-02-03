@@ -1,6 +1,5 @@
 package nz.pumbas.halpbot.converters.tokens;
 
-import org.dockbox.hartshorn.core.HartshornUtils;
 import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
 import org.dockbox.hartshorn.core.boot.ExceptionHandler;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
@@ -11,6 +10,7 @@ import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ import nz.pumbas.halpbot.utilities.StringTraverser;
 @ComponentBinding(TokenService.class)
 public class HalpbotTokenService implements TokenService
 {
-    private final Map<ExecutableElementContext<?, ?>, List<Token>> cache = HartshornUtils.emptyMap();
+    private final Map<ExecutableElementContext<?, ?>, List<Token>> cache = new ConcurrentHashMap<>();
 
     @Inject
     @Getter private ApplicationContext applicationContext;
