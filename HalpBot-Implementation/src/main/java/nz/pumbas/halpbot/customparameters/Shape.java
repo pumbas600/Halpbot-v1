@@ -30,7 +30,7 @@ import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 import nz.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import nz.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
-@Service
+@Service(singleton = false)
 public class Shape
 {
     private final ShapeType shapeType;

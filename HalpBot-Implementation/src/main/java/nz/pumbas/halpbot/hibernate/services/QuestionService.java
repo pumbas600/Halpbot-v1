@@ -16,7 +16,9 @@ import nz.pumbas.halpbot.hibernate.repositories.QuestionRepository;
 @Service
 public class QuestionService
 {
-    private final QuestionRepository questionRepository;
+    private QuestionRepository questionRepository;
+
+    public QuestionService() { }
 
     //@Autowired
     public QuestionService(QuestionRepository questionRepository) {

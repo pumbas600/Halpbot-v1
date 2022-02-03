@@ -28,7 +28,7 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.CustomConstructor;
 
-@Service
+@Service(singleton = false)
 public class PowerSupply extends ElectricalComponent {
 
     @CustomConstructor
