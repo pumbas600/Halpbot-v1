@@ -22,11 +22,7 @@ jobs:
         distribution: 'adopt'
 
     - name: List all files in the root directory
-    - run: |
-        for entry in /*
-        do
-          echo "$entry"
-        done
+    - run: ls -la
 
     - name: List files in /libs
       run: ls /Halpbot/libs
