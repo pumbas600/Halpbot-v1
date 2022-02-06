@@ -21,8 +21,15 @@ jobs:
         java-version: '16'
         distribution: 'adopt'
 
+    - name: List all files in the root directory
+    - run: |
+        for entry in /*
+        do
+          echo "$entry"
+        done
+
     - name: List files in /libs
-      run: ls /libs
+      run: ls /Halpbot/libs
 
     - name: Validate Gradle wrapper
       uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
