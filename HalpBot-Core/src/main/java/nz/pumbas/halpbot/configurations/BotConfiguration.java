@@ -36,6 +36,12 @@ import lombok.Getter;
 @Configuration(source = "classpath:bot-config.properties")
 public class BotConfiguration
 {
+    @Value("ownerId")
+    private long ownerId = -1;
+
+    @Value("token")
+    private String token = "";
+
     @Value("defaultPrefix")
     private String defaultPrefix = "";
 
@@ -44,9 +50,6 @@ public class BotConfiguration
 
     @Value("usageBuilder")
     private String usageBuilder = "nz.pumbas.halpbot.commands.usage.TypeUsageBuilder";
-
-    @Value("ownerId")
-    private long ownerId = -1;
 
     @Value("useRoleBinding")
     private boolean useRoleBinding;
