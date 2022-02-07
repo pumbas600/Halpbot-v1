@@ -31,14 +31,70 @@ import org.dockbox.hartshorn.core.boot.HartshornApplication;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import nz.pumbas.halpbot.common.Bot;
+import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 
-public final class HalpbotBuilder
+public class HalpbotBuilder
 {
-    private HalpbotBuilder() {}
+    private final ApplicationContext applicationContext;
+    private final JDABuilder builder;
+    private final Bot bot;
 
-    public static ApplicationContext build(Class<? extends Bot> bot, String[] args, Modifiers... modifiers)
+    public HalpbotBuilder(ApplicationContext applicationContext, JDABuilder builder, Bot bot)
+    {
+        this.applicationContext = applicationContext;
+        this.builder = builder;
+        this.bot = bot;
+    }
+
+    private static HalpbotBuilder create(Class<? extends Bot> main,
+                                         String[] args,
+                                         Modifiers[] modifiers,
+                                         Function<String, JDABuilder> jdaBuilder)
+    {
+        ApplicationContext applicationContext = HartshornApplication.create(main, args, modifiers);
+        applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
+        BotConfiguration botConfiguration = applicationContext.get(BotConfiguration.class);
+
+        return new HalpbotBuilder(
+                applicationContext, jdaBuilder.apply(botConfiguration.token()), applicationContext.get(main));
+    }
+
+    public static HalpbotBuilder createDefault(Class<? extends Bot> main, String[] args, Modifiers... modifiers) {
+        return create(main, args, modifiers, JDABuilder::createDefault);
+    }
+
+    public static HalpbotBuilder createLight(Class<? extends Bot> main, String[] args, Modifiers... modifiers) {
+        return create(main, args, modifiers, JDABuilder::createLight);
+    }
+
+    public static HalpbotBuilder create(Class<? extends Bot> main,
+                                        String[] args,
+                                        Function<String, JDABuilder> jdaBuilder,
+                                        Modifiers... modifiers)
+    {
+        return create(main, args, modifiers, jdaBuilder);
+    }
+
+    public HalpbotBuilder apply(Consumer<JDABuilder> jdaBuilderConsumer) {
+        jdaBuilderConsumer.accept(this.builder);
+        return this;
+    }
+
+    public ApplicationContext build() throws ApplicationException {
+        HalpbotCore halpbotCore = this.applicationContext.get(HalpbotCore.class);
+
+        halpbotCore.build(this.builder);
+        this.bot.onCreation(this.applicationContext, halpbotCore);
+        return this.applicationContext;
+    }
+
+
+    public static ApplicationContext create(Class<? extends Bot> bot, String[] args, Modifiers... modifiers)
             throws ApplicationException
     {
         ApplicationContext applicationContext = HartshornApplication.create(bot, args, modifiers);
