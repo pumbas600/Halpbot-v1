@@ -21,9 +21,6 @@ jobs:
         java-version: '16'
         distribution: 'adopt'
 
-    - name: List all files in libs
-      run: ls libs -la
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
