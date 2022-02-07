@@ -32,6 +32,7 @@ Halpbot-Core-DB/
 *.rar
 
 Token.txt
+bot-config.properties
 
 # Include
 !libs/*
