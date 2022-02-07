@@ -6,8 +6,7 @@ plugins {
 }
 
 def halpBotVerson = '2.0.7'
-File root = file('/')
-println('Libs: ' + file('libs').absolutePath)
+File libs = file('libs')
 
 group 'nz.pumbas.halpbot'
 version halpBotVerson
@@ -84,9 +83,7 @@ allprojects {
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
             testImplementation 'ch.qos.logback:logback-classic:1.2.10'
 
-            implementation fileTree(dir: root.absolutePath + '/libs', include: '*.jar')
-            println(root.absolutePath + '/libs')
-            println(file('libs').absolutePath)
+            implementation fileTree(dir: libs, include: '*.jar')
 //            implementation 'org.dockbox.hartshorn:hartshorn-core:22.1'
 //            implementation 'org.dockbox.hartshorn:hartshorn-data:22.1'
         }
