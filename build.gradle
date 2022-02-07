@@ -84,6 +84,7 @@ allprojects {
             testImplementation 'ch.qos.logback:logback-classic:1.2.10'
 
             implementation fileTree(dir: root.absolutePath + '/libs', include: '*.jar')
+            println(root.absolutePath + '/libs')
 //            implementation 'org.dockbox.hartshorn:hartshorn-core:22.1'
 //            implementation 'org.dockbox.hartshorn:hartshorn-data:22.1'
         }
