@@ -7,6 +7,7 @@ plugins {
 
 def halpBotVerson = '2.0.7'
 File root = file('/')
+println('Libs: ' + file('libs').absolutePath)
 
 group 'nz.pumbas.halpbot'
 version halpBotVerson
@@ -85,9 +86,7 @@ allprojects {
 
             implementation fileTree(dir: root.absolutePath + '/libs', include: '*.jar')
             println(root.absolutePath + '/libs')
-            println(root.listFiles().toString())
-            File file = file(root.absolutePath + '/libs');
-            println(file.listFiles().toString())
+            println(file('libs').absolutePath)
 //            implementation 'org.dockbox.hartshorn:hartshorn-core:22.1'
 //            implementation 'org.dockbox.hartshorn:hartshorn-data:22.1'
         }
