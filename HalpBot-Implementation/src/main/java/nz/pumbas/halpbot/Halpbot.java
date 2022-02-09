@@ -29,20 +29,14 @@ import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.buttons.UseButtons;
-import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.triggers.UseTriggers;
+import nz.pumbas.halpbot.common.UseAll;
 
-@Service
+@UseAll
 @Activator
-@UseButtons
-@UseCommands
-@UseTriggers
 public class Halpbot extends ListenerAdapter
 {
     @Inject private ApplicationContext applicationContext;
