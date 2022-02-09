@@ -1,4 +1,4 @@
-package nz.pumbas.halpbot;
+package nz.pumbas.halpbot.commands.examples.demos;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
