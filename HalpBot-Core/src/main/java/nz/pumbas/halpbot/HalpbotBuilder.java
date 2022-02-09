@@ -35,16 +35,18 @@ import java.util.function.Function;
 
 import javax.security.auth.login.LoginException;
 
+import nz.pumbas.halpbot.common.Bot;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 
 public class HalpbotBuilder
 {
     private final ApplicationContext applicationContext;
+    private final Class<?> main;
 
-    public HalpbotBuilder(ApplicationContext applicationContext)
-    {
+    public HalpbotBuilder(ApplicationContext applicationContext, Class<?> main) {
         this.applicationContext = applicationContext;
+        this.main = main;
     }
 
     public static HalpbotBuilder create(Class<?> main,
@@ -54,9 +56,10 @@ public class HalpbotBuilder
         ApplicationContext applicationContext = HartshornApplication.create(main, args, modifiers);
         applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
 
-        return new HalpbotBuilder(applicationContext);
+        return new HalpbotBuilder(applicationContext, main);
     }
 
+    @SuppressWarnings("unchecked")
     public void build(Function<String, JDABuilder> jdaBuilder) {
         HalpbotCore halpbotCore = this.applicationContext.get(HalpbotCore.class);
         BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
@@ -66,6 +69,11 @@ public class HalpbotBuilder
             JDA jda = builder.build();
             halpbotCore.initialise(jda);
             jda.awaitReady();
+            if (this.main.isAssignableFrom(Bot.class)) {
+                Bot bot = this.applicationContext.get((Class<? extends Bot>) this.main);
+                bot.onReady(jda);
+            }
+
         } catch (LoginException | InterruptedException e) {
             this.applicationContext.log().error("There was an error while building the JDA instance", e);
         }
