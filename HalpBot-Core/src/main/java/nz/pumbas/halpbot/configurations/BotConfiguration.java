@@ -43,7 +43,7 @@ public class BotConfiguration
     private String token = "";
 
     @Value("defaultPrefix")
-    private String defaultPrefix = "";
+    private String defaultPrefix = "!";
 
     @Value("displayConfiguration")
     private String displayConfiguration = "nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration";
