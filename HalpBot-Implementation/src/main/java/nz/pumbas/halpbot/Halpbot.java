@@ -24,13 +24,9 @@
 
 package nz.pumbas.halpbot;
 
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
@@ -40,20 +36,16 @@ import javax.inject.Inject;
 
 import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.common.Bot;
-import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 import nz.pumbas.halpbot.triggers.UseTriggers;
-import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 @Service
 @Activator
 @UseButtons
 @UseCommands
 @UseTriggers
-public class Halpbot extends ListenerAdapter implements Bot
+public class Halpbot extends ListenerAdapter
 {
     @Inject private ApplicationContext applicationContext;
-    @Inject private PermissionRepository permissionRepository;
     @Inject private HalpbotCore halpbotCore;
 
     @Override
@@ -65,13 +57,5 @@ public class Halpbot extends ListenerAdapter implements Bot
     @Override
     public void onShutdown(ShutdownEvent event) {
         this.applicationContext.log().info("Shutting down the bot!");
-    }
-
-    @Override
-    public JDABuilder initialise(String[] args) {
-        String token = HalpbotUtils.firstLine("Token.txt");
-        return JDABuilder.createDefault(token)
-                .disableIntents(GatewayIntent.GUILD_PRESENCES)
-                .setActivity(Activity.of(ActivityType.COMPETING, "quest to halp everyone"));
     }
 }

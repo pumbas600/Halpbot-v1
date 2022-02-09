@@ -24,6 +24,7 @@
 
 package nz.pumbas.halpbot.common;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
 import org.dockbox.hartshorn.core.context.ApplicationContext;
@@ -33,7 +34,7 @@ import nz.pumbas.halpbot.HalpbotCore;
 
 public interface Bot
 {
-    JDABuilder initialise(String[] args) throws ApplicationException;
+    JDA initialise(String[] args, String token);
 
     default void onCreation(ApplicationContext applicationContext, HalpbotCore halpbotCore) {}
 }

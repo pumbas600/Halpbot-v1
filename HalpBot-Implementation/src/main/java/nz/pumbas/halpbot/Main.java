@@ -24,13 +24,17 @@
 
 package nz.pumbas.halpbot;
 
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Activity.ActivityType;
 
 public final class Main
 {
     private Main() {}
 
-    public static void main(String[] args) throws ApplicationException {
-        HalpbotBuilder.build(Halpbot.class, args);
+    public static void main(String[] args) {
+        HalpbotBuilder.create(Halpbot.class, args)
+                .build(token -> JDABuilder.createDefault(token)
+                        .setActivity(Activity.of(ActivityType.COMPETING, "quest to halp everyone")));
     }
 }

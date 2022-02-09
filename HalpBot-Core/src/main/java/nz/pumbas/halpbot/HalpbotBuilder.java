@@ -24,88 +24,50 @@
 
 package nz.pumbas.halpbot;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
 import org.dockbox.hartshorn.core.Modifiers;
 import org.dockbox.hartshorn.core.boot.HartshornApplication;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-import nz.pumbas.halpbot.common.Bot;
+import javax.security.auth.login.LoginException;
+
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.utilities.ErrorManager;
 
 public class HalpbotBuilder
 {
     private final ApplicationContext applicationContext;
-    private final JDABuilder builder;
-    private final Bot bot;
 
-    public HalpbotBuilder(ApplicationContext applicationContext, JDABuilder builder, Bot bot)
+    public HalpbotBuilder(ApplicationContext applicationContext)
     {
         this.applicationContext = applicationContext;
-        this.builder = builder;
-        this.bot = bot;
     }
 
-    private static HalpbotBuilder create(Class<? extends Bot> main,
-                                         String[] args,
-                                         Modifiers[] modifiers,
-                                         Function<String, JDABuilder> jdaBuilder)
+    public static HalpbotBuilder create(Class<?> main,
+                                        String[] args,
+                                        Modifiers... modifiers)
     {
         ApplicationContext applicationContext = HartshornApplication.create(main, args, modifiers);
         applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
-        BotConfiguration botConfiguration = applicationContext.get(BotConfiguration.class);
 
-        return new HalpbotBuilder(
-                applicationContext, jdaBuilder.apply(botConfiguration.token()), applicationContext.get(main));
+        return new HalpbotBuilder(applicationContext);
     }
 
-    public static HalpbotBuilder createDefault(Class<? extends Bot> main, String[] args, Modifiers... modifiers) {
-        return create(main, args, modifiers, JDABuilder::createDefault);
-    }
-
-    public static HalpbotBuilder createLight(Class<? extends Bot> main, String[] args, Modifiers... modifiers) {
-        return create(main, args, modifiers, JDABuilder::createLight);
-    }
-
-    public static HalpbotBuilder create(Class<? extends Bot> main,
-                                        String[] args,
-                                        Function<String, JDABuilder> jdaBuilder,
-                                        Modifiers... modifiers)
-    {
-        return create(main, args, modifiers, jdaBuilder);
-    }
-
-    public HalpbotBuilder apply(Consumer<JDABuilder> jdaBuilderConsumer) {
-        jdaBuilderConsumer.accept(this.builder);
-        return this;
-    }
-
-    public ApplicationContext build() throws ApplicationException {
+    public void build(Function<String, JDABuilder> jdaBuilder) {
         HalpbotCore halpbotCore = this.applicationContext.get(HalpbotCore.class);
+        BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
 
-        halpbotCore.build(this.builder);
-        this.bot.onCreation(this.applicationContext, halpbotCore);
-        return this.applicationContext;
-    }
-
-
-    public static ApplicationContext create(Class<? extends Bot> bot, String[] args, Modifiers... modifiers)
-            throws ApplicationException
-    {
-        ApplicationContext applicationContext = HartshornApplication.create(bot, args, modifiers);
-        applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
-        HalpbotCore halpbotCore = applicationContext.get(HalpbotCore.class);
-        Bot botInstance = applicationContext.get(bot);
-
-        JDABuilder builder = botInstance.initialise(args);
-        halpbotCore.build(builder);
-        botInstance.onCreation(applicationContext, halpbotCore);
-
-        return applicationContext;
+        try {
+            JDABuilder builder = jdaBuilder.apply(botConfiguration.token());
+            JDA jda = builder.build();
+            halpbotCore.initialise(jda);
+            jda.awaitReady();
+        } catch (LoginException | InterruptedException e) {
+            this.applicationContext.log().error("There was an error while building the JDA instance", e);
+        }
     }
 }

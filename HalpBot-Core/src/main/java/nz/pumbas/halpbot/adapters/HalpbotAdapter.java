@@ -25,7 +25,6 @@
 package nz.pumbas.halpbot.adapters;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.EventListener;
 
 import org.dockbox.hartshorn.core.Enableable;
@@ -41,9 +40,7 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 
 public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListener, Enableable
 {
-    default void onCreation(JDA jda) {}
-
-    default void initialise(JDABuilder jdaBuilder) {}
+    default void initialise(JDA jda) {}
 
     @Override
     default void enable() throws ApplicationException {
