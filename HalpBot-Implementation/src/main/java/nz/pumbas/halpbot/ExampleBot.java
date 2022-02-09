@@ -33,36 +33,29 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import javax.inject.Inject;
 
 import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.common.Bot;
 
 @Service
 @Activator
 @UseButtons
 @UseCommands
-public class ExampleBot extends ListenerAdapter implements Bot
+public class ExampleBot extends ListenerAdapter
 {
     @Inject private ApplicationContext applicationContext;
 
-    public static void main(String[] args) throws ApplicationException {
-        HalpbotBuilder.build(ExampleBot.class, args);
+    public static void main(String[] args) {
+        HalpbotBuilder.create(ExampleBot.class, args)
+                .build(token -> JDABuilder.createDefault(token)
+                        .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!")));
     }
 
     @Override
     public void onReady(ReadyEvent event) {
         // When the bot starts up, log the number of guilds it's in
         this.applicationContext.log().info("Bot running in %d guilds".formatted(event.getGuildTotalCount()));
-    }
-
-    @Override
-    public JDABuilder initialise(String[] args) {
-        String token = args[0]; // The token is the first argument
-        return JDABuilder.createDefault(token) // This bot class is automatically registered as an event listener
-                .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!"));
     }
 }

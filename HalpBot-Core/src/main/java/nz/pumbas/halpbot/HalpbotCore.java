@@ -25,9 +25,7 @@
 package nz.pumbas.halpbot;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.dockbox.hartshorn.core.annotations.inject.Provider;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
@@ -39,15 +37,14 @@ import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
-import javax.security.auth.login.LoginException;
 
 import lombok.Getter;
-import nz.pumbas.halpbot.adapters.AbstractHalpbotAdapter;
 import nz.pumbas.halpbot.adapters.HalpbotAdapter;
 import nz.pumbas.halpbot.configurations.BotConfiguration;
 import nz.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
@@ -77,24 +74,6 @@ public class HalpbotCore implements ContextCarrier
     }
 
     /**
-     * Adds the {@link AbstractHalpbotAdapter}s to the core. This will automatically register the adapters when you invoke
-     * {@link HalpbotCore#registerAdapter(HalpbotAdapter)}. Note that the Halpbot adapters will also need to extend
-     * {@link ListenerAdapter}.
-     *
-     * @param adapters
-     *      The Halpbot adapters to add
-     * @param <T>
-     *      The type of the Halpbot adapters
-     *
-     * @return Itself for chaining
-     */
-    @SafeVarargs
-    public final <T extends HalpbotAdapter> HalpbotCore addAdapters(T... adapters) {
-        this.adapters.addAll(List.of(adapters));
-        return this;
-    }
-
-    /**
      * Sets the id of the owner for this bot. This automatically assigns the user the
      * {@link HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
      *
@@ -106,18 +85,6 @@ public class HalpbotCore implements ContextCarrier
     public HalpbotCore setOwner(long ownerId) {
         this.ownerId = ownerId;
         return this;
-    }
-
-    public void onCreation(JDA jda) throws ApplicationException {
-        BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
-
-        this.determineDisplayConfiguration(config);
-        if (config.ownerId() == -1)
-            throw new ApplicationException("You must specify the id of the bot owner in bot-config.properties");
-
-        this.setOwner(config.ownerId());
-        this.permissionService.initialise();
-        this.adapters.forEach(adapter -> adapter.onCreation(jda));
     }
 
     private void determineDisplayConfiguration(BotConfiguration config) {
@@ -135,24 +102,30 @@ public class HalpbotCore implements ContextCarrier
         }
     }
 
-    public JDA build(JDABuilder jdaBuilder) throws ApplicationException {
-        this.adapters.forEach((adapter) -> adapter.initialise(jdaBuilder));
-        this.adapters.forEach(jdaBuilder::addEventListeners);
+    public void initialise(JDA jda) {
+        this.jda = jda;
+        this.adapters.forEach(jda::addEventListener);
 
         // Prevent any event listeners being automatically registered twice
-        jdaBuilder.removeEventListeners(this.eventListeners.toArray());
-        this.eventListeners.forEach(jdaBuilder::addEventListeners);
+        jda.removeEventListener(this.eventListeners.toArray());
+        this.eventListeners.forEach(jda::addEventListener);
 
         this.eventListeners.clear(); // Free up the memory space, we don't to store this anymore
+        BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
 
-        try {
-            this.jda = jdaBuilder.build().awaitReady();
-            this.onCreation(this.jda);
-        } catch (LoginException | InterruptedException e) {
-            ExceptionHandler.unchecked(e);
-        }
+        this.determineDisplayConfiguration(config);
+        if (config.ownerId() == -1)
+            this.applicationContext.log().warn("No ownerId has been set in the bot-config.properties file");
 
-        return this.jda;
+        this.setOwner(config.ownerId());
+        this.permissionService.initialise();
+        this.adapters.forEach(adapter -> adapter.initialise(jda));
+
+    }
+
+    public <T extends HalpbotAdapter> HalpbotCore registerAdapters(Collection<T> adapters) {
+        this.adapters.addAll(adapters);
+        return this;
     }
 
     public <T extends HalpbotAdapter> HalpbotCore registerAdapter(T adapter) {

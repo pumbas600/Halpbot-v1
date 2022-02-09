@@ -83,7 +83,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     @Inject @Getter private HalpbotCore halpbotCore;
 
     @Override
-    public void onCreation(JDA jda) {
+    public void initialise(JDA jda) {
         this.dynamicPrefix("HB-" + jda.getSelfUser().getAsTag());
     }
 
