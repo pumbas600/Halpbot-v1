@@ -26,7 +26,6 @@ package nz.pumbas.halpbot;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Activity.ActivityType;
 
 import nz.pumbas.halpbot.common.HalpbotBuilder;
 
@@ -37,7 +36,7 @@ public final class Main
     public static void main(String[] args) {
         HalpbotBuilder.create(Halpbot.class, args)
                 .build(token -> JDABuilder.createDefault(token)
-                        .setActivity(Activity.of(ActivityType.COMPETING, "quest to halp everyone"))
+                        .setActivity(Activity.competing("quest to halp everyone"))
                 );
     }
 }
