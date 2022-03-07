@@ -49,14 +49,16 @@ import nz.pumbas.halpbot.events.MessageEvent;
 import nz.pumbas.halpbot.mocks.MockJDA;
 import nz.pumbas.halpbot.mocks.MockMessageEvent;
 import nz.pumbas.halpbot.permissions.HalpbotPermissions;
+import nz.pumbas.halpbot.permissions.UsePermissions;
 import nz.pumbas.halpbot.utilities.Require;
 import nz.pumbas.halpbot.permissions.PermissionService;
 import nz.pumbas.halpbot.permissions.PermissionSupplier;
 import nz.pumbas.halpbot.permissions.Permissions;
 
 @Service
-@HartshornTest
 @UseCommands
+@HartshornTest
+@UsePermissions
 public class PermissionServiceTests
 {
     private final long randomMemberId = 2;
