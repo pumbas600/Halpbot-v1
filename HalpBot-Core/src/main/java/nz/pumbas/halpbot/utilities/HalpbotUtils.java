@@ -83,7 +83,7 @@ public final class HalpbotUtils
      * Converts the {@link Duration} annotation to the built-in {@link java.time.Duration}.
      *
      * @param duration
-     *      The duration annotation to represent as a {@link java.time.Duration}
+     *     The duration annotation to represent as a {@link java.time.Duration}
      *
      * @return The converted duration
      */
@@ -96,13 +96,12 @@ public final class HalpbotUtils
     }
 
     /**
-     * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than
-     * {@link MessageEmbed#DESCRIPTION_MAX_LENGTH} it will cause an error to be thrown. This method simply checks if
-     * the description exceeds this limit and if it does, then it creates a substring of the maximum displayable
-     * message.
+     * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than {@link
+     * MessageEmbed#DESCRIPTION_MAX_LENGTH} it will cause an error to be thrown. This method simply checks if the
+     * description exceeds this limit and if it does, then it creates a substring of the maximum displayable message.
      *
      * @param description
-     *      The description to make sure doesn't exceed the character count
+     *     The description to make sure doesn't exceed the character count
      *
      * @return The checked description
      */
@@ -159,8 +158,8 @@ public final class HalpbotUtils
 
     public static String firstLine(String filename) {
         return Objects.requireNonNull(retrieveReader(filename)
-                .map(in -> parseFile(in, BufferedReader::readLine, ""))
-                .or(""));
+            .map(in -> parseFile(in, BufferedReader::readLine, ""))
+            .or(""));
     }
 
     /**
@@ -194,7 +193,7 @@ public final class HalpbotUtils
      * Returns the resource {@link File} or null if there is an error while trying to get it.
      *
      * @param filename
-     *      The name of the file in the resource folder
+     *     The name of the file in the resource folder
      *
      * @return The {@link File} for the resource
      */
@@ -238,21 +237,21 @@ public final class HalpbotUtils
 
         Map<String, String> propertyMap = new HashMap<>();
         return Objects.requireNonNull(retrieveReader(filename)
-                .map(inputStream -> {
-                    Properties properties = new Properties();
+            .map(inputStream -> {
+                Properties properties = new Properties();
 
-                    try {
-                        properties.load(inputStream);
-                        for (Entry<Object, Object> entry : properties.entrySet()) {
-                            propertyMap.put((String) entry.getKey(), (String) entry.getValue());
-                        }
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                try {
+                    properties.load(inputStream);
+                    for (Entry<Object, Object> entry : properties.entrySet()) {
+                        propertyMap.put((String) entry.getKey(), (String) entry.getValue());
                     }
-                    return propertyMap;
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return propertyMap;
 
-                }).or(propertyMap));
+            }).or(propertyMap));
     }
 
     /**
@@ -444,11 +443,11 @@ public final class HalpbotUtils
      * elements in the collection pass the filter than nothing is removed and an empty exceptional is returned.
      *
      * @param collection
-     *      The collection to remove the element from
+     *     The collection to remove the element from
      * @param filter
-     *      The filter which returns true if the element is to be removed
+     *     The filter which returns true if the element is to be removed
      * @param <T>
-     *      The type of the elements in the collection
+     *     The type of the elements in the collection
      *
      * @return The removed element wrapped in an {@link Exceptional}.
      */
@@ -467,7 +466,7 @@ public final class HalpbotUtils
      * Converts the {@link Throwable}'s stack trace into a string.
      *
      * @param throwable
-     *      The {@link Throwable} to get the stacktrace from
+     *     The {@link Throwable} to get the stacktrace from
      *
      * @return The string representation of the stack trace
      */
@@ -479,13 +478,13 @@ public final class HalpbotUtils
     }
 
     /**
-     * Creates an array containing both elements, with a being first, then b. If a is empty b is returned and if b
-     * is empty then a is returned. Otherwise, a new array of length {@code a.length + b.length} is created.
+     * Creates an array containing both elements, with a being first, then b. If a is empty b is returned and if b is
+     * empty then a is returned. Otherwise, a new array of length {@code a.length + b.length} is created.
      *
      * @param a
-     *      The first array
+     *     The first array
      * @param b
-     *      The second array
+     *     The second array
      *
      * @return The combined array
      */
@@ -504,11 +503,11 @@ public final class HalpbotUtils
     }
 
     /**
-     * Returns the length of the longest string in the strings passed in. If no strings are passed, then it will
-     * return 0.
+     * Returns the length of the longest string in the strings passed in. If no strings are passed, then it will return
+     * 0.
      *
      * @param strings
-     *      The strings to find the longest length from
+     *     The strings to find the longest length from
      *
      * @return The length of the longest string
      */
@@ -530,7 +529,7 @@ public final class HalpbotUtils
      * Converts camelCase and PascalCase to split lowercase. For example camelCase would become 'camel case'.
      *
      * @param text
-     *      The camelCase or PascalCase text to convert
+     *     The camelCase or PascalCase text to convert
      *
      * @return the converted text
      */
@@ -543,7 +542,7 @@ public final class HalpbotUtils
      * Splits camelCase and PascalCase. For example camelCase would become 'camel Case'.
      *
      * @param text
-     *      The camelCase or PascalCase text to convert
+     *     The camelCase or PascalCase text to convert
      *
      * @return the converted text
      */
@@ -552,12 +551,12 @@ public final class HalpbotUtils
     }
 
     /**
-     * returns the disabled version of a {@link Component} by checking if it's either a {@link Button} or a
-     * {@link SelectionMenu} and calling their appropriate {@code #asDisabled} method. If the component is neither of
-     * those then it's returned as is.
+     * returns the disabled version of a {@link Component} by checking if it's either a {@link Button} or a {@link
+     * SelectionMenu} and calling their appropriate {@code #asDisabled} method. If the component is neither of those
+     * then it's returned as is.
      *
      * @param component
-     *      The {@link Component} to disable
+     *     The {@link Component} to disable
      *
      * @return The disabled component
      */

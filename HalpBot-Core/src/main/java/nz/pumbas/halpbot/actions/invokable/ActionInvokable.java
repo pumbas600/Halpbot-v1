@@ -35,6 +35,6 @@ public interface ActionInvokable<C extends InvocationContext> extends Invokable
 
     default <R> Exceptional<R> invoke(C invocationContext) {
         return this.parameters(invocationContext)
-                .flatMap((CheckedFunction<Object[], Exceptional<R>>) this::invoke);
+            .flatMap((CheckedFunction<Object[], Exceptional<R>>) this::invoke);
     }
 }

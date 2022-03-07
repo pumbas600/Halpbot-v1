@@ -41,7 +41,6 @@ public class CommandServicePreProcessor implements ServicePreProcessor<UseComman
     }
 
 
-
     @Override
     public Class<UseCommands> activator() {
         return UseCommands.class;

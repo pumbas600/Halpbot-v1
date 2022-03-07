@@ -28,7 +28,8 @@ import lombok.Getter;
 
 public class ExplainedException extends RuntimeException
 {
-    @Getter private final Object explanation;
+    @Getter
+    private final Object explanation;
 
     public ExplainedException(Object explanation) {
         this.explanation = explanation;

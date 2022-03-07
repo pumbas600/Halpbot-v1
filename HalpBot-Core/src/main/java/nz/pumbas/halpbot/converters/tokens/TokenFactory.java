@@ -66,16 +66,15 @@ public interface TokenFactory
                                boolean isCommandParameter,
                                boolean isOptional);
 
-    default ParsingToken createParsing(ParameterContext<?> parameterContext)
-    {
+    default ParsingToken createParsing(ParameterContext<?> parameterContext) {
         final ConverterHandler converterHandler = this.converterHandler();
         final ParameterAnnotationService annotationService = this.parameterAnnotationService();
 
         List<TypeContext<? extends Annotation>> sortedAnnotations =
-                annotationService.sortAndFilter(
-                        parameterContext.annotations()
-                                .stream()
-                                .map(annotation -> TypeContext.of(annotation.annotationType())));
+            annotationService.sortAndFilter(
+                parameterContext.annotations()
+                    .stream()
+                    .map(annotation -> TypeContext.of(annotation.annotationType())));
 
         Converter<CommandInvocationContext, ?> converter = converterHandler.from(parameterContext, sortedAnnotations);
         boolean isCommandParameter = !(converter instanceof SourceConverter);
@@ -93,11 +92,11 @@ public interface TokenFactory
         }
 
         return this.createParsing(
-                parameterContext,
-                sortedAnnotations,
-                converter,
-                defaultValue,
-                isCommandParameter,
-                isOptional);
+            parameterContext,
+            sortedAnnotations,
+            converter,
+            defaultValue,
+            isCommandParameter,
+            isOptional);
     }
 }

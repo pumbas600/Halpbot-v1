@@ -38,7 +38,8 @@ import nz.pumbas.halpbot.converters.TypeConverter;
 import nz.pumbas.halpbot.utilities.Reflect;
 
 /**
- * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to this type.
+ * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to
+ * this type.
  */
 public interface ParsingToken extends Token
 {
@@ -62,7 +63,7 @@ public interface ParsingToken extends Token
 
     /**
      * @return If this {@link ParsingToken} is a command parameter. If not, then it must extract information from the
-     * source event or command adapter.
+     *     source event or command adapter.
      */
     boolean isCommandParameter();
 
@@ -70,8 +71,8 @@ public interface ParsingToken extends Token
      * Parses the {@link CommandInvocationContext} of the default value.
      *
      * @param invocationContext
-     *     {@link CommandInvocationContext} containing the default value to be parsed into an {@link Object} using the token's
-     *     {@link TypeConverter}
+     *     {@link CommandInvocationContext} containing the default value to be parsed into an {@link Object} using the
+     *     token's {@link TypeConverter}
      *
      * @return The parsed {@link Object default value}
      */

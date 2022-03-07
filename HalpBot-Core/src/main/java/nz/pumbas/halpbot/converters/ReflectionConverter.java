@@ -36,8 +36,7 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 
 public interface ReflectionConverter
 {
-    default Exceptional<Object> parseReflection(CommandInvocationContext invocationContext)
-    {
+    default Exceptional<Object> parseReflection(CommandInvocationContext invocationContext) {
         if (!invocationContext.reflections().isEmpty()) {
             TypeContext<?> targetType = invocationContext.currentType();
 
@@ -45,9 +44,8 @@ public interface ReflectionConverter
             if (methodName.present()) {
                 CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
                 Collection<CommandContext> commandContexts = commandAdapter.reflectiveCommandContext(
-                        targetType, methodName.get(), invocationContext.reflections());
-                if (!commandContexts.isEmpty())
-                {
+                    targetType, methodName.get(), invocationContext.reflections());
+                if (!commandContexts.isEmpty()) {
                     int currentIndex = invocationContext.currentIndex();
                     invocationContext.canHaveContextLeft(true);
                     for (CommandContext commandContext : commandContexts) {

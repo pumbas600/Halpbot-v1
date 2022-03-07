@@ -46,8 +46,10 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 @RequiredArgsConstructor(onConstructor_ = @Bound)
 public class HalpbotButtonInvocationContext implements ButtonInvocationContext
 {
-    @Inject private ApplicationContext applicationContext;
-    @Setter private TypeContext<?> currentType;
+    @Inject
+    private ApplicationContext applicationContext;
+    @Setter
+    private TypeContext<?> currentType;
 
     private final HalpbotEvent halpbotEvent;
     private final List<ParsingToken> nonCommandParameterTokens;

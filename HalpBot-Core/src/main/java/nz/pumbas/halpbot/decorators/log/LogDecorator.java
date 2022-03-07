@@ -41,7 +41,8 @@ import nz.pumbas.halpbot.utilities.LogLevel;
 @ComponentBinding(LogDecorator.class)
 public class LogDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
 {
-    @Getter private final LogLevel logLevel;
+    @Getter
+    private final LogLevel logLevel;
 
     @Bound
     public LogDecorator(ActionInvokable<C> actionInvokable, Log log) {
@@ -56,11 +57,11 @@ public class LogDecorator<C extends InvocationContext> extends ActionInvokableDe
         Guild guild = halpbotEvent.guild();
 
         this.logLevel.log(invocationContext.applicationContext(),
-                "[%s][%s] %s has invoked the action %s".formatted(
-                            guild != null ? guild.getName() : "PM",
-                            channel != null ? channel.getName() : "?",
-                            halpbotEvent.user().getAsTag(),
-                            this.executable().qualifiedName()));
+            "[%s][%s] %s has invoked the action %s".formatted(
+                guild != null ? guild.getName() : "PM",
+                channel != null ? channel.getName() : "?",
+                halpbotEvent.user().getAsTag(),
+                this.executable().qualifiedName()));
 
         return super.invoke(invocationContext);
     }

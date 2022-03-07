@@ -36,7 +36,8 @@ import nz.pumbas.halpbot.HalpbotCore;
 @Service
 public class HalpbotPermissions
 {
-    @Inject private HalpbotCore halpbotCore;
+    @Inject
+    private HalpbotCore halpbotCore;
 
     public static final String BOT_OWNER = "halpbot.bot.owner";
     public static final String GUILD_OWNER = "halpbot.guild.owner";

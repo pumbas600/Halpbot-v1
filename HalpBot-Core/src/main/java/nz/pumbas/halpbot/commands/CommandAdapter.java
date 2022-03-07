@@ -81,7 +81,7 @@ public interface CommandAdapter extends HalpbotAdapter
         this.defaultPrefix(config.defaultPrefix());
         if (this.defaultPrefix().isBlank())
             throw new ApplicationException(
-                    "A 'defaultPrefix' must be defined in the bot-config.properties file if you're using commands");
+                "A 'defaultPrefix' must be defined in the bot-config.properties file if you're using commands");
 
         this.determineUsageBuilder(config);
         HalpbotAdapter.super.enable();
@@ -94,19 +94,15 @@ public interface CommandAdapter extends HalpbotAdapter
             if (usageBuilder.isValid(this.applicationContext())) {
                 this.usageBuilder(usageBuilder);
                 return;
-            }
-
-            else this.applicationContext().log()
-                    .warn("The usage builder %s defined in bot-config.properties is not valid"
-                            .formatted(typeContext.qualifiedName()));
-        }
-
-        else this.applicationContext().log()
-                .warn("The usage builder %s defined in bot-config.properties must implement UsageBuilder"
-                        .formatted(config.displayConfiguration()));
+            } else this.applicationContext().log()
+                .warn("The usage builder %s defined in bot-config.properties is not valid"
+                    .formatted(typeContext.qualifiedName()));
+        } else this.applicationContext().log()
+            .warn("The usage builder %s defined in bot-config.properties must implement UsageBuilder"
+                .formatted(config.displayConfiguration()));
 
         this.applicationContext().log().warn("Falling back to usage builder %s"
-                .formatted(TypeUsageBuilder.class.getCanonicalName()));
+            .formatted(TypeUsageBuilder.class.getCanonicalName()));
         this.usageBuilder(new TypeUsageBuilder());
     }
 
@@ -127,7 +123,7 @@ public interface CommandAdapter extends HalpbotAdapter
         }
 
         this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands found in %s"
-                .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+            .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
     }
 
     <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext);
@@ -164,14 +160,14 @@ public interface CommandAdapter extends HalpbotAdapter
         for (ParameterContext<?> parameterContext : executable.parameters()) {
             TypeContext<?> parameterType = parameterContext.type();
             List<TypeContext<? extends Annotation>> parameterAnnotations = parameterContext.annotations()
-                    .stream()
-                    .map(annotation -> TypeContext.of(annotation.annotationType()))
-                    .collect(Collectors.toList());
+                .stream()
+                .map(annotation -> TypeContext.of(annotation.annotationType()))
+                .collect(Collectors.toList());
 
             if (!this.parameterAnnotationService().isValid(parameterType, parameterAnnotations)) {
                 this.applicationContext().log()
-                        .error("There are conflicts regarding the annotations on the %s type in the executable %s"
-                                .formatted(parameterType.qualifiedName(), executable.name()));
+                    .error("There are conflicts regarding the annotations on the %s type in the executable %s"
+                        .formatted(parameterType.qualifiedName(), executable.name()));
                 return false;
             }
         }

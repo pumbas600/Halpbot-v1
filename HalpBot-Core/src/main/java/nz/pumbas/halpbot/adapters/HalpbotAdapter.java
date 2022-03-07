@@ -50,13 +50,12 @@ public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListen
     default void handleException(HalpbotEvent halpbotEvent, Throwable exception) {
         if (exception instanceof ExplainedException explainedException) {
             this.halpbotCore().displayConfiguration()
-                    .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
-        }
-        else if (!(exception instanceof UndisplayedException) && exception.getMessage() != null)
+                .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
+        } else if (!(exception instanceof UndisplayedException) && exception.getMessage() != null)
             this.halpbotCore().displayConfiguration()
-                    .displayTemporary(halpbotEvent,
-                            "There was the following error trying to invoke this action: " + exception.getMessage(),
-                            30);
+                .displayTemporary(halpbotEvent,
+                    "There was the following error trying to invoke this action: " + exception.getMessage(),
+                    30);
     }
 
     default void displayResult(HalpbotEvent halpbotEvent, DisplayableResult displayableResult, Object result) {

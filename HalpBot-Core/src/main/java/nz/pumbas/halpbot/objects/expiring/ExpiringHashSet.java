@@ -47,8 +47,8 @@ public class ExpiringHashSet<T> extends HashSet<T> implements ExpiringCollection
         Executors.newSingleThreadScheduledExecutor()
             .scheduleAtFixedRate(
                 this::clean,
-                this.expirationDurationMs/2,
-                this.expirationDurationMs/2,
+                this.expirationDurationMs / 2,
+                this.expirationDurationMs / 2,
                 TimeUnit.MILLISECONDS);
     }
 

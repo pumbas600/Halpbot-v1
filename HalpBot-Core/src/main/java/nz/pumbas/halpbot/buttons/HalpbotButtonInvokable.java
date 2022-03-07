@@ -35,5 +35,5 @@ public record HalpbotButtonInvokable(@Nullable Object instance,
     implements ButtonInvokable
 {
     @Bound
-    public HalpbotButtonInvokable { }
+    public HalpbotButtonInvokable {}
 }

@@ -49,8 +49,10 @@ public class HalpbotParameterAnnotationContext implements ParameterAnnotationCon
 
     private final Set<TypeContext<? extends Annotation>> afterAnnotations;
 
-    @Setter private Set<TypeContext<? extends Annotation>> conflictingAnnotations;
-    @Setter private Set<TypeContext<?>> allowedTypes;
+    @Setter
+    private Set<TypeContext<? extends Annotation>> conflictingAnnotations;
+    @Setter
+    private Set<TypeContext<?>> allowedTypes;
 
     @Override
     public void addAfterAnnotation(TypeContext<? extends Annotation> afterAnnotation) {
@@ -59,8 +61,8 @@ public class HalpbotParameterAnnotationContext implements ParameterAnnotationCon
 
     public static HalpbotParameterAnnotationContext generic() {
         return new HalpbotParameterAnnotationContext(
-                Collections.emptySet(),
-                Collections.emptySet(),
-                Set.of(TypeContext.of(Object.class)));
+            Collections.emptySet(),
+            Collections.emptySet(),
+            Set.of(TypeContext.of(Object.class)));
     }
 }

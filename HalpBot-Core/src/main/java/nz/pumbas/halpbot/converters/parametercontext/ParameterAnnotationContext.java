@@ -56,13 +56,13 @@ public interface ParameterAnnotationContext
 
     default boolean isValidType(TypeContext<?> typeContext) {
         return this.allowedTypes()
-                .stream()
-                .anyMatch(type -> type.parentOf(typeContext));
+            .stream()
+            .anyMatch(type -> type.parentOf(typeContext));
     }
 
     default boolean noConflictingAnnotations(List<TypeContext<? extends Annotation>> annotationTypes) {
         return (!this.conflictingAnnotations().contains(ANY) || annotationTypes.size() == 1) &&
-                annotationTypes.stream()
-                        .noneMatch(annotationType -> this.conflictingAnnotations().contains(annotationType));
+            annotationTypes.stream()
+                .noneMatch(annotationType -> this.conflictingAnnotations().contains(annotationType));
     }
 }

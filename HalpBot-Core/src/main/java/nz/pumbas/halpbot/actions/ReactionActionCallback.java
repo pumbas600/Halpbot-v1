@@ -49,8 +49,7 @@ public class ReactionActionCallback extends AbstractActionCallback
         long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
         long cooldownDuration, TimeUnit cooldownTimeUnit,
         List<String> permissions, boolean singleUse,
-        long displayDuration)
-    {
+        long displayDuration) {
         super(deleteAfterDuration,
             deleteAfterTimeUnit,
             cooldownDuration,

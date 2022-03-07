@@ -34,8 +34,8 @@ import java.util.function.BiConsumer;
 public enum LogLevel
 {
     DEBUG(Logger::debug),
-    INFO (Logger::info),
-    WARN (Logger::warn),
+    INFO(Logger::info),
+    WARN(Logger::warn),
     ERROR(Logger::error);
 
     private final BiConsumer<Logger, String> logger;

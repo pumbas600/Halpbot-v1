@@ -65,22 +65,34 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @ComponentBinding(ButtonAdapter.class)
 public class HalpbotButtonAdapter implements ButtonAdapter
 {
-    @Getter @Setter private int idSuffix;
+    @Getter
+    @Setter
+    private int idSuffix;
     // This will be overwritten when the bot starts such that the prefix is unique to this particular bot
-    @Getter @Setter private String dynamicPrefix = "HB-TEMP";
+    @Getter
+    @Setter
+    private String dynamicPrefix = "HB-TEMP";
 
     private final Map<String, ButtonContext> registeredButtons = new ConcurrentHashMap<>();
     private final Map<String, ButtonContext> dynamicButtons = new ConcurrentHashMap<>();
     private final Map<String, AfterRemovalFunction> afterRemovalFunctions = new ConcurrentHashMap<>();
     private final Map<String, ScheduledFuture<?>> scheduledExpirations = new ConcurrentHashMap<>();
 
-    @Inject private TokenService tokenService;
-    @Inject private DecoratorService decoratorService;
-    @Inject private InvocationContextFactory invocationContextFactory;
-    @Inject private ButtonContextFactory buttonContextFactory;
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private DecoratorService decoratorService;
+    @Inject
+    private InvocationContextFactory invocationContextFactory;
+    @Inject
+    private ButtonContextFactory buttonContextFactory;
 
-    @Inject @Getter private ApplicationContext applicationContext;
-    @Inject @Getter private HalpbotCore halpbotCore;
+    @Inject
+    @Getter
+    private ApplicationContext applicationContext;
+    @Inject
+    @Getter
+    private HalpbotCore halpbotCore;
 
     @Override
     public void initialise(JDA jda) {
@@ -91,10 +103,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     public <T> void registerButton(T instance, MethodContext<?, T> methodContext) {
         ButtonAction buttonAction = methodContext.annotation(ButtonAction.class).get();
         ButtonContext buttonContext = this.createButton(
-                buttonAction.id(),
-                buttonAction,
-                new HalpbotButtonInvokable(instance, methodContext), //TODO: Use factory instead
-                new Object[0]);
+            buttonAction.id(),
+            buttonAction,
+            new HalpbotButtonInvokable(instance, methodContext), //TODO: Use factory instead
+            new Object[0]);
 
         this.registeredButtons.put(buttonAction.id(), buttonContext);
     }
@@ -117,8 +129,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     @Override
     public Button register(Button button,
                            @Nullable AfterRemovalFunction afterRemoval,
-                           Object... parameters)
-    {
+                           Object... parameters) {
         if (this.isInvalid(button))
             return button;
 
@@ -128,7 +139,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         assert id != null; // id will never be null as this would invalidate the button
         final String newId = this.generateDynamicId(id);
         ButtonContext newButtonContext = this.buttonContextFactory
-                .create(newId, parameters, buttonContext, buttonContext.afterRemoval());
+            .create(newId, parameters, buttonContext, buttonContext.afterRemoval());
 
         this.dynamicButtons.put(newId, newButtonContext);
         if (newButtonContext.isUsingDuration()) {
@@ -136,10 +147,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
             // Store the completable future so that it can be cancelled later if the dynamic button is unregistered
             this.scheduledExpirations.put(newId, this.halpbotCore.threadpool()
-                    .schedule(
-                            () -> this.removeDynamicButton(newId, true),
-                            duration.value(),
-                            duration.unit()));
+                .schedule(
+                    () -> this.removeDynamicButton(newId, true),
+                    duration.value(),
+                    duration.unit()));
         }
 
         return button.withId(newId);
@@ -152,11 +163,11 @@ public class HalpbotButtonAdapter implements ButtonAdapter
             return true;
         }
 
-        ButtonContext buttonContext = this.buttonContext( button.getId());
+        ButtonContext buttonContext = this.buttonContext(button.getId());
         if (buttonContext == null) {
             this.applicationContext.log().error(
-                    "You cannot register a button with the id %s as there is no matching button action for it"
-                            .formatted(button.getId()));
+                "You cannot register a button with the id %s as there is no matching button action for it"
+                    .formatted(button.getId()));
             return true;
         }
         return false;
@@ -189,22 +200,21 @@ public class HalpbotButtonAdapter implements ButtonAdapter
     private ButtonContext createButton(String id,
                                        ButtonAction buttonAction,
                                        ActionInvokable<ButtonInvocationContext> actionInvokable,
-                                       Object[] passedParameters)
-    {
+                                       Object[] passedParameters) {
         return this.buttonContextFactory.create(
-                id,
-                buttonAction.isEphemeral(),
-                HalpbotUtils.asDuration(buttonAction.display()),
-                this.decoratorService.decorate(actionInvokable),
-                passedParameters,
-                this.tokenService.tokens(actionInvokable.executable())
-                        .stream()
-                        .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
-                        .map(token -> (ParsingToken) token)
-                        .collect(Collectors.toList()),
-                buttonAction.maxUses(),
-                HalpbotUtils.asAsyncDuration(buttonAction.removeAfter()),
-                buttonAction.afterRemoval().strategy()
+            id,
+            buttonAction.isEphemeral(),
+            HalpbotUtils.asDuration(buttonAction.display()),
+            this.decoratorService.decorate(actionInvokable),
+            passedParameters,
+            this.tokenService.tokens(actionInvokable.executable())
+                .stream()
+                .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
+                .map(token -> (ParsingToken) token)
+                .collect(Collectors.toList()),
+            buttonAction.maxUses(),
+            HalpbotUtils.asAsyncDuration(buttonAction.removeAfter()),
+            buttonAction.afterRemoval().strategy()
         );
     }
 
@@ -234,26 +244,22 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         if (this.isDynamic(id)) {
             if (this.dynamicButtons.containsKey(id)) {
                 buttonContext = this.retrieveDynamicButtonContext(id);
-            }
-            else { // The button has expired
+            } else { // The button has expired
                 this.halpbotCore().displayConfiguration()
-                        .displayTemporary(halpbotEvent, "This button has expired", -30);
+                    .displayTemporary(halpbotEvent, "This button has expired", -30);
                 this.handleRemovalFunctions(event);
                 return;
             }
-        }
-        else if (this.registeredButtons.containsKey(id)) {
+        } else if (this.registeredButtons.containsKey(id)) {
             buttonContext = this.registeredButtons.get(id);
-        }
-        else return; // Not a halpbot button
+        } else return; // Not a halpbot button
 
         ButtonInvocationContext invocationContext = this.invocationContextFactory.button(halpbotEvent, buttonContext);
         Exceptional<Object> result = buttonContext.invoke(invocationContext);
 
         if (result.present()) {
             this.displayResult(halpbotEvent, buttonContext, result.get());
-        }
-        else if (result.caught()) {
+        } else if (result.caught()) {
             event.deferEdit(); // Prevent interaction failed event
             this.handleException(halpbotEvent, result.error());
         }
@@ -263,10 +269,10 @@ public class HalpbotButtonAdapter implements ButtonAdapter
 
     private boolean removalFunctionsApplies(ButtonClickEvent event) {
         return event.getMessage().getButtons().stream()
-                .anyMatch(button -> {
-                    final String id = button.getId();
-                    return id != null && this.afterRemovalFunctions.containsKey(id);
-                });
+            .anyMatch(button -> {
+                final String id = button.getId();
+                return id != null && this.afterRemovalFunctions.containsKey(id);
+            });
     }
 
     private void handleRemovalFunctions(ButtonClickEvent event) {

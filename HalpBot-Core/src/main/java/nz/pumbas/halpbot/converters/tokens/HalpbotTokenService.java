@@ -31,6 +31,7 @@ import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
 import org.dockbox.hartshorn.core.context.element.ParameterContext;
 import org.dockbox.hartshorn.core.domain.Exceptional;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +56,15 @@ public class HalpbotTokenService implements TokenService
     private final Map<ExecutableElementContext<?, ?>, List<Token>> cache = new ConcurrentHashMap<>();
 
     @Inject
-    @Getter private ApplicationContext applicationContext;
+    @Getter
+    private ApplicationContext applicationContext;
 
-    @Inject private TokenFactory tokenFactory;
-    @Inject private CommandAdapter commandAdapter;
-    @Inject private ConverterHandler converterHandler;
+    @Inject
+    private TokenFactory tokenFactory;
+    @Inject
+    private CommandAdapter commandAdapter;
+    @Inject
+    private ConverterHandler converterHandler;
 
     @Override
     public List<Token> tokens(ExecutableElementContext<?, ?> executableContext) {
@@ -71,8 +76,7 @@ public class HalpbotTokenService implements TokenService
         int parameterIndex = 0;
 
         Exceptional<String> command = this.command(executableContext);
-        if (command.present() && !command.get().isBlank())
-        {
+        if (command.present() && !command.get().isBlank()) {
             StringTraverser stringTraverser = new HalpbotStringTraverser(command.get());
 
             while (stringTraverser.hasNext()) {
@@ -81,8 +85,7 @@ public class HalpbotTokenService implements TokenService
                     int currentIndex = stringTraverser.currentIndex();
 
                     if (!this.converterHandler.isCommandParameter(currentParameter) ||
-                       stringTraverser.next().equalsIgnoreCase(this.commandAdapter.typeAlias(currentParameter.type())))
-                    {
+                        stringTraverser.next().equalsIgnoreCase(this.commandAdapter.typeAlias(currentParameter.type()))) {
                         tokens.add(this.tokenFactory.createParsing(currentParameter));
                         parameterIndex++;
                         continue;
@@ -91,13 +94,13 @@ public class HalpbotTokenService implements TokenService
                     stringTraverser.currentIndex(currentIndex);
                 }
                 PlaceholderToken placeholderToken = stringTraverser.nextSurrounded("[", "]")
-                        .map(placeholder -> this.tokenFactory.createPlaceholder(true, placeholder))
-                        .orElse(() -> stringTraverser.nextSurrounded("<", ">")
-                                .map(placeholder -> this.tokenFactory.createPlaceholder(false, placeholder))
-                                .orNull())
-                        .orThrowUnchecked(() -> new ApplicationException(
-                                "Placeholders must be surrounded by either '[...]' or '<...>' in the command %s"
-                                        .formatted(executableContext.qualifiedName())));
+                    .map(placeholder -> this.tokenFactory.createPlaceholder(true, placeholder))
+                    .orElse(() -> stringTraverser.nextSurrounded("<", ">")
+                        .map(placeholder -> this.tokenFactory.createPlaceholder(false, placeholder))
+                        .orNull())
+                    .orThrowUnchecked(() -> new ApplicationException(
+                        "Placeholders must be surrounded by either '[...]' or '<...>' in the command %s"
+                            .formatted(executableContext.qualifiedName())));
 
                 tokens.add(placeholderToken);
             }
@@ -105,14 +108,13 @@ public class HalpbotTokenService implements TokenService
                 while (parameterIndex < parameters.size()) {
                     if (this.converterHandler.isCommandParameter(parameters.get(parameterIndex++)))
                         ExceptionHandler.unchecked(new ApplicationException(
-                                "All command parameters must be specified in the command"));
+                            "All command parameters must be specified in the command"));
                 }
 
-        }
-        else tokens.addAll(executableContext.parameters()
-                .stream()
-                .map(parameterContext -> this.tokenFactory.createParsing(parameterContext))
-                .collect(Collectors.toList()));
+        } else tokens.addAll(executableContext.parameters()
+            .stream()
+            .map(parameterContext -> this.tokenFactory.createParsing(parameterContext))
+            .collect(Collectors.toList()));
 
         this.cache.put(executableContext, tokens);
         return tokens;
@@ -120,8 +122,8 @@ public class HalpbotTokenService implements TokenService
 
     private Exceptional<String> command(ExecutableElementContext<?, ?> executableContext) {
         return executableContext.annotation(Command.class)
-                .map(Command::command)
-                .orElse(() -> executableContext.annotation(CustomConstructor.class).map(CustomConstructor::command).orNull());
+            .map(Command::command)
+            .orElse(() -> executableContext.annotation(CustomConstructor.class).map(CustomConstructor::command).orNull());
 
     }
 }

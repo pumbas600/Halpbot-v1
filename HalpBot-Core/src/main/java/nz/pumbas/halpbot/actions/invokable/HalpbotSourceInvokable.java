@@ -35,5 +35,5 @@ public record HalpbotSourceInvokable(@Nullable Object instance,
     implements SourceInvokable<SourceInvocationContext>
 {
     @Bound
-    public HalpbotSourceInvokable { }
+    public HalpbotSourceInvokable {}
 }

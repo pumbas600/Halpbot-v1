@@ -51,7 +51,8 @@ public class HalpbotButtonContext implements ButtonContext
     private final List<ParsingToken> nonCommandParameterTokens;
     private int remainingUses;
     private final AsyncDuration removeAfter;
-    @Nullable private final AfterRemovalFunction afterRemoval;
+    @Nullable
+    private final AfterRemovalFunction afterRemoval;
 
     @Override
     public void deductUse() {

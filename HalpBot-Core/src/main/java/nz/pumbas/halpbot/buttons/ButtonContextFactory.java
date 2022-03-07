@@ -52,17 +52,16 @@ public interface ButtonContextFactory
     default ButtonContext create(String id,
                                  Object[] passedParameters,
                                  ButtonContext buttonContext,
-                                 @Nullable AfterRemovalFunction afterRemoval)
-    {
+                                 @Nullable AfterRemovalFunction afterRemoval) {
         return this.create(
-                id,
-                buttonContext.isEphemeral(),
-                buttonContext.displayDuration(),
-                buttonContext.actionInvokable(),
-                passedParameters,
-                buttonContext.nonCommandParameterTokens(),
-                buttonContext.remainingUses(),
-                buttonContext.removeAfter(),
-                afterRemoval);
+            id,
+            buttonContext.isEphemeral(),
+            buttonContext.displayDuration(),
+            buttonContext.actionInvokable(),
+            passedParameters,
+            buttonContext.nonCommandParameterTokens(),
+            buttonContext.remainingUses(),
+            buttonContext.removeAfter(),
+            afterRemoval);
     }
 }

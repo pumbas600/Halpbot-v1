@@ -58,8 +58,7 @@ public class HalpbotBuilder
 
     public static HalpbotBuilder create(Class<?> main,
                                         String[] args,
-                                        Modifiers... modifiers)
-    {
+                                        Modifiers... modifiers) {
         // Taken from Hartshorn just to enable the usage of HalpbotApplicationFactory
         for (final Modifiers modifier : modifiers)
             if (modifier == Modifiers.DEBUG) setDebugActive();
@@ -67,11 +66,11 @@ public class HalpbotBuilder
         MDC.put("process_id", ManagementFactory.getRuntimeMXBean().getName());
 
         ApplicationContext applicationContext = new HalpbotApplicationFactory()
-                .loadDefaults()
-                .activator(TypeContext.of(main))
-                .arguments(args)
-                .modifiers(modifiers)
-                .create();
+            .loadDefaults()
+            .activator(TypeContext.of(main))
+            .arguments(args)
+            .modifiers(modifiers)
+            .create();
         applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
 
         return new HalpbotBuilder(applicationContext);
@@ -84,8 +83,7 @@ public class HalpbotBuilder
             for (final Logger logger : loggerContext.getLoggerList()) {
                 logger.setLevel(Level.DEBUG);
             }
-        }
-        else {
+        } else {
             final Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
             rootLogger.setLevel(Level.DEBUG);
         }

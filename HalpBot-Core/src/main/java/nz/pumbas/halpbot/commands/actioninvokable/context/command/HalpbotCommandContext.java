@@ -48,11 +48,11 @@ public record HalpbotCommandContext(List<String> aliases,
                                     boolean isEphemeral,
                                     boolean preserveWhitespace,
                                     Content content)
-        implements CommandContext
+    implements CommandContext
 {
 
     @Bound
-    public HalpbotCommandContext { }
+    public HalpbotCommandContext {}
 
     @Override
     public String toString() {

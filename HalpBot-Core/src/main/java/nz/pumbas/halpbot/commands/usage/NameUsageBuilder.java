@@ -42,23 +42,22 @@ public class NameUsageBuilder implements UsageBuilder
     @Override
     public boolean isValid(ApplicationContext applicationContext) {
         if ("applicationContext".equals(TypeContext.of(this)
-                .method("isValid", ApplicationContext.class)
-                .get()
-                .parameters()
-                .get(0)
-                .name()))
-        {
+            .method("isValid", ApplicationContext.class)
+            .get()
+            .parameters()
+            .get(0)
+            .name())) {
             return true;
         }
         applicationContext.log()
-                .warn("""
-                      Parameter names have not been preserved so a %s cannot be used. To preserve parameter names
-                      add the following to your gradle.build file:
-                                              
-                      tasks.withType(JavaCompile) {
-                            options.compilerArgs << '-parameters'
-                      }
-                      """.formatted(NameUsageBuilder.class.getCanonicalName()));
+            .warn("""
+                Parameter names have not been preserved so a %s cannot be used. To preserve parameter names
+                add the following to your gradle.build file:
+                                        
+                tasks.withType(JavaCompile) {
+                      options.compilerArgs << '-parameters'
+                }
+                """.formatted(NameUsageBuilder.class.getCanonicalName()));
         return false;
     }
 
@@ -81,9 +80,7 @@ public class NameUsageBuilder implements UsageBuilder
             if (token instanceof ParsingToken) {
                 ParameterContext<?> parameterContext = parameters.get(parameterIndex++);
                 stringBuilder.append(HalpbotUtils.variableNameToSplitLowercase(parameterContext.name()));
-            }
-
-            else if (token instanceof HalpbotPlaceholderToken placeholderToken)
+            } else if (token instanceof HalpbotPlaceholderToken placeholderToken)
                 stringBuilder.append(placeholderToken.placeholder());
 
             stringBuilder.append(token.isOptional() ? ']' : '>')

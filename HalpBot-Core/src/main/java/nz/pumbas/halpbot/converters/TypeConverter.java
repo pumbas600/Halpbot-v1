@@ -81,7 +81,8 @@ public record TypeConverter<T>(TypeContext<T> type,
         }
 
         /**
-         * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link HalpbotConverterHandler}.
+         * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link
+         * HalpbotConverterHandler}.
          *
          * @return The built {@link TypeConverter}
          */
@@ -89,10 +90,10 @@ public record TypeConverter<T>(TypeContext<T> type,
         public TypeConverter<T> build() {
             this.assertConverterSet();
             return new TypeConverter<>(
-                    this.type,
-                    TypeContext.of(this.annotation),
-                    this.converter,
-                    this.optionType);
+                this.type,
+                TypeContext.of(this.annotation),
+                this.converter,
+                this.optionType);
         }
     }
 }

@@ -38,13 +38,13 @@ public class MemberCooldownStrategy implements CooldownStrategy
     @Override
     public CooldownTimer get(long guildId, long userId) {
         return this.cooldownTimers.getOrDefault(guildId, Collections.emptyMap())
-                .getOrDefault(userId, CooldownTimer.Empty);
+            .getOrDefault(userId, CooldownTimer.Empty);
     }
 
     @Override
     public void put(long guildId, long userId, CooldownTimer cooldownTimer) {
         this.cooldownTimers.computeIfAbsent(guildId, (id) -> new ConcurrentHashMap<>())
-                .put(userId, cooldownTimer);
+            .put(userId, cooldownTimer);
     }
 
     @Override

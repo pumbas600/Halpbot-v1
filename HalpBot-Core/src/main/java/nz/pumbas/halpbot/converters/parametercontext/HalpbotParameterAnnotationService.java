@@ -43,16 +43,20 @@ import lombok.Getter;
 public class HalpbotParameterAnnotationService implements ParameterAnnotationService
 {
     private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
-            = new ConcurrentHashMap<>();
+        = new ConcurrentHashMap<>();
 
-    @Inject @Getter private ApplicationContext applicationContext;
-    @Inject @Getter private ParameterAnnotationContextFactory factory;
+    @Inject
+    @Getter
+    private ApplicationContext applicationContext;
+    @Inject
+    @Getter
+    private ParameterAnnotationContextFactory factory;
 
     @Getter
     private final Comparator<TypeContext<? extends Annotation>> comparator = (typeA, typeB) -> {
         ParameterAnnotationContext contextA = this.get(typeA);
         ParameterAnnotationContext contextB = this.get(typeB);
-        
+
         if (contextA.comesAfter(typeB))
             return 1;
         else if (contextB.comesAfter(typeA))
@@ -67,7 +71,7 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
     @Override
     public ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType) {
         return this.parameterAnnotationContextMap
-                .getOrDefault(annotationType, HalpbotParameterAnnotationContext.GENERIC);
+            .getOrDefault(annotationType, HalpbotParameterAnnotationContext.GENERIC);
     }
 
     @Override
@@ -77,8 +81,7 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
 
     @Override
     public void add(TypeContext<? extends Annotation> annotationType,
-                    ParameterAnnotationContext annotationContext)
-    {
+                    ParameterAnnotationContext annotationContext) {
         this.parameterAnnotationContextMap.put(annotationType, annotationContext);
     }
 

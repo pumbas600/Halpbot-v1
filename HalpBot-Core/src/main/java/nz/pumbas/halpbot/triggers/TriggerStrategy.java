@@ -41,9 +41,9 @@ public enum TriggerStrategy
      * calling this method.
      *
      * @param message
-     *      The lowered message
+     *     The lowered message
      * @param trigger
-     *      The lowered trigger to determine if contained within the message
+     *     The lowered trigger to determine if contained within the message
      *
      * @return If the trigger is contained within the message
      */

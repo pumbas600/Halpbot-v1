@@ -39,16 +39,16 @@ import java.lang.annotation.Target;
 public @interface ParameterAnnotation
 {
     /**
-     * The annotations, which if present, should be processed before this one. Note: That this is equivalent to
-     * setting the {@link ParameterAnnotation#before()} of the specified annotations to this.
+     * The annotations, which if present, should be processed before this one. Note: That this is equivalent to setting
+     * the {@link ParameterAnnotation#before()} of the specified annotations to this.
      */
     Class<? extends Annotation>[] after() default {};
 
     /**
      * The annotations which if present, should be processed afterAnnotations this one. Note: That this is equivalent to
-     * setting the {@link ParameterAnnotation#after()} of the specified annotations to this. The main purpose of this
-     * is to allow you to add custom annotations that are processed before the built-in ones, as you don't have
-     * access to their respective {@link ParameterAnnotation}.
+     * setting the {@link ParameterAnnotation#after()} of the specified annotations to this. The main purpose of this is
+     * to allow you to add custom annotations that are processed before the built-in ones, as you don't have access to
+     * their respective {@link ParameterAnnotation}.
      */
     Class<? extends Annotation>[] before() default {};
 

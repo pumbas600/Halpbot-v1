@@ -44,18 +44,20 @@ public class HalpbotDecoratorService implements DecoratorService
 {
     private final Map<TypeContext<? extends Annotation>, DecoratorFactory<?, ?, ?>> decorators = new ConcurrentHashMap<>();
 
-    @Getter @Inject private ApplicationContext applicationContext;
+    @Getter
+    @Inject
+    private ApplicationContext applicationContext;
 
     @Override
     public void register(TypeContext<? extends Annotation> decoratedAnnotation) {
         Class<? extends DecoratorFactory<?, ?, ?>> factoryType = decoratedAnnotation.annotation(Decorator.class)
-                .map(Decorator::value)
-                .get();
+            .map(Decorator::value)
+            .get();
 
         DecoratorFactory<?, ?, ?> factory = this.applicationContext.get(factoryType);
         if (factory == null) {
             this.applicationContext.log().error("There was an error retrieving the decorator factory %s"
-                    .formatted(factoryType.getCanonicalName()));
+                .formatted(factoryType.getCanonicalName()));
             return;
         }
 

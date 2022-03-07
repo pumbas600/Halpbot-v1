@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 /**
  * Indicates that this method is a permission supplier and can be used to validate whether a member has the specified
  * permission within the guild.
- *
+ * <p>
  * The method annotated with this must return a boolean and must take in a guild and member as parameters respectively.
  * E.g:
  * <pre>{@code

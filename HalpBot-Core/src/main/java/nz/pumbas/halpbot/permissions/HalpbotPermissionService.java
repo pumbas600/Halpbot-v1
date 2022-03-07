@@ -62,16 +62,23 @@ import nz.pumbas.halpbot.permissions.repositories.PermissionRepository;
 @ComponentBinding(PermissionService.class)
 public class HalpbotPermissionService implements PermissionService, Enableable
 {
-    @Getter @Inject private ApplicationContext applicationContext;
-    @Getter @Inject private HalpbotCore halpbotCore;
+    @Getter
+    @Inject
+    private ApplicationContext applicationContext;
+    @Getter
+    @Inject
+    private HalpbotCore halpbotCore;
 
-    @Inject private InvokableFactory invokableFactory;
-    @Inject private PermissionRepository permissionRepository;
+    @Inject
+    private InvokableFactory invokableFactory;
+    @Inject
+    private PermissionRepository permissionRepository;
 
     private final Set<String> permissions = new HashSet<>();
     private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
 
-    @Getter private boolean useRoleBinding;
+    @Getter
+    private boolean useRoleBinding;
 
     @Override
     public void enable() {
@@ -87,21 +94,21 @@ public class HalpbotPermissionService implements PermissionService, Enableable
 
     @Override
     public void initialise() {
-        if(!this.useRoleBinding && !this.rolePermissions().isEmpty())
+        if (!this.useRoleBinding && !this.rolePermissions().isEmpty())
             this.applicationContext.log()
-                    .error("You haven't enabled custom permissions in the bot-config but you have some defined.");
+                .error("You haven't enabled custom permissions in the bot-config but you have some defined.");
         if (this.useRoleBinding)
             this.deleteOldPermissions();
     }
 
     private void deleteOldPermissions() {
-        List<GuildPermission> oldPermissions =  this.permissionRepository.findAll()
-                .stream()
-                .filter((gp) -> !this.isRegistered(gp.permission()))
-                .toList();
+        List<GuildPermission> oldPermissions = this.permissionRepository.findAll()
+            .stream()
+            .filter((gp) -> !this.isRegistered(gp.permission()))
+            .toList();
         if (!oldPermissions.isEmpty()) {
             this.applicationContext.log().info("Deleting the following deprecated permissions from the database: %s"
-                    .formatted(String.join(", ", oldPermissions.stream().map(GuildPermission::permission).toList())));
+                .formatted(String.join(", ", oldPermissions.stream().map(GuildPermission::permission).toList())));
             oldPermissions.forEach(this::delete);
         }
     }
@@ -184,8 +191,8 @@ public class HalpbotPermissionService implements PermissionService, Enableable
 
     private boolean evaluatePermissionSupplier(String permission, Guild guild, Member member) {
         return Boolean.TRUE.equals(this.permissionSuppliers.get(permission)
-                .invoke(guild, member)
-                .or(false));
+            .invoke(guild, member)
+            .or(false));
     }
 
     @Override
@@ -199,9 +206,9 @@ public class HalpbotPermissionService implements PermissionService, Enableable
         if (!this.useRoleBinding)
             return false;
         return Boolean.TRUE.equals(
-                this.permissionRepository.findById(new GuildPermissionId(guild.getIdLong(), permission))
-                        .map((gp) -> member.getRoles().contains(guild.getRoleById(gp.roleId())))
-                        .or(false)
+            this.permissionRepository.findById(new GuildPermissionId(guild.getIdLong(), permission))
+                .map((gp) -> member.getRoles().contains(guild.getRoleById(gp.roleId())))
+                .or(false)
         );
     }
 
@@ -210,11 +217,11 @@ public class HalpbotPermissionService implements PermissionService, Enableable
         if (!this.useRoleBinding)
             Collections.emptySet();
         return this.permissionRepository
-                .permissions(guildId, member.getRoles()
-                        .stream()
-                        .map(Role::getIdLong)
-                        .collect(Collectors.toSet())
-        );
+            .permissions(guildId, member.getRoles()
+                .stream()
+                .map(Role::getIdLong)
+                .collect(Collectors.toSet())
+            );
     }
 
     @Override
@@ -225,9 +232,9 @@ public class HalpbotPermissionService implements PermissionService, Enableable
     @Override
     public Set<String> rolePermissions() {
         return this.permissions
-                .stream()
-                .filter((permission) -> !this.permissionSuppliers.containsKey(permission))
-                .collect(Collectors.toSet());
+            .stream()
+            .filter((permission) -> !this.permissionSuppliers.containsKey(permission))
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -237,7 +244,7 @@ public class HalpbotPermissionService implements PermissionService, Enableable
 
         Map<String, Long> bindings = new HashMap<>();
         this.permissionRepository.guildPermissions(guild.getIdLong())
-                .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
+            .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
 
         this.rolePermissions().forEach((permission) -> bindings.putIfAbsent(permission, null));
         return bindings;

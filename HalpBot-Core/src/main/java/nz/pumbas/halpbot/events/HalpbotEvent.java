@@ -67,7 +67,7 @@ public interface HalpbotEvent
      */
     @Nullable
     AbstractChannel channel();
-    
+
     ChannelType channelType();
 
     /**
@@ -96,26 +96,26 @@ public interface HalpbotEvent
     void reply(MessageEmbed embed);
 
     /**
-     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less
-     * than 1 second, it will set the reply to ephemeral for an {@link InteractionEvent}, however, if it's not an
-     * interation event, then this will cause an {@link IllegalArgumentException} to be thrown.
+     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less than
+     * 1 second, it will set the reply to ephemeral for an {@link InteractionEvent}, however, if it's not an interation
+     * event, then this will cause an {@link IllegalArgumentException} to be thrown.
      *
      * @param message
-     *      The message to send
+     *     The message to send
      * @param seconds
-     *      The number of seconds to wait before deleting the response
+     *     The number of seconds to wait before deleting the response
      */
     void replyTemporarily(String message, long seconds);
 
     /**
-     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less
-     * than 1 second, it will set the reply to ephemeral for an {@link InteractionEvent}, however, if it's not an
-     * interation event, then this will cause an {@link IllegalArgumentException} to be thrown.
+     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less than
+     * 1 second, it will set the reply to ephemeral for an {@link InteractionEvent}, however, if it's not an interation
+     * event, then this will cause an {@link IllegalArgumentException} to be thrown.
      *
      * @param embed
-     *      The embed to send
+     *     The embed to send
      * @param seconds
-     *      The number of seconds to wait before deleting the response
+     *     The number of seconds to wait before deleting the response
      */
     void replyTemporarily(MessageEmbed embed, long seconds);
 }

@@ -48,8 +48,7 @@ public abstract class AbstractActionCallback implements ActionCallback
         long deleteAfterDuration, TimeUnit deleteAfterTimeUnit,
         long cooldownDuration, TimeUnit cooldownTimeUnit,
         List<String> permissions, boolean singleUse,
-        long displayDuration)
-    {
+        long displayDuration) {
         this.deleteAfterDuration = deleteAfterDuration;
         this.deleteAfterTimeUnit = deleteAfterTimeUnit;
         this.cooldownDuration = cooldownDuration;

@@ -59,10 +59,9 @@ public interface ButtonInvokable extends ActionInvokable<ButtonInvocationContext
                 if (token.parameterContext().equals(parameterContext)) {
                     parameters[parameterIndex++] = token.converter().apply(invocationContext).orNull();
                 }
-            }
-            else return Exceptional.of(
-                    new ActionException("There didn't appear to be a value for the parameter %s in the button %s"
-                            .formatted(targetType.qualifiedName(), this.executable().qualifiedName())));
+            } else return Exceptional.of(
+                new ActionException("There didn't appear to be a value for the parameter %s in the button %s"
+                    .formatted(targetType.qualifiedName(), this.executable().qualifiedName())));
         }
         return Exceptional.of(parameters);
     }

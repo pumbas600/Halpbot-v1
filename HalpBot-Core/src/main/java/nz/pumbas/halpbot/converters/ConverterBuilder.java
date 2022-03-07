@@ -62,9 +62,9 @@ public abstract class ConverterBuilder<R extends Converter<C, T>, C extends Invo
     }
 
     /**
-     * The {@link Class type} of the annotation which needs to be present on the type for this {@link TypeConverter}
-     * to be called. If no annotation is specified, then this type parser can be called irrespective of the
-     * annotations present.
+     * The {@link Class type} of the annotation which needs to be present on the type for this {@link TypeConverter} to
+     * be called. If no annotation is specified, then this type parser can be called irrespective of the annotations
+     * present.
      *
      * @param annotation
      *     The {@link Class type} of the annotation that needs to be present for this type parser to be called
@@ -77,8 +77,8 @@ public abstract class ConverterBuilder<R extends Converter<C, T>, C extends Invo
     }
 
     /**
-     * Specifies the JDA {@link OptionType} to map this type to, when building slash commands. If no option type
-     * is specified, then it will default to {@link OptionType#STRING}.
+     * Specifies the JDA {@link OptionType} to map this type to, when building slash commands. If no option type is
+     * specified, then it will default to {@link OptionType#STRING}.
      *
      * @param optionType
      *     The JDA {@link OptionType}
@@ -93,7 +93,7 @@ public abstract class ConverterBuilder<R extends Converter<C, T>, C extends Invo
     protected void assertConverterSet() throws IllegalConverterException {
         if (this.converter == null)
             throw new IllegalConverterException(
-                    "You must specify a converting function before building the converter");
+                "You must specify a converting function before building the converter");
     }
 
     /**

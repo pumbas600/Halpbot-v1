@@ -49,17 +49,19 @@ public class HalpbotApplicationFactory extends HartshornApplicationFactory
     @Override
     public HartshornApplicationFactory loadDefaults() {
         return super.loadDefaults()
-                .serviceActivator(new UseConfigurations() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return UseConfigurations.class;
-                    }
-                })
-                .serviceActivator(new UsePermissions() {
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return UsePermissions.class;
-                    }
-                });
+            .serviceActivator(new UseConfigurations()
+            {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return UseConfigurations.class;
+                }
+            })
+            .serviceActivator(new UsePermissions()
+            {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return UsePermissions.class;
+                }
+            });
     }
 }

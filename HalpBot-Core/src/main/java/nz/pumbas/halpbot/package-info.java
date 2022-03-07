@@ -23,7 +23,7 @@
  */
 
 @DefaultQualifier(value = NotNull.class,
-                  locations = { TypeUseLocation.FIELD, TypeUseLocation.PARAMETER, TypeUseLocation.RETURN})
+                  locations = {TypeUseLocation.FIELD, TypeUseLocation.PARAMETER, TypeUseLocation.RETURN})
 package nz.pumbas.halpbot;
 
 import org.checkerframework.framework.qual.DefaultQualifier;

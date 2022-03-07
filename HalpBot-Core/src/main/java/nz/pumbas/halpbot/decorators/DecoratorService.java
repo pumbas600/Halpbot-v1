@@ -54,10 +54,10 @@ public interface DecoratorService extends Enableable, ContextCarrier
     @SuppressWarnings("unchecked")
     default void enable() {
         Collection<TypeContext<?>> decorators = this.applicationContext().environment()
-                .types(Decorator.class)
-                .stream()
-                .filter(type -> type.childOf(Annotation.class))
-                .toList();
+            .types(Decorator.class)
+            .stream()
+            .filter(type -> type.childOf(Annotation.class))
+            .toList();
 
         for (TypeContext<?> decorator : decorators) {
             this.register((TypeContext<? extends Annotation>) decorator);
@@ -89,13 +89,13 @@ public interface DecoratorService extends Enableable, ContextCarrier
         }
 
         List<Tuple<TypeContext<? extends Annotation>, Annotation>> entries = Reflect.cast(
-                decorators.entrySet()
-                        .stream()
-                        .flatMap((entry) -> entry.getValue()
-                                .stream()
-                                .map((annotation) -> Tuple.of(entry.getKey(), annotation)))
-                        .sorted(Comparator.comparing((entry) -> -entry.getKey().annotation(Decorator.class).get().order().ordinal()))
-                        .toList());
+            decorators.entrySet()
+                .stream()
+                .flatMap((entry) -> entry.getValue()
+                    .stream()
+                    .map((annotation) -> Tuple.of(entry.getKey(), annotation)))
+                .sorted(Comparator.comparing((entry) -> -entry.getKey().annotation(Decorator.class).get().order().ordinal()))
+                .toList());
 
         ActionInvokable<C> previous;
         for (Tuple<TypeContext<? extends Annotation>, Annotation> entry : entries) {
@@ -103,18 +103,17 @@ public interface DecoratorService extends Enableable, ContextCarrier
             if (factory instanceof ActionInvokableDecoratorFactory actionInvokableDecoratorFactory) {
                 previous = actionInvokable;
                 actionInvokable = (ActionInvokable<C>) actionInvokableDecoratorFactory.decorate(
-                        actionInvokable,
-                        entry.getValue());
+                    actionInvokable,
+                    entry.getValue());
                 if (actionInvokable == null) {
                     this.applicationContext().log()
-                            .error("There was an error while creating the decorator %s with %s"
-                                    .formatted(entry.getKey().qualifiedName(), entry.getValue().toString()));
+                        .error("There was an error while creating the decorator %s with %s"
+                            .formatted(entry.getKey().qualifiedName(), entry.getValue().toString()));
                     actionInvokable = previous;
                 }
-            }
-            else this.applicationContext().log()
-                    .error("The command %s is annotated with the decorator %s, but this does not support commands"
-                            .formatted(actionInvokable.executable().qualifiedName(), entry.getKey().qualifiedName()));
+            } else this.applicationContext().log()
+                .error("The command %s is annotated with the decorator %s, but this does not support commands"
+                    .formatted(actionInvokable.executable().qualifiedName(), entry.getKey().qualifiedName()));
         }
 
         return actionInvokable;
@@ -122,9 +121,9 @@ public interface DecoratorService extends Enableable, ContextCarrier
 
     default Map<TypeContext<? extends Annotation>, List<Annotation>> decorators(AnnotatedElementContext<?> annotatedElementContext) {
         return annotatedElementContext.annotations()
-                .stream()
-                .filter((annotation) -> TypeContext.of(annotation.annotationType()).annotation(Decorator.class).present())
-                .collect(Collectors.groupingBy(annotation -> TypeContext.of(annotation.annotationType())));
+            .stream()
+            .filter((annotation) -> TypeContext.of(annotation.annotationType()).annotation(Decorator.class).present())
+            .collect(Collectors.groupingBy(annotation -> TypeContext.of(annotation.annotationType())));
     }
 
     default int depth(ActionInvokable<?> actionInvokable) {
