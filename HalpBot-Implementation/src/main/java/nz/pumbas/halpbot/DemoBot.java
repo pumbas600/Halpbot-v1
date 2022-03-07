@@ -32,6 +32,7 @@ import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.common.HalpbotBuilder;
 
 // Indicates that the bot is a singleton and allows this class to be scanned for commands, etc
 @Service

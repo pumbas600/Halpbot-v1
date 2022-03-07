@@ -12,7 +12,6 @@ import nz.pumbas.halpbot.buttons.UseButtons;
 import nz.pumbas.halpbot.commands.annotations.UseCommands;
 import nz.pumbas.halpbot.triggers.UseTriggers;
 
-@Service
 @UseButtons
 @UseCommands
 @UseTriggers
