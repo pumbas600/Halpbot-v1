@@ -58,8 +58,8 @@ public class AbstractPersistantUserData implements PersistantUserData
     }
 
     /**
-     * Destroys this command data. This means if a command with this parameter is called again, a new
-     * {@link PersistantUserData} will be created instead of this one being retrieved again.
+     * Destroys this command data. This means if a command with this parameter is called again, a new {@link
+     * PersistantUserData} will be created instead of this one being retrieved again.
      */
     @Override
     public void destroy() {

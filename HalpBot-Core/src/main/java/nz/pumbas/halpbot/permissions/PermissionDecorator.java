@@ -51,12 +51,18 @@ import nz.pumbas.halpbot.utilities.Require;
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> implements Enableable
 {
     @Inject
-    @Getter private PermissionService permissionService;
-    @Getter private final Set<String> customPermissions = new HashSet<>();
-    @Getter private final Set<Permission> userPermissions = new HashSet<>();
-    @Getter private final Set<Permission> selfPermissions = new HashSet<>();
-    @Getter private final Require require;
-    @Getter private final BiPredicate<Guild, Member> hasPermissions;
+    @Getter
+    private PermissionService permissionService;
+    @Getter
+    private final Set<String> customPermissions = new HashSet<>();
+    @Getter
+    private final Set<Permission> userPermissions = new HashSet<>();
+    @Getter
+    private final Set<Permission> selfPermissions = new HashSet<>();
+    @Getter
+    private final Require require;
+    @Getter
+    private final BiPredicate<Guild, Member> hasPermissions;
 
     @Bound
     public PermissionDecorator(ActionInvokable<C> actionInvokable, Permissions permissions) {
@@ -109,7 +115,7 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
 
     protected boolean all(Guild guild, Member member) {
         return member.hasPermission(this.userPermissions()) &&
-                this.permissionService().hasPermissions(guild, member, this.customPermissions());
+            this.permissionService().hasPermissions(guild, member, this.customPermissions());
     }
 
     @Override

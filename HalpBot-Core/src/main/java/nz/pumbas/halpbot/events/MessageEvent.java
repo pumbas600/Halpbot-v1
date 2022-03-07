@@ -110,7 +110,7 @@ public class MessageEvent implements HalpbotEvent
         else if (this.event instanceof GenericMessageReactionEvent messageReactionEvent)
             return messageReactionEvent.retrieveMember().complete();
         throw new UnsupportedOperationException(
-                "The event " + this.event.getClass().getSimpleName() + " doesn't support this operation");
+            "The event " + this.event.getClass().getSimpleName() + " doesn't support this operation");
     }
 
     @Override

@@ -45,8 +45,8 @@ public class CustomConstructorServicePreProcessor implements ServicePreProcessor
     @Override
     public boolean preconditions(ApplicationContext context, Key<?> key) {
         return key.type().constructors()
-                .stream()
-                .anyMatch(constructorContext -> constructorContext.annotation(CustomConstructor.class).present());
+            .stream()
+            .anyMatch(constructorContext -> constructorContext.annotation(CustomConstructor.class).present());
     }
 
     @Override

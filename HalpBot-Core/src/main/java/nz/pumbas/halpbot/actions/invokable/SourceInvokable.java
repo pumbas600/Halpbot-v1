@@ -56,8 +56,7 @@ public interface SourceInvokable<C extends SourceInvocationContext> extends Acti
 
     @SuppressWarnings("unchecked")
     default Exceptional<Object> parameter(C invocationContext, ParameterContext<?> parameterContext,
-                                          Int nonCommandParameterIndex)
-    {
+                                          Int nonCommandParameterIndex) {
         if (nonCommandParameterIndex.lessThen(invocationContext.nonCommandParameterTokens().size())) {
             ParsingToken token = invocationContext.nonCommandParameterTokens().get(nonCommandParameterIndex.incrementAfter());
             if (token.parameterContext().equals(parameterContext)) {
@@ -65,7 +64,7 @@ public interface SourceInvokable<C extends SourceInvocationContext> extends Acti
             }
         }
         return Exceptional.of(
-                new ActionException("There didn't appear to be a value for the parameter %s in the button %s"
-                        .formatted(invocationContext.currentType().qualifiedName(), this.executable().qualifiedName())));
+            new ActionException("There didn't appear to be a value for the parameter %s in the button %s"
+                .formatted(invocationContext.currentType().qualifiedName(), this.executable().qualifiedName())));
     }
 }

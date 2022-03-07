@@ -57,13 +57,21 @@ import nz.pumbas.halpbot.utilities.Require;
 @ComponentBinding(TriggerAdapter.class)
 public class HalpbotTriggerAdapter implements TriggerAdapter
 {
-    @Getter @Inject private ApplicationContext applicationContext;
-    @Getter @Inject private HalpbotCore halpbotCore;
+    @Getter
+    @Inject
+    private ApplicationContext applicationContext;
+    @Getter
+    @Inject
+    private HalpbotCore halpbotCore;
 
-    @Inject private InvocationContextFactory invocationContextFactory;
-    @Inject private TriggerContextFactory triggerContextFactory;
-    @Inject private DecoratorService decoratorService;
-    @Inject private TokenService tokenService;
+    @Inject
+    private InvocationContextFactory invocationContextFactory;
+    @Inject
+    private TriggerContextFactory triggerContextFactory;
+    @Inject
+    private DecoratorService decoratorService;
+    @Inject
+    private TokenService tokenService;
 
     private final List<TriggerContext> triggerContexts = new ArrayList<>();
 
@@ -78,8 +86,8 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
         for (TriggerContext triggerContext : this.triggerContexts) {
             if (triggerContext.matches(message)) {
                 Exceptional<Object> result = triggerContext.invoke(this.invocationContextFactory.source(
-                        halpbotEvent,
-                        triggerContext.nonCommandParameterTokens()));
+                    halpbotEvent,
+                    triggerContext.nonCommandParameterTokens()));
 
                 if (result.present())
                     this.displayResult(halpbotEvent, triggerContext, result.get());
@@ -97,20 +105,20 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
         // TODO: Use factory to create SourceInvokable
 
         TriggerContext context = this.triggerContextFactory.create(
-                Stream.of(trigger.value())
-                        .map(String::toLowerCase)
-                        .toList(),
-                trigger.description(),
-                trigger.require() == Require.ALL ? TriggerStrategy.ANYWHERE : trigger.strategy(),
-                trigger.require(),
-                this.tokenService.tokens(methodContext)
-                        .stream()
-                        .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
-                        .map(token -> (ParsingToken) token)
-                        .toList(),
-                this.decoratorService.decorate(new HalpbotSourceInvokable(instance, methodContext)),
-                HalpbotUtils.asDuration(trigger.display()),
-                trigger.isEphemeral()
+            Stream.of(trigger.value())
+                .map(String::toLowerCase)
+                .toList(),
+            trigger.description(),
+            trigger.require() == Require.ALL ? TriggerStrategy.ANYWHERE : trigger.strategy(),
+            trigger.require(),
+            this.tokenService.tokens(methodContext)
+                .stream()
+                .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
+                .map(token -> (ParsingToken) token)
+                .toList(),
+            this.decoratorService.decorate(new HalpbotSourceInvokable(instance, methodContext)),
+            HalpbotUtils.asDuration(trigger.display()),
+            trigger.isEphemeral()
         );
 
         this.triggerContexts.add(context);

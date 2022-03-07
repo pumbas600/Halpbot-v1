@@ -40,13 +40,15 @@ import nz.pumbas.halpbot.common.UseAll;
 @UseAll
 public class Halpbot extends ListenerAdapter
 {
-    @Inject private ApplicationContext applicationContext;
-    @Inject private HalpbotCore halpbotCore;
+    @Inject
+    private ApplicationContext applicationContext;
+    @Inject
+    private HalpbotCore halpbotCore;
 
     @Override
     public void onReady(ReadyEvent event) {
         this.applicationContext.log()
-                .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
+            .info("The bot is initialised and running in %d servers".formatted(event.getGuildTotalCount()));
     }
 
     @Override

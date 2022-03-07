@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 @ComponentBinding(CommandInvokable.class)
 public record HalpbotCommandInvokable(@Nullable Object instance,
                                       ExecutableElementContext<?, ?> executable)
-        implements CommandInvokable
+    implements CommandInvokable
 {
     @Bound
     public HalpbotCommandInvokable {}

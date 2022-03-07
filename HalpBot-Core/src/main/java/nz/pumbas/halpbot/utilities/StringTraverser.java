@@ -53,8 +53,8 @@ public interface StringTraverser
     }
 
     /**
-     * @return An {@link Exceptional} containing the next {@link String word} from the current index or
-     *         {@link Exceptional#empty()} if there are no more words
+     * @return An {@link Exceptional} containing the next {@link String word} from the current index or {@link
+     *     Exceptional#empty()} if there are no more words
      * @see CommandInvocationContext#next()
      */
     default Exceptional<String> nextSafe() {
@@ -82,8 +82,8 @@ public interface StringTraverser
 
     /**
      * Gets the next string up until (exclusive) the specified string. If the ending string is not contained in the
-     * remainder of the content, an {@link Exceptional#empty()} is returned. This will automatically move the
-     * current index past the until string and any whitespace.
+     * remainder of the content, an {@link Exceptional#empty()} is returned. This will automatically move the current
+     * index past the until string and any whitespace.
      *
      * @param until
      *     The {@link String} to stop at
@@ -127,8 +127,8 @@ public interface StringTraverser
     }
 
     /**
-     * Gets the next string that matches the specified {@link Pattern}. If there is no matching string or the
-     * matching string is not next then an {@link Exceptional} containing an {@link IllegalFormatException} is returned.
+     * Gets the next string that matches the specified {@link Pattern}. If there is no matching string or the matching
+     * string is not next then an {@link Exceptional} containing an {@link IllegalFormatException} is returned.
      *
      * @param pattern
      *     The {@link Pattern} for the next string
@@ -153,7 +153,7 @@ public interface StringTraverser
             }
         }
         return Exceptional.of(
-                new IllegalFormatException("The start of " + this.next() + " doesn't match the expected format"));
+            new IllegalFormatException("The start of " + this.next() + " doesn't match the expected format"));
     }
 
     static Exceptional<String> next(String content, Pattern pattern) {
@@ -166,11 +166,11 @@ public interface StringTraverser
     }
 
     /**
-     * Returns the next string which is contained between the start and stop specified while respecting any nested
-     * start and stops too. This will automatically step past the stop characters and any whitespace.
+     * Returns the next string which is contained between the start and stop specified while respecting any nested start
+     * and stops too. This will automatically step past the stop characters and any whitespace.
      * <p>
-     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code nextSurrounded("[", "]")} will return
-     * {@code #Block[1 2 3] #Block[2 3 4]}.
+     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code nextSurrounded("[", "]")} will return {@code #Block[1 2 3]
+     * #Block[2 3 4]}.
      *
      * @param start
      *     The {@link String} defining the starting characters
@@ -185,11 +185,11 @@ public interface StringTraverser
     }
 
     /**
-     * Returns the next string which is contained between the start and stop specified while respecting any nested
-     * start and stops too.
+     * Returns the next string which is contained between the start and stop specified while respecting any nested start
+     * and stops too.
      * <p>
-     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code #nextSurrounded("[", "]", false)} will return
-     * {@code #Block[1 2 3] #Block[2 3 4]}.
+     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code #nextSurrounded("[", "]", false)} will return {@code
+     * #Block[1 2 3] #Block[2 3 4]}.
      *
      * @param start
      *     The {@link String} defining the starting characters
@@ -280,8 +280,8 @@ public interface StringTraverser
     }
 
     /**
-     * Returns if the character at the current index is the one specified. If it is, then it steps past this
-     * character automatically, along with any whitespace.
+     * Returns if the character at the current index is the one specified. If it is, then it steps past this character
+     * automatically, along with any whitespace.
      *
      * @param character
      *     The character to check
@@ -319,8 +319,8 @@ public interface StringTraverser
     }
 
     /**
-     * Assets that the next character is the one specified. If it's not, then it throws an
-     * {@link IllegalFormatException}.
+     * Assets that the next character is the one specified. If it's not, then it throws an {@link
+     * IllegalFormatException}.
      *
      * @param character
      *     The character to assert is next

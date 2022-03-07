@@ -45,47 +45,45 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
      * this has been implemented, the key won't be removed before the expiration duration, however, it may take up to
      * 1.5 * the expiration duration for it to be actually removed due to extreme looping.
      * <p>
-     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an
-     * {@link IllegalArgumentException} will be thrown.
+     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an {@link
+     * IllegalArgumentException} will be thrown.
      *
      * @param expirationDuration
-     *      The time that must pass before an entry is removed
+     *     The time that must pass before an entry is removed
      * @param expirationDurationUnit
-     *      The time unit for the expiration duration. This cannot be smaller than milliseconds
+     *     The time unit for the expiration duration. This cannot be smaller than milliseconds
+     *
      * @throws IllegalArgumentException
-     *      If the expiration duration unit is smaller than milliseconds
+     *     If the expiration duration unit is smaller than milliseconds
      */
-    public ConcurrentExpiringMap(long expirationDuration, TimeUnit expirationDurationUnit)
-    {
-        this(expirationDuration, expirationDurationUnit, (k, v) -> { });
+    public ConcurrentExpiringMap(long expirationDuration, TimeUnit expirationDurationUnit) {
+        this(expirationDuration, expirationDurationUnit, (k, v) -> {});
     }
 
     /**
-     * Creates a concurrent expiring map where the elements expire after the specified expiration duration. Just
-     * after the expired entries are removed from the map, the removal callback is invoked on them. Note that this
-     * could be on another thread. Due to how this has been implemented, the key won't be removed before the expiration
-     * duration, however, it may take up to 1.5 * the expiration duration for it to be actually removed due to
-     * extreme looping.
+     * Creates a concurrent expiring map where the elements expire after the specified expiration duration. Just after
+     * the expired entries are removed from the map, the removal callback is invoked on them. Note that this could be on
+     * another thread. Due to how this has been implemented, the key won't be removed before the expiration duration,
+     * however, it may take up to 1.5 * the expiration duration for it to be actually removed due to extreme looping.
      * <p>
-     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an
-     * {@link IllegalArgumentException} will be thrown.
+     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an {@link
+     * IllegalArgumentException} will be thrown.
      *
      * @param expirationDuration
-     *      The time that must pass before an entry is removed
+     *     The time that must pass before an entry is removed
      * @param expirationDurationUnit
-     *      The time unit for the expiration duration. This cannot be smaller than milliseconds
+     *     The time unit for the expiration duration. This cannot be smaller than milliseconds
      * @param removalCallback
-     *      The callback that's invoked before an entry is removed
+     *     The callback that's invoked before an entry is removed
      *
      * @throws IllegalArgumentException
-     *      If the expiration duration is less than or equal to 0 or if the expiration duration unit is smaller than
-     *      milliseconds.
+     *     If the expiration duration is less than or equal to 0 or if the expiration duration unit is smaller than
+     *     milliseconds.
      */
     public ConcurrentExpiringMap(
         long expirationDuration,
         TimeUnit expirationDurationUnit,
-        BiConsumer<K,V> removalCallback)
-    {
+        BiConsumer<K, V> removalCallback) {
         if (0 >= expirationDuration)
             throw new IllegalArgumentException("The expiration duration must be greater than 0");
 
@@ -105,8 +103,8 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
         Executors.newSingleThreadScheduledExecutor()
             .scheduleAtFixedRate(
                 this::clean,
-                this.expirationDurationMs/2,
-                this.expirationDurationMs/2,
+                this.expirationDurationMs / 2,
+                this.expirationDurationMs / 2,
                 TimeUnit.MILLISECONDS);
     }
 
@@ -169,7 +167,7 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
 
     @Override
     public boolean remove(Object key, Object value) {
-        if(this.containsKey(key) && Objects.equals(this.get(key), value)) {
+        if (this.containsKey(key) && Objects.equals(this.get(key), value)) {
             this.remove(key);
             return true;
         }

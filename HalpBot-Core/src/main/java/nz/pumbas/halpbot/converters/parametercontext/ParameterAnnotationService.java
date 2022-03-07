@@ -51,10 +51,10 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
     @SuppressWarnings("unchecked")
     default void enable() {
         Collection<TypeContext<?>> parameterAnnotations = this.applicationContext().environment()
-                .types(ParameterAnnotation.class)
-                .stream()
-                .filter(type -> type.childOf(Annotation.class))
-                .toList();
+            .types(ParameterAnnotation.class)
+            .stream()
+            .filter(type -> type.childOf(Annotation.class))
+            .toList();
         for (TypeContext<?> parameterAnnotation : parameterAnnotations) {
             this.register((TypeContext<? extends Annotation>) parameterAnnotation);
         }
@@ -67,33 +67,32 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
         // It's possible to specify that an annotation comes after another one which doesn't have the annotation
         if (eParameterAnnotation.absent()) {
             this.add(annotationType, HalpbotParameterAnnotationContext.generic());
-        }
-        else {
+        } else {
             ParameterAnnotation parameterAnnotation = eParameterAnnotation.get();
             this.add(annotationType,
-                    this.factory()
+                this.factory()
                     .create(
-                            Stream.of(parameterAnnotation.after())
-                                    .map(TypeContext::of)
-                                    .collect(Collectors.toSet()),
-                            Stream.of(parameterAnnotation.conflictingAnnotations())
-                                    .map(TypeContext::of)
-                                    .collect(Collectors.toSet()),
-                            Stream.of(parameterAnnotation.allowedType())
-                                    .map(type -> type.equals(ArrayTypeContext.class)
-                                            ? ArrayTypeContext.TYPE : TypeContext.of(type))
-                                    .collect(Collectors.toSet())
+                        Stream.of(parameterAnnotation.after())
+                            .map(TypeContext::of)
+                            .collect(Collectors.toSet()),
+                        Stream.of(parameterAnnotation.conflictingAnnotations())
+                            .map(TypeContext::of)
+                            .collect(Collectors.toSet()),
+                        Stream.of(parameterAnnotation.allowedType())
+                            .map(type -> type.equals(ArrayTypeContext.class)
+                                ? ArrayTypeContext.TYPE : TypeContext.of(type))
+                            .collect(Collectors.toSet())
                     ));
 
             // I've made sure to add the parameter annotation context to the map before checking these, in case
             // there's a circular reference, so that this doesn't get stuck in an infinite loop.
             for (Class<? extends Annotation> before : parameterAnnotation.before()) {
                 this.getAndRegister(TypeContext.of(before))
-                        .addAfterAnnotation(annotationType);
+                    .addAfterAnnotation(annotationType);
             }
         }
     }
-    
+
     default ParameterAnnotationContext getAndRegister(TypeContext<? extends Annotation> annotationType) {
         if (!this.contains(annotationType))
             this.register(annotationType);
@@ -103,12 +102,12 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
     default boolean isValid(TypeContext<?> parameterType,
                             List<TypeContext<? extends Annotation>> parameterAnnotations) {
         return parameterAnnotations.stream()
-                .map(this::get)
-                .allMatch(annotationContext ->
-                        annotationContext.isValidType(Reflect.wrapPrimative(parameterType)) &&
-                        annotationContext.noConflictingAnnotations(parameterAnnotations));
+            .map(this::get)
+            .allMatch(annotationContext ->
+                annotationContext.isValidType(Reflect.wrapPrimative(parameterType)) &&
+                    annotationContext.noConflictingAnnotations(parameterAnnotations));
     }
-    
+
     ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType);
 
     boolean isRegisteredParameterAnnotation(TypeContext<? extends Annotation> annotationType);
@@ -124,8 +123,8 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
 
     default List<TypeContext<? extends Annotation>> sortAndFilter(Stream<TypeContext<? extends Annotation>> annotations) {
         return annotations
-                .filter(this::isRegisteredParameterAnnotation)
-                .sorted(this.comparator())
-                .collect(Collectors.toList());
+            .filter(this::isRegisteredParameterAnnotation)
+            .sorted(this.comparator())
+            .collect(Collectors.toList());
     }
 }

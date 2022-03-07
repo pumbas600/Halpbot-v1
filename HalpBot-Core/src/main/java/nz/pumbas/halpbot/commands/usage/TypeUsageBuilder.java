@@ -59,9 +59,7 @@ public class TypeUsageBuilder implements UsageBuilder
             if (token instanceof ParsingToken) {
                 TypeContext<?> type = Reflect.wrapPrimative(parameters.get(parameterIndex++).type());
                 stringBuilder.append(HalpbotUtils.splitVariableName(type.name()));
-            }
-
-            else if (token instanceof HalpbotPlaceholderToken placeholderToken)
+            } else if (token instanceof HalpbotPlaceholderToken placeholderToken)
                 stringBuilder.append(placeholderToken.placeholder());
 
             stringBuilder.append(token.isOptional() ? ']' : '>')

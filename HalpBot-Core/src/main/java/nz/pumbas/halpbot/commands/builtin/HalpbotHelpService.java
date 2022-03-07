@@ -53,43 +53,45 @@ import nz.pumbas.halpbot.utilities.Reflect;
 @ComponentBinding(HelpService.class)
 public class HalpbotHelpService implements HelpService
 {
-    @Inject private DecoratorService decoratorService;
-    @Nullable private MessageEmbed allCommandHelpEmbed;
+    @Inject
+    private DecoratorService decoratorService;
+    @Nullable
+    private MessageEmbed allCommandHelpEmbed;
     private final Map<CommandContext, MessageEmbed> commandHelpEmbeds = new ConcurrentHashMap<>();
 
     @Override
     public MessageEmbed build(CommandAdapter commandAdapter) {
         if (this.allCommandHelpEmbed == null) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setColor(Color.ORANGE)
-                    .setTitle("HALP");
+                .setColor(Color.ORANGE)
+                .setTitle("HALP");
 
             Map<Object, List<CommandContext>> commands = commandAdapter.commands()
-                    .values()
-                    .stream()
-                    .collect(Collectors.groupingBy(ActionInvokable::instance));
+                .values()
+                .stream()
+                .collect(Collectors.groupingBy(ActionInvokable::instance));
 
             List<Object> sortedKeys = commands.keySet()
-                    .stream()
-                    .sorted(Comparator.comparing(key -> -commands.get(key).size()))
-                    .collect(Collectors.toList());
+                .stream()
+                .sorted(Comparator.comparing(key -> -commands.get(key).size()))
+                .collect(Collectors.toList());
 
             for (Object instance : sortedKeys) {
                 String title = HalpbotUtils.splitVariableName(
-                        TypeContext.unproxy(commandAdapter.applicationContext(), instance).name());
+                    TypeContext.unproxy(commandAdapter.applicationContext(), instance).name());
                 StringBuilder stringBuilder = new StringBuilder();
                 // distinct() prevents double ups from multiple aliases occuring
                 List<String> commandAliases = commands.get(instance)
-                        .stream()
-                        .distinct()
-                        .map(CommandContext::aliasesString)
-                        .sorted()
-                        .collect(Collectors.toList());
+                    .stream()
+                    .distinct()
+                    .map(CommandContext::aliasesString)
+                    .sorted()
+                    .collect(Collectors.toList());
 
                 for (String aliases : commandAliases) {
                     stringBuilder.append("- ")
-                            .append(aliases)
-                            .append("\n");
+                        .append(aliases)
+                        .append("\n");
                 }
 
                 embedBuilder.addField(title, stringBuilder.toString(), true);
@@ -104,15 +106,15 @@ public class HalpbotHelpService implements HelpService
     public MessageEmbed build(CommandAdapter commandAdapter, CommandContext commandContext) {
         if (!this.commandHelpEmbeds.containsKey(commandContext)) {
             final EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setColor(Color.cyan)
-                    .setTitle(commandContext.aliasesString())
-                    .addField("Usage", commandContext.toString(), false);
+                .setColor(Color.cyan)
+                .setTitle(commandContext.aliasesString())
+                .addField("Usage", commandContext.toString(), false);
 
             if (!commandContext.description().isBlank())
                 embedBuilder.setDescription(commandContext.description());
 
             List<PermissionDecorator<?>> permissionDecorators = Reflect.cast(
-                    this.decoratorService.decorators(commandContext.actionInvokable(), PermissionDecorator.class));
+                this.decoratorService.decorators(commandContext.actionInvokable(), PermissionDecorator.class));
 
             if (!permissionDecorators.isEmpty()) {
                 String permissions = this.permissions(permissionDecorators);
@@ -126,7 +128,7 @@ public class HalpbotHelpService implements HelpService
     public String permissions(List<PermissionDecorator<?>> permissionDecorators) {
         StringBuilder permissions = new StringBuilder();
         boolean notAllAndMerger = permissionDecorators.stream()
-                .anyMatch((decorator) -> decorator.require() != Require.ALL);
+            .anyMatch((decorator) -> decorator.require() != Require.ALL);
 
         for (int i = 0; i < permissionDecorators.size(); i++) {
             PermissionDecorator<?> decorator = permissionDecorators.get(i);
@@ -136,9 +138,9 @@ public class HalpbotHelpService implements HelpService
                 permissions.append("(");
 
             List<String> decoratorPermissions = decorator.userPermissions()
-                    .stream()
-                    .map((permission) -> HalpbotUtils.capitaliseWords(permission.getName().replace('_', ' ')))
-                    .collect(Collectors.toList());
+                .stream()
+                .map((permission) -> HalpbotUtils.capitaliseWords(permission.getName().replace('_', ' ')))
+                .collect(Collectors.toList());
             decoratorPermissions.addAll(decorator.customPermissions());
 
             permissions.append(String.join(delimeter, decoratorPermissions));

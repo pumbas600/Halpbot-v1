@@ -74,7 +74,7 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
 
         if (cooldownTimer.canSendEmbed(SECONDS_BETWEEN_COOLDOWN_EMBEDS))
             return Exceptional.of(new ExplainedException(this.strategy.get(guildId, userId)
-                    .remainingTimeEmbed(this.strategy.message())));
+                .remainingTimeEmbed(this.strategy.message())));
         if (event.rawEvent() instanceof MessageReceivedEvent messageReceivedEvent)
             // Acknowledge the request with a :stopwatch: reaction
             messageReceivedEvent.getMessage().addReaction("\u23F1").queue();

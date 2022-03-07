@@ -86,12 +86,12 @@ public class MultiKeyMap<K, V>
     }
 
     /**
-     * Removes the key from this map. If the removed key is the last key for a particular value, then the value will
-     * be removed too. NOTE: If the value is removed too, this becomes an expensive operation as all the indices will
-     * then need to be updated.
+     * Removes the key from this map. If the removed key is the last key for a particular value, then the value will be
+     * removed too. NOTE: If the value is removed too, this becomes an expensive operation as all the indices will then
+     * need to be updated.
      *
      * @param key
-     *      The key to remove
+     *     The key to remove
      *
      * @return The value that the key was mapped to, or null if the key didn't exist in the map
      */
@@ -114,6 +114,6 @@ public class MultiKeyMap<K, V>
         this.indexMappings.entrySet()
             .stream()
             .filter(pair -> pair.getValue() > index)
-            .forEach(pair -> this.indexMappings.put(pair.getKey(), pair.getValue() -1));
+            .forEach(pair -> this.indexMappings.put(pair.getKey(), pair.getValue() - 1));
     }
 }

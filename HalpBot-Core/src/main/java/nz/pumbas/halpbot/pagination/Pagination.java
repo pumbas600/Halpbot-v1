@@ -79,7 +79,7 @@ public interface Pagination<T>
      * Retrieves a collection of the items on the specified page
      *
      * @param page
-     *        The page to retrieve the items for
+     *     The page to retrieve the items for
      *
      * @return A collection of the items on the specified page
      */
@@ -88,7 +88,7 @@ public interface Pagination<T>
     /**
      * @return The id of the message corresponding to this pagination.
      * @throws IllegalAccessError
-     *         If you call this method before the embed has been sent
+     *     If you call this method before the embed has been sent
      */
     long getMessageId() throws IllegalAccessError;
 
@@ -96,7 +96,7 @@ public interface Pagination<T>
      * Displays this pagination
      *
      * @param event
-     *        The event that triggered the sending of this pagination
+     *     The event that triggered the sending of this pagination
      */
     default void display(HalpbotEvent event) {
         if (event instanceof InteractionEvent) {

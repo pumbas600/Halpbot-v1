@@ -50,18 +50,27 @@ import nz.pumbas.halpbot.events.HalpbotEvent;
 @Accessors(chain = false)
 public class HalpbotCommandInvocationContext implements CommandInvocationContext
 {
-    @Inject private ApplicationContext applicationContext;
+    @Inject
+    private ApplicationContext applicationContext;
     private final String content;
     private final @Nullable HalpbotEvent halpbotEvent;
 
-    @Setter private Set<TypeContext<?>> reflections = Collections.emptySet();
-    @Setter private int currentIndex;
-    @Setter private int currentAnnotationIndex;
-    @Setter private TypeContext<?> currentType = TypeContext.VOID;
-    @Setter private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
-    @Setter private Set<Annotation> annotations = Collections.emptySet();
-    @Setter private boolean canHaveContextLeft;
-    @Setter private List<Token> tokens = Collections.emptyList();
+    @Setter
+    private Set<TypeContext<?>> reflections = Collections.emptySet();
+    @Setter
+    private int currentIndex;
+    @Setter
+    private int currentAnnotationIndex;
+    @Setter
+    private TypeContext<?> currentType = TypeContext.VOID;
+    @Setter
+    private List<TypeContext<? extends Annotation>> sortedAnnotations = Collections.emptyList();
+    @Setter
+    private Set<Annotation> annotations = Collections.emptySet();
+    @Setter
+    private boolean canHaveContextLeft;
+    @Setter
+    private List<Token> tokens = Collections.emptyList();
 
     @Bound
     public HalpbotCommandInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent) {

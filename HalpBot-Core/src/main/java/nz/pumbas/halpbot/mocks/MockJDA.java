@@ -38,14 +38,15 @@ import org.jetbrains.annotations.Nullable;
 public class MockJDA extends JDAImpl
 {
     public static final MockJDA INSTANCE = new MockJDA();
-    @Nullable private SelfUser selfUser;
+    @Nullable
+    private SelfUser selfUser;
 
     public MockJDA() {
         super(
-                new AuthorizationConfig("TEST"),
-                SessionConfig.getDefault(),
-                ThreadingConfig.getDefault(),
-                MetaConfig.getDefault()
+            new AuthorizationConfig("TEST"),
+            SessionConfig.getDefault(),
+            ThreadingConfig.getDefault(),
+            MetaConfig.getDefault()
         );
     }
 

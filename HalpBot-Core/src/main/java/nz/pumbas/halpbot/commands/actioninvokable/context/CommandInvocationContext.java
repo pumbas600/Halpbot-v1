@@ -68,17 +68,16 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
     void tokens(List<Token> tokens);
 
     /**
-     * Updates the current type, sorted annotations, parameter annotations and resets the current annotation index
-     * using the {@link ParameterContext} and provided sorted annotations.
+     * Updates the current type, sorted annotations, parameter annotations and resets the current annotation index using
+     * the {@link ParameterContext} and provided sorted annotations.
      *
      * @param parameterContext
-     *      The {@link ParameterContext} to get the current type and annotations from
+     *     The {@link ParameterContext} to get the current type and annotations from
      * @param sortedAnnotations
-     *      The new sorted annotations to use
+     *     The new sorted annotations to use
      */
     default void update(ParameterContext<?> parameterContext,
-                        List<TypeContext<? extends Annotation>> sortedAnnotations)
-    {
+                        List<TypeContext<? extends Annotation>> sortedAnnotations) {
         this.currentType(parameterContext.genericType());
         this.annotations(parameterContext.annotations());
         this.sortedAnnotations(sortedAnnotations);
@@ -91,21 +90,21 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
     void incrementAnnotationIndex();
 
     /**
-     * Retrieves an {@link Exceptional} containing the first annotation with the specified type, or
-     * {@link Exceptional#empty()} if there are no matching annotations.
+     * Retrieves an {@link Exceptional} containing the first annotation with the specified type, or {@link
+     * Exceptional#empty()} if there are no matching annotations.
      *
      * @param annotationType
-     *      The {@link Class} of the annotation
+     *     The {@link Class} of the annotation
      * @param <T>
-     *      The type of the annotation
+     *     The type of the annotation
      *
      * @return An {@link Exceptional} containing the annotation, or nothing if no matching annotations were found
      */
     @SuppressWarnings("unchecked")
     default <T extends Annotation> Exceptional<T> annotation(Class<T> annotationType) {
         return Exceptional.of(this.annotations().stream()
-                .filter(annotation -> annotationType.isAssignableFrom(annotation.annotationType()))
-                .findFirst()
-                .map(annotation -> (T) annotation));
+            .filter(annotation -> annotationType.isAssignableFrom(annotation.annotationType()))
+            .findFirst()
+            .map(annotation -> (T) annotation));
     }
 }

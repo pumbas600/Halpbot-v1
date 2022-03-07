@@ -65,15 +65,15 @@ public interface ButtonAdapter extends HalpbotAdapter
         for (MethodContext<?, T> button : buttons) {
             if (!button.isPublic()) {
                 this.applicationContext().log()
-                        .warn("The button action %s must be public if its annotated with @ButtonCommand"
-                                .formatted(button.qualifiedName()));
+                    .warn("The button action %s must be public if its annotated with @ButtonCommand"
+                        .formatted(button.qualifiedName()));
                 continue;
             }
             this.registerButton(instance, button);
         }
 
         this.applicationContext().log().info("Registered %d buttons found in %s"
-                .formatted(buttons.size(), type.qualifiedName()));
+            .formatted(buttons.size(), type.qualifiedName()));
     }
 
     <T> void registerButton(T instance, MethodContext<?, T> buttonMethodContext);
@@ -107,8 +107,8 @@ public interface ButtonAdapter extends HalpbotAdapter
 
     default List<Button> register(List<Button> buttons, Object... parameters) {
         return buttons.stream()
-                .map((button) -> this.register(button, parameters))
-                .toList();
+            .map((button) -> this.register(button, parameters))
+            .toList();
     }
 
     default String generateDynamicId(String currentId) {
@@ -123,8 +123,8 @@ public interface ButtonAdapter extends HalpbotAdapter
 
         if (extractedId == null)
             return Exceptional.of(
-                    new IllegalArgumentException("The specified id did not match the dynamic id format of '%s'"
-                            .formatted(DYNAMIC_ID_FORMAT)));
+                new IllegalArgumentException("The specified id did not match the dynamic id format of '%s'"
+                    .formatted(DYNAMIC_ID_FORMAT)));
 
         return Exceptional.of(extractedId);
     }

@@ -59,8 +59,7 @@ public interface CommandInvokable extends ActionInvokable<CommandInvocationConte
 
                 if (currentToken instanceof ParsingToken parsingToken)
                     parsedTokens[parameterIndex++] = parsingToken.defaultValue();
-            }
-            else if (parameter.orNull() != HalpbotUtils.IGNORE_RESULT)
+            } else if (parameter.orNull() != HalpbotUtils.IGNORE_RESULT)
                 parsedTokens[parameterIndex++] = parameter.orNull();
         }
 
@@ -73,10 +72,9 @@ public interface CommandInvokable extends ActionInvokable<CommandInvocationConte
         if (token instanceof ParsingToken parsingToken) {
             invocationContext.update(parsingToken.parameterContext(), parsingToken.sortedAnnotations());
             return parsingToken.converter()
-                    .apply(invocationContext)
-                    .map(o -> o);
-        }
-        else if (token instanceof PlaceholderToken placeholderToken) {
+                .apply(invocationContext)
+                .map(o -> o);
+        } else if (token instanceof PlaceholderToken placeholderToken) {
             if (placeholderToken.matches(invocationContext)) {
                 return Exceptional.of(HalpbotUtils.IGNORE_RESULT);
             }

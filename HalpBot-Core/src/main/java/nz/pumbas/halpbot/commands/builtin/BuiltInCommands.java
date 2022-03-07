@@ -61,8 +61,10 @@ import nz.pumbas.halpbot.utilities.HalpbotUtils;
 @Service
 public class BuiltInCommands
 {
-    @Inject private PermissionService permissionService;
-    @Inject private HelpService helpService;
+    @Inject
+    private PermissionService permissionService;
+    @Inject
+    private HelpService helpService;
 
     @Command(description = "Displays the current information of this bot")
     public void info(MessageReceivedEvent event, JDA jda) {
@@ -72,22 +74,22 @@ public class BuiltInCommands
         jda.getRestPing().queue(ping ->
             event.getChannel().sendMessageEmbeds(
                     new EmbedBuilder()
-                            .setTitle("%s's Information".formatted(selfUser.getName()))
-                            .setColor(Color.ORANGE)
-                            .addField("JVM Version:", System.getProperty("java.version"), true)
-                            .addField("JDA Version:", JDAInfo.VERSION, true)
-                            .addBlankField(true)
-                            .addField("Gateway Ping:", jda.getGatewayPing() + "ms", true)
-                            .addField("Rest Ping:", ping + "ms", true)
-                            .addBlankField(true)
-                            .addField("Memory Usage:", ((runtime.totalMemory() - runtime.freeMemory()) >> 20) + "MB / " + (runtime.maxMemory() >> 20) + "MB", true)
-                            .addField("Thread Count:", String.valueOf(ManagementFactory.getThreadMXBean().getThreadCount()), true)
-                            .addBlankField(true)
-                            .build())
-                    .queue());
+                        .setTitle("%s's Information".formatted(selfUser.getName()))
+                        .setColor(Color.ORANGE)
+                        .addField("JVM Version:", System.getProperty("java.version"), true)
+                        .addField("JDA Version:", JDAInfo.VERSION, true)
+                        .addBlankField(true)
+                        .addField("Gateway Ping:", jda.getGatewayPing() + "ms", true)
+                        .addField("Rest Ping:", ping + "ms", true)
+                        .addBlankField(true)
+                        .addField("Memory Usage:", ((runtime.totalMemory() - runtime.freeMemory()) >> 20) + "MB / " + (runtime.maxMemory() >> 20) + "MB", true)
+                        .addField("Thread Count:", String.valueOf(ManagementFactory.getThreadMXBean().getThreadCount()), true)
+                        .addBlankField(true)
+                        .build())
+                .queue());
     }
 
-    @Command(alias = { "help", "halp" }, description = "Displays the help information for the specified command")
+    @Command(alias = {"help", "halp"}, description = "Displays the help information for the specified command")
     public Object halp(@Source Guild guild, CommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
         if (commandAlias.isEmpty()) {
             return this.helpService.build(commandAdapter);
@@ -116,7 +118,7 @@ public class BuiltInCommands
     public void forceShutdown(JDA jda) {
         jda.shutdownNow();
     }
-    
+
     @Command(description = "Retrieves the current status of the bot")
     public String status(JDA jda) {
         return String.format("The current status of the bot is: **%s**",
@@ -137,7 +139,7 @@ public class BuiltInCommands
             return "%s is not a bindable permission".formatted(permission);
 
         Exceptional<GuildPermission> oldGp =
-                this.permissionService.findById(new GuildPermissionId(guild.getIdLong(), permission));
+            this.permissionService.findById(new GuildPermissionId(guild.getIdLong(), permission));
         String result = "Binding the permission `%s` to `%s`".formatted(permission, newRole.getName());
 
         if (oldGp.present()) {
@@ -146,7 +148,7 @@ public class BuiltInCommands
                 if (oldRole.getIdLong() == newRole.getIdLong())
                     return "The permission `%s` is already bound to `%s`".formatted(permission, newRole.getName());
                 result = "Updating the binding of the permission `%s` from `%s` to `%s`"
-                        .formatted(permission, oldRole.getName(), newRole.getName());
+                    .formatted(permission, oldRole.getName(), newRole.getName());
             }
             this.permissionService.close();
         }
@@ -166,7 +168,7 @@ public class BuiltInCommands
         Map<String, Long> bindings = this.permissionService.roleBindings(guild);
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("%s's Permission Bindings".formatted(guild.getName()))
-                .setColor(Color.ORANGE);
+            .setColor(Color.ORANGE);
 
         for (String permission : bindings.keySet().stream().sorted().collect(Collectors.toList())) {
             Long roleId = bindings.get(permission);

@@ -74,14 +74,14 @@ public final class Reflect
      * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
      */
     private static final Map<TypeContext<?>, TypeContext<?>> PrimativeWrappers = Map.of(
-            TypeContext.of(byte.class), TypeContext.of(Byte.class),
-            TypeContext.of(short.class), TypeContext.of(Short.class),
-            TypeContext.of(int.class), TypeContext.of(Integer.class),
-            TypeContext.of(long.class), TypeContext.of(Long.class),
-            TypeContext.of(float.class), TypeContext.of(Float.class),
-            TypeContext.of(double.class), TypeContext.of(Double.class),
-            TypeContext.of(char.class), TypeContext.of(Character.class),
-            TypeContext.of(boolean.class), TypeContext.of(Boolean.class)
+        TypeContext.of(byte.class), TypeContext.of(Byte.class),
+        TypeContext.of(short.class), TypeContext.of(Short.class),
+        TypeContext.of(int.class), TypeContext.of(Integer.class),
+        TypeContext.of(long.class), TypeContext.of(Long.class),
+        TypeContext.of(float.class), TypeContext.of(Float.class),
+        TypeContext.of(double.class), TypeContext.of(Double.class),
+        TypeContext.of(char.class), TypeContext.of(Character.class),
+        TypeContext.of(boolean.class), TypeContext.of(Boolean.class)
     );
 
     private static final Map<Class<?>, Object> DefaultValues = Map.of(
@@ -91,7 +91,7 @@ public final class Reflect
         Long.class, 0L,
         Float.class, 0F,
         Double.class, 0D,
-        Character.class,'\u0000',
+        Character.class, '\u0000',
         Boolean.class, false
     );
 
@@ -147,7 +147,7 @@ public final class Reflect
      * Retrieves the default value for the specified {@link Class type}.
      *
      * @param type
-     *      The {@link Class} to get the default value for
+     *     The {@link Class} to get the default value for
      *
      * @return The types default value
      */
@@ -161,11 +161,11 @@ public final class Reflect
      * {@link Exceptional#empty()} will be returned instead.
      *
      * @param field
-     *      The field to check for the annotation
+     *     The field to check for the annotation
      * @param annotationType
-     *      The class of the annotation
+     *     The class of the annotation
      * @param <T>
-     *      The type of the annotation
+     *     The type of the annotation
      *
      * @return An exceptional containing the annotation if present
      */
@@ -191,8 +191,8 @@ public final class Reflect
     }
 
     /**
-     * Retrieves the generic type of a {@link Type}. If the type is an array, it will return the type of the elements
-     * in the array.
+     * Retrieves the generic type of a {@link Type}. If the type is an array, it will return the type of the elements in
+     * the array.
      *
      * @param type
      *     The {@link Type} to find the generic type of
@@ -258,8 +258,8 @@ public final class Reflect
 
     /**
      * Converts a {@link Collection} to an array. Unlike {@link HalpbotUtils#toArray(Class, Collection)}, this doesn't
-     * cast the result to the type the array, which can be useful in situations where the collection elements might
-     * be {@link Object} objects rather than the actual type of the array.
+     * cast the result to the type the array, which can be useful in situations where the collection elements might be
+     * {@link Object} objects rather than the actual type of the array.
      *
      * @param arrayElementClass
      *     The {@link Class type} of the elements in the array
@@ -322,8 +322,8 @@ public final class Reflect
     }
 
     /**
-     * Returns if the passed in {@link String value} is a valid value of the {@link Enum}.
-     * Note: This method is case-insensitive.
+     * Returns if the passed in {@link String value} is a valid value of the {@link Enum}. Note: This method is
+     * case-insensitive.
      *
      * @param enumType
      *     The {@link TypeContext} of the {@link Enum}
@@ -333,12 +333,11 @@ public final class Reflect
      * @return if the {@link String value} is a valid value of the {@link Enum}
      */
     public static Exceptional<Enum<?>> parseEnumValue(TypeContext<Enum<?>> enumType,
-                                                      String value)
-    {
+                                                      String value) {
         return Exceptional.of(
-            enumType.enumConstants().stream()
-                .filter(e -> e.name().equalsIgnoreCase(value))
-                .findFirst())
+                enumType.enumConstants().stream()
+                    .filter(e -> e.name().equalsIgnoreCase(value))
+                    .findFirst())
             .orElse(() -> {
                 throw new IllegalArgumentException(
                     "%s doesn't seem to be a valid value for the enum %s".formatted(value, enumType.name()));

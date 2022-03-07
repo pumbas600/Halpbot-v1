@@ -40,8 +40,8 @@ public @interface Action
     String[] permissions() default {};
 
     /**
-     * The duration that the action will be listened for before being removed. Setting it as -1 means it will never
-     * stop listening.
+     * The duration that the action will be listened for before being removed. Setting it as -1 means it will never stop
+     * listening.
      */
     long listeningDuration() default -1;
 
@@ -51,8 +51,8 @@ public @interface Action
     TimeUnit listeningDurationUnit() default TimeUnit.MINUTES;
 
     /**
-     * Sets that the action can only be used once. After that first use, the callback will then be
-     * automatically removed, along with all other callbacks on the same message. By default, this is false.
+     * Sets that the action can only be used once. After that first use, the callback will then be automatically
+     * removed, along with all other callbacks on the same message. By default, this is false.
      */
     boolean isSingleUse() default false;
 

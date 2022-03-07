@@ -46,10 +46,10 @@ public interface ConverterHandler extends ContextCarrier, Enableable
     @SuppressWarnings("unchecked")
     default void enable() {
         Set<TypeContext<? extends Annotation>> nonCommandAnnotations = this.applicationContext().environment()
-                .types(NonCommandAnnotation.class)
-                .stream()
-                .map(type -> (TypeContext<? extends Annotation>) type)
-                .collect(Collectors.toSet());
+            .types(NonCommandAnnotation.class)
+            .stream()
+            .map(type -> (TypeContext<? extends Annotation>) type)
+            .collect(Collectors.toSet());
 
         this.addNonCammandAnnotations(nonCommandAnnotations);
         this.applicationContext().log().info("Registered %d noncommand annotations".formatted(nonCommandAnnotations.size()));
@@ -59,19 +59,18 @@ public interface ConverterHandler extends ContextCarrier, Enableable
         return this.from(TypeContext.of(type), TypeContext.VOID);
     }
 
-    default <T, C extends InvocationContext> Converter<C, T> from(ParameterContext<T> parameterContext, List<TypeContext<? extends Annotation>> sortedAnnotations)
-    {
+    default <T, C extends InvocationContext> Converter<C, T> from(ParameterContext<T> parameterContext, List<TypeContext<? extends Annotation>> sortedAnnotations) {
         TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
         return this.from(parameterContext.type(), targetAnnotationType);
     }
-    
+
     default <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, CommandInvocationContext invocationContext) {
         int annotationIndex = invocationContext.currentAnnotationIndex();
         List<TypeContext<? extends Annotation>> sortedAnnotations = invocationContext.sortedAnnotations();
 
         TypeContext<?> targetAnnotationType = annotationIndex < sortedAnnotations.size()
-                ? sortedAnnotations.get(annotationIndex)
-                : TypeContext.VOID;
+            ? sortedAnnotations.get(annotationIndex)
+            : TypeContext.VOID;
 
         invocationContext.incrementAnnotationIndex();
         return this.from(typeContext, targetAnnotationType);
@@ -94,7 +93,7 @@ public interface ConverterHandler extends ContextCarrier, Enableable
 
             if (!fieldContext.isStatic() || !fieldContext.isPublic() || !fieldContext.isFinal())
                 this.applicationContext().log().warn("The converter %s in %s needs to be static, public and final"
-                        .formatted(fieldContext.name(), type.qualifiedName()));
+                    .formatted(fieldContext.name(), type.qualifiedName()));
 
             else {
                 fieldContext.get(null).present(this::registerConverter);

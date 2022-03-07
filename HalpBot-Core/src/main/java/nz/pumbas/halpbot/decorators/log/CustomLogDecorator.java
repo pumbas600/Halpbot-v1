@@ -47,7 +47,7 @@ public class CustomLogDecorator<C extends InvocationContext> extends LogDecorato
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
         if (halpbotEvent.rawEvent() instanceof MessageReceivedEvent messageEvent) {
             this.logLevel().log(invocationContext.applicationContext(),
-                    "[%s] %s".formatted(messageEvent.getClass().getSimpleName(), messageEvent.getMessage().getContentRaw()));
+                "[%s] %s".formatted(messageEvent.getClass().getSimpleName(), messageEvent.getMessage().getContentRaw()));
         }
 
         // Invoke the old decorator like normal

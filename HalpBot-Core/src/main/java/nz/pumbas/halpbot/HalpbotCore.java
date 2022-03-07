@@ -55,16 +55,22 @@ import nz.pumbas.halpbot.configurations.DisplayConfiguration;
 @Service
 public class HalpbotCore implements ContextCarrier
 {
-    @Getter private long ownerId = -1;
+    @Getter
+    private long ownerId = -1;
 
     @Getter
-    @Inject private ApplicationContext applicationContext;
-    @Inject private PermissionService permissionService;
+    @Inject
+    private ApplicationContext applicationContext;
+    @Inject
+    private PermissionService permissionService;
 
-    @Getter private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
-    @Getter private final ScheduledExecutorService threadpool;
+    @Getter
+    private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
+    @Getter
+    private final ScheduledExecutorService threadpool;
 
-    @Nullable private JDA jda;
+    @Nullable
+    private JDA jda;
 
     private final List<HalpbotAdapter> adapters = new ArrayList<>();
     private final List<EventListener> eventListeners = new ArrayList<>();
@@ -74,11 +80,11 @@ public class HalpbotCore implements ContextCarrier
     }
 
     /**
-     * Sets the id of the owner for this bot. This automatically assigns the user the
-     * {@link HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
+     * Sets the id of the owner for this bot. This automatically assigns the user the {@link
+     * HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
      *
      * @param ownerId
-     *      The {@link Long id} of the owner
+     *     The {@link Long id} of the owner
      *
      * @return Itself for chaining
      */
@@ -91,13 +97,12 @@ public class HalpbotCore implements ContextCarrier
         TypeContext<?> typeContext = TypeContext.lookup(config.displayConfiguration());
         if (!typeContext.childOf(DisplayConfiguration.class)) {
             this.applicationContext.log()
-                    .warn("The display configuration %s specified in bot-config.properties must implement DisplayConfiguration"
-                            .formatted(config.displayConfiguration()));
+                .warn("The display configuration %s specified in bot-config.properties must implement DisplayConfiguration"
+                    .formatted(config.displayConfiguration()));
             this.applicationContext.log().warn("Falling back to %s display configuration"
-                    .formatted(SimpleDisplayConfiguration.class.getCanonicalName()));
+                .formatted(SimpleDisplayConfiguration.class.getCanonicalName()));
             this.displayConfiguration = new SimpleDisplayConfiguration();
-        }
-        else {
+        } else {
             this.displayConfiguration = (DisplayConfiguration) this.applicationContext.get(typeContext);
         }
     }
@@ -141,7 +146,7 @@ public class HalpbotCore implements ContextCarrier
     public JDA jda() {
         if (this.jda == null)
             ExceptionHandler.unchecked(
-                    new ApplicationException("You are trying to access the JDA instance before it has been created"));
+                new ApplicationException("You are trying to access the JDA instance before it has been created"));
         return this.jda;
     }
 }

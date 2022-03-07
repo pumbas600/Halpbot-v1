@@ -113,13 +113,13 @@ public class InteractionEvent implements HalpbotEvent
     }
 
     /**
-     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less
-     * than 1 second, it will set the reply to ephemeral.
+     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less than
+     * 1 second, it will set the reply to ephemeral.
      *
      * @param message
-     *      The message to send
+     *     The message to send
      * @param seconds
-     *      The number of seconds to wait before deleting the response
+     *     The number of seconds to wait before deleting the response
      */
     @Override
     public void replyTemporarily(String message, long seconds) {
@@ -131,13 +131,13 @@ public class InteractionEvent implements HalpbotEvent
     }
 
     /**
-     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less
-     * than 1 second, it will set the reply to ephemeral.
+     * Replies temporarily by deleting the response after the specified number of seconds. If the duration is less than
+     * 1 second, it will set the reply to ephemeral.
      *
      * @param embed
-     *      The embed to send
+     *     The embed to send
      * @param seconds
-     *      The number of seconds to wait before deleting the response
+     *     The number of seconds to wait before deleting the response
      */
     @Override
     public void replyTemporarily(MessageEmbed embed, long seconds) {

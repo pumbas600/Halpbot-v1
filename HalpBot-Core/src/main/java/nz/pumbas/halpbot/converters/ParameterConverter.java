@@ -47,11 +47,11 @@ public interface ParameterConverter<T> extends Converter<CommandInvocationContex
         TypeContext<?> typeContext = invocationContext.currentType();
         Set<Annotation> annotations = invocationContext.annotations();
 
-        Exceptional<T> result = this.parseReflection(invocationContext).map((obj) -> (T)obj);
+        Exceptional<T> result = this.parseReflection(invocationContext).map((obj) -> (T) obj);
         if (result.caught() || result.orNull() == HalpbotUtils.IGNORE_RESULT) {
             invocationContext.currentIndex(currentIndex);
             result = this.mapper().apply(invocationContext)
-                    .caught(throwable -> invocationContext.currentIndex(currentIndex));
+                .caught(throwable -> invocationContext.currentIndex(currentIndex));
         }
 
         // Always restore the state of parser back to what it was when it was called.

@@ -53,8 +53,8 @@ public class GuildPermissionId implements Serializable
         if (obj == null)
             return false;
         return obj instanceof GuildPermissionId key
-                && key.guildId() == this.guildId
-                && key.permission().equals(this.permission);
+            && key.guildId() == this.guildId
+            && key.permission().equals(this.permission);
     }
 
     @Override

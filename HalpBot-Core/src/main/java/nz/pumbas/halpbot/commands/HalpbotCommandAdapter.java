@@ -92,17 +92,32 @@ public class HalpbotCommandAdapter implements CommandAdapter
     private final Map<TypeContext<?>, String> typeAliases = new ConcurrentHashMap<>();
     private final Map<Long, String> guildPrefixes = new ConcurrentHashMap<>();
 
-    @Setter @Getter private String defaultPrefix;
-    @Setter @Getter private UsageBuilder usageBuilder;
-    @Inject @Getter private ApplicationContext applicationContext;
-    @Inject @Getter private ParameterAnnotationService parameterAnnotationService;
-    @Inject @Getter private HalpbotCore halpbotCore;
+    @Setter
+    @Getter
+    private String defaultPrefix;
+    @Setter
+    @Getter
+    private UsageBuilder usageBuilder;
+    @Inject
+    @Getter
+    private ApplicationContext applicationContext;
+    @Inject
+    @Getter
+    private ParameterAnnotationService parameterAnnotationService;
+    @Inject
+    @Getter
+    private HalpbotCore halpbotCore;
 
-    @Inject private CommandContextFactory commandContextFactory;
-    @Inject private InvocationContextFactory invocationContextFactory;
-    @Inject private CustomConstructorContextFactory customConstructorContextFactory;
-    @Inject private TokenService tokenService;
-    @Inject private DecoratorService decoratorService;
+    @Inject
+    private CommandContextFactory commandContextFactory;
+    @Inject
+    private InvocationContextFactory invocationContextFactory;
+    @Inject
+    private CustomConstructorContextFactory customConstructorContextFactory;
+    @Inject
+    private TokenService tokenService;
+    @Inject
+    private DecoratorService decoratorService;
 
     //TODO: Setting the guild specific prefixes
     @Override
@@ -111,8 +126,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
         String message = event.getMessage().getContentRaw();
         String prefix = event.isFromType(ChannelType.TEXT)
-                ? this.prefix(event.getGuild().getIdLong())
-                : this.defaultPrefix;
+            ? this.prefix(event.getGuild().getIdLong())
+            : this.defaultPrefix;
 
         HalpbotEvent halpbotEvent = new MessageEvent(event);
 
@@ -120,8 +135,8 @@ public class HalpbotCommandAdapter implements CommandAdapter
             message = message.substring(prefix.length()).stripLeading();
 
             String[] splitText = message.split("\\s", 2);
-            String alias       = splitText[0];
-            String content     = (2 == splitText.length) ? splitText[1] : "";
+            String alias = splitText[0];
+            String content = (2 == splitText.length) ? splitText[1] : "";
 
             Exceptional<CommandContext> eCommandContext = this.commandContextSafely(alias);
             if (eCommandContext.present()) {
@@ -145,18 +160,16 @@ public class HalpbotCommandAdapter implements CommandAdapter
                     //this.applicationContext.log().error("Caught the error: ", result.error());
                     this.handleException(halpbotEvent, result.error());
                 }
-            }
-            else this.halpbotCore.displayConfiguration()
-                    .displayTemporary(halpbotEvent,
-                            "The command **" + alias + "** doesn't seem to exist, you may want to check your spelling",
-                            30);
+            } else this.halpbotCore.displayConfiguration()
+                .displayTemporary(halpbotEvent,
+                    "The command **" + alias + "** doesn't seem to exist, you may want to check your spelling",
+                    30);
         }
     }
-    
+
     private Exceptional<Object> handleCommandInvocation(HalpbotEvent event,
                                                         CommandContext commandContext,
-                                                        String content)
-    {
+                                                        String content) {
         CommandInvocationContext invocationContext = this.invocationContextFactory.command(content, event);
         return commandContext.invoke(invocationContext);
     }
@@ -170,23 +183,22 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Override
     public Collection<CommandContext> reflectiveCommandContext(TypeContext<?> targetType,
                                                                String methodName,
-                                                               Set<TypeContext<?>> reflections)
-    {
+                                                               Set<TypeContext<?>> reflections) {
         if (!this.reflectiveCommands.containsKey(targetType))
             return Collections.emptyList();
 
         return this.reflectiveCommands.get(targetType).get(methodName.toLowerCase(Locale.ROOT))
-                .stream()
-                .filter(commandContext -> commandContext.executable() instanceof MethodContext methodContext
-                        && reflections.contains(methodContext.parent()))
-                .toList();
+            .stream()
+            .filter(commandContext -> commandContext.executable() instanceof MethodContext methodContext
+                && reflections.contains(methodContext.parent()))
+            .toList();
     }
 
     @Override
     public <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext) {
         if (!methodContext.isPublic()) {
             this.applicationContext.log().warn("The command method %s must be public if its annotated with @Command"
-                    .formatted(methodContext.qualifiedName()));
+                .formatted(methodContext.qualifiedName()));
             return;
         }
 
@@ -196,16 +208,16 @@ public class HalpbotCommandAdapter implements CommandAdapter
         Command command = methodContext.annotation(Command.class).get();
         List<String> aliases = this.aliases(command, methodContext);
         CommandContext commandContext = this.createCommand(
-                aliases,
-                command,
-                methodContext,
-                new HalpbotCommandInvokable(instance, methodContext));
+            aliases,
+            command,
+            methodContext,
+            new HalpbotCommandInvokable(instance, methodContext));
 
         for (String alias : aliases) {
             if (this.commands.containsKey(alias)) {
                 this.applicationContext.log().warn(
-                        "The alias '%s' is already being used by the command '%s'. The command %s will not be registered under this alias"
-                                .formatted(alias, this.commands.get(alias).toString(), commandContext.toString()));
+                    "The alias '%s' is already being used by the command '%s'. The command %s will not be registered under this alias"
+                        .formatted(alias, this.commands.get(alias).toString(), commandContext.toString()));
                 continue;
             }
 
@@ -222,15 +234,15 @@ public class HalpbotCommandAdapter implements CommandAdapter
     public void registerReflectiveCommand(MethodContext<?, ?> methodContext) {
         if (!methodContext.isPublic() && !methodContext.has(AccessModifier.STATIC)) {
             this.applicationContext.log().warn(
-                    "The reflective method %s should be public and static if its annotated with @Reflective"
-                            .formatted(methodContext.qualifiedName()));
+                "The reflective method %s should be public and static if its annotated with @Reflective"
+                    .formatted(methodContext.qualifiedName()));
             return;
         }
 
         if (methodContext.returnType().isVoid()) {
             this.applicationContext.log().warn(
-                    "The reflective method %s cannot return void if it is annotated with @Reflective"
-                            .formatted(methodContext.qualifiedName()));
+                "The reflective method %s cannot return void if it is annotated with @Reflective"
+                    .formatted(methodContext.qualifiedName()));
             return;
         }
 
@@ -239,10 +251,10 @@ public class HalpbotCommandAdapter implements CommandAdapter
         Command command = methodContext.annotation(Command.class).get();
         List<String> aliases = this.aliases(command, methodContext);
         CommandContext commandContext = this.createCommand(
-                aliases,
-                command,
-                methodContext,
-                new HalpbotCommandInvokable(null, methodContext));
+            aliases,
+            command,
+            methodContext,
+            new HalpbotCommandInvokable(null, methodContext));
 
         TypeContext<?> returnType = methodContext.genericReturnType();
         if (!this.reflectiveCommands.containsKey(returnType))
@@ -285,8 +297,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     private <T> CommandContext createCommand(List<String> aliases,
                                              Command command,
                                              MethodContext<?, T> methodContext,
-                                             ActionInvokable<CommandInvocationContext> actionInvokable)
-    {
+                                             ActionInvokable<CommandInvocationContext> actionInvokable) {
         TypeContext<T> parent = methodContext.parent();
         Set<TypeContext<?>> reflections = this.reflections(command.reflections());
 
@@ -296,16 +307,16 @@ public class HalpbotCommandAdapter implements CommandAdapter
         }
 
         return this.commandContextFactory.create(
-                aliases,
-                command.description(),
-                this.usage(command.usage(), methodContext),
-                this.decoratorService.decorate(actionInvokable),
-                this.tokenService.tokens(methodContext),
-                reflections,
-                HalpbotUtils.asDuration(command.display()),
-                command.isEphemeral(),
-                command.preserveWhitespace(),
-                command.content()
+            aliases,
+            command.description(),
+            this.usage(command.usage(), methodContext),
+            this.decoratorService.decorate(actionInvokable),
+            this.tokenService.tokens(methodContext),
+            reflections,
+            HalpbotUtils.asDuration(command.display()),
+            command.isEphemeral(),
+            command.preserveWhitespace(),
+            command.content()
         );
     }
 
@@ -313,7 +324,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     public Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext) {
         if (!this.customConstructors.containsKey(typeContext))
             throw new MissingResourceException(
-                    "There is no custom constructor registered for the type %s".formatted(typeContext.qualifiedName()));
+                "There is no custom constructor registered for the type %s".formatted(typeContext.qualifiedName()));
         return this.customConstructors.get(typeContext);
 
     }
@@ -321,27 +332,27 @@ public class HalpbotCommandAdapter implements CommandAdapter
     @Override
     public void registerCustomConstructors(TypeContext<?> typeContext) {
         List<CustomConstructorContext> constructors = typeContext.constructors()
-                .stream()
-                .filter(constructor -> constructor.annotation(CustomConstructor.class).present())
-                .map(constructor -> {
-                    CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
-                    List<Token> tokens = this.tokenService.tokens(constructor);
+            .stream()
+            .filter(constructor -> constructor.annotation(CustomConstructor.class).present())
+            .map(constructor -> {
+                CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
+                List<Token> tokens = this.tokenService.tokens(constructor);
 
-                    return this.customConstructorContextFactory.create(
-                            this.usage(construction.usage(), constructor),
-                            this.decoratorService.decorate(new HalpbotCommandInvokable(null, constructor)),
-                            this.reflections(construction.reflections()),
-                            tokens);
-                })
-                .collect(Collectors.toList());
+                return this.customConstructorContextFactory.create(
+                    this.usage(construction.usage(), constructor),
+                    this.decoratorService.decorate(new HalpbotCommandInvokable(null, constructor)),
+                    this.reflections(construction.reflections()),
+                    tokens);
+            })
+            .collect(Collectors.toList());
 
         if (constructors.isEmpty())
             throw new IllegalCustomParameterException(
-                    "The custom class %s, must define a constructor annotated with @ParameterConstructor"
-                            .formatted(typeContext.qualifiedName()));
+                "The custom class %s, must define a constructor annotated with @ParameterConstructor"
+                    .formatted(typeContext.qualifiedName()));
 
         this.applicationContext.log().info("Registered %d custom constructors found in %s"
-                .formatted(constructors.size(), typeContext.qualifiedName()));
+            .formatted(constructors.size(), typeContext.qualifiedName()));
         this.customConstructors.putAll(typeContext, constructors);
     }
 

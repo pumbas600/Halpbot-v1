@@ -36,7 +36,7 @@ import nz.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationConte
  */
 @ComponentBinding(PlaceholderToken.class)
 public record HalpbotPlaceholderToken(boolean isOptional, String placeholder)
-        implements PlaceholderToken
+    implements PlaceholderToken
 {
     @Bound
     public HalpbotPlaceholderToken {}
@@ -45,7 +45,7 @@ public record HalpbotPlaceholderToken(boolean isOptional, String placeholder)
      * Returns if the passed in {@link CommandInvocationContext context} matches this {@link Token}.
      *
      * @param invocationContext
-     *         The {@link CommandInvocationContext context}
+     *     The {@link CommandInvocationContext context}
      *
      * @return If the {@link CommandInvocationContext context} matches this {@link Token}
      */
@@ -56,7 +56,7 @@ public record HalpbotPlaceholderToken(boolean isOptional, String placeholder)
 
     /**
      * @return A {@link String} representation of this token in the format {@code PlaceholderToken{isOptional=%s,
-     *         placeholder=%s}}
+     *     placeholder=%s}}
      */
     @Override
     public String toString() {

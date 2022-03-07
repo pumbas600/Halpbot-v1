@@ -51,7 +51,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * Determines if the member is the owner of this bot.
      *
      * @param member
-     *      The member to check
+     *     The member to check
      *
      * @return Whether the member is the owner of this bot
      */
@@ -76,9 +76,9 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * it logs a warning and ignores the method.
      *
      * @param typeContext
-     *         The type to scan for permission suppliers
+     *     The type to scan for permission suppliers
      * @param <T>
-     *         The type being scanned for permission suppliers
+     *     The type being scanned for permission suppliers
      */
     @SuppressWarnings("unchecked")
     default <T> void registerPermissionSuppliers(TypeContext<T> typeContext) {
@@ -92,16 +92,16 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
             List<TypeContext<?>> parameters = permissionSupplier.parameterTypes();
             if (parameters.size() != 2 || !parameters.get(0).is(Guild.class) || !parameters.get(1).is(Member.class)) {
                 this.applicationContext().log()
-                        .warn("The permission supplier %s must only have the parameters %s and %s"
-                                .formatted(permissionSupplier.qualifiedName(),
-                                        Guild.class.getCanonicalName(),
-                                        Member.class.getCanonicalName()));
+                    .warn("The permission supplier %s must only have the parameters %s and %s"
+                        .formatted(permissionSupplier.qualifiedName(),
+                            Guild.class.getCanonicalName(),
+                            Member.class.getCanonicalName()));
                 continue;
             }
 
             if (!permissionSupplier.returnType().is(boolean.class)) {
                 this.applicationContext().log().warn("The permission supplier %s must return a boolean"
-                        .formatted(permissionSupplier.qualifiedName()));
+                    .formatted(permissionSupplier.qualifiedName()));
                 continue;
             }
 
@@ -110,7 +110,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
             this.registerPermissionSupplier(instance, permission, (MethodContext<Boolean, T>) permissionSupplier);
         }
         this.applicationContext().log().info("Registered %d permission suppliers in %s"
-                .formatted(validPermissionSuppliers, typeContext.qualifiedName()));
+            .formatted(validPermissionSuppliers, typeContext.qualifiedName()));
     }
 
     /**
@@ -119,13 +119,13 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * conditions as they should've already been checked prior to calling this method.
      *
      * @param instance
-     *         The instance of which the method is within
+     *     The instance of which the method is within
      * @param permission
-     *         The permission being supplied
+     *     The permission being supplied
      * @param predicate
-     *         The permission supplier method
+     *     The permission supplier method
      * @param <T>
-     *         The type of the instance
+     *     The type of the instance
      *
      * @see PermissionService#registerPermissionSuppliers(TypeContext)
      */
@@ -136,7 +136,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * is disabled this does nothing.
      *
      * @param guildPermission
-     *         The guild permission to update or save
+     *     The guild permission to update or save
      *
      * @return The guild permission as a persistent entity
      */
@@ -147,7 +147,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * does nothing.
      *
      * @param guildPermission
-     *         The guild permission to update
+     *     The guild permission to update
      *
      * @return The guild permission as a persistent entity
      */
@@ -158,7 +158,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * nothing.
      *
      * @param guildPermission
-     *         The guild permission to save
+     *     The guild permission to save
      *
      * @return The guild permission as a persistent entity
      */
@@ -168,7 +168,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * Deletes the stored guild permission. If role binding is disabled then this does nothing.
      *
      * @param guildPermission
-     *         The guild permission to delete
+     *     The guild permission to delete
      */
     void delete(GuildPermission guildPermission);
 
@@ -178,7 +178,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * return an empty exceptional.
      *
      * @param id
-     *         The {@link GuildPermissionId} containing the guild and permission that you're looking for
+     *     The {@link GuildPermissionId} containing the guild and permission that you're looking for
      *
      * @return An {@link Exceptional} containing the guild permission it exists.
      */
@@ -193,7 +193,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * Returns true if the custom permission is registered.
      *
      * @param permission
-     *         The permission to check. This can be either a bindable permission or a supplied permission
+     *     The permission to check. This can be either a bindable permission or a supplied permission
      *
      * @return If the permission is registered
      */
@@ -204,9 +204,9 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * always return false.
      *
      * @param guildId
-     *         The id of the guild to see if the role is bound to a permission within
+     *     The id of the guild to see if the role is bound to a permission within
      * @param roleId
-     *         The id of the role to determine if there's a permission bound to
+     *     The id of the role to determine if there's a permission bound to
      *
      * @return If the role is bound to a permission within the guild
      */
@@ -217,9 +217,9 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * always return false.
      *
      * @param guildId
-     *         The id of the guild to see if the permission is bound within
+     *     The id of the guild to see if the permission is bound within
      * @param permission
-     *         The permission to check if bound within the guild
+     *     The permission to check if bound within the guild
      *
      * @return If the permission is bound to a role within the guild
      */
@@ -230,7 +230,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * permissions.
      *
      * @param permissions
-     *         The permissions to add to the service
+     *     The permissions to add to the service
      *
      * @see PermissionService#addPermissions(String...)
      */
@@ -241,7 +241,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * permissions.
      *
      * @param permissions
-     *         The permissions to add to the service
+     *     The permissions to add to the service
      *
      * @see PermissionService#addPermissions(Set)
      */
@@ -255,11 +255,11 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * If role binding has been disabled, it will instantly return false rather than check the members roles.
      *
      * @param guild
-     *         The guild to check the members permissions within
+     *     The guild to check the members permissions within
      * @param member
-     *         The member to check the permissions against
+     *     The member to check the permissions against
      * @param permissions
-     *         The permissions to check that the member has all of
+     *     The permissions to check that the member has all of
      *
      * @return Whether the member has all the specified permissions within the guild
      * @see PermissionService#hasPermissions(Guild, User, Set)
@@ -279,11 +279,11 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * If role binding has been disabled, it will instantly return false rather than check the members roles.
      *
      * @param guild
-     *         The guild to check the members permissions within
+     *     The guild to check the members permissions within
      * @param member
-     *         The member to check the permission against
+     *     The member to check the permission against
      * @param permission
-     *         The permission to check that the member has
+     *     The permission to check that the member has
      *
      * @return Whether the member has the permissions within the guild
      * @see PermissionService#hasPermissions(Guild, User, Set)
@@ -299,11 +299,11 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * cached.
      *
      * @param guild
-     *         The guild to check the users permissions within
+     *     The guild to check the users permissions within
      * @param user
-     *         The user to check the permissions against
+     *     The user to check the permissions against
      * @param permissions
-     *         The permissions to check that the user has all of
+     *     The permissions to check that the user has all of
      *
      * @return A {@link CompletableFuture} containing whether the user has ALL the permissions
      * @see PermissionService#hasPermission(Guild, Member, String)
@@ -311,23 +311,23 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      */
     default CompletableFuture<Boolean> hasPermissions(Guild guild, User user, Set<String> permissions) {
         return guild.retrieveMember(user).submit()
-                .thenApply((member) -> this.hasPermissions(guild, member, permissions));
+            .thenApply((member) -> this.hasPermissions(guild, member, permissions));
     }
 
     /**
      * Retrieves an {@link Exceptional} containing the bound role for the specified permission in the guild.
      *
      * @param guild
-     *         The guild to find the bound permission role in
+     *     The guild to find the bound permission role in
      * @param permission
-     *         The permission to find the bound role for
+     *     The permission to find the bound role for
      *
      * @return An {@link Exceptional} containing the bound role
      * @see PermissionService#findById(GuildPermissionId)
      */
     default Exceptional<Role> guildRole(Guild guild, String permission) {
         return this.findById(new GuildPermissionId(guild.getIdLong(), permission))
-                .map((gp) -> guild.getRoleById(gp.roleId()));
+            .map((gp) -> guild.getRoleById(gp.roleId()));
 
     }
 
@@ -337,9 +337,9 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * CompletableFuture} as the {@link Member} object may need to be fetched from Discord if it's not cached.
      *
      * @param guild
-     *         The guild to check the users permissions within
+     *     The guild to check the users permissions within
      * @param user
-     *         The user to get the permissions of
+     *     The user to get the permissions of
      *
      * @return A {@link CompletableFuture} of the users bindable permissions within the specified guild
      * @see PermissionService#permissions(long, Member)
@@ -347,7 +347,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
     default CompletableFuture<Set<String>> permissions(Guild guild, User user) {
         final long guildId = guild.getIdLong();
         return guild.retrieveMember(user).submit()
-                .thenApply(member -> this.permissions(guildId, member));
+            .thenApply(member -> this.permissions(guildId, member));
     }
 
     /**
@@ -356,9 +356,9 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * disabled then this will always return an empty set.
      *
      * @param guildId
-     *         The id of the guild to check the members permissions in
+     *     The id of the guild to check the members permissions in
      * @param member
-     *         The member to check for permissions
+     *     The member to check for permissions
      *
      * @return A {@link Set} of the members bindable permissions in the specified guild
      * @see PermissionService#permissions(Guild, User)
@@ -367,14 +367,14 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
 
     /**
      * @return An unmodifiable {@link Set} containing all the registered custom permissions. These can either be
-     *         permission suppliers or role bound permissions
+     *     permission suppliers or role bound permissions
      */
     Set<String> permissions();
 
     /**
      * @return A {@link Set} containing all the registered
-     *         <a href="https://github.com/pumbas600/Halpbot/wiki/Permissions#role-binding">role binding</a>
-     *         permissions
+     *     <a href="https://github.com/pumbas600/Halpbot/wiki/Permissions#role-binding">role binding</a>
+     *     permissions
      */
     Set<String> rolePermissions();
 
@@ -384,7 +384,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * return an empty map.
      *
      * @param guild
-     *         The guild to find the role bindings for
+     *     The guild to find the role bindings for
      *
      * @return A map containing the role ids bound to each permission in this guild
      */

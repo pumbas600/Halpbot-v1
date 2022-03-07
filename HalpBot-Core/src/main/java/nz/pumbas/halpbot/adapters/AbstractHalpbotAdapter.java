@@ -33,9 +33,9 @@ public abstract class AbstractHalpbotAdapter extends ListenerAdapter
 {
     protected HalpbotCore halpBotCore;
 
-    public void accept(JDA jda) { }
+    public void accept(JDA jda) {}
 
-    public void registerObjects(Object... objects) { }
+    public void registerObjects(Object... objects) {}
 
     public HalpbotCore getHalpbotCore() {
         return this.halpBotCore;

@@ -47,5 +47,5 @@ public record HalpbotTriggerContext(List<String> triggers,
     implements TriggerContext
 {
     @Bound
-    public HalpbotTriggerContext { }
+    public HalpbotTriggerContext {}
 }

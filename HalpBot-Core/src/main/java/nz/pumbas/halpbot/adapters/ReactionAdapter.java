@@ -72,10 +72,9 @@ public class ReactionAdapter extends AbstractHalpbotAdapter
             Map<String, ReactionActionCallback> messageCallbacks = new ConcurrentHashMap<>();
             messageCallbacks.put(actionCallback.getCodepointEmoji(), actionCallback);
             this.reactionCallbacks.put(messageId, messageCallbacks);
-        }
-        else this.reactionCallbacks
-                .get(messageId)
-                .put(actionCallback.getCodepointEmoji(), actionCallback);
+        } else this.reactionCallbacks
+            .get(messageId)
+            .put(actionCallback.getCodepointEmoji(), actionCallback);
 
         message.addReaction(actionCallback.getCodepointEmoji())
             .queue(success -> {

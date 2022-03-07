@@ -48,8 +48,10 @@ public class ErrorManager implements Enableable
     @Nullable
     private static ErrorManager instance;
 
-    @Inject private ApplicationContext applicationContext;
-    @Inject private HalpbotCore halpbotCore;
+    @Inject
+    private ApplicationContext applicationContext;
+    @Inject
+    private HalpbotCore halpbotCore;
 
     @Override
     public boolean canEnable() {
@@ -65,7 +67,7 @@ public class ErrorManager implements Enableable
     private static ErrorManager instance() {
         if (instance == null)
             throw new UnsupportedOperationException(
-                    "You're trying to access the ErrorManager instance before it's been created");
+                "You're trying to access the ErrorManager instance before it's been created");
         return instance;
     }
 
@@ -86,23 +88,21 @@ public class ErrorManager implements Enableable
 
         if (e instanceof UnimplementedFeatureException) {
             unimplementedFeatureEmbed(event, e.getMessage());
-        }
-        else if (e instanceof ErrorMessageException) {
+        } else if (e instanceof ErrorMessageException) {
             String warningMessage = ":warning: " + e.getMessage();
             //HalpbotUtils.logger().warn(warningMessage);
             event.getChannel().sendMessage(warningMessage).queue();
-        }
-        else {
+        } else {
             sendToLoggerUser(event, e, message);
         }
     }
 
     public static void unimplementedFeatureEmbed(GenericMessageEvent event, String message) {
         event.getChannel().sendMessageEmbeds(
-            new EmbedBuilder().setTitle(":confounded: Sorry...")
-                .setColor(Color.red)
-                .addField("This feature is not implemented yet", message, false)
-                .build())
+                new EmbedBuilder().setTitle(":confounded: Sorry...")
+                    .setColor(Color.red)
+                    .addField("This feature is not implemented yet", message, false)
+                    .build())
             .queue();
     }
 

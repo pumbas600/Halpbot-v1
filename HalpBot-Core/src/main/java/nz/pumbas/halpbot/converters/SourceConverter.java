@@ -53,7 +53,8 @@ public class SourceConverter<T> implements Converter<InvocationContext, T>
         return builder(TypeContext.of(type));
     }
 
-    public static class SourceConverterBuilder<T> extends ConverterBuilder<SourceConverter<T>, InvocationContext, T> {
+    public static class SourceConverterBuilder<T> extends ConverterBuilder<SourceConverter<T>, InvocationContext, T>
+    {
 
         protected SourceConverterBuilder(TypeContext<T> type) {
             super(type);
@@ -63,10 +64,10 @@ public class SourceConverter<T> implements Converter<InvocationContext, T>
         public SourceConverter<T> build() {
             this.assertConverterSet();
             return new SourceConverter<>(
-                    this.type,
-                    TypeContext.of(this.annotation),
-                    this.converter,
-                    this.optionType);
+                this.type,
+                TypeContext.of(this.annotation),
+                this.converter,
+                this.optionType);
         }
     }
 }
