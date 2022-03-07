@@ -34,7 +34,7 @@ import org.dockbox.hartshorn.core.services.ServicePreProcessor;
 import nz.pumbas.halpbot.HalpbotCore;
 
 @AutomaticActivation
-public class EventListenerServicePreProcessor implements ServicePreProcessor<UseDefault>
+public class EventListenerServicePreProcessor implements ServicePreProcessor<Bot>
 {
 
     @Override
@@ -49,7 +49,7 @@ public class EventListenerServicePreProcessor implements ServicePreProcessor<Use
     }
 
     @Override
-    public Class<UseDefault> activator() {
-        return UseDefault.class;
+    public Class<Bot> activator() {
+        return Bot.class;
     }
 }
