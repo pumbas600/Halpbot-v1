@@ -31,13 +31,11 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.dockbox.hartshorn.core.annotations.activate.Activator;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.buttons.UseButtons;
-import nz.pumbas.halpbot.commands.annotations.UseCommands;
+import nz.pumbas.halpbot.common.HalpbotBuilder;
 import nz.pumbas.halpbot.common.UseAll;
 
 @UseAll
