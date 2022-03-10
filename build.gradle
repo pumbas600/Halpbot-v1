@@ -8,7 +8,7 @@ plugins {
 def halpBotVerson = '2.0.8'
 File libs = file('libs')
 
-group 'nz.pumbas.halpbot'
+group 'net.pumbas.halpbot'
 version halpBotVerson
 
 repositories {
@@ -29,7 +29,7 @@ subprojects { Project subProject ->
     apply plugin: 'io.freefair.lombok'
     apply plugin: 'com.github.johnrengelman.shadow'
 
-    group 'nz.pumbas.halpbot'
+    group 'net.pumbas.halpbot'
     version halpBotVerson
 
     license {

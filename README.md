@@ -52,9 +52,9 @@ import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
-import nz.pumbas.halpbot.buttons.UseButtons;
-import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.common.Bot;
+import net.pumbas.halpbot.buttons.UseButtons;
+import net.pumbas.halpbot.commands.annotations.UseCommands;
+import net.pumbas.halpbot.common.Bot;
 ```
 
 </p>
@@ -103,9 +103,9 @@ import org.dockbox.hartshorn.core.exceptions.ApplicationException;
 
 import javax.inject.Inject;
 
-import nz.pumbas.halpbot.buttons.UseButtons;
-import nz.pumbas.halpbot.commands.annotations.UseCommands;
-import nz.pumbas.halpbot.common.Bot;
+import net.pumbas.halpbot.buttons.UseButtons;
+import net.pumbas.halpbot.commands.annotations.UseCommands;
+import net.pumbas.halpbot.common.Bot;
 ```
 
 </p>
@@ -181,8 +181,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Implicit;
+import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
 ```
 
 </p>
@@ -236,8 +236,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.utilities.Duration;
+import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.utilities.Duration;
 ```
 
 </p>
@@ -290,11 +290,11 @@ import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
 import java.awt.Color;
 
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.utilities.Require;
-import nz.pumbas.halpbot.triggers.Trigger;
-import nz.pumbas.halpbot.triggers.TriggerStrategy;
-import nz.pumbas.halpbot.utilities.Duration;
+import net.pumbas.halpbot.converters.annotations.parameter.Source;
+import net.pumbas.halpbot.utilities.Require;
+import net.pumbas.halpbot.triggers.Trigger;
+import net.pumbas.halpbot.triggers.TriggerStrategy;
+import net.pumbas.halpbot.utilities.Duration;
 ```
 
 </p>
@@ -351,10 +351,10 @@ import net.dv8tion.jda.api.interactions.components.Button;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
-import nz.pumbas.halpbot.buttons.ButtonAction;
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.utilities.Duration;
+import net.pumbas.halpbot.buttons.ButtonAction;
+import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.converters.annotations.parameter.Source;
+import net.pumbas.halpbot.utilities.Duration;
 ```
 
 </p>
@@ -411,10 +411,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import nz.pumbas.halpbot.actions.cooldowns.Cooldown;
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Source;
-import nz.pumbas.halpbot.utilities.Duration
+import net.pumbas.halpbot.actions.cooldowns.Cooldown;
+import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.converters.annotations.parameter.Source;
+import net.pumbas.halpbot.utilities.Duration
 ```
 
 </p>
@@ -458,10 +458,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
-import nz.pumbas.halpbot.commands.annotations.Command;
-import nz.pumbas.halpbot.converters.annotations.parameter.Remaining;
-import nz.pumbas.halpbot.converters.annotations.parameter.Unrequired;
-import nz.pumbas.halpbot.permissions.Permissions;
+import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
+import net.pumbas.halpbot.permissions.Permissions;
 ```
 
 </p>

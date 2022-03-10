@@ -2,7 +2,7 @@ plugins {
     id 'application'
 }
 
-mainClassName = 'nz.pumbas.halpbot.Main'
+mainClassName = 'net.pumbas.halpbot.Main'
 
 dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.36.0.2'
