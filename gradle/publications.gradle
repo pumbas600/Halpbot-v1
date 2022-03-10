@@ -1,0 +1,79 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                afterEvaluate {
+                    name = project.name
+                    description = project.description
+                    url = 'https://github.com/pumbas600'
+                }
+
+                organization {
+                    name = 'Halpbot'
+                    url = 'https://github.com/pumbas600'
+                }
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/pumbas600/Halpbot/blob/dev/LICENSE'
+                        distribution = 'repo'
+                    }
+                }
+
+                scm {
+                    url = 'https://github.com/pumbas600/Halpbot'
+                    connection = 'scm:git:git://https://github.com/pumbas600/Halpbot'
+                    developerConnection = 'scm:git:git://https://github.com/pumbas600/Halpbot'
+                }
+
+                developers {
+                    developer {
+                        id = 'pumbas600'
+                        name = 'Josh Jeffers'
+                        email = 'joshjeffers600@gmail.com'
+                    }
+                }
+
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/pumbas600/Halpbot/issues'
+                }
+            }
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionResult()
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+    repositories {
+        repositories {
+            maven {
+                name = 'ossrh'
+                url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+                credentials {
+                    username = project.findProperty('ossrh.username')
+                    password = project.findProperty('ossrh.password')
+                }
+            }
+        }
+    }
+}

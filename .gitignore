@@ -21,6 +21,7 @@ subject
 dependency-reduced-pom.xml
 
 Halpbot-Core-DB/
+publish.bat
 
 # Package Files #
 *.jar

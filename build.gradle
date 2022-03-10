@@ -5,11 +5,11 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
-def halpBotVerson = '2.0.8'
-File libs = file('libs')
+final File libs = file('libs')
+final String groupAndProject = "$groupId.$projectId"
 
-group 'net.pumbas.halpbot'
-version halpBotVerson
+group groupAndProject;
+version projectVersion
 
 repositories {
     mavenCentral()
@@ -29,8 +29,8 @@ subprojects { Project subProject ->
     apply plugin: 'io.freefair.lombok'
     apply plugin: 'com.github.johnrengelman.shadow'
 
-    group 'net.pumbas.halpbot'
-    version halpBotVerson
+    group groupAndProject
+    version projectVersion
 
     license {
         header = rootProject.file('LICENSE')
