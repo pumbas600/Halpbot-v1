@@ -4,7 +4,7 @@ Halpbot is a comprehensive [JDA](https://github.com/DV8FromTheWorld/JDA) utility
 
 # Why use Halpbot?
 
-Halpbot is a feature rich library with support for message commands, triggers, buttons and decorators. Halpbot makes **virtually all** default implementations overridable if you desire. It's approach to handling actions is unlike any current JDA framework; in fact it more closely resembles the approach seen in [Discord.py](https://github.com/Rapptz/discord.py). Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
+Halpbot is a feature rich library with support for message commands, triggers, buttons and decorators. Halpbot makes **virtually all** default implementations overridable if you desire. Some examples of what Halpbot can do are shown below. Do note that these examples only cover a small fraction of the functionality Halpbot has to offer, and I would highly recommend browsing the [wiki](https://github.com/pumbas600/Halpbot/wiki) to get a better appreciation for what's possible.
 
 As Halpbot utilises Hartshorn, it has full support for dependency injection like that seen in Spring. This allows you to `@Inject` services into other classes where required. For more information regarding this, refer to [Hartshorn's documentation](https://hartshorn.dockbox.org/core/cdi/).
 
@@ -12,8 +12,8 @@ As Halpbot utilises Hartshorn, it has full support for dependency injection like
 
 1. Getting Started
     - [1.1 Adding the Halpbot dependency](https://github.com/pumbas600/Halpbot#11-adding-the-halpbot-dependency)
-    - [1.2 Setting up your bot class](https://github.com/pumbas600/Halpbot#11-adding-the-halpbot-dependency)
-    - [1.3 Configuring your bot](https://github.com/pumbas600/Halpbot#13-configuring-your-bot)
+    - [1.2 Configuring your bot](https://github.com/pumbas600/Halpbot#12-configuring-your-bot)
+    - [1.3 Setting up your bot class](https://github.com/pumbas600/Halpbot#13-setting-up-your-bot-class)
 
 2. Halpbot Features  
     - [2.1 Commands](https://github.com/pumbas600/Halpbot#21-commands)
@@ -30,135 +30,110 @@ As Halpbot utilises Hartshorn, it has full support for dependency injection like
 
 There is currently not a version of Halpbot available on Maven as some work still needs to be done before I'm happy to make that available. If you desperately want to get started, you can manually build `Halpbot-Core` yourself. You'll also need to implement version 22.1 of [Hartshorn](https://github.com/GuusLieben/Hartshorn).
 
-### 1.2 Setting up your bot class
+### 1.2 Configuring your bot
 
-Halpbot is initialised from a `Bot` class. There are 4 things to note within this class:
+The next step is to create your `bot-config.properties` file. This must be located within the `resources` folder of your project. This file allows you to adjust certain aspects of how your bot works. For more information about what you can set there, refer to the [wiki](https://github.com/pumbas600/Halpbot/wiki/bot-config.properties). An example of what your config file should look like is shown below:
 
-1. Your bot class must be annotated with `@Service` and `@Activator`. You can also add additional activators to enable the various features Halpbot has to offer such as `@UseButtons`, `@UseCommands` and `@UseTriggers`.
-2. The class must implement the `Bot` interface and the required initialise method.
-3. Within the main method, you can call `HalpbotBuilder#build` with the bot class and the main args. This constructs your bot and automatically begins registering commands, button actions, etc.
-4. The initialise method allows you create the JDABuilder and configure it as you would like, before returning it to be used by Halpbot to register additional event listeners.
-
-<details>
-<summary>Show Imports</summary>
-<p>
-
-```java
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Activity.ActivityType;
-
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
-
-import net.pumbas.halpbot.buttons.UseButtons;
-import net.pumbas.halpbot.commands.annotations.UseCommands;
-import net.pumbas.halpbot.common.Bot;
+```properties
+defaultPrefix=!
+ownerId=YOUR_DISCORD_ID
+token=YOUR_DISCORD_BOT_TOKEN
 ```
 
-</p>
-</details>
-
-```java
-// 1. You must annotate your bot with @Service and @Activator. Additional activators can also be added to this class,
-// such as @UseButtons and @UseCommands. 
-@Service
-@Activator
-@UseButtons
-@UseCommands
-public class ExampleBot implements Bot // 2. Your bot class must implement the Bot interface
-{
-    public static void main(String[] args) throws ApplicationException {
-        HalpbotBuilder.build(ExampleBot.class, args); // 3. Starts the bot using this class
-    }
-
-    // 4. The initialise method allows you to configure the JDABuilder as you like
-    @Override
-    public JDABuilder initialise(String[] args) {
-        String token = args[0]; // The token is the first argument
-        return JDABuilder.createDefault(token)
-                .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!"));
-    }
-}
-```
-
-If you want, you can make your bot class extend `ListenerAdapter` to utilise JDA's built in events, for example:
-
-<details>
-<summary>Show Imports</summary>
-<p>
-
-```java
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Activity.ActivityType;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
-
-import javax.inject.Inject;
-
-import net.pumbas.halpbot.buttons.UseButtons;
-import net.pumbas.halpbot.commands.annotations.UseCommands;
-import net.pumbas.halpbot.common.Bot;
-```
-
-</p>
-</details>
-
-```java
-@Service
-@Activator
-@UseButtons
-@UseCommands
-public class ExampleBot extends ListenerAdapter implements Bot
-{
-    @Inject
-    private ApplicationContext applicationContext;
-    
-    public static void main(String[] args) throws ApplicationException {
-        HalpbotBuilder.build(ExampleBot.class, args);
-    }
-    
-    @Override
-    public void onReady(ReadyEvent event) {
-        // When the bot starts up, log the number of guilds it's in
-        this.applicationContext.log().info("Bot running in %d guilds".formatted(event.getGuildTotalCount()));
-    }
-
-    @Override
-    public JDABuilder initialise(String[] args) {
-        String token = args[0]; // The token is the first argument
-        return JDABuilder.createDefault(token)
-                .addEventListeners(this) // Add this class as an event listener
-                .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!"));
-    }
-}
-```
-
-> **NOTE:** As Halpbot utilities Hartshorn, it has complete support for dependency injection of components using `@Inject`.
-
-### 1.3 Configuring your bot
-
-The final step to finish setting up your bot is to create your `bot-config.properties` file. This must be located within the `resources` folder of your project. This file allows you to adjust certain aspects of how your bot works. For more informations about what you can set there, refer to the [wiki](https://github.com/pumbas600/Halpbot/wiki/bot-config.properties). There is only two required properties this file should contain: `ownerId` and `defaultPrefix`. An example of what it should look like is shown below.
+> **NOTE:** You don't have to put your token here if you want to manually retrieve it from a different file, but if you do **make sure to add this file to .gitignore**. 
 
 > **TIP:** Not sure how to find your discord id? Refer to the tutorial [here](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-).
 
-```properties
-ownerId=260930648330469387 
-defaultPrefix=$
+### 1.3 Setting up your bot class
+
+Halpbot is initialised from a `Bot` class. There are 3 things to note within this class:
+
+1. Your bot class must be annotated with `@Bot`. You can also add additional activators to enable the various features Halpbot has to offer such as `@UseButtons`, `@UseCommands` and `@UseTriggers`, `@UseAll` is a convenience activator that enables all these features.
+2. Within the main method, you can call `HalpbotBuilder#create` with the bot class and the main args to allow Halpbot to start creating your bot.
+3. You then use the `#build` method to construct an instance of `JDABuilder` and configure it as you like. the `token` passed to this function is automatically extracted from `bot-config.properties`, however, if you would prefer to use an alternative way of passing your token to your bot, you can remove this field from the config file and an empty string will be passed in its place during this function.
+
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Activity.ActivityType;
+import net.pumbas.halpbot.common.Bot;
+import net.pumbas.halpbot.common.HalpbotBuilder;
+import net.pumbas.halpbot.common.UseAll;
 ```
 
-> **NOTE:** `defaultPrefix` only has to be specified if you've enabled commands by adding `@UseCommands` to your bot class.
+</p>
+</details>
+
+```java
+// 1. You must annotate your bot with @Bot, activators like @UseCommands, can be added to enable specific features of Halpbot.
+// @UseAll enables all available actions. 
+@Bot
+@UseAll
+public class ExampleBot
+{
+
+   public static void main(String[] args) {
+      HalpbotBuilder.create(ExampleBot.class, args) // 2. Create your bot by passing the Bot class and command line args
+              .build(token -> JDABuilder.createDefault(token) // 3. Construct a JDA instance. The 'token' passed to this is taken from bot-config
+                      .setActivity(Activity.listening("how cool Halpbot is!")));
+   }
+}
+```
+
+If you want, you can make your bot class extend `ListenerAdapter` to utilise JDA's built-in events, for example:
+
+<details>
+<summary>Show Imports</summary>
+<p>
+
+```java
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.pumbas.halpbot.common.Bot;
+import net.pumbas.halpbot.common.HalpbotBuilder;
+import net.pumbas.halpbot.common.UseAll;
+
+import org.dockbox.hartshorn.core.context.ApplicationContext;
+
+import javax.inject.Inject;
+```
+
+</p>
+</details>
+
+```java
+@Bot
+@UseAll
+public class ExampleBot extends ListenerAdapter
+{
+   @Inject
+   private ApplicationContext applicationContext;
+
+   public static void main(String[] args) {
+      HalpbotBuilder.create(ExampleBot.class, args)
+              .build(token -> JDABuilder.createDefault(token)
+                      .setActivity(Activity.listening("how cool Halpbot is!")));
+   }
+
+   @Override
+   public void onReady(ReadyEvent event) {
+      // When the bot starts up, log the number of guilds it's in
+      this.applicationContext.log().info("Bot running in %d guilds".formatted(event.getGuildTotalCount()));
+   }
+}
+```
+
+> **NOTE:** As your bot class is annotated with `@Bot`, it is automatically registered as an event listener. Similarly, any classes that extend `EventListener` or `ListenerAdapter` which are annotated with `@Service` are also automatically registered.
 
 ## 2. Halpbot Features
 
-All of Halpbot's actions (`@Command`, `@Trigger`, `@ButtonAction`, etc) are automatically registered as long as the class they're contained within is annotated with `@Service`. This means you never have to go back to your bot class to manually register them!
+All of Halpbot's actions (`@Command`, `@Trigger`, `@ButtonAction`, etc.) are automatically registered as long as the class they're contained within is annotated with `@Service`. This means you never have to go back to your bot class to manually register them!
 
 ### 2.1 Commands
 
@@ -178,11 +153,10 @@ Finally, the returned result of the method is then automatically displayed to th
 
 ```java
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 ```
 
 </p>
@@ -213,7 +187,7 @@ public class ExampleCommands
 }
 ```
 
-> **NOTE:** Command aliases are **not** case sensitive.
+> **NOTE:** Command aliases are **not** case-sensitive.
 
 Alternatively, if you want to make the returned result of the command be deleted after a period of time, you can specify a display duration. After which, the message will automatically be deleted. In the below example, the `MessageEmbed` is deleted after 2 minutes.
 
@@ -227,6 +201,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.utilities.Duration;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
@@ -235,9 +211,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import net.pumbas.halpbot.commands.annotations.Command;
-import net.pumbas.halpbot.utilities.Duration;
 ```
 
 </p>
@@ -248,7 +221,7 @@ import net.pumbas.halpbot.utilities.Duration;
 public class ExampleCommands
 {
     // E.g: $whois @pumbas600
-    // By specifing the display duration, the returned result of this method is deleted after 2 minutes
+    // By specifying the display duration, the returned result of this method is deleted after 2 minutes
     @Command(description = "Display the information for a member", display = @Duration(value = 2, unit = ChronoUnit.MINUTES))
     public MessageEmbed whoIs(Member member) {
         User user = member.getUser();
@@ -285,16 +258,15 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-
-import java.awt.Color;
-
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.utilities.Require;
 import net.pumbas.halpbot.triggers.Trigger;
 import net.pumbas.halpbot.triggers.TriggerStrategy;
 import net.pumbas.halpbot.utilities.Duration;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+
+import java.awt.Color;
 ```
 
 </p>
@@ -310,7 +282,7 @@ public class ExampleTriggers
         return "Hey %s!".formatted(member.getEffectiveName());
     }
 
-    // Repond to any messages that contain 'my id' or 'discord id' anywhere with their id for 30 seconds
+    // Respond to any messages that contain 'my id' or 'discord id' anywhere with their id for 30 seconds
     @Trigger(value = { "my id", "discord id" }, strategy = TriggerStrategy.ANYWHERE, display = @Duration(30))
     public MessageEmbed usersId(@Source User user) {
         return new EmbedBuilder()
@@ -348,13 +320,12 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
-
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-
 import net.pumbas.halpbot.buttons.ButtonAction;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.utilities.Duration;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 ```
 
 </p>
@@ -403,6 +374,10 @@ Halpbot comes with three built-in [decorators](https://github.com/pumbas600/Halp
 ```java
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.pumbas.halpbot.actions.cooldowns.Cooldown;
+import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.converters.annotations.parameter.Source;
+import net.pumbas.halpbot.utilities.Duration;
 
 import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 
@@ -410,11 +385,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-
-import net.pumbas.halpbot.actions.cooldowns.Cooldown;
-import net.pumbas.halpbot.commands.annotations.Command;
-import net.pumbas.halpbot.converters.annotations.parameter.Source;
-import net.pumbas.halpbot.utilities.Duration
 ```
 
 </p>
@@ -455,13 +425,12 @@ public class ExampleCommands
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.permissions.Permissions;
+
+import org.dockbox.hartshorn.core.annotations.stereotype.Service;
 ```
 
 </p>
@@ -479,7 +448,7 @@ public class ExampleCommands
                        @Remaining @Unrequired("No reason specified") String reason)
     {
         if (!event.getGuild().getSelfMember().canInteract(member))
-            return "Cannot kick member: %s, they are higher in the heirarchy than I am".formatted(member.getEffectiveName());
+            return "Cannot kick member: %s, they are higher in the hierarchy than I am".formatted(member.getEffectiveName());
 
         event.getGuild().kick(member, reason)
                 .queue((success) -> event.getChannel()

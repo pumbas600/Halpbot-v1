@@ -26,27 +26,27 @@ package net.pumbas.halpbot;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.pumbas.halpbot.common.Bot;
 import net.pumbas.halpbot.common.HalpbotBuilder;
 import net.pumbas.halpbot.common.UseAll;
 
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
 import org.dockbox.hartshorn.core.context.ApplicationContext;
 
 import javax.inject.Inject;
 
+@Bot
 @UseAll
-@Activator
 public class ExampleBot extends ListenerAdapter
 {
-    @Inject private ApplicationContext applicationContext;
+    @Inject
+    private ApplicationContext applicationContext;
 
     public static void main(String[] args) {
         HalpbotBuilder.create(ExampleBot.class, args)
-                .build(token -> JDABuilder.createDefault(token)
-                        .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!")));
+            .build(token -> JDABuilder.createDefault(token)
+                .setActivity(Activity.listening("how cool Halpbot is!")));
     }
 
     @Override
