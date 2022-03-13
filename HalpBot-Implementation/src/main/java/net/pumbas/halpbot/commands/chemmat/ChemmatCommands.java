@@ -35,7 +35,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
-import net.pumbas.halpbot.actions.annotations.Action;
 import net.pumbas.halpbot.actions.cooldowns.Cooldown;
 import net.pumbas.halpbot.buttons.ButtonAction;
 import net.pumbas.halpbot.buttons.ButtonAdapter;
@@ -230,7 +229,6 @@ public class ChemmatCommands
 
     @Cooldown
     @ButtonAction(id = "halpbot:answerquestion")
-    @Action(listeningDuration = LISTENING_DURATION, displayDuration = 25)
     private MessageEmbed answeredQuestion(ButtonClickEvent event, boolean isCorrect) {
         User user = event.getUser();
         //Combines the user id with the button id to get a unique id describing the button this user clicked
@@ -267,7 +265,6 @@ public class ChemmatCommands
 
     @Cooldown
     @ButtonAction(id = "halpbot:revealanswers", isEphemeral = true)
-    @Action(listeningDuration = LISTENING_DURATION)
     private MessageEmbed revealAnswer(ButtonClickEvent event, Question question) {
         EmbedBuilder builder = new EmbedBuilder();
         String userId = event.getUser().getId();

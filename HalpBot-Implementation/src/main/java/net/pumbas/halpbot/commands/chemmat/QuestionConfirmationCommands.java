@@ -29,9 +29,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.pumbas.halpbot.actions.ActionCallback;
-import net.pumbas.halpbot.actions.ActionCallbackBuilder;
-import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import net.pumbas.halpbot.hibernate.models.Question;
@@ -60,10 +57,6 @@ public class QuestionConfirmationCommands
     private final QuestionService questionService;
     private final TopicService topicService;
     private long displayChangesChannel = -1;
-
-    private final ActionCallbackBuilder callbackBuilder = ActionCallback.builder()
-        .setSingleUse()
-        .setDeleteAfter(-1, TimeUnit.MINUTES);
 
     //@Autowired
     public QuestionConfirmationCommands(QuestionService questionService,

@@ -13,14 +13,9 @@ version projectVersion
 
 repositories {
     mavenCentral()
-
     maven {
-        url "https://m2.dv8tion.net/releases"
+        url 'https://m2.dv8tion.net/releases'
     }
-}
-
-test {
-    useJUnitPlatform()
 }
 
 subprojects { Project subProject ->
@@ -60,6 +55,8 @@ allprojects {
         }
 
         dependencies {
+            println('dependencies')
+
             implementation 'net.dv8tion:JDA:4.3.0_333'
             implementation 'org.checkerframework:checker-qual:3.18.1'
 

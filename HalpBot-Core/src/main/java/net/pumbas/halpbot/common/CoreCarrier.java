@@ -29,8 +29,9 @@ import net.pumbas.halpbot.HalpbotCore;
 public interface CoreCarrier
 {
     /**
+     * This dependency can be injected where necessary
+     *
      * @return The halpbot core
-     * @implNote This dependency can be injected where necessary
      */
     HalpbotCore halpbotCore();
 }
