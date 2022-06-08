@@ -28,30 +28,21 @@ package net.pumbas.halpbot.configurations;
 import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.data.ConfigurationProviders;
 import org.dockbox.hartshorn.data.annotations.Configuration;
+import org.dockbox.hartshorn.data.annotations.ConfigurationObject;
 import org.dockbox.hartshorn.data.annotations.Value;
 
 import lombok.Getter;
 
 @Getter
 @Service
+@ConfigurationObject
 @Configuration("classpath:bot-config.properties")
 public class BotConfiguration
 {
-    @Value("ownerId")
     private long ownerId = -1;
-
-    @Value("token")
     private String token = "";
-
-    @Value("defaultPrefix")
     private String defaultPrefix = "!";
-
-    @Value("displayConfiguration")
     private String displayConfiguration = "SimpleDisplayConfiguration";
-
-    @Value("usageBuilder")
     private String usageBuilder = "TypeUsageBuilder";
-
-    @Value("useRoleBinding")
     private boolean useRoleBinding;
 }

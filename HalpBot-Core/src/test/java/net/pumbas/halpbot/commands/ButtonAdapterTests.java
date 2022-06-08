@@ -41,6 +41,11 @@ public class ButtonAdapterTests
     private ButtonAdapter buttonAdapter;
 
     @Test
+    public void test() {
+        Assertions.assertNotNull(this.buttonAdapter);
+    }
+
+    @Test
     public void isDynamicButtonTest() {
         String id = "halpbot:test:example";
         String dynamicId = this.buttonAdapter.generateDynamicId(id);
