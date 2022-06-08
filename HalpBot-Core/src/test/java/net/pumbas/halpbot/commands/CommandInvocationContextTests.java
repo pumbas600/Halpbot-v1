@@ -27,8 +27,8 @@ package net.pumbas.halpbot.commands;
 import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.application.Activator;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
@@ -44,9 +44,9 @@ public class CommandInvocationContextTests
     public void getNextSurroundedTest(InvocationContextFactory invocationContextFactory) {
         CommandInvocationContext invocationContext = invocationContextFactory.command("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
 
-        Exceptional<String> oArray1 = invocationContext.nextSurrounded("[", "]");
-        Exceptional<String> oArray2 = invocationContext.nextSurrounded("[", "]");
-        Exceptional<String> oArray3 = invocationContext.nextSurrounded("[", "]");
+        Result<String> oArray1 = invocationContext.nextSurrounded("[", "]");
+        Result<String> oArray2 = invocationContext.nextSurrounded("[", "]");
+        Result<String> oArray3 = invocationContext.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertTrue(oArray2.present());
@@ -61,9 +61,9 @@ public class CommandInvocationContextTests
         CommandInvocationContext invocationContext1 = invocationContextFactory.command("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
         CommandInvocationContext invocationContext2 = invocationContextFactory.command("#Block[1 2 3]]");
 
-        Exceptional<String> oArray1 = invocationContext1.nextSurrounded("[", "]");
-        Exceptional<String> oArray2 = invocationContext1.nextSurrounded("[", "]");
-        Exceptional<String> oArray3 = invocationContext2.nextSurrounded("[", "]");
+        Result<String> oArray1 = invocationContext1.nextSurrounded("[", "]");
+        Result<String> oArray2 = invocationContext1.nextSurrounded("[", "]");
+        Result<String> oArray3 = invocationContext2.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertFalse(oArray2.present());
@@ -76,8 +76,8 @@ public class CommandInvocationContextTests
     public void getNextSurroundedStepPastTest(InvocationContextFactory invocationContextFactory) {
         CommandInvocationContext invocationContext = invocationContextFactory.command("#Block[1 2 3]");
 
-        Exceptional<String> oType = invocationContext.nextSurrounded("#", "[", false);
-        Exceptional<String> oParameters = invocationContext.nextSurrounded("[", "]");
+        Result<String> oType = invocationContext.nextSurrounded("#", "[", false);
+        Result<String> oParameters = invocationContext.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oType.present());
         Assertions.assertTrue(oParameters.present());

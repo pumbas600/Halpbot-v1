@@ -29,7 +29,7 @@ import net.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import net.pumbas.halpbot.hibernate.models.Question;
 import net.pumbas.halpbot.hibernate.repositories.QuestionRepository;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

@@ -27,8 +27,8 @@ package net.pumbas.halpbot.converters;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
@@ -42,11 +42,11 @@ public interface Converter<C extends InvocationContext, T>
     /**
      * @return The {@link Function mapper} for this {@link ParameterConverter}
      */
-    Function<C, Exceptional<T>> mapper();
+    Function<C, Result<T>> mapper();
 
     OptionType optionType();
 
-    default Exceptional<T> apply(C invocationContext) {
+    default Result<T> apply(C invocationContext) {
         return this.mapper().apply(invocationContext);
     }
 }

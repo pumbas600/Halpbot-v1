@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.commands;
 
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 public final class TestUtil
 {

@@ -29,18 +29,18 @@ import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationCont
 import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.Collection;
 
 public interface ReflectionConverter
 {
-    default Exceptional<Object> parseReflection(CommandInvocationContext invocationContext) {
+    default Result<Object> parseReflection(CommandInvocationContext invocationContext) {
         if (!invocationContext.reflections().isEmpty()) {
             TypeContext<?> targetType = invocationContext.currentType();
 
-            Exceptional<String> methodName = invocationContext.next("(");
+            Result<String> methodName = invocationContext.next("(");
             if (methodName.present()) {
                 CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
                 Collection<CommandContext> commandContexts = commandAdapter.reflectiveCommandContext(
@@ -49,7 +49,7 @@ public interface ReflectionConverter
                     int currentIndex = invocationContext.currentIndex();
                     invocationContext.canHaveContextLeft(true);
                     for (CommandContext commandContext : commandContexts) {
-                        Exceptional<Object> result = commandContext.invoke(invocationContext);
+                        Result<Object> result = commandContext.invoke(invocationContext);
                         if (!result.caught() && invocationContext.isNext(')'))
                             return result;
                         else invocationContext.currentIndex(currentIndex);
@@ -57,6 +57,6 @@ public interface ReflectionConverter
                 }
             }
         }
-        return Exceptional.of(HalpbotUtils.IGNORE_RESULT);
+        return Result.of(HalpbotUtils.IGNORE_RESULT);
     }
 }

@@ -24,7 +24,7 @@
 
 package net.pumbas.halpbot.utilities;
 
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

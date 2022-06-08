@@ -24,11 +24,11 @@
 
 package net.pumbas.halpbot.actions.methods;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.ConstructorContext;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.ConstructorContext;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 public interface Invokable
@@ -39,7 +39,7 @@ public interface Invokable
     ExecutableElementContext<?, ?> executable();
 
     @SuppressWarnings("unchecked")
-    default <R> Exceptional<R> invoke(Object... parameters) {
+    default <R> Result<R> invoke(Object... parameters) {
         final ExecutableElementContext<?, ?> executable = this.executable();
         if (executable instanceof MethodContext methodContext) {
             return methodContext.invoke(this.instance(), parameters);
@@ -49,7 +49,7 @@ public interface Invokable
     }
 
     @SuppressWarnings("unchecked")
-    default <R> Exceptional<R> invoke(ApplicationContext applicationContext) {
+    default <R> Result<R> invoke(ApplicationContext applicationContext) {
         final ExecutableElementContext<?, ?> executable = this.executable();
         if (executable instanceof MethodContext methodContext) {
             return methodContext.invoke(applicationContext, this.instance());

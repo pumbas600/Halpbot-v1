@@ -32,9 +32,9 @@ import net.pumbas.halpbot.common.Bot;
 import net.pumbas.halpbot.common.HalpbotBuilder;
 import net.pumbas.halpbot.common.UseAll;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Bot
 @UseAll

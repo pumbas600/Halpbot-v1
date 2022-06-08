@@ -27,14 +27,16 @@ package net.pumbas.halpbot.common;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.pumbas.halpbot.HalpbotCore;
 
-import org.dockbox.hartshorn.core.Key;
-import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.services.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-@AutomaticActivation
-public class EventListenerServicePreProcessor implements ServicePreProcessor<Bot>
+public class EventListenerServicePreProcessor implements ServicePreProcessor
 {
+    @Override
+    public Integer order() {
+        return 1;
+    }
 
     @Override
     public boolean preconditions(ApplicationContext context, Key<?> key) {
@@ -45,10 +47,5 @@ public class EventListenerServicePreProcessor implements ServicePreProcessor<Bot
     @SuppressWarnings("unchecked")
     public <T> void process(ApplicationContext context, Key<T> key) {
         context.get(HalpbotCore.class).registerEventListener(context.get((Key<? extends EventListener>) key));
-    }
-
-    @Override
-    public Class<Bot> activator() {
-        return Bot.class;
     }
 }

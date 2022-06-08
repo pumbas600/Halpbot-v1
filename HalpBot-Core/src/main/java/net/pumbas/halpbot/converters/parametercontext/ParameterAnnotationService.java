@@ -28,10 +28,10 @@ import net.pumbas.halpbot.converters.annotations.ParameterAnnotation;
 import net.pumbas.halpbot.converters.types.ArrayTypeContext;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -61,7 +61,7 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
     }
 
     default void register(TypeContext<? extends Annotation> annotationType) {
-        Exceptional<ParameterAnnotation> eParameterAnnotation = annotationType.annotation(ParameterAnnotation.class);
+        Result<ParameterAnnotation> eParameterAnnotation = annotationType.annotation(ParameterAnnotation.class);
 
         // It's possible to specify that an annotation comes after another one which doesn't have the annotation
         if (eParameterAnnotation.absent()) {

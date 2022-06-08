@@ -34,16 +34,16 @@ import net.pumbas.halpbot.common.ExplainedException;
 import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import lombok.Getter;
 
@@ -78,18 +78,18 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     }
 
     @Override
-    public <R> Exceptional<R> invoke(C invocationContext) {
+    public <R> Result<R> invoke(C invocationContext) {
         HalpbotEvent event = invocationContext.halpbotEvent();
         Guild guild = event.guild();
         Member member = event.member();
 
         if (guild == null || member == null)
-            return Exceptional.of(new ExplainedException("This cannot be used in a private message!"));
+            return Result.of(new ExplainedException("This cannot be used in a private message!"));
         if (!this.botHasPermissions(guild))
-            return Exceptional.of(new ExplainedException("The bot doesn't have sufficient permissions to execute this action"));
+            return Result.of(new ExplainedException("The bot doesn't have sufficient permissions to execute this action"));
         if (this.hasPermissions(guild, member))
             return super.invoke(invocationContext);
-        return Exceptional.of(new ExplainedException("You do not have permission to use this command"));
+        return Result.of(new ExplainedException("You do not have permission to use this command"));
     }
 
     protected boolean botHasPermissions(Guild guild) {

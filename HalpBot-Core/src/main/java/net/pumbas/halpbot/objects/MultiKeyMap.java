@@ -24,7 +24,7 @@
 
 package net.pumbas.halpbot.objects;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -77,12 +77,12 @@ public class MultiKeyMap<K, V>
         return this.getSafely(key).orNull();
     }
 
-    public Exceptional<V> getSafely(K key) {
+    public Result<V> getSafely(K key) {
         if (this.indexMappings.containsKey(key)) {
             int index = this.indexMappings.get(key);
-            return Exceptional.of(this.values.get(index));
+            return Result.of(this.values.get(index));
         }
-        return Exceptional.of(new NoSuchElementException("The key " + key + " doesn't seem to exist in this map"));
+        return Result.of(new NoSuchElementException("The key " + key + " doesn't seem to exist in this map"));
     }
 
     /**

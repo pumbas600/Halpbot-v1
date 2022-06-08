@@ -30,14 +30,11 @@ import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.utilities.ErrorManager;
 
-import org.dockbox.hartshorn.core.Modifiers;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
-import java.lang.management.ManagementFactory;
 import java.util.function.Function;
 
 import javax.security.auth.login.LoginException;
@@ -54,20 +51,11 @@ public class HalpbotBuilder
         this.applicationContext = applicationContext;
     }
 
-    public static HalpbotBuilder create(Class<?> main,
-                                        String[] args,
-                                        Modifiers... modifiers) {
-        // Taken from Hartshorn just to enable the usage of HalpbotApplicationFactory
-        for (final Modifiers modifier : modifiers)
-            if (modifier == Modifiers.DEBUG) setDebugActive();
-
-        MDC.put("process_id", ManagementFactory.getRuntimeMXBean().getName());
-
+    public static HalpbotBuilder create(Class<?> main, String[] args) {
         ApplicationContext applicationContext = new HalpbotApplicationFactory()
             .loadDefaults()
             .activator(TypeContext.of(main))
             .arguments(args)
-            .modifiers(modifiers)
             .create();
         applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
 

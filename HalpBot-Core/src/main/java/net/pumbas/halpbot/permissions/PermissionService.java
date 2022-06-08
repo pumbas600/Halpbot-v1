@@ -24,21 +24,19 @@
 
 package net.pumbas.halpbot.permissions;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.common.CoreCarrier;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.permissions.repositories.GuildPermission;
 import net.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +64,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
 
     /**
      * Any initialisation that needs to be done after all the permission suppliers have been registered should be done
-     * here. This is automatically called in {@link HalpbotCore#onCreation(JDA)}.
+     * here.
      */
     default void initialise() {}
 
@@ -174,15 +172,15 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
 
     /**
      * Finds a stored guild permission by the {@link GuildPermissionId id}. If there is no role bound to the particular
-     * permission in that guild then an empty exceptional will be returned. If role binding is disabled it will always
-     * return an empty exceptional.
+     * permission in that guild then an empty Result will be returned. If role binding is disabled it will always
+     * return an empty Result.
      *
      * @param id
      *     The {@link GuildPermissionId} containing the guild and permission that you're looking for
      *
-     * @return An {@link Exceptional} containing the guild permission it exists.
+     * @return An {@link Result} containing the guild permission it exists.
      */
-    Exceptional<GuildPermission> findById(GuildPermissionId id);
+    Result<GuildPermission> findById(GuildPermissionId id);
 
     /**
      * Closes any persistent entity applications. If role binding has been disabled this does nothing.
@@ -315,17 +313,17 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
     }
 
     /**
-     * Retrieves an {@link Exceptional} containing the bound role for the specified permission in the guild.
+     * Retrieves an {@link Result} containing the bound role for the specified permission in the guild.
      *
      * @param guild
      *     The guild to find the bound permission role in
      * @param permission
      *     The permission to find the bound role for
      *
-     * @return An {@link Exceptional} containing the bound role
+     * @return An {@link Result} containing the bound role
      * @see PermissionService#findById(GuildPermissionId)
      */
-    default Exceptional<Role> guildRole(Guild guild, String permission) {
+    default Result<Role> guildRole(Guild guild, String permission) {
         return this.findById(new GuildPermissionId(guild.getIdLong(), permission))
             .map((gp) -> guild.getRoleById(gp.roleId()));
 

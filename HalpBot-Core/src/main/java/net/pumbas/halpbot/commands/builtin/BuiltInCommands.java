@@ -44,8 +44,8 @@ import net.pumbas.halpbot.permissions.repositories.GuildPermission;
 import net.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -54,7 +54,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Service
 public class BuiltInCommands
@@ -98,7 +98,7 @@ public class BuiltInCommands
         if (alias.startsWith(prefix))
             alias = alias.substring(prefix.length()).stripLeading();
 
-        Exceptional<CommandContext> commandContext = commandAdapter.commandContextSafely(alias);
+        Result<CommandContext> commandContext = commandAdapter.commandContextSafely(alias);
         if (commandContext.absent())
             return "That doesn't seem to be a registered command :sob:";
 
@@ -136,7 +136,7 @@ public class BuiltInCommands
         if (!this.permissionService.isRegistered(permission))
             return "%s is not a bindable permission".formatted(permission);
 
-        Exceptional<GuildPermission> oldGp =
+        Result<GuildPermission> oldGp =
             this.permissionService.findById(new GuildPermissionId(guild.getIdLong(), permission));
         String result = "Binding the permission `%s` to `%s`".formatted(permission, newRole.getName());
 

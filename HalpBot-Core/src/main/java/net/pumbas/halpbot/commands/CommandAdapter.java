@@ -37,12 +37,12 @@ import net.pumbas.halpbot.commands.usage.UsageBuilder;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.ApplicationException;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -131,8 +131,8 @@ public interface CommandAdapter extends HalpbotAdapter
 
     void registerReflectiveCommand(MethodContext<?, ?> methodContext);
 
-    default Exceptional<CommandContext> commandContextSafely(String alias) {
-        return Exceptional.of(this.commandContext(alias));
+    default Result<CommandContext> commandContextSafely(String alias) {
+        return Result.of(this.commandContext(alias));
     }
 
     @Nullable

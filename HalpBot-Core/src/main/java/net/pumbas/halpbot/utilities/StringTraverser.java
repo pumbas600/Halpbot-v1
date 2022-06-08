@@ -27,7 +27,7 @@ package net.pumbas.halpbot.utilities;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.commands.exceptions.IllegalFormatException;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,13 +53,13 @@ public interface StringTraverser
     }
 
     /**
-     * @return An {@link Exceptional} containing the next {@link String word} from the current index or {@link
-     *     Exceptional#empty()} if there are no more words
+     * @return An {@link Result} containing the next {@link String word} from the current index or {@link
+     *     Result#empty()} if there are no more words
      * @see CommandInvocationContext#next()
      */
-    default Exceptional<String> nextSafe() {
+    default Result<String> nextSafe() {
         if (!this.hasNext())
-            return Exceptional.of(new IllegalFormatException("No string next in " + this.content()));
+            return Result.of(new IllegalFormatException("No string next in " + this.content()));
 
         int endIndex = this.content().indexOf(" ", this.currentIndex());
 
@@ -69,7 +69,7 @@ public interface StringTraverser
         this.currentIndex(endIndex + 1);
         this.skipPastWhitespaces();
 
-        return Exceptional.of(match);
+        return Result.of(match);
     }
 
     /**
@@ -82,39 +82,39 @@ public interface StringTraverser
 
     /**
      * Gets the next string up until (exclusive) the specified string. If the ending string is not contained in the
-     * remainder of the content, an {@link Exceptional#empty()} is returned. This will automatically move the current
+     * remainder of the content, an {@link Result#empty()} is returned. This will automatically move the current
      * index past the until string and any whitespace.
      *
      * @param until
      *     The {@link String} to stop at
      *
-     * @return an {@link Exceptional} containing the next string up until the specified string
+     * @return an {@link Result} containing the next string up until the specified string
      * @see CommandInvocationContext#next(String, boolean)
      * @see CommandInvocationContext#next(Pattern)
      */
-    default Exceptional<String> next(String until) {
+    default Result<String> next(String until) {
         return this.next(until, true);
     }
 
     /**
      * Gets the next string up until (exclusive) the specified string. If the ending string is not contained in the
-     * remainder of the content, an {@link Exceptional#empty()} is returned.
+     * remainder of the content, an {@link Result#empty()} is returned.
      *
      * @param until
      *     The {@link String} to stop at
      * @param stepPast
      *     Should it automatically move the current index past the until string and any whitespace, or remain on it
      *
-     * @return an {@link Exceptional} containing the next string up until the specified string
+     * @return an {@link Result} containing the next string up until the specified string
      * @see CommandInvocationContext#next(String)
      */
-    default Exceptional<String> next(String until, boolean stepPast) {
+    default Result<String> next(String until, boolean stepPast) {
         if (!this.hasNext())
-            return Exceptional.of(new IllegalFormatException("There is nothing left to retrieve"));
+            return Result.of(new IllegalFormatException("There is nothing left to retrieve"));
 
         int endIndex = this.content().indexOf(until, this.currentIndex());
         if (endIndex == -1)
-            return Exceptional.of(new IllegalFormatException("Missing the ending " + until));
+            return Result.of(new IllegalFormatException("Missing the ending " + until));
 
         String match = this.content().substring(this.currentIndex(), endIndex);
         this.currentIndex(endIndex);
@@ -123,20 +123,20 @@ public interface StringTraverser
             this.currentIndex(this.currentIndex() + until.length());
             this.skipPastWhitespaces();
         }
-        return Exceptional.of(match);
+        return Result.of(match);
     }
 
     /**
      * Gets the next string that matches the specified {@link Pattern}. If there is no matching string or the matching
-     * string is not next then an {@link Exceptional} containing an {@link IllegalFormatException} is returned.
+     * string is not next then an {@link Result} containing an {@link IllegalFormatException} is returned.
      *
      * @param pattern
      *     The {@link Pattern} for the next string
      *
-     * @return An {@link Exceptional} containing the matched {@link String pattern}
+     * @return An {@link Result} containing the matched {@link String pattern}
      * @see CommandInvocationContext#next(String)
      */
-    default Exceptional<String> next(Pattern pattern) {
+    default Result<String> next(Pattern pattern) {
         if (this.hasNext()) {
             String originalSubstring = this.content().substring(this.currentIndex());
             Matcher matcher = pattern.matcher(originalSubstring);
@@ -149,20 +149,20 @@ public interface StringTraverser
                     this.incrementIndex();
 
                 this.skipPastWhitespaces();
-                return Exceptional.of(match);
+                return Result.of(match);
             }
         }
-        return Exceptional.of(
+        return Result.of(
             new IllegalFormatException("The start of " + this.next() + " doesn't match the expected format"));
     }
 
-    static Exceptional<String> next(String content, Pattern pattern) {
+    static Result<String> next(String content, Pattern pattern) {
         Matcher matcher = pattern.matcher(content);
         if (matcher.lookingAt()) { // Will return true if the start of the string matches the Regex
             String match = content.substring(0, matcher.end());
-            return Exceptional.of(match);
+            return Result.of(match);
         }
-        return Exceptional.empty();
+        return Result.empty();
     }
 
     /**
@@ -177,10 +177,10 @@ public interface StringTraverser
      * @param stop
      *     The {@link String} defining the stopping characters
      *
-     * @return An {@link Exceptional} containing the string between the start and stop
+     * @return An {@link Result} containing the string between the start and stop
      * @see CommandInvocationContext#nextSurrounded(String, String, boolean)
      */
-    default Exceptional<String> nextSurrounded(String start, String stop) {
+    default Result<String> nextSurrounded(String start, String stop) {
         return this.nextSurrounded(start, stop, true);
     }
 
@@ -198,12 +198,12 @@ public interface StringTraverser
      * @param stepPast
      *     Should it move the current index past the stop characters and any whitespace, or remain on it
      *
-     * @return An {@link Exceptional} containing the string between the start and stop
+     * @return An {@link Result} containing the string between the start and stop
      * @see CommandInvocationContext#nextSurrounded(String, String)
      */
-    default Exceptional<String> nextSurrounded(String start, String stop, boolean stepPast) {
+    default Result<String> nextSurrounded(String start, String stop, boolean stepPast) {
         if (!this.hasNext() || this.content().indexOf(start, this.currentIndex()) != this.currentIndex())
-            return Exceptional.of(new IllegalFormatException("Missing the starting " + start));
+            return Result.of(new IllegalFormatException("Missing the starting " + start));
 
         int startCount = 1;
         int startIndex = this.currentIndex() + 1;
@@ -211,7 +211,7 @@ public interface StringTraverser
         do {
             endIndex = this.content().indexOf(stop, endIndex + 1);
             if (endIndex == -1)
-                return Exceptional.of(new IllegalFormatException("Missing the ending " + stop));
+                return Result.of(new IllegalFormatException("Missing the ending " + stop));
 
             startCount--;
 
@@ -230,7 +230,7 @@ public interface StringTraverser
             this.skipPastWhitespaces();
         }
 
-        return Exceptional.of(match);
+        return Result.of(match);
     }
 
     /**

@@ -29,9 +29,9 @@ import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.util.Result;
 
 @ComponentBinding(value = LogDecorator.class, priority = 0)
 public class CustomLogDecorator<C extends InvocationContext> extends LogDecorator<C>
@@ -42,7 +42,7 @@ public class CustomLogDecorator<C extends InvocationContext> extends LogDecorato
     }
 
     @Override
-    public <R> Exceptional<R> invoke(C invocationContext) {
+    public <R> Result<R> invoke(C invocationContext) {
         HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
         if (halpbotEvent.rawEvent() instanceof MessageReceivedEvent messageEvent) {
             this.logLevel().log(invocationContext.applicationContext(),

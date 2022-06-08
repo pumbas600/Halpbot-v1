@@ -27,8 +27,8 @@ package net.pumbas.halpbot.converters;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
@@ -39,7 +39,7 @@ public interface ParameterConverter<T> extends Converter<CommandInvocationContex
 
     @Override
     @SuppressWarnings("unchecked")
-    default Exceptional<T> apply(CommandInvocationContext invocationContext) {
+    default Result<T> apply(CommandInvocationContext invocationContext) {
         //TODO: Move to state object
         int currentIndex = invocationContext.currentIndex();
         int currentAnnotationIndex = invocationContext.currentAnnotationIndex();
@@ -47,7 +47,7 @@ public interface ParameterConverter<T> extends Converter<CommandInvocationContex
         TypeContext<?> typeContext = invocationContext.currentType();
         Set<Annotation> annotations = invocationContext.annotations();
 
-        Exceptional<T> result = this.parseReflection(invocationContext).map((obj) -> (T) obj);
+        Result<T> result = this.parseReflection(invocationContext).map((obj) -> (T) obj);
         if (result.caught() || result.orNull() == HalpbotUtils.IGNORE_RESULT) {
             invocationContext.currentIndex(currentIndex);
             result = this.mapper().apply(invocationContext)

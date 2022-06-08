@@ -30,8 +30,8 @@ import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.pumbas.halpbot.commands.annotations.UseCommands;
 import net.pumbas.halpbot.common.HalpbotBuilder;
 
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.application.Activator;
+import org.dockbox.hartshorn.component.Service;
 
 // Indicates that the bot is a singleton and allows this class to be scanned for commands, etc
 @Service

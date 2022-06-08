@@ -27,10 +27,10 @@ package net.pumbas.halpbot.commands.actioninvokable.context;
 import net.pumbas.halpbot.converters.tokens.Token;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -38,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import lombok.Getter;
 import lombok.Setter;

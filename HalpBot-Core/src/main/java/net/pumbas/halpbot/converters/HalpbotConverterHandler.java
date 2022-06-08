@@ -27,23 +27,23 @@ package net.pumbas.halpbot.converters;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.core.ArrayListMultiMap;
-import org.dockbox.hartshorn.core.HartshornUtils;
-import org.dockbox.hartshorn.core.MultiMap;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.ArrayListMultiMap;
+import org.dockbox.hartshorn.util.MultiMap;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import lombok.Getter;
 
@@ -54,8 +54,8 @@ public class HalpbotConverterHandler implements ConverterHandler
     private final MultiMap<TypeContext<?>, Converter<?, ?>> converters = new ArrayListMultiMap<>();
     private static final TypeContext<Object> OBJECT_TYPE = TypeContext.of(Object.class);
 
-    private final Set<TypeContext<?>> nonCommandTypes = HartshornUtils.emptyConcurrentSet();
-    private final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = HartshornUtils.emptyConcurrentSet();
+    private final Set<TypeContext<?>> nonCommandTypes = ConcurrentHashMap.newKeySet();
+    private final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = ConcurrentHashMap.newKeySet();
 
     @Getter
     @Inject
@@ -80,7 +80,7 @@ public class HalpbotConverterHandler implements ConverterHandler
     @SuppressWarnings("unchecked")
     public <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
         if (!targetAnnotationType.isVoid()) {
-            Exceptional<Converter<C, T>> eConverter = this.searchAnnotationForType(typeContext, targetAnnotationType);
+            Result<Converter<C, T>> eConverter = this.searchAnnotationForType(typeContext, targetAnnotationType);
             if (eConverter.present())
                 return eConverter.get();
         }
@@ -106,8 +106,8 @@ public class HalpbotConverterHandler implements ConverterHandler
     }
 
     @SuppressWarnings("unchecked")
-    private <T, C extends InvocationContext> Exceptional<Converter<C, T>> searchAnnotationForType(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
-        return Exceptional.of(this.converters.values()
+    private <T, C extends InvocationContext> Result<Converter<C, T>> searchAnnotationForType(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
+        return Result.of(this.converters.values()
             .stream()
             .flatMap(Collection::stream)
             .filter(converter -> converter.annotationType().equals(targetAnnotationType))

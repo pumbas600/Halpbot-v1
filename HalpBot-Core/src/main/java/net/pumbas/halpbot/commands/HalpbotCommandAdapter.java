@@ -50,18 +50,18 @@ import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.core.ArrayListMultiMap;
-import org.dockbox.hartshorn.core.HartshornUtils;
-import org.dockbox.hartshorn.core.MultiMap;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.AccessModifier;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.ArrayListMultiMap;
+import org.dockbox.hartshorn.util.MultiMap;
+import org.dockbox.hartshorn.util.reflect.AccessModifier;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -72,8 +72,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -137,7 +137,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
             String alias = splitText[0];
             String content = (2 == splitText.length) ? splitText[1] : "";
 
-            Exceptional<CommandContext> eCommandContext = this.commandContextSafely(alias);
+            Result<CommandContext> eCommandContext = this.commandContextSafely(alias);
             if (eCommandContext.present()) {
                 CommandContext commandContext = eCommandContext.get();
                 if (commandContext.content() != Content.RAW) {
@@ -151,7 +151,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 if (!commandContext.preserveWhitespace())
                     content = content.replaceAll("\\s+", " ");
 
-                Exceptional<Object> result = this.handleCommandInvocation(halpbotEvent, commandContext, content);
+                Result<Object> result = this.handleCommandInvocation(halpbotEvent, commandContext, content);
 
                 if (result.present())
                     this.displayResult(halpbotEvent, commandContext, result.get());
@@ -166,7 +166,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
         }
     }
 
-    private Exceptional<Object> handleCommandInvocation(HalpbotEvent event,
+    private Result<Object> handleCommandInvocation(HalpbotEvent event,
                                                         CommandContext commandContext,
                                                         String content) {
         CommandInvocationContext invocationContext = this.invocationContextFactory.command(content, event);
@@ -272,8 +272,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     private List<String> aliases(Command command, MethodContext<?, ?> methodContext) {
-        List<String> aliases = HartshornUtils.asList(command.alias())
-            .stream()
+        List<String> aliases = Arrays.stream(command.alias())
             .map(alias -> alias.toLowerCase(Locale.ROOT))
             .collect(Collectors.toList());
 

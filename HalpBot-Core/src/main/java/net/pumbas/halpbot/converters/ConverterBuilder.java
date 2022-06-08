@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.converters.exceptions.IllegalConverterException;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -38,7 +38,7 @@ import java.util.function.Function;
 public abstract class ConverterBuilder<R extends Converter<C, T>, C extends InvocationContext, T>
 {
     protected final TypeContext<T> type;
-    protected @Nullable Function<C, Exceptional<T>> converter;
+    protected @Nullable Function<C, Result<T>> converter;
     protected @Nullable Class<? extends Annotation> annotation;
 
     protected OptionType optionType = OptionType.STRING;
@@ -55,7 +55,7 @@ public abstract class ConverterBuilder<R extends Converter<C, T>, C extends Invo
      *
      * @return Itself for chaining
      */
-    public ConverterBuilder<R, C, T> convert(Function<C, Exceptional<T>> mapper) {
+    public ConverterBuilder<R, C, T> convert(Function<C, Result<T>> mapper) {
         this.converter = mapper;
         return this;
     }

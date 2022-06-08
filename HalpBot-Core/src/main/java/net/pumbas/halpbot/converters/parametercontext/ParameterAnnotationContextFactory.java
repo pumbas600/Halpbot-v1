@@ -24,9 +24,9 @@
 
 package net.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;

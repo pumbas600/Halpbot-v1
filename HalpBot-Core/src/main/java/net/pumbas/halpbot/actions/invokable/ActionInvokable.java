@@ -26,15 +26,15 @@ package net.pumbas.halpbot.actions.invokable;
 
 import net.pumbas.halpbot.actions.methods.Invokable;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.function.CheckedFunction;
+import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.function.CheckedFunction;
 
 public interface ActionInvokable<C extends InvocationContext> extends Invokable
 {
-    Exceptional<Object[]> parameters(C invocationContext);
+    Result<Object[]> parameters(C invocationContext);
 
-    default <R> Exceptional<R> invoke(C invocationContext) {
+    default <R> Result<R> invoke(C invocationContext) {
         return this.parameters(invocationContext)
-            .flatMap((CheckedFunction<Object[], Exceptional<R>>) this::invoke);
+            .flatMap((CheckedFunction<Object[], Result<R>>) this::invoke);
     }
 }

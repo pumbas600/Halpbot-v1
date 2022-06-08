@@ -24,9 +24,9 @@
 
 package net.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;

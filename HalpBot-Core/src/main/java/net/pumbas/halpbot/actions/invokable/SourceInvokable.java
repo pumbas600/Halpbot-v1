@@ -28,14 +28,14 @@ import net.pumbas.halpbot.actions.exceptions.ActionException;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.utilities.Int;
 
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 public interface SourceInvokable<C extends SourceInvocationContext> extends ActionInvokable<C>
 {
     @Override
-    default Exceptional<Object[]> parameters(C invocationContext) {
+    default Result<Object[]> parameters(C invocationContext) {
         final Object[] parameters = new Object[this.executable().parameterCount()];
 
         Int nonCommandParameterIndex = new Int(0);
@@ -45,25 +45,25 @@ public interface SourceInvokable<C extends SourceInvocationContext> extends Acti
             final ParameterContext<?> parameterContext = this.executable().parameters().get(parameterIndex);
             TypeContext<?> targetType = parameterContext.type();
             invocationContext.currentType(targetType);
-            Exceptional<Object> parameter = this.parameter(invocationContext, parameterContext, nonCommandParameterIndex);
+            Result<Object> parameter = this.parameter(invocationContext, parameterContext, nonCommandParameterIndex);
             if (parameter.caught())
-                return Exceptional.of(parameter.error());
+                return Result.of(parameter.error());
             parameters[parameterIndex++] = parameter.orNull();
         }
 
-        return Exceptional.of(parameters);
+        return Result.of(parameters);
     }
 
     @SuppressWarnings("unchecked")
-    default Exceptional<Object> parameter(C invocationContext, ParameterContext<?> parameterContext,
+    default Result<Object> parameter(C invocationContext, ParameterContext<?> parameterContext,
                                           Int nonCommandParameterIndex) {
         if (nonCommandParameterIndex.lessThen(invocationContext.nonCommandParameterTokens().size())) {
             ParsingToken token = invocationContext.nonCommandParameterTokens().get(nonCommandParameterIndex.incrementAfter());
             if (token.parameterContext().equals(parameterContext)) {
-                return (Exceptional<Object>) token.converter().apply(invocationContext);
+                return (Result<Object>) token.converter().apply(invocationContext);
             }
         }
-        return Exceptional.of(
+        return Result.of(
             new ActionException("There didn't appear to be a value for the parameter %s in the button %s"
                 .formatted(invocationContext.currentType().qualifiedName(), this.executable().qualifiedName())));
     }

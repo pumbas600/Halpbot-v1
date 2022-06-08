@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.converters.tokens;
 
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 
 import java.util.List;
 

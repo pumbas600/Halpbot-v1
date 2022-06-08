@@ -50,8 +50,8 @@ import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;

@@ -28,9 +28,9 @@ import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.converters.tokens.Token;
 import net.pumbas.halpbot.utilities.StringTraverser;
 
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -87,19 +87,19 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
     void incrementAnnotationIndex();
 
     /**
-     * Retrieves an {@link Exceptional} containing the first annotation with the specified type, or {@link
-     * Exceptional#empty()} if there are no matching annotations.
+     * Retrieves an {@link Result} containing the first annotation with the specified type, or {@link
+     * Result#empty()} if there are no matching annotations.
      *
      * @param annotationType
      *     The {@link Class} of the annotation
      * @param <T>
      *     The type of the annotation
      *
-     * @return An {@link Exceptional} containing the annotation, or nothing if no matching annotations were found
+     * @return An {@link Result} containing the annotation, or nothing if no matching annotations were found
      */
     @SuppressWarnings("unchecked")
-    default <T extends Annotation> Exceptional<T> annotation(Class<T> annotationType) {
-        return Exceptional.of(this.annotations().stream()
+    default <T extends Annotation> Result<T> annotation(Class<T> annotationType) {
+        return Result.of(this.annotations().stream()
             .filter(annotation -> annotationType.isAssignableFrom(annotation.annotationType()))
             .findFirst()
             .map(annotation -> (T) annotation));

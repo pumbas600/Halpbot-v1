@@ -2,21 +2,21 @@ package net.pumbas.halpbot.common;
 
 import net.pumbas.halpbot.permissions.UsePermissions;
 
-import org.dockbox.hartshorn.core.annotations.activate.Activator;
-import org.dockbox.hartshorn.core.annotations.inject.InjectConfig;
-import org.dockbox.hartshorn.core.boot.HartshornApplicationFactory;
-import org.dockbox.hartshorn.core.context.element.AnnotatedElementModifier;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.application.Activator;
+import org.dockbox.hartshorn.application.StandardApplicationFactory;
+import org.dockbox.hartshorn.inject.binding.InjectConfig;
+import org.dockbox.hartshorn.util.reflect.AnnotatedElementModifier;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 
 import java.lang.annotation.Annotation;
 
-public class HalpbotApplicationFactory extends HartshornApplicationFactory
+public class HalpbotApplicationFactory extends StandardApplicationFactory
 {
     @Override
-    public HartshornApplicationFactory activator(TypeContext<?> activator) {
-        Exceptional<Bot> eBot = activator.annotation(Bot.class);
+    public StandardApplicationFactory activator(TypeContext<?> activator) {
+        Result<Bot> eBot = activator.annotation(Bot.class);
         if (eBot.absent())
             throw new IllegalArgumentException("The bot main class must be annotated with @Bot");
 
@@ -47,7 +47,7 @@ public class HalpbotApplicationFactory extends HartshornApplicationFactory
     }
 
     @Override
-    public HartshornApplicationFactory loadDefaults() {
+    public StandardApplicationFactory loadDefaults() {
         return super.loadDefaults()
             .serviceActivator(new UseConfigurations()
             {

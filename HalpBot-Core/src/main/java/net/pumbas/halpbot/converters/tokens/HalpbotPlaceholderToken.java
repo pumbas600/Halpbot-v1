@@ -26,8 +26,8 @@ package net.pumbas.halpbot.converters.tokens;
 
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 
 /**
  * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command: {@code

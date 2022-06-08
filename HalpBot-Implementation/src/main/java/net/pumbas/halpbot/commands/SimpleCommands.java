@@ -28,12 +28,12 @@ import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Service
 public class SimpleCommands

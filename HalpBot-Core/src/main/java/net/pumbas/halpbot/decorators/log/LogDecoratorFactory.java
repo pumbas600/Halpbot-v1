@@ -27,8 +27,8 @@ package net.pumbas.halpbot.decorators.log;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.component.Service;
 
 @Service
 public interface LogDecoratorFactory extends ActionInvokableDecoratorFactory<LogDecorator<?>, Log>

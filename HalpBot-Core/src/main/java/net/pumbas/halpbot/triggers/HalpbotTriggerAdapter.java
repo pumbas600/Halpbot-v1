@@ -36,10 +36,10 @@ import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,8 +47,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import lombok.Getter;
 
@@ -84,7 +84,7 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
 
         for (TriggerContext triggerContext : this.triggerContexts) {
             if (triggerContext.matches(message)) {
-                Exceptional<Object> result = triggerContext.invoke(this.invocationContextFactory.source(
+                Result<Object> result = triggerContext.invoke(this.invocationContextFactory.source(
                     halpbotEvent,
                     triggerContext.nonCommandParameterTokens()));
 

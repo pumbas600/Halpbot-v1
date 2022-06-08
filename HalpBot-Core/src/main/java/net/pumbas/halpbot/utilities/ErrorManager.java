@@ -30,15 +30,15 @@ import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import net.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
-import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.annotations.context.AutoCreating;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.context.AutoCreating;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Service
 @AutoCreating

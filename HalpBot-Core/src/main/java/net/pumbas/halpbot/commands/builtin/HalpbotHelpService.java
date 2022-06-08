@@ -35,8 +35,8 @@ import net.pumbas.halpbot.utilities.HalpbotUtils;
 import net.pumbas.halpbot.utilities.Reflect;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @ComponentBinding(HelpService.class)
 public class HalpbotHelpService implements HelpService

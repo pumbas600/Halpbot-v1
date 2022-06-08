@@ -31,10 +31,10 @@ import net.pumbas.halpbot.converters.tokens.TokenService;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 

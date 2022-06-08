@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.utilities;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -152,7 +152,7 @@ public final class Reflect
 
     /**
      * Retrieves the specified annotation on the {@link Field} if present. If that annotation is not present, then an
-     * {@link Exceptional#empty()} will be returned instead.
+     * {@link Result#empty()} will be returned instead.
      *
      * @param field
      *     The field to check for the annotation
@@ -161,13 +161,13 @@ public final class Reflect
      * @param <T>
      *     The type of the annotation
      *
-     * @return An exceptional containing the annotation if present
+     * @return An Result containing the annotation if present
      */
-    public static <T extends Annotation> Exceptional<T> annotation(Field field, Class<T> annotationType) {
+    public static <T extends Annotation> Result<T> annotation(Field field, Class<T> annotationType) {
         if (field.isAnnotationPresent(annotationType)) {
-            return Exceptional.of(field.getAnnotation(annotationType));
+            return Result.of(field.getAnnotation(annotationType));
         }
-        return Exceptional.empty();
+        return Result.empty();
     }
 
 
@@ -326,9 +326,9 @@ public final class Reflect
      *
      * @return if the {@link String value} is a valid value of the {@link Enum}
      */
-    public static Exceptional<Enum<?>> parseEnumValue(TypeContext<Enum<?>> enumType,
+    public static Result<Enum<?>> parseEnumValue(TypeContext<Enum<?>> enumType,
                                                       String value) {
-        return Exceptional.of(
+        return Result.of(
                 enumType.enumConstants().stream()
                     .filter(e -> e.name().equalsIgnoreCase(value))
                     .findFirst())

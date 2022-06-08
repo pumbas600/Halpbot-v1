@@ -24,17 +24,15 @@
 
 package net.pumbas.halpbot.buttons;
 
-import org.dockbox.hartshorn.core.Key;
-import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.services.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-@AutomaticActivation
-public class ButtonServicePreProcessor implements ServicePreProcessor<UseButtons>
+public class ButtonServicePreProcessor implements ServicePreProcessor
 {
     @Override
     public Integer order() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -46,10 +44,5 @@ public class ButtonServicePreProcessor implements ServicePreProcessor<UseButtons
     public <T> void process(ApplicationContext context, Key<T> key) {
         final ButtonAdapter buttonAdapter = context.get(ButtonAdapter.class);
         buttonAdapter.registerButtons(key.type());
-    }
-
-    @Override
-    public Class<UseButtons> activator() {
-        return UseButtons.class;
     }
 }

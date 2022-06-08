@@ -28,7 +28,7 @@ import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 import net.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import net.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 @Service(singleton = false)
 public class Shape

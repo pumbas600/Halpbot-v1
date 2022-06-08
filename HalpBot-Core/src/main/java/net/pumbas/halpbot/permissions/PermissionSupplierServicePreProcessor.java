@@ -24,14 +24,17 @@
 
 package net.pumbas.halpbot.permissions;
 
-import org.dockbox.hartshorn.core.Key;
-import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.services.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-@AutomaticActivation
-public class PermissionSupplierServicePreProcessor implements ServicePreProcessor<UsePermissions>
+public class PermissionSupplierServicePreProcessor implements ServicePreProcessor
 {
+    @Override
+    public Integer order() {
+        return 1;
+    }
+
     @Override
     public boolean preconditions(ApplicationContext context, Key<?> key) {
         return !key.type().methods(PermissionSupplier.class).isEmpty();
@@ -41,10 +44,5 @@ public class PermissionSupplierServicePreProcessor implements ServicePreProcesso
     public <T> void process(ApplicationContext context, Key<T> key) {
         final PermissionService permissionService = context.get(PermissionService.class);
         permissionService.registerPermissionSuppliers(key.type());
-    }
-
-    @Override
-    public Class<UsePermissions> activator() {
-        return UsePermissions.class;
     }
 }

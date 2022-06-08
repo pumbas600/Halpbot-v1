@@ -29,9 +29,9 @@ import net.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.utilities.LogLevel;
 
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.util.Result;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -51,9 +51,9 @@ public class TimeDecorator<C extends InvocationContext> extends ActionInvokableD
     }
 
     @Override
-    public <R> Exceptional<R> invoke(C invocationContext) {
+    public <R> Result<R> invoke(C invocationContext) {
         OffsetDateTime start = OffsetDateTime.now();
-        Exceptional<R> result = super.invoke(invocationContext);
+        Result<R> result = super.invoke(invocationContext);
 
         // Measure the time in milliseconds between now and before the action was invoked to see how long it took
         double ms = start.until(OffsetDateTime.now(), ChronoUnit.NANOS) / 1_000_000D;

@@ -39,14 +39,14 @@ import net.pumbas.halpbot.permissions.PermissionDecorator;
 import net.pumbas.halpbot.permissions.Permissions;
 import net.pumbas.halpbot.utilities.Duration;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 
 @Cooldown(duration = @Duration(10))

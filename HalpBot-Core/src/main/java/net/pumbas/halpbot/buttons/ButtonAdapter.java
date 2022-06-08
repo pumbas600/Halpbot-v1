@@ -29,9 +29,9 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.pumbas.halpbot.adapters.HalpbotAdapter;
 
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -80,8 +80,8 @@ public interface ButtonAdapter extends HalpbotAdapter
     @Nullable
     ButtonContext buttonContext(@Nullable String id);
 
-    default Exceptional<ButtonContext> buttonContextSafely(String id) {
-        return Exceptional.of(this.buttonContext(id));
+    default Result<ButtonContext> buttonContextSafely(String id) {
+        return Result.of(this.buttonContext(id));
     }
 
     Button register(Button button, Object... parameters);
@@ -117,15 +117,15 @@ public interface ButtonAdapter extends HalpbotAdapter
         return DYNAMIC_ID_FORMAT.formatted(this.dynamicPrefix(), currentId, System.currentTimeMillis(), this.idSuffix());
     }
 
-    default Exceptional<String> extractOriginalIdSafely(String dynamicId) {
+    default Result<String> extractOriginalIdSafely(String dynamicId) {
         String extractedId = this.extractOriginalId(dynamicId);
 
         if (extractedId == null)
-            return Exceptional.of(
+            return Result.of(
                 new IllegalArgumentException("The specified id did not match the dynamic id format of '%s'"
                     .formatted(DYNAMIC_ID_FORMAT)));
 
-        return Exceptional.of(extractedId);
+        return Result.of(extractedId);
     }
 
     @Nullable

@@ -26,17 +26,15 @@ package net.pumbas.halpbot.converters;
 
 import net.pumbas.halpbot.converters.annotations.UseConverters;
 
-import org.dockbox.hartshorn.core.Key;
-import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.services.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-@AutomaticActivation
-public class ConverterServicePreProcessor implements ServicePreProcessor<UseConverters>
+public class ConverterServicePreProcessor implements ServicePreProcessor
 {
     @Override
-    public Class<UseConverters> activator() {
-        return UseConverters.class;
+    public Integer order() {
+        return 1;
     }
 
     @Override

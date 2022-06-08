@@ -38,7 +38,7 @@ import net.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;

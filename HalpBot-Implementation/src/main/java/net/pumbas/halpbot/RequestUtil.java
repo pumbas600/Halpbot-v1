@@ -24,9 +24,9 @@
 
 package net.pumbas.halpbot;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.boot.ExceptionHandler;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.application.ExceptionHandler;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.data.mapping.ObjectMapper;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Service
 public class RequestUtil
@@ -65,24 +65,24 @@ public class RequestUtil
                 .build();
     }
 
-    public Exceptional<String> get(String url) {
+    public Result<String> get(String url) {
 
         try {
             HttpResponse<String> response = this.client.send(
                     this.getRequest(url), HttpResponse.BodyHandlers.ofString());
 
             if (isOk(response)) {
-                return Exceptional.of(response.body());
+                return Result.of(response.body());
             }
-            return Exceptional.of(
+            return Result.of(
                     new IOException("There was an error sending the GET request to %s. Got the response: %s"
                             .formatted(url, response)));
         } catch (IOException | InterruptedException e) {
-            return Exceptional.of(e);
+            return Result.of(e);
         }
     }
 
-    public <T> Exceptional<T> get(String url, Class<T> type) {
+    public <T> Result<T> get(String url, Class<T> type) {
         return this.get(url).flatMap(json -> this.mapper.read(json, type));
     }
 

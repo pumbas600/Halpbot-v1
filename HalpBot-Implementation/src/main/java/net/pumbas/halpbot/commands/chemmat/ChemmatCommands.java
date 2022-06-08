@@ -57,8 +57,8 @@ import net.pumbas.halpbot.permissions.Permissions;
 import net.pumbas.halpbot.utilities.ErrorManager;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.ApplicationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -157,8 +157,8 @@ public class ChemmatCommands
         String[] topics = topicInput.toLowerCase(Locale.ROOT).split(", ");
         Set<Long> topicIds = Arrays.stream(topics)
             .map(this.topicService::getIdFromTopic)
-            .filter(Exceptional::present)
-            .map(Exceptional::get)
+            .filter(Result::present)
+            .map(Result::get)
             .collect(Collectors.toSet());
 
         if (topicIds.isEmpty())
@@ -188,9 +188,9 @@ public class ChemmatCommands
         if (null == interaction.getChannel())
             return "Sorry, this command can't be used from a thread :pensive:";
 
-        Exceptional<Question> eQuestion;
+        Result<Question> eQuestion;
         if (0 <= quizId) {
-            eQuestion = Exceptional.of(() -> this.questionService.getById(quizId));
+            eQuestion = Result.of(() -> this.questionService.getById(quizId));
         }
         else if (topic.isEmpty()) {
             eQuestion = this.questionHandlers
@@ -308,7 +308,7 @@ public class ChemmatCommands
         return embedBuilder.build();
     }
 
-    private Exceptional<Question> getRandomQuestionByTopic(String topic) {
+    private Result<Question> getRandomQuestionByTopic(String topic) {
         return this.topicService.getIdFromTopic(topic)
             .map(topicId -> {
                 List<Long> questionIds = this.questionService.getAllConfirmedIdsByTopicId(topicId);

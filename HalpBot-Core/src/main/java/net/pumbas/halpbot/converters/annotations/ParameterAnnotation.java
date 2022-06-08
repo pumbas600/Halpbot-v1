@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.converters.annotations;
 
-import org.dockbox.hartshorn.core.annotations.Extends;
-import org.dockbox.hartshorn.core.annotations.stereotype.Component;
+import org.dockbox.hartshorn.component.Component;
+import org.dockbox.hartshorn.util.reflect.Extends;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;

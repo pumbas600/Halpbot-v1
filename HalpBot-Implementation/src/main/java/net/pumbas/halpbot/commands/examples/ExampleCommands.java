@@ -32,7 +32,7 @@ import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.permissions.Permissions;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 import org.jetbrains.annotations.Nullable;
 
 @Service

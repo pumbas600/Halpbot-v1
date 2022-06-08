@@ -25,7 +25,8 @@
 package net.pumbas.halpbot.configurations;
 
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.data.ConfigurationProviders;
 import org.dockbox.hartshorn.data.annotations.Configuration;
 import org.dockbox.hartshorn.data.annotations.Value;
 
@@ -33,7 +34,7 @@ import lombok.Getter;
 
 @Getter
 @Service
-@Configuration(source = "classpath:bot-config.properties")
+@Configuration("classpath:bot-config.properties")
 public class BotConfiguration
 {
     @Value("ownerId")

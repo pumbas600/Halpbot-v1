@@ -51,10 +51,10 @@ import net.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import net.pumbas.halpbot.converters.types.ArrayTypeContext;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,7 +123,7 @@ public class DefaultConverters
 
     public static final TypeConverter<String> REMAINING_STRINGS_CONVERTER = TypeConverter.builder(String.class)
         .annotation(Remaining.class)
-        .convert(invocationContext -> Exceptional.of(invocationContext::remaining))
+        .convert(invocationContext -> Result.of(invocationContext::remaining))
         .build();
 
     public static final TypeConverter<Boolean> BOOLEAN_CONVERTER = TypeConverter.builder(Boolean.class)
@@ -151,20 +151,20 @@ public class DefaultConverters
             CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
             TypeContext<?> typeContext = invocationContext.currentType();
             String expectedTypeAlias = commandAdapter.typeAlias(typeContext);
-            Exceptional<String> typeAlias = invocationContext.next("(", true);
+            Result<String> typeAlias = invocationContext.next("(", true);
 
             if (typeAlias.caught())
-                return Exceptional.of(typeAlias.error());
+                return Result.of(typeAlias.error());
             if (typeAlias.absent())
-                return Exceptional.of(new CommandException("Missing opening '(' when creating the object " + expectedTypeAlias));
+                return Result.of(new CommandException("Missing opening '(' when creating the object " + expectedTypeAlias));
 
             if (!typeAlias.get().equalsIgnoreCase(expectedTypeAlias))
-                return Exceptional.of(
+                return Result.of(
                     new CommandException("Expected the alias '%s' but got '%s'"
                         .formatted(expectedTypeAlias, typeAlias.get())));
 
             int currentIndex = invocationContext.currentIndex();
-            Exceptional<Object> result = Exceptional.empty();
+            Result<Object> result = Result.empty();
 
             invocationContext.canHaveContextLeft(true);
             for (CustomConstructorContext constructorContext : commandAdapter.customConstructors(typeContext)) {
@@ -172,7 +172,7 @@ public class DefaultConverters
                 result = constructorContext.invoke(invocationContext);
                 if (result.present() && invocationContext.isNext(')', true)) break;
 
-                else if (!result.caught()) result = Exceptional.of(
+                else if (!result.caught()) result = Result.of(
                     new CommandException("There seems to have been an error when constructing the object " + expectedTypeAlias));
             }
             return result;
@@ -181,12 +181,12 @@ public class DefaultConverters
     public static final TypeConverter<Object> CHILDREN_TYPE_CONVERTER = TypeConverter.builder(Object.class)
         .annotation(Children.class)
         .convert(invocationContext -> {
-            final Exceptional<Object> result = OBJECT_CONVERTER.apply(invocationContext);
+            final Result<Object> result = OBJECT_CONVERTER.apply(invocationContext);
             if (!result.caught())
                 return result;
             return invocationContext.annotation(Children.class).flatMap(children -> {
                 // If there are no children then it will return the error in 'result'
-                Exceptional<Object> parsed = result;
+                Result<Object> parsed = result;
 
                 invocationContext.canHaveContextLeft(true);
                 for (Class<?> child : children.value()) {
@@ -211,7 +211,7 @@ public class DefaultConverters
                 .get(ConverterHandler.class)
                 .from(genericType, invocationContext);
 
-            return Exceptional.of(() -> {
+            return Result.of(() -> {
                 List<Object> list = new ArrayList<>();
                 invocationContext.assertNext('[');
                 invocationContext.currentType(genericType);
@@ -228,9 +228,9 @@ public class DefaultConverters
     public static final TypeConverter<List> IMPLICIT_LIST_CONVERTER = TypeConverter.builder(List.class)
         .annotation(Implicit.class)
         .convert(invocationContext -> {
-            Exceptional<List> listExceptional = LIST_CONVERTER.apply(invocationContext);
-            if (listExceptional.errorAbsent() && listExceptional.present())
-                return listExceptional;
+            Result<List> listResult = LIST_CONVERTER.apply(invocationContext);
+            if (listResult.errorAbsent() && listResult.present())
+                return listResult;
 
             TypeContext<?> genericType = invocationContext.currentType().isArray()
                 ? invocationContext.currentType().elementType().get()
@@ -243,10 +243,10 @@ public class DefaultConverters
 
             List<Object> list = new ArrayList<>();
 
-            Exceptional<?> element = elementConverter.apply(invocationContext)
+            Result<?> element = elementConverter.apply(invocationContext)
                 .present(list::add);
             // Expects there to be atleast one element if the arrays being passed implicitly
-            if (element.absent()) return Exceptional.of(element.error()); //TODO: More useful error here
+            if (element.absent()) return Result.of(element.error()); //TODO: More useful error here
 
             while (invocationContext.hasNext()) {
                 element = elementConverter.apply(invocationContext);
@@ -254,7 +254,7 @@ public class DefaultConverters
                 else break;
             }
 
-            return Exceptional.of(list);
+            return Result.of(list);
         }).build();
 
     public static final TypeConverter<List> UNMODIFIABLE_LIST_CONVERTER = TypeConverter.builder(List.class)
@@ -301,7 +301,7 @@ public class DefaultConverters
 //    public static final SourceConverter<PersistantUserData> PERSISTANT_USER_DATA_CONVERTER =
 //            SourceConverter.builder(PersistantUserData.class)
 //                    .requiresHalpbotEvent(true)
-//                    .convert(invocationContext -> Exceptional.of(
+//                    .convert(invocationContext -> Result.of(
 //                            invocationContext.applicationContext().get(HalpbotCore.class).get(AbstractCommandAdapter.class)
 //                                    .getPersistantUserData(
 //                                            (TypeContext<? extends PersistantUserData>) invocationContext.currentType(),
@@ -317,9 +317,9 @@ public class DefaultConverters
         .convert(invocationContext -> {
             final Guild guild = invocationContext.halpbotEvent().guild();
             if (guild == null)
-                return Exceptional.of(
+                return Result.of(
                     new UnsupportedOperationException("You can't specify a text channel in a private message"));
-            Exceptional<TextChannel> textChannel = invocationContext.nextSurrounded("<#", ">")
+            Result<TextChannel> textChannel = invocationContext.nextSurrounded("<#", ">")
                 .map(guild::getTextChannelById);
             if (textChannel.caught())
                 textChannel = LONG_CONVERTER.apply(invocationContext)
@@ -333,9 +333,9 @@ public class DefaultConverters
         .convert(invocationContext -> {
             final Guild guild = invocationContext.halpbotEvent().guild();
             if (guild == null)
-                return Exceptional.of(
+                return Result.of(
                     new UnsupportedOperationException("You can't specify a role in a private message"));
-            Exceptional<Role> role = invocationContext.nextSurrounded("<@&", ">")
+            Result<Role> role = invocationContext.nextSurrounded("<@&", ">")
                 .map(guild::getRoleById);
             if (role.caught())
                 role = LONG_CONVERTER.apply(invocationContext)
@@ -349,9 +349,9 @@ public class DefaultConverters
         .convert(invocationContext -> {
             final Guild guild = invocationContext.halpbotEvent().guild();
             if (guild == null)
-                return Exceptional.of(
+                return Result.of(
                     new UnsupportedOperationException("You can't specify a member in a private message"));
-            Exceptional<Member> member = invocationContext.nextSurrounded("<@!", ">")
+            Result<Member> member = invocationContext.nextSurrounded("<@!", ">")
                 .map(id -> guild.retrieveMemberById(id).complete());
             if (member.caught())
                 member = LONG_CONVERTER.apply(invocationContext)
@@ -363,7 +363,7 @@ public class DefaultConverters
 
     public static final TypeConverter<User> USER_CONVERTER = TypeConverter.builder(User.class)
         .convert(invocationContext -> {
-            Exceptional<User> user = invocationContext.nextSurrounded("<@!", ">")
+            Result<User> user = invocationContext.nextSurrounded("<@!", ">")
                 .map(id -> invocationContext.halpbotEvent().jda().retrieveUserById(id).complete());
             if (user.caught())
                 user = invocationContext.nextSurrounded("<@", ">")
@@ -381,69 +381,69 @@ public class DefaultConverters
     //region Source Converters
 
     public static final SourceConverter<GenericEvent> EVENT_CONVERTER = SourceConverter.builder(GenericEvent.class)
-        .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().event(GenericEvent.class)))
+        .convert(invocationContext -> Result.of(() -> invocationContext.halpbotEvent().event(GenericEvent.class)))
         .build();
 
     public static final SourceConverter<Interaction> INTERACTION_CONVERTER = SourceConverter.builder(Interaction.class)
-        .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().event(Interaction.class)))
+        .convert(invocationContext -> Result.of(() -> invocationContext.halpbotEvent().event(Interaction.class)))
         .build();
 
     public static final SourceConverter<HalpbotCore> HALPBOT_CORE_CONVERTER = SourceConverter.builder(HalpbotCore.class)
-        .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext().get(HalpbotCore.class)))
+        .convert(invocationContext -> Result.of(invocationContext.applicationContext().get(HalpbotCore.class)))
         .build();
 
     public static final SourceConverter<HalpbotAdapter> HALPBOT_ADAPTER_CONVERTER =
         SourceConverter.builder(HalpbotAdapter.class)
-            .convert(invocationContext -> Exceptional.of(
+            .convert(invocationContext -> Result.of(
                 (HalpbotAdapter) invocationContext.applicationContext()
                     .get(invocationContext.currentType())))
             .build();
     public static final SourceConverter<JDA> JDA_CONVERTER = SourceConverter.builder(JDA.class)
-        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().jda()))
+        .convert(invocationContext -> Result.of(invocationContext.halpbotEvent().jda()))
         .build();
 
     public static final SourceConverter<ApplicationContext> APPLICATION_CONTEXT_CONVERTER =
         SourceConverter.builder(ApplicationContext.class)
-            .convert(invocationContext -> Exceptional.of(invocationContext.applicationContext()))
+            .convert(invocationContext -> Result.of(invocationContext.applicationContext()))
             .build();
 
     public static final SourceConverter<MessageChannel> SOURCE_MESSAGE_CHANNEL_CONVERTER =
         SourceConverter.builder(MessageChannel.class)
             .annotation(Source.class)
-            .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().messageChannel()))
+            .convert(invocationContext -> Result.of(invocationContext.halpbotEvent().messageChannel()))
             .build();
 
     public static final SourceConverter<TextChannel> SOURCE_TEXT_CHANNEL_CONVERTER =
         SourceConverter.builder(TextChannel.class)
             .annotation(Source.class)
-            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().textChannel()))
+            .convert(invocationContext -> Result.of(() -> invocationContext.halpbotEvent().textChannel()))
             .build();
 
     public static final SourceConverter<PrivateChannel> SOURCE_PRIVATE_CHANNEL_CONVERTER =
         SourceConverter.builder(PrivateChannel.class)
             .annotation(Source.class)
-            .convert(invocationContext -> Exceptional.of(() -> invocationContext.halpbotEvent().privateChannel()))
+            .convert(invocationContext -> Result.of(() -> invocationContext.halpbotEvent().privateChannel()))
             .build();
 
     public static final SourceConverter<User> SOURCE_USER_CONVERTER = SourceConverter.builder(User.class)
         .annotation(Source.class)
-        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().user()))
+        .convert(invocationContext -> Result.of(invocationContext.halpbotEvent().user()))
         .build();
 
     public static final SourceConverter<Member> SOURCE_MEMBER_CONVERTER = SourceConverter.builder(Member.class)
         .annotation(Source.class)
-        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().member()))
+        .convert(invocationContext -> Result.of(invocationContext.halpbotEvent().member()))
         .build();
 
 
     public static final SourceConverter<Guild> SOURCE_GUILD_CONVERTER = SourceConverter.builder(Guild.class)
         .annotation(Source.class)
-        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().guild()))
+        .convert(invocationContext -> Result.of(invocationContext.halpbotEvent().guild()))
         .build();
 
     public static final SourceConverter<ChannelType> SOURCE_CHANNEL_TYPE_CONVERTER = SourceConverter.builder(ChannelType.class)
         .annotation(Source.class)
-        .convert(invocationContext -> Exceptional.of(invocationContext.halpbotEvent().channelType()))
+        .convert(invocationContext -> Result.of(invocationContext.halpbotEvent().channelType()))
         .build();
 
     //endregion

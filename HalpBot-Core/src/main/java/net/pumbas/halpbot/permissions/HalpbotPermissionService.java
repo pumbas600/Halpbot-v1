@@ -35,13 +35,14 @@ import net.pumbas.halpbot.permissions.repositories.GuildPermission;
 import net.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import net.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
-import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
 import org.dockbox.hartshorn.data.remote.PersistenceConnection;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -53,8 +54,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import lombok.Getter;
 
@@ -164,9 +165,9 @@ public class HalpbotPermissionService implements PermissionService, Enableable
     }
 
     @Override
-    public Exceptional<GuildPermission> findById(GuildPermissionId id) {
+    public Result<GuildPermission> findById(GuildPermissionId id) {
         if (!this.useRoleBinding)
-            return Exceptional.empty();
+            return Result.empty();
         return this.permissionRepository.findById(id);
     }
 

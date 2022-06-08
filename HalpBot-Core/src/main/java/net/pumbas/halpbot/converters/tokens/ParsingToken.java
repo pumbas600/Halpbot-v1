@@ -30,8 +30,8 @@ import net.pumbas.halpbot.converters.Converter;
 import net.pumbas.halpbot.converters.TypeConverter;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;

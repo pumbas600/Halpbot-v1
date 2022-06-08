@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.commands.usage;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 
 @FunctionalInterface
 public interface UsageBuilder

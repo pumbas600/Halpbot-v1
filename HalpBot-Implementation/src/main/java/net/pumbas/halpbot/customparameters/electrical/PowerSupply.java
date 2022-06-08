@@ -26,7 +26,7 @@ package net.pumbas.halpbot.customparameters.electrical;
 
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 @Service(singleton = false)
 public class PowerSupply extends ElectricalComponent {

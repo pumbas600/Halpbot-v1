@@ -99,9 +99,9 @@ import net.pumbas.halpbot.common.Bot;
 import net.pumbas.halpbot.common.HalpbotBuilder;
 import net.pumbas.halpbot.common.UseAll;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 ```
 
 </p>
@@ -156,7 +156,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 ```
 
 </p>
@@ -204,7 +204,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.utilities.Duration;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 import java.awt.Color;
 import java.time.format.DateTimeFormatter;
@@ -264,7 +264,7 @@ import net.pumbas.halpbot.triggers.Trigger;
 import net.pumbas.halpbot.triggers.TriggerStrategy;
 import net.pumbas.halpbot.utilities.Duration;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 import java.awt.Color;
 ```
@@ -325,7 +325,7 @@ import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.utilities.Duration;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 ```
 
 </p>
@@ -379,7 +379,7 @@ import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.utilities.Duration;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -430,7 +430,7 @@ import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.permissions.Permissions;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 ```
 
 </p>

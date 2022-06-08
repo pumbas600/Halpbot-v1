@@ -29,8 +29,8 @@ import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 
 import java.time.Duration;
 import java.util.List;

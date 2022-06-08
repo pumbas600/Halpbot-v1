@@ -29,9 +29,9 @@ import net.pumbas.halpbot.commands.Content;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.converters.tokens.Token;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.time.Duration;
 import java.util.List;

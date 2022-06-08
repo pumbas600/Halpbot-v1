@@ -29,7 +29,7 @@ import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.customparameters.math.Matrix;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 import java.util.List;
 

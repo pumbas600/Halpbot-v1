@@ -28,8 +28,8 @@ import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.objects.AsyncDuration;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.component.Service;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;

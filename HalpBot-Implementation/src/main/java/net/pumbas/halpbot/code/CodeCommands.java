@@ -37,9 +37,9 @@ import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import net.pumbas.halpbot.decorators.log.Log;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.data.mapping.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,7 +54,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Log
 @Service
@@ -166,7 +166,7 @@ public class CodeCommands extends ListenerAdapter
         if (code.isBlank())
             return "You must provide some code to run";
 
-        Exceptional<String> json = this.objectMapper.write(new CodeExecution(language, code));
+        Result<String> json = this.objectMapper.write(new CodeExecution(language, code));
         if (json.present()) {
             this.requestUtil.postAsync("https://emkc.org/api/v2/piston/execute", json.get(), ExecutionResponse.class)
                 .thenAccept(executionResponse -> this.handleResponse(event, executionResponse))

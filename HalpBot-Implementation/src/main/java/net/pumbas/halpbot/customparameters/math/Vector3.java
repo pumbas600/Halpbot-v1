@@ -26,7 +26,7 @@ package net.pumbas.halpbot.customparameters.math;
 
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 @Service(singleton = false)
 public class Vector3

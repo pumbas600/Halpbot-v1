@@ -33,13 +33,13 @@ import net.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import net.pumbas.halpbot.permissions.HalpbotPermissions;
 import net.pumbas.halpbot.permissions.PermissionService;
 
-import org.dockbox.hartshorn.core.annotations.inject.Provider;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.boot.ExceptionHandler;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.dockbox.hartshorn.application.ExceptionHandler;
+import org.dockbox.hartshorn.component.processing.Provider;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.ApplicationException;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import lombok.Getter;
 

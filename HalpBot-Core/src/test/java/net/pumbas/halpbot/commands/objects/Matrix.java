@@ -32,7 +32,7 @@ import net.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 import java.util.Arrays;
 

@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.actions.invokable;
 
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import lombok.Getter;
@@ -48,17 +48,17 @@ public class ActionInvokableDecorator<C extends InvocationContext> implements Ac
     }
 
     @Override
-    public Exceptional<Object[]> parameters(C invocationContext) {
+    public Result<Object[]> parameters(C invocationContext) {
         return this.actionInvokable.parameters(invocationContext);
     }
 
     @Override
-    public <R> Exceptional<R> invoke(Object... parameters) {
+    public <R> Result<R> invoke(Object... parameters) {
         return this.actionInvokable.invoke(parameters);
     }
 
     @Override
-    public <R> Exceptional<R> invoke(C invocationContext) {
+    public <R> Result<R> invoke(C invocationContext) {
         return this.actionInvokable.invoke(invocationContext);
     }
 }

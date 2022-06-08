@@ -29,7 +29,7 @@ import net.pumbas.halpbot.hibernate.repositories.UserStatisticsRepository;
 import net.pumbas.halpbot.objects.expiring.ConcurrentExpiringMap;
 import net.pumbas.halpbot.objects.expiring.ExpiringMap;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

@@ -32,12 +32,12 @@ import net.pumbas.halpbot.converters.SourceConverter;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.inject.Provided;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.proxy.Provided;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -81,7 +81,7 @@ public interface TokenFactory
         boolean isOptional = false;
         @Nullable Object defaultValue = null;
 
-        Exceptional<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
+        Result<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
 
         if (unrequired.present()) {
             isOptional = true;

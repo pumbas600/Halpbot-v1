@@ -34,9 +34,9 @@ import net.pumbas.halpbot.common.UndisplayedException;
 import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.annotations.inject.Bound;
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.inject.binding.Bound;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.util.Result;
 
 import java.time.Duration;
 
@@ -56,7 +56,7 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
     }
 
     @Override
-    public <R> Exceptional<R> invoke(C invocableContext) {
+    public <R> Result<R> invoke(C invocableContext) {
         HalpbotEvent event = invocableContext.halpbotEvent();
         Guild guild = event.guild();
 
@@ -66,17 +66,17 @@ public class CooldownDecorator<C extends InvocationContext> extends ActionInvoka
         CooldownTimer cooldownTimer = this.strategy.get(guildId, userId);
 
         if (cooldownTimer.hasFinished()) {
-            Exceptional<R> result = super.invoke(invocableContext);
+            Result<R> result = super.invoke(invocableContext);
             this.strategy.put(guildId, userId, new CooldownTimer(this.cooldownDuration));
             return result;
         }
 
         if (cooldownTimer.canSendEmbed(SECONDS_BETWEEN_COOLDOWN_EMBEDS))
-            return Exceptional.of(new ExplainedException(this.strategy.get(guildId, userId)
+            return Result.of(new ExplainedException(this.strategy.get(guildId, userId)
                 .remainingTimeEmbed(this.strategy.message())));
         if (event.rawEvent() instanceof MessageReceivedEvent messageReceivedEvent)
             // Acknowledge the request with a :stopwatch: reaction
             messageReceivedEvent.getMessage().addReaction("\u23F1").queue();
-        return Exceptional.of(new UndisplayedException(this.strategy.message()));
+        return Result.of(new UndisplayedException(this.strategy.message()));
     }
 }

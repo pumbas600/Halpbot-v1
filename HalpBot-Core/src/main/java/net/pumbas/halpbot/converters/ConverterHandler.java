@@ -29,11 +29,11 @@ import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationCont
 import net.pumbas.halpbot.converters.annotations.Ignore;
 import net.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
 
-import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.context.element.FieldContext;
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.reflect.FieldContext;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.List;

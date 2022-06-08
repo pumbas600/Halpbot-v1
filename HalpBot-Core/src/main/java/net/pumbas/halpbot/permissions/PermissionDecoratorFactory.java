@@ -27,8 +27,8 @@ package net.pumbas.halpbot.permissions;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.component.Service;
 
 @Service
 public interface PermissionDecoratorFactory extends ActionInvokableDecoratorFactory<PermissionDecorator<?>, Permissions>

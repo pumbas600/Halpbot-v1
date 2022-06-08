@@ -36,8 +36,8 @@ import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.objects.DiscordObject;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,14 +91,14 @@ public class Matrix implements DiscordObject
     }
 
     public static final TypeConverter<Matrix> MATRIX_CONVERTER = TypeConverter.builder(Matrix.class)
-            .convert(invocationContext -> Exceptional.of(() -> {
+            .convert(invocationContext -> Result.of(() -> {
                 invocationContext.assertNext('[');
                 List<double[]> matrix = new ArrayList<>();
 
                 while (!invocationContext.isNext(']')) {
                     List<Double> matrixRow = new ArrayList<>();
                     while (!invocationContext.isNext(';') && !invocationContext.isNext(']', false)) {
-                        Exceptional<Double> value = DefaultConverters.DOUBLE_CONVERTER.apply(invocationContext);
+                        Result<Double> value = DefaultConverters.DOUBLE_CONVERTER.apply(invocationContext);
                         if (value.caught())
                             value.rethrowUnchecked();
                         matrixRow.add(value.get());

@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.utilities;
 
-import org.dockbox.hartshorn.core.annotations.context.LogExclude;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.logging.LogExclude;
 import org.slf4j.Logger;
 
 import java.util.function.BiConsumer;

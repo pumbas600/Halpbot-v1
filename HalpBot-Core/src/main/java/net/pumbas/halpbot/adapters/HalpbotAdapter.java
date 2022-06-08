@@ -33,9 +33,9 @@ import net.pumbas.halpbot.common.UndisplayedException;
 import net.pumbas.halpbot.configurations.DisplayConfiguration;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.ApplicationException;
 
 public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListener, Enableable
 {

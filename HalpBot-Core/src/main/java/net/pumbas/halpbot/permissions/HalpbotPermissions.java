@@ -28,9 +28,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.pumbas.halpbot.HalpbotCore;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Service
 public class HalpbotPermissions

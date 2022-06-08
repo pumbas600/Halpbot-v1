@@ -32,14 +32,14 @@ import net.pumbas.halpbot.converters.tokens.PlaceholderToken;
 import net.pumbas.halpbot.converters.tokens.Token;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.List;
 
 public interface CommandInvokable extends ActionInvokable<CommandInvocationContext>
 {
     @Override
-    default Exceptional<Object[]> parameters(CommandInvocationContext invocationContext) {
+    default Result<Object[]> parameters(CommandInvocationContext invocationContext) {
         final List<Token> tokens = invocationContext.tokens();
         final Object[] parsedTokens = new Object[this.executable().parameterCount()];
 
@@ -48,14 +48,14 @@ public interface CommandInvokable extends ActionInvokable<CommandInvocationConte
 
         while (parameterIndex < parsedTokens.length) {
             if (tokenIndex >= tokens.size())
-                return Exceptional.of(new CommandException("There appears to be too many parameters for this command"));
+                return Result.of(new CommandException("There appears to be too many parameters for this command"));
 
             Token currentToken = tokens.get(tokenIndex++);
 
-            Exceptional<Object> parameter = this.parseToken(invocationContext, currentToken);
+            Result<Object> parameter = this.parseToken(invocationContext, currentToken);
             if (parameter.caught()) {
                 if (!currentToken.isOptional())
-                    return Exceptional.of(parameter.error());
+                    return Result.of(parameter.error());
 
                 if (currentToken instanceof ParsingToken parsingToken)
                     parsedTokens[parameterIndex++] = parsingToken.defaultValue();
@@ -64,11 +64,11 @@ public interface CommandInvokable extends ActionInvokable<CommandInvocationConte
         }
 
         if (invocationContext.hasNext() && !invocationContext.canHaveContextLeft())
-            return Exceptional.of(new CommandException("There appears to be too many parameters for this command"));
-        return Exceptional.of(parsedTokens);
+            return Result.of(new CommandException("There appears to be too many parameters for this command"));
+        return Result.of(parsedTokens);
     }
 
-    default Exceptional<Object> parseToken(CommandInvocationContext invocationContext, Token token) {
+    default Result<Object> parseToken(CommandInvocationContext invocationContext, Token token) {
         if (token instanceof ParsingToken parsingToken) {
             invocationContext.update(parsingToken.parameterContext(), parsingToken.sortedAnnotations());
             return parsingToken.converter()
@@ -76,10 +76,10 @@ public interface CommandInvokable extends ActionInvokable<CommandInvocationConte
                 .map(o -> o);
         } else if (token instanceof PlaceholderToken placeholderToken) {
             if (placeholderToken.matches(invocationContext)) {
-                return Exceptional.of(HalpbotUtils.IGNORE_RESULT);
+                return Result.of(HalpbotUtils.IGNORE_RESULT);
             }
-            return Exceptional.of(new CommandException("Expected the placeholder " + placeholderToken.placeholder()));
+            return Result.of(new CommandException("Expected the placeholder " + placeholderToken.placeholder()));
         }
-        return Exceptional.of(new CommandException("Unable to parse the parameter"));
+        return Result.of(new CommandException("Unable to parse the parameter"));
     }
 }

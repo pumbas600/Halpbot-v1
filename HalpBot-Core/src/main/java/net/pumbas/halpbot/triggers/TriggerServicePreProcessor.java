@@ -24,17 +24,15 @@
 
 package net.pumbas.halpbot.triggers;
 
-import org.dockbox.hartshorn.core.Key;
-import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.services.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-@AutomaticActivation
-public class TriggerServicePreProcessor implements ServicePreProcessor<UseTriggers>
+public class TriggerServicePreProcessor implements ServicePreProcessor
 {
     @Override
     public Integer order() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -45,10 +43,5 @@ public class TriggerServicePreProcessor implements ServicePreProcessor<UseTrigge
     @Override
     public <T> void process(ApplicationContext context, Key<T> key) {
         context.get(TriggerAdapter.class).registerTriggers(key.type());
-    }
-
-    @Override
-    public Class<UseTriggers> activator() {
-        return UseTriggers.class;
     }
 }

@@ -35,7 +35,7 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 public interface HalpbotEvent
@@ -50,8 +50,8 @@ public interface HalpbotEvent
         throw new UnsupportedOperationException("The raw event is not of the specified type: " + type.getSimpleName());
     }
 
-    default <T> Exceptional<T> eventSafely(Class<T> type) {
-        return Exceptional.of(() -> this.event(type));
+    default <T> Result<T> eventSafely(Class<T> type) {
+        return Result.of(() -> this.event(type));
     }
 
     MessageChannel messageChannel();

@@ -27,7 +27,7 @@ package net.pumbas.halpbot.commands.chemmat;
 import net.pumbas.halpbot.hibernate.models.Question;
 import net.pumbas.halpbot.hibernate.services.QuestionService;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,11 +62,11 @@ public class QuestionHandler
         Collections.shuffle(this.questionIds, this.random);
     }
 
-    public Exceptional<Question> getNextQuestion() {
+    public Result<Question> getNextQuestion() {
         if (this.currentQuestionIndex >= this.questionIds.size()) {
             this.shuffleQuestions();
             this.currentQuestionIndex = 0;
         }
-        return Exceptional.of(() -> this.questionService.getById(this.questionIds.get(this.currentQuestionIndex++)));
+        return Result.of(() -> this.questionService.getById(this.questionIds.get(this.currentQuestionIndex++)));
     }
 }

@@ -31,13 +31,13 @@ import net.pumbas.halpbot.converters.ConverterHandler;
 import net.pumbas.halpbot.utilities.HalpbotStringTraverser;
 import net.pumbas.halpbot.utilities.StringTraverser;
 
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.boot.ExceptionHandler;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.exceptions.ApplicationException;
+import org.dockbox.hartshorn.application.ExceptionHandler;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.ApplicationException;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +45,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import lombok.Getter;
 
@@ -76,7 +76,7 @@ public class HalpbotTokenService implements TokenService
         List<ParameterContext<?>> parameters = executableContext.parameters();
         int parameterIndex = 0;
 
-        Exceptional<String> command = this.command(executableContext);
+        Result<String> command = this.command(executableContext);
         if (command.present() && !command.get().isBlank()) {
             StringTraverser stringTraverser = new HalpbotStringTraverser(command.get());
 
@@ -121,7 +121,7 @@ public class HalpbotTokenService implements TokenService
         return tokens;
     }
 
-    private Exceptional<String> command(ExecutableElementContext<?, ?> executableContext) {
+    private Result<String> command(ExecutableElementContext<?, ?> executableContext) {
         return executableContext.annotation(Command.class)
             .map(Command::command)
             .orElse(() -> executableContext.annotation(CustomConstructor.class).map(CustomConstructor::command).orNull());

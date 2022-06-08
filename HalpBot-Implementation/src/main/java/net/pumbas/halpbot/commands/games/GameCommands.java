@@ -37,7 +37,7 @@ import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.decorators.log.Log;
 import net.pumbas.halpbot.decorators.time.Time;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -46,7 +46,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Log
 @Time

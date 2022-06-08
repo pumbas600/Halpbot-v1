@@ -4,7 +4,7 @@ import net.pumbas.halpbot.buttons.UseButtons;
 import net.pumbas.halpbot.commands.annotations.UseCommands;
 import net.pumbas.halpbot.triggers.UseTriggers;
 
-import org.dockbox.hartshorn.core.annotations.activate.ServiceActivator;
+import org.dockbox.hartshorn.component.processing.ServiceActivator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -27,8 +27,8 @@ package net.pumbas.halpbot.commands.actioninvokable.context;
 import net.pumbas.halpbot.actions.invokable.ActionContextDecorator;
 import net.pumbas.halpbot.converters.tokens.Token;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.List;
 import java.util.Set;
@@ -41,12 +41,12 @@ public interface TokenActionContext extends ActionContextDecorator<CommandInvoca
 
     //TODO: Perhaps pass in TokenActionContext rather than each value individually
     @Override
-    default <R> Exceptional<R> invoke(CommandInvocationContext invocableContext) {
+    default <R> Result<R> invoke(CommandInvocationContext invocableContext) {
         Set<TypeContext<?>> originalReflections = invocableContext.reflections();
         List<Token> originalTokens = invocableContext.tokens();
         invocableContext.reflections(this.reflections());
         invocableContext.tokens(this.tokens());
-        Exceptional<R> result = ActionContextDecorator.super.invoke(invocableContext);
+        Result<R> result = ActionContextDecorator.super.invoke(invocableContext);
         invocableContext.reflections(originalReflections);
         invocableContext.tokens(originalTokens);
         return result;

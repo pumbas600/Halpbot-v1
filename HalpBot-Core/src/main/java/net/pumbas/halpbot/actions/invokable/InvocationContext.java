@@ -26,8 +26,8 @@ package net.pumbas.halpbot.actions.invokable;
 
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 public interface InvocationContext extends ContextCarrier
 {

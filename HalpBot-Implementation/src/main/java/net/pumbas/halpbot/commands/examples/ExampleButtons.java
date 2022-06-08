@@ -36,9 +36,9 @@ import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Int;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Service
 public class ExampleButtons

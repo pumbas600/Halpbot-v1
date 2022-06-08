@@ -25,25 +25,16 @@
 package net.pumbas.halpbot.commands;
 
 import net.pumbas.halpbot.commands.annotations.Command;
-import net.pumbas.halpbot.commands.annotations.UseCommands;
 
-import org.dockbox.hartshorn.core.Key;
-import org.dockbox.hartshorn.core.annotations.activate.AutomaticActivation;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.services.ServicePreProcessor;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.inject.Key;
 
-@AutomaticActivation
-public class CommandServicePreProcessor implements ServicePreProcessor<UseCommands>
+public class CommandServicePreProcessor implements ServicePreProcessor
 {
     @Override
     public Integer order() {
-        return 1;
-    }
-
-
-    @Override
-    public Class<UseCommands> activator() {
-        return UseCommands.class;
+        return 2;
     }
 
     @Override

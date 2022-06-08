@@ -24,9 +24,9 @@
 
 package net.pumbas.halpbot.actions.invokable;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 public interface ActionContextDecorator<C extends InvocationContext> extends ActionInvokable<C>
@@ -34,7 +34,7 @@ public interface ActionContextDecorator<C extends InvocationContext> extends Act
     ActionInvokable<C> actionInvokable();
 
     @Override
-    default Exceptional<Object[]> parameters(C invocationContext) {
+    default Result<Object[]> parameters(C invocationContext) {
         return this.actionInvokable().parameters(invocationContext);
     }
 
@@ -50,17 +50,17 @@ public interface ActionContextDecorator<C extends InvocationContext> extends Act
     }
 
     @Override
-    default <R> Exceptional<R> invoke(C invocationContext) {
+    default <R> Result<R> invoke(C invocationContext) {
         return this.actionInvokable().invoke(invocationContext);
     }
 
     @Override
-    default <R> Exceptional<R> invoke(Object... parameters) {
+    default <R> Result<R> invoke(Object... parameters) {
         return this.actionInvokable().invoke(parameters);
     }
 
     @Override
-    default <R> Exceptional<R> invoke(ApplicationContext applicationContext) {
+    default <R> Result<R> invoke(ApplicationContext applicationContext) {
         return this.actionInvokable().invoke(applicationContext);
     }
 }

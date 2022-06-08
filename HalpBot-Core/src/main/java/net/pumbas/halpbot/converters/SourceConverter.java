@@ -27,8 +27,8 @@ package net.pumbas.halpbot.converters;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
@@ -42,7 +42,7 @@ public class SourceConverter<T> implements Converter<InvocationContext, T>
 {
     private final TypeContext<T> type;
     private final TypeContext<? extends Annotation> annotationType;
-    private final Function<InvocationContext, Exceptional<T>> mapper;
+    private final Function<InvocationContext, Result<T>> mapper;
     private final OptionType optionType;
 
     public static <T> SourceConverterBuilder<T> builder(TypeContext<T> type) {

@@ -30,7 +30,7 @@ import net.pumbas.halpbot.permissions.HalpbotPermissions;
 import net.pumbas.halpbot.permissions.Permissions;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 @Service
 @Permissions(user = Permission.MANAGE_PERMISSIONS)

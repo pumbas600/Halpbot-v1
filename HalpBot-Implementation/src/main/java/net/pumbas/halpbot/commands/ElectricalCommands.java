@@ -34,7 +34,7 @@ import net.pumbas.halpbot.customparameters.electrical.Resistor;
 import net.pumbas.halpbot.permissions.HalpbotPermissions;
 import net.pumbas.halpbot.permissions.Permissions;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 import java.util.List;
 

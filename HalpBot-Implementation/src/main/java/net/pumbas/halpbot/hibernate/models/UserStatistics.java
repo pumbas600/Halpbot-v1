@@ -28,8 +28,8 @@ import net.pumbas.halpbot.objects.DiscordObject;
 
 import java.io.Serializable;
 
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 //@Entity
 @Table(name = "USER_STATISTICS")

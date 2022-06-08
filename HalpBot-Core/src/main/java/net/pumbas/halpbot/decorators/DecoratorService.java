@@ -29,12 +29,12 @@ import net.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.core.Enableable;
-import org.dockbox.hartshorn.core.context.ContextCarrier;
-import org.dockbox.hartshorn.core.context.element.AnnotatedElementContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
-import org.dockbox.hartshorn.core.domain.tuple.Tuple;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.Tuple;
+import org.dockbox.hartshorn.util.reflect.AnnotatedElementContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -133,13 +133,13 @@ public interface DecoratorService extends Enableable, ContextCarrier
     }
 
     @SuppressWarnings("unchecked")
-    default <T extends ActionInvokable<?>> Exceptional<T> decorator(ActionInvokable<?> actionInvokable, Class<T> type) {
+    default <T extends ActionInvokable<?>> Result<T> decorator(ActionInvokable<?> actionInvokable, Class<T> type) {
         while (actionInvokable instanceof ActionInvokableDecorator decorator) {
             if (type.isAssignableFrom(actionInvokable.getClass()))
-                return Exceptional.of((T) actionInvokable);
+                return Result.of((T) actionInvokable);
             actionInvokable = decorator.actionInvokable();
         }
-        return Exceptional.empty();
+        return Result.empty();
     }
 
     @SuppressWarnings("unchecked")

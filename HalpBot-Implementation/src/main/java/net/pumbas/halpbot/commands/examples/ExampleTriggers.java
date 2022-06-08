@@ -33,7 +33,7 @@ import net.pumbas.halpbot.triggers.TriggerStrategy;
 import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 
 import java.awt.Color;
 

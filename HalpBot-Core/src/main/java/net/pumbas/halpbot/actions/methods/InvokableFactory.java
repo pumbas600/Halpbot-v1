@@ -24,9 +24,9 @@
 
 package net.pumbas.halpbot.actions.methods;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.element.ExecutableElementContext;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.jetbrains.annotations.Nullable;
 
 @Service

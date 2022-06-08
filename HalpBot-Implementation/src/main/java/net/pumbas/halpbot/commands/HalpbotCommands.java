@@ -47,11 +47,11 @@ import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
 
 import org.checkerframework.checker.units.qual.Time;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Log
 @Service

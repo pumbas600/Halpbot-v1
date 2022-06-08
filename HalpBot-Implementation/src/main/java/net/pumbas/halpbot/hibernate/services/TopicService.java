@@ -27,8 +27,8 @@ package net.pumbas.halpbot.hibernate.services;
 import net.pumbas.halpbot.hibernate.models.Topic;
 import net.pumbas.halpbot.hibernate.repositories.TopicRepository;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class TopicService
         return this.topicMappings.getOrDefault(id, "INVALID ID");
     }
 
-    public Exceptional<Long> getIdFromTopic(String topic) {
+    public Result<Long> getIdFromTopic(String topic) {
         return this.topicRepository.getFirstIdFromTopic(topic.toLowerCase(Locale.ROOT));
     }
 }

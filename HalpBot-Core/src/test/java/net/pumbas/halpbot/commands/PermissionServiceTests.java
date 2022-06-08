@@ -46,13 +46,13 @@ import net.pumbas.halpbot.permissions.Permissions;
 import net.pumbas.halpbot.permissions.UsePermissions;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Service
 @UseCommands
@@ -63,7 +63,8 @@ public class PermissionServiceTests
     private final long randomMemberId = 2;
     public static final String RANDOM_MEMBER = "halpbot.test.randommember";
 
-    @Inject private PermissionService permissionService;
+    @Inject
+    private PermissionService permissionService;
     @Inject private HalpbotCore halpbotCore;
     @Inject private CommandAdapter commandAdapter;
     @Inject private InvocationContextFactory factory;

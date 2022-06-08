@@ -27,15 +27,15 @@ package net.pumbas.halpbot.converters;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
 public record TypeConverter<T>(TypeContext<T> type,
                                TypeContext<? extends Annotation> annotationType,
-                               Function<CommandInvocationContext, Exceptional<T>> mapper,
+                               Function<CommandInvocationContext, Result<T>> mapper,
                                OptionType optionType)
     implements ParameterConverter<T>
 {
@@ -64,7 +64,7 @@ public record TypeConverter<T>(TypeContext<T> type,
         }
 
         /**
-         * Specifies the parsing {@link Function}. If an error is caught in the {@link Exceptional} returned by the
+         * Specifies the parsing {@link Function}. If an error is caught in the {@link Result} returned by the
          * function, then it will automatically reset the current index of the {@link CommandInvocationContext}.
          *
          * @param mapper
@@ -73,7 +73,7 @@ public record TypeConverter<T>(TypeContext<T> type,
          * @return Itself for chaining
          */
         @Override
-        public TypeConverterBuilder<T> convert(Function<CommandInvocationContext, Exceptional<T>> mapper) {
+        public TypeConverterBuilder<T> convert(Function<CommandInvocationContext, Result<T>> mapper) {
             //Overriden to provide more specific javadoc
             super.convert(mapper);
             return this;

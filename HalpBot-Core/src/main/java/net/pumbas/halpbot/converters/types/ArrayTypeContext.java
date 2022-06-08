@@ -24,7 +24,7 @@
 
 package net.pumbas.halpbot.converters.types;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 public class ArrayTypeContext extends TypeContext<Object>

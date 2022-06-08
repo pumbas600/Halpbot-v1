@@ -33,7 +33,7 @@ import net.pumbas.halpbot.commands.usage.UsageBuilder;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
-import org.dockbox.hartshorn.core.context.ApplicationContext;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
 import org.junit.jupiter.api.Assertions;

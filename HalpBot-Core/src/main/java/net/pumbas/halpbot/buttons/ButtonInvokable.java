@@ -28,16 +28,16 @@ import net.pumbas.halpbot.actions.exceptions.ActionException;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 
-import org.dockbox.hartshorn.core.context.element.ParameterContext;
-import org.dockbox.hartshorn.core.context.element.TypeContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.reflect.ParameterContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.util.Result;
 
 import java.util.List;
 
 public interface ButtonInvokable extends ActionInvokable<ButtonInvocationContext>
 {
     @Override
-    default Exceptional<Object[]> parameters(ButtonInvocationContext invocationContext) {
+    default Result<Object[]> parameters(ButtonInvocationContext invocationContext) {
         final Object[] parameters = new Object[this.executable().parameterCount()];
         final Object[] passedParameters = invocationContext.passedParameters();
         final List<ParsingToken> nonCommandParameterTokens = invocationContext.nonCommandParameterTokens();
@@ -59,10 +59,10 @@ public interface ButtonInvokable extends ActionInvokable<ButtonInvocationContext
                 if (token.parameterContext().equals(parameterContext)) {
                     parameters[parameterIndex++] = token.converter().apply(invocationContext).orNull();
                 }
-            } else return Exceptional.of(
+            } else return Result.of(
                 new ActionException("There didn't appear to be a value for the parameter %s in the button %s"
                     .formatted(targetType.qualifiedName(), this.executable().qualifiedName())));
         }
-        return Exceptional.of(parameters);
+        return Result.of(parameters);
     }
 }

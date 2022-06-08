@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.pumbas.halpbot.objects.AsyncDuration;
 import net.pumbas.halpbot.utilities.functionalinterfaces.IOFunction;
 
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -216,8 +216,8 @@ public final class HalpbotUtils
      *
      * @return The InputStream, if there were no errors retrieving it
      */
-    public static Exceptional<InputStream> retrieveReader(String filename) {
-        return Exceptional.of(ClassLoader.getSystemClassLoader().getResourceAsStream(filename));
+    public static Result<InputStream> retrieveReader(String filename) {
+        return Result.of(ClassLoader.getSystemClassLoader().getResourceAsStream(filename));
     }
 
     /**
@@ -260,11 +260,11 @@ public final class HalpbotUtils
      *
      * @return The full path to the resource
      */
-    public static Exceptional<String> retrieveResourcePath(String filename) {
+    public static Result<String> retrieveResourcePath(String filename) {
         URL url = ClassLoader.getSystemClassLoader().getResource(filename);
         if (null == url)
-            return Exceptional.empty();
-        return Exceptional.of(url.getPath());
+            return Result.empty();
+        return Result.of(url.getPath());
     }
 
     /**
@@ -437,8 +437,8 @@ public final class HalpbotUtils
     }
 
     /**
-     * Removes the first element in the collection that passes the filter wrapped in an {@link Exceptional}. If no
-     * elements in the collection pass the filter than nothing is removed and an empty exceptional is returned.
+     * Removes the first element in the collection that passes the filter wrapped in an {@link Result}. If no
+     * elements in the collection pass the filter than nothing is removed and an empty Result is returned.
      *
      * @param collection
      *     The collection to remove the element from
@@ -447,17 +447,17 @@ public final class HalpbotUtils
      * @param <T>
      *     The type of the elements in the collection
      *
-     * @return The removed element wrapped in an {@link Exceptional}.
+     * @return The removed element wrapped in an {@link Result}.
      */
-    public static <T> Exceptional<T> removeFirst(Collection<T> collection, Predicate<T> filter) {
+    public static <T> Result<T> removeFirst(Collection<T> collection, Predicate<T> filter) {
         for (T next : collection) {
             if (filter.test(next)) {
                 collection.remove(next);
-                return Exceptional.of(next);
+                return Result.of(next);
             }
         }
 
-        return Exceptional.empty();
+        return Result.empty();
     }
 
     /**

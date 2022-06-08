@@ -40,10 +40,10 @@ import net.pumbas.halpbot.events.InteractionEvent;
 import net.pumbas.halpbot.objects.AsyncDuration;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.core.annotations.inject.ComponentBinding;
-import org.dockbox.hartshorn.core.context.ApplicationContext;
-import org.dockbox.hartshorn.core.context.element.MethodContext;
-import org.dockbox.hartshorn.core.domain.Exceptional;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -53,8 +53,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -255,7 +255,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter
         } else return; // Not a halpbot button
 
         ButtonInvocationContext invocationContext = this.invocationContextFactory.button(halpbotEvent, buttonContext);
-        Exceptional<Object> result = buttonContext.invoke(invocationContext);
+        Result<Object> result = buttonContext.invoke(invocationContext);
 
         if (result.present()) {
             this.displayResult(halpbotEvent, buttonContext, result.get());

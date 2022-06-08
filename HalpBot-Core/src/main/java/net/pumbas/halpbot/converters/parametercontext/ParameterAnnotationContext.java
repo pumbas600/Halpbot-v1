@@ -26,7 +26,7 @@ package net.pumbas.halpbot.converters.parametercontext;
 
 import net.pumbas.halpbot.converters.annotations.Any;
 
-import org.dockbox.hartshorn.core.context.element.TypeContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.List;

@@ -32,8 +32,8 @@ import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.mocks.MockMessageEvent;
 
-import org.dockbox.hartshorn.core.annotations.Factory;
-import org.dockbox.hartshorn.core.annotations.stereotype.Service;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 
 import java.util.List;
 
