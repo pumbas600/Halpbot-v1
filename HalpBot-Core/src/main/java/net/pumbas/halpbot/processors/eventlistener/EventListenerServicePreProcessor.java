@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 public class EventListenerServicePreProcessor implements ServicePreProcessor {
 
@@ -41,6 +42,6 @@ public class EventListenerServicePreProcessor implements ServicePreProcessor {
     @SuppressWarnings("unchecked")
     public <T> void process(final ApplicationContext context, final Key<T> key) {
         final EventListenerContext eventListenerContext = context.first(EventListenerContext.class).get();
-        eventListenerContext.register((Key<? extends EventListener>) key);
+        eventListenerContext.register((TypeContext<? extends EventListener>) key.type());
     }
 }

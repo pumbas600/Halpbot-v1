@@ -22,30 +22,43 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.commands;
+package net.pumbas.halpbot.processors.constructors;
 
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
-import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.ConstructorContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class CustomConstructorServicePreProcessor implements ServicePreProcessor
-{
-    @Override
-    public Integer order() {
-        return 2;
-    }
+public class CustomConstructorServicePreProcessor implements ServicePreProcessor {
 
     @Override
-    public boolean preconditions(ApplicationContext context, Key<?> key) {
+    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
         return key.type().constructors()
             .stream()
             .anyMatch(constructorContext -> constructorContext.annotation(CustomConstructor.class).present());
     }
 
     @Override
-    public <T> void process(ApplicationContext context, Key<T> key) {
-        context.get(CommandAdapter.class).registerCustomConstructors(key.type());
+    public <T> void process(final ApplicationContext context, final Key<T> key) {
+        final TypeContext<T> type = key.type();
+        final CustomConstructorContext customConstructorContext = context.first(CustomConstructorContext.class).get();
+
+        type.constructors()
+            .stream()
+            .filter(constructor -> constructor.annotation(CustomConstructor.class).present()
+                && this.isValidCustomConstructor(context, constructor))
+            .forEach(constructor -> customConstructorContext.register(type, constructor));
+    }
+
+    private boolean isValidCustomConstructor(final ApplicationContext context, final ConstructorContext<?> constructor) {
+        if (!constructor.isPublic()) {
+            context.log().warn("The Constructor %s must be public if it is annotated with @CustomConstructor"
+                .formatted(constructor.qualifiedName()));
+            return false;
+        }
+        return true;
     }
 }
