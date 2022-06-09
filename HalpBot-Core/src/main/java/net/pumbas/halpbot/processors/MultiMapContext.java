@@ -12,14 +12,14 @@ public class MultiMapContext<K, V> extends DefaultContext {
     private final MultiMap<K, V> registeredContext = new ArrayListMultiMap<>();
 
     /**
-     * Registers a value under the specified key.
+     * Registers a context under the specified key so that it can be processed at a later point.
      *
      * @param key
-     *     The key that maps to the list of values
-     * @param value
-     *     The value to add to the list of values
+     *     The key that maps to the list of contexts
+     * @param context
+     *     The context to add to the list of contexts
      */
-    public void register(final K key, final V value) {
-        this.registeredContext.put(key, value);
+    public void register(final K key, final V context) {
+        this.registeredContext.put(key, context);
     }
 }

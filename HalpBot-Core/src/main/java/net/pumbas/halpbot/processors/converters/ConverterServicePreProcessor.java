@@ -22,26 +22,39 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlistener;
+package net.pumbas.halpbot.processors.converters;
 
-import net.dv8tion.jda.api.hooks.EventListener;
+import net.pumbas.halpbot.converters.Converter;
+import net.pumbas.halpbot.converters.annotations.Ignore;
+import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.util.reflect.AccessModifier;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class EventListenerServicePreProcessor implements ServicePreProcessor {
+public class ConverterServicePreProcessor implements ServicePreProcessor {
+
+    private static final HandlerValidator CONVERTER_VALIDATOR = HandlerValidator.build("converter")
+        .modifiers(AccessModifier.PUBLIC, AccessModifier.STATIC, AccessModifier.FINAL)
+        .create();
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {
-        return key.type().childOf(EventListener.class);
+        return !key.type().fieldsOf(Converter.class).isEmpty();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> void process(final ApplicationContext context, final Key<T> key) {
-        final EventListenerContext eventListenerContext = context.first(EventListenerContext.class).get();
-        eventListenerContext.register((TypeContext<? extends EventListener>) key.type());
+        final TypeContext<T> type = key.type();
+        final ConverterContext converterContext = context.first(ConverterContext.class).get();
+
+        for (final var fieldContext : type.fieldsOf(Converter.class)) {
+            if (fieldContext.annotation(Ignore.class).present() || !CONVERTER_VALIDATOR.isValid(context, fieldContext))
+                continue;
+
+            fieldContext.get(null).present(converterContext::register);
+        }
     }
 }

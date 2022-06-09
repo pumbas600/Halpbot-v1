@@ -22,29 +22,26 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.converters;
+package net.pumbas.halpbot.processors.eventlisteners;
 
-import net.pumbas.halpbot.converters.annotations.UseConverters;
+import net.dv8tion.jda.api.hooks.EventListener;
 
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
-import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class ConverterServicePreProcessor implements ServicePreProcessor
-{
+public class EventListenerServicePreProcessor implements ServicePreProcessor {
+
     @Override
-    public Integer order() {
-        return 1;
+    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
+        return key.type().childOf(EventListener.class);
     }
 
     @Override
-    public boolean preconditions(ApplicationContext context, Key<?> key) {
-        return !key.type().fieldsOf(Converter.class).isEmpty();
-    }
-
-    @Override
-    public <T> void process(ApplicationContext context, Key<T> key) {
-        final ConverterHandler handler = context.get(ConverterHandler.class);
-        handler.register(key.type());
+    @SuppressWarnings("unchecked")
+    public <T> void process(final ApplicationContext context, final Key<T> key) {
+        final EventListenerContext eventListenerContext = context.first(EventListenerContext.class).get();
+        eventListenerContext.register((TypeContext<? extends EventListener>) key.type());
     }
 }
