@@ -21,6 +21,10 @@ public class HandlerValidator {
         return new HandlerValidatorBuilder(handlerName);
     }
 
+    public static HandlerValidator publicModifier(final String handlerName) {
+        return new HandlerValidatorBuilder(handlerName).modifiers(AccessModifier.PUBLIC).create();
+    }
+
     public boolean isValid(final ApplicationContext context,
                            final AnnotatedMemberContext<?> element)
     {

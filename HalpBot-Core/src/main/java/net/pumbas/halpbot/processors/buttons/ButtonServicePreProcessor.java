@@ -25,6 +25,7 @@
 package net.pumbas.halpbot.processors.buttons;
 
 import net.pumbas.halpbot.buttons.ButtonHandler;
+import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
@@ -36,10 +37,7 @@ import java.util.List;
 
 public class ButtonServicePreProcessor implements ServicePreProcessor {
 
-    @Override
-    public Integer order() {
-        return 2;
-    }
+    private static final HandlerValidator BUTTON_VALIDATOR = HandlerValidator.publicModifier("button handler");
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {
@@ -54,19 +52,10 @@ public class ButtonServicePreProcessor implements ServicePreProcessor {
         final List<MethodContext<?, T>> buttonHandlers = type.methods(ButtonHandler.class);
 
         for (final MethodContext<?, T> buttonHandler : buttonHandlers) {
-            if (!this.isValidButtonHandler(context, buttonHandler))
+            if (!BUTTON_VALIDATOR.isValid(context, buttonHandler))
                 continue;
 
             buttonHandlerContext.register(type, buttonHandler);
         }
-    }
-
-    private boolean isValidButtonHandler(final ApplicationContext context, final MethodContext<?, ?> buttonHandler) {
-        if (!buttonHandler.isPublic()) {
-            context.log().warn("The button handler %s must be public if its annotated with @ButtonHandler"
-                .formatted(buttonHandler.qualifiedName()));
-            return false;
-        }
-        return true;
     }
 }

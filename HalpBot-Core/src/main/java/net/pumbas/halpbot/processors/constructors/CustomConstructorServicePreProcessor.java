@@ -25,14 +25,16 @@
 package net.pumbas.halpbot.processors.constructors;
 
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
+import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
-import org.dockbox.hartshorn.util.reflect.ConstructorContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 public class CustomConstructorServicePreProcessor implements ServicePreProcessor {
+
+    private static final HandlerValidator CUSTOM_CONSTRUCTOR_VALIDATOR = HandlerValidator.publicModifier("custom constructor");
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {
@@ -49,16 +51,7 @@ public class CustomConstructorServicePreProcessor implements ServicePreProcessor
         type.constructors()
             .stream()
             .filter(constructor -> constructor.annotation(CustomConstructor.class).present()
-                && this.isValidCustomConstructor(context, constructor))
+                && CUSTOM_CONSTRUCTOR_VALIDATOR.isValid(context, constructor))
             .forEach(constructor -> customConstructorContext.register(type, constructor));
-    }
-
-    private boolean isValidCustomConstructor(final ApplicationContext context, final ConstructorContext<?> constructor) {
-        if (!constructor.isPublic()) {
-            context.log().warn("The Constructor %s must be public if it is annotated with @CustomConstructor"
-                .formatted(constructor.qualifiedName()));
-            return false;
-        }
-        return true;
     }
 }

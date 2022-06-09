@@ -27,16 +27,26 @@ package net.pumbas.halpbot.processors.permissions;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.pumbas.halpbot.permissions.PermissionSupplier;
+import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.util.reflect.AccessModifier;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 
 public class PermissionSupplierServicePreProcessor implements ServicePreProcessor {
+
+    private static final HandlerValidator PERMISSION_SUPPLIER_VALIDATOR = HandlerValidator.build("permission supplier")
+        .modifiers(AccessModifier.PUBLIC)
+        .returnType(boolean.class)
+        .parameterCount(2)
+        .parameter(0, Guild.class)
+        .parameter(1, Member.class)
+        .create();
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {
@@ -52,33 +62,12 @@ public class PermissionSupplierServicePreProcessor implements ServicePreProcesso
         final List<? extends MethodContext<?, T>> permissionSuppliers = type.methods(PermissionSupplier.class);
 
         for (final MethodContext<?, T> permissionSupplier : permissionSuppliers) {
-            if (!this.isValidPermissionSupplier(context, permissionSupplier))
+            if (!PERMISSION_SUPPLIER_VALIDATOR.isValid(context, permissionSupplier))
                 continue;
 
             final String permission = permissionSupplier.annotation(PermissionSupplier.class).get().value();
             final PermissionSupplierData<T> data = new PermissionSupplierData<>((MethodContext<Boolean, T>) permissionSupplier, permission);
             permissionSupplierContext.register(type, data);
         }
-    }
-
-    private boolean isValidPermissionSupplier(final ApplicationContext context,
-                                              final MethodContext<?, ?> permissionSupplier)
-    {
-        final List<TypeContext<?>> parameters = permissionSupplier.parameterTypes();
-        if (parameters.size() != 2 || !parameters.get(0).is(Guild.class) || !parameters.get(1).is(Member.class)) {
-            context.log().warn("The permission supplier %s must only have the parameters %s and %s"
-                .formatted(permissionSupplier.qualifiedName(),
-                    Guild.class.getCanonicalName(),
-                    Member.class.getCanonicalName()));
-            return false;
-        }
-
-        if (!permissionSupplier.returnType().is(boolean.class)) {
-            context.log().warn("The permission supplier %s must return a boolean"
-                .formatted(permissionSupplier.qualifiedName()));
-            return false;
-        }
-
-        return true;
     }
 }
