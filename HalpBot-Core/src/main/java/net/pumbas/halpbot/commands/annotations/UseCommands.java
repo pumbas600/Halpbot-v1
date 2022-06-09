@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.commands.annotations;
 
-import net.pumbas.halpbot.commands.CommandServicePreProcessor;
 import net.pumbas.halpbot.converters.annotations.UseConverters;
+import net.pumbas.halpbot.processors.commands.CommandServicePreProcessor;
 import net.pumbas.halpbot.processors.constructors.CustomConstructorServicePreProcessor;
 
 import org.dockbox.hartshorn.component.processing.ServiceActivator;

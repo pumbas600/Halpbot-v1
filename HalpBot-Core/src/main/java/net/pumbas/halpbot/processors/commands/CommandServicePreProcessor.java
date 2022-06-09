@@ -22,30 +22,38 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.commands;
+package net.pumbas.halpbot.processors.commands;
 
 import net.pumbas.halpbot.commands.annotations.Command;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class CommandServicePreProcessor implements ServicePreProcessor
-{
-    @Override
-    public Integer order() {
-        return 2;
-    }
+public class CommandServicePreProcessor implements ServicePreProcessor {
+
+    private static final ElementValidator COMMAND_VALIDATOR = ElementValidator.publicModifier("command handler");
 
     @Override
-    public boolean preconditions(ApplicationContext context, Key<?> key) {
+    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
         return !key.type().methods(Command.class).isEmpty();
     }
 
     @Override
-    public <T> void process(ApplicationContext context, Key<T> key) {
-        context.log().debug("Processing %s".formatted(key.type().qualifiedName()));
-        CommandAdapter commandAdapter = context.get(CommandAdapter.class);
-        commandAdapter.registerCommands(key.type());
+    public <T> void process(final ApplicationContext context, final Key<T> key) {
+        final TypeContext<T> type = key.type();
+        final CommandHandlerContext commandHandlerContext = context.first(CommandHandlerContext.class).get();
+
+        context.log().debug("Processing commands in %s".formatted(type.qualifiedName()));
+
+        for (final MethodContext<?, T> command : type.methods(Command.class)) {
+            if (!COMMAND_VALIDATOR.isValid(context, command))
+                continue;
+
+            commandHandlerContext.register(type, command);
+        }
     }
 }

@@ -102,7 +102,7 @@ public class ElementValidator {
         }
 
         /**
-         * Validates that the element is an {@link MethodContext} and has the specified return type.
+         * Validates that the element is a {@link MethodContext} and has the specified return type.
          *
          * @param returnType
          *     The return type the method should have
@@ -115,6 +115,26 @@ public class ElementValidator {
                     return true;
                 }
                 context.log().warn("The %s %s must have the return type %s"
+                    .formatted(this.handlerName, element.qualifiedName(), returnType.getCanonicalName()));
+                return false;
+            });
+            return this;
+        }
+
+        /**
+         * Validates that the element is a {@link MethodContext} and does not have the specified return type.
+         *
+         * @param returnType
+         *     The return type the method should not have
+         *
+         * @return Itself for chaining
+         */
+        public ElementValidatorBuilder returnTypeNot(final Class<?> returnType) {
+            this.validationPredicates.add((context, element) -> {
+                if (element instanceof MethodContext<?, ?> methodContext && !methodContext.returnType().is(returnType)) {
+                    return true;
+                }
+                context.log().warn("The %s %s cannot have the return type %s"
                     .formatted(this.handlerName, element.qualifiedName(), returnType.getCanonicalName()));
                 return false;
             });
