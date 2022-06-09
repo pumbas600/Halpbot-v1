@@ -24,6 +24,8 @@
 
 package net.pumbas.halpbot.buttons;
 
+import net.pumbas.halpbot.processors.buttons.ButtonServicePreProcessor;
+
 import org.dockbox.hartshorn.component.processing.ServiceActivator;
 
 import java.lang.annotation.ElementType;
@@ -32,9 +34,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @ServiceActivator(scanPackages = "net.pumbas.halpbot",
-                  processors = { ButtonServicePreProcessor.class })
+                  processors = {ButtonServicePreProcessor.class})
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface UseButtons
-{
+public @interface UseButtons {
+
 }

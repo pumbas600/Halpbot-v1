@@ -32,8 +32,8 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.pumbas.halpbot.actions.cooldowns.Cooldown;
 import net.pumbas.halpbot.actions.cooldowns.CooldownType;
-import net.pumbas.halpbot.buttons.ButtonAction;
 import net.pumbas.halpbot.buttons.ButtonAdapter;
+import net.pumbas.halpbot.buttons.ButtonHandler;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
@@ -47,18 +47,20 @@ import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
 
 import org.checkerframework.checker.units.qual.Time;
-import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Service;
 import org.jetbrains.annotations.Nullable;
 
 import jakarta.inject.Inject;
 
 @Log
 @Service
-public class HalpbotCommands
-{
-    @Inject private PermissionService permissionService;
-    @Inject private ApplicationContext applicationContext;
+public class HalpbotCommands {
+
+    @Inject
+    private PermissionService permissionService;
+    @Inject
+    private ApplicationContext applicationContext;
 
     @Command(alias = "source")
     public String source() {
@@ -81,14 +83,14 @@ public class HalpbotCommands
     }
 
     @Command
-    public String author(User user) {
+    public String author(final User user) {
         return user.toString();
     }
 
     @Command
-    public String hasPermission(@Nullable @Source Guild guild,
-                                @Source Member author,
-                                String permission,
+    public String hasPermission(@Nullable @Source final Guild guild,
+                                @Source final Member author,
+                                final String permission,
                                 @Unrequired @Nullable Member member)
     {
         if (guild == null)
@@ -96,22 +98,22 @@ public class HalpbotCommands
         if (member == null)
             member = author;
         return this.permissionService.hasPermission(guild, member, permission)
-                ? "You have the permission!"
-                : "You don't have the permission :(";
+            ? "You have the permission!"
+            : "You don't have the permission :(";
     }
 
     @Time
     @Command(description = "Tests dynamic buttons")
-    public MessageAction dynamicDemo(MessageReceivedEvent event, ButtonAdapter buttonAdapter, @Remaining String suffix) {
+    public MessageAction dynamicDemo(final MessageReceivedEvent event, final ButtonAdapter buttonAdapter, @Remaining final String suffix) {
         return event.getChannel()
-                .sendMessage("This is a dynamic suffix adding button demo")
-                .setActionRow(buttonAdapter.register(
-                        Button.primary("halpbot:button:suffix", "Add suffix"), suffix));
+            .sendMessage("This is a dynamic suffix adding button demo")
+            .setActionRow(buttonAdapter.register(
+                Button.primary("halpbot:button:suffix", "Add suffix"), suffix));
     }
 
     @Time
-    @ButtonAction(id = "halpbot:button:suffix", display = @Duration(10))
-    public String suffix(@Source User user, String suffix) {
+    @ButtonHandler(id = "halpbot:button:suffix", display = @Duration(10))
+    public String suffix(@Source final User user, final String suffix) {
         return user.getName() + suffix;
     }
 
@@ -140,7 +142,7 @@ public class HalpbotCommands
 
     @Time
     @Command(description = "Tests the @Time decorator")
-    public String time(int limit) {
+    public String time(final int limit) {
         double sum = 0;
         // Some expensive action:
         for (int i = 0; i < limit; i++) {
@@ -151,13 +153,13 @@ public class HalpbotCommands
     }
 
     @Command(alias = "centroid", description = "Finds the centroid defined by the specified shapes")
-    public String centroid(@Implicit Shape[] shapes)
+    public String centroid(@Implicit final Shape[] shapes)
     {
         double sumAx = 0;
         double sumAy = 0;
         double totalA = 0;
 
-        for (Shape shape : shapes) {
+        for (final Shape shape : shapes) {
             sumAx += shape.getArea() * shape.getxPos();
             sumAy += shape.getArea() * shape.getyPos();
             totalA += shape.getArea();

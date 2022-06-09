@@ -36,8 +36,8 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.pumbas.halpbot.actions.cooldowns.Cooldown;
-import net.pumbas.halpbot.buttons.ButtonAction;
 import net.pumbas.halpbot.buttons.ButtonAdapter;
+import net.pumbas.halpbot.buttons.ButtonHandler;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.commands.annotations.SlashCommand;
 import net.pumbas.halpbot.converters.annotations.parameter.Description;
@@ -57,8 +57,8 @@ import net.pumbas.halpbot.permissions.Permissions;
 import net.pumbas.halpbot.utilities.ErrorManager;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.ApplicationException;
+import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -74,8 +74,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class ChemmatCommands
-{
+public class ChemmatCommands {
+
     private static final Emoji[] EMOJIS = {
         Emoji.fromMarkdown("\uD83C\uDDE6"),
         Emoji.fromMarkdown("\uD83C\uDDE7"),
@@ -111,7 +111,7 @@ public class ChemmatCommands
     private final Map<Long, QuestionHandler> questionHandlers = new HashMap<>();
 
     //@Autowired
-    public ChemmatCommands(QuestionService questionService, TopicService topicService, UserStatisticsService userStatisticsService) {
+    public ChemmatCommands(final QuestionService questionService, final TopicService topicService, final UserStatisticsService userStatisticsService) {
         this.questionService = questionService;
         this.topicService = topicService;
         this.userStatisticsService = userStatisticsService;
@@ -131,13 +131,13 @@ public class ChemmatCommands
 
     @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Thank everyone who used Halpbot")
-    public String thankYou(JDA jda) {
+    public String thankYou(final JDA jda) {
         final long part1EngineeringId = 813905691713994802L;
-        Guild guild = jda.getGuildById(part1EngineeringId);
+        final Guild guild = jda.getGuildById(part1EngineeringId);
         if (null == guild)
             return "There was an error retrieving the guild";
 
-        TextChannel channel = guild.getTextChannelById(814269336990253057L);
+        final TextChannel channel = guild.getTextChannelById(814269336990253057L);
         if (null == channel)
             return "There was an error retrieving the channel";
 
@@ -153,9 +153,9 @@ public class ChemmatCommands
     }
 
     @Command(description = "Configuration the current channel with the topics to be quizzed on")
-    public String configure(@Source TextChannel textChannel, @Remaining String topicInput) {
-        String[] topics = topicInput.toLowerCase(Locale.ROOT).split(", ");
-        Set<Long> topicIds = Arrays.stream(topics)
+    public String configure(@Source final TextChannel textChannel, @Remaining final String topicInput) {
+        final String[] topics = topicInput.toLowerCase(Locale.ROOT).split(", ");
+        final Set<Long> topicIds = Arrays.stream(topics)
             .map(this.topicService::getIdFromTopic)
             .filter(Result::present)
             .map(Result::get)
@@ -180,24 +180,22 @@ public class ChemmatCommands
 
     @SlashCommand
     @Command(description = "Retrieves a random chemmat quiz")
-    public @Nullable String quiz(ButtonAdapter buttonAdapter, Interaction interaction,
-                                 @Description("The id of the quiz") @Unrequired("-1") long quizId,
-                                 @Description("The chemmat topic to get quizzed on") @Unrequired("") String topic)
+    public @Nullable String quiz(final ButtonAdapter buttonAdapter, final Interaction interaction,
+                                 @Description("The id of the quiz") @Unrequired("-1") final long quizId,
+                                 @Description("The chemmat topic to get quizzed on") @Unrequired("") final String topic)
     {
         // If the command is called from a thread, the channel will be null
         if (null == interaction.getChannel())
             return "Sorry, this command can't be used from a thread :pensive:";
 
-        Result<Question> eQuestion;
+        final Result<Question> eQuestion;
         if (0 <= quizId) {
             eQuestion = Result.of(() -> this.questionService.getById(quizId));
-        }
-        else if (topic.isEmpty()) {
+        } else if (topic.isEmpty()) {
             eQuestion = this.questionHandlers
                 .getOrDefault(interaction.getChannel().getIdLong(), this.defaultQuestionHandler)
                 .getNextQuestion();
-        }
-        else {
+        } else {
             eQuestion = this.getRandomQuestionByTopic(topic);
         }
         if (eQuestion.caught())
@@ -205,37 +203,84 @@ public class ChemmatCommands
         if (eQuestion.absent())
             return "There seemed to be an issue retrieving the question";
 
-        Question question = eQuestion.get();
+        final Question question = eQuestion.get();
         this.userStatisticsService.getByUserId(interaction.getUser().getIdLong()).incrementQuizzesStarted();
-        List<String> shuffledOptions = question.getShuffledOptions(this.random);
-        List<Button> buttons = new ArrayList<>();
+        final List<String> shuffledOptions = question.getShuffledOptions(this.random);
+        final List<Button> buttons = new ArrayList<>();
 
         int index = 0;
-        for (String option : shuffledOptions) {
-            boolean isCorrect = question.getAnswer().equals(option);
+        for (final String option : shuffledOptions) {
+            final boolean isCorrect = question.getAnswer().equals(option);
             buttons.add(buttonAdapter.register(
-                Button.primary("answeredQuestion", ((char)('A' + index++)) + ""),
+                Button.primary("answeredQuestion", ((char) ('A' + index++)) + ""),
                 isCorrect));
 
         }
         buttons.add(buttonAdapter.register(Button.danger("revealAnswer", QUESTION_MARK), question));
 
-        MessageEmbed quizEmbed = this.buildQuestionEmbed(question, shuffledOptions);
+        final MessageEmbed quizEmbed = this.buildQuestionEmbed(question, shuffledOptions);
         interaction.replyEmbeds(quizEmbed)
             .addActionRow(buttons)
             .queue();
         return null;
     }
 
-    @Cooldown
-    @ButtonAction(id = "halpbot:answerquestion")
-    private MessageEmbed answeredQuestion(ButtonClickEvent event, boolean isCorrect) {
-        User user = event.getUser();
-        //Combines the user id with the button id to get a unique id describing the button this user clicked
-        String clickId = user.getId() + event.getComponentId();
+    private Result<Question> getRandomQuestionByTopic(final String topic) {
+        return this.topicService.getIdFromTopic(topic)
+            .map(topicId -> {
+                final List<Long> questionIds = this.questionService.getAllConfirmedIdsByTopicId(topicId);
+                if (questionIds.isEmpty()) {
+                    throw new ApplicationException(
+                        new ResourceNotFoundException(
+                            "There appears to be no questions for the topic '%s'".formatted(topic)));
+                }
+                return this.getRandomQuestion(questionIds);
+            });
+    }
 
-        EmbedBuilder builder = new EmbedBuilder();
-        UserStatistics userStatistics = this.userStatisticsService.getByUserId(user.getIdLong());
+    private MessageEmbed buildQuestionEmbed(final Question question, final List<String> shuffledOptions) {
+        final EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle(HalpbotUtils.capitaliseWords(this.topicService.topicFromId(question.getTopicId())));
+        embedBuilder.setColor(Color.ORANGE);
+        embedBuilder.setFooter("Chemmat notes - Question id: " + question.getId());
+        if (null != question.getImage())
+            embedBuilder.setImage(question.getImage());
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append(question.getQuestion())
+            .append("\n\n");
+
+        int index = 0;
+        for (final String option : shuffledOptions) {
+            builder.append(EMOJIS[index].getName()).append(" : ").append(option).append('\n');
+            index++;
+        }
+
+        embedBuilder.setDescription(builder.toString());
+        return embedBuilder.build();
+    }
+
+    private @Nullable Question getRandomQuestion(final List<Long> ids) {
+        if (!ids.isEmpty()) {
+            final int randomRow = this.random.nextInt(ids.size());
+            try {
+                return this.questionService.getById(ids.get(randomRow));
+            } catch (final ResourceNotFoundException e) {
+                ErrorManager.handle(e);
+            }
+        }
+        return null;
+    }
+
+    @Cooldown
+    @ButtonHandler(id = "halpbot:answerquestion")
+    private MessageEmbed answeredQuestion(final ButtonClickEvent event, final boolean isCorrect) {
+        final User user = event.getUser();
+        //Combines the user id with the button id to get a unique id describing the button this user clicked
+        final String clickId = user.getId() + event.getComponentId();
+
+        final EmbedBuilder builder = new EmbedBuilder();
+        final UserStatistics userStatistics = this.userStatisticsService.getByUserId(user.getIdLong());
         if (!this.clickedButtons.contains(clickId)) {
             this.clickedButtons.add(clickId);
 
@@ -250,13 +295,12 @@ public class ChemmatCommands
             builder.setColor(Color.GREEN);
             builder.setFooter(event.getUser().getName(), event.getUser().getAvatarUrl());
             if (userStatistics.isOnFire()) {
-                int response = Math.min(STREAK_MESSAGES.length - 1,
-                    (int)(userStatistics.getCurrentAnswerStreak() / UserStatistics.IS_ON_FIRE_THRESHOLD) - 1);
+                final int response = Math.min(STREAK_MESSAGES.length - 1,
+                    (int) (userStatistics.getCurrentAnswerStreak() / UserStatistics.IS_ON_FIRE_THRESHOLD) - 1);
 
                 builder.setDescription(STREAK_MESSAGES[response].replace("{NAME}", event.getUser().getName()));
             }
-        }
-        else {
+        } else {
             builder.setTitle("Incorrect: :x:");
             builder.setColor(Color.RED);
         }
@@ -264,15 +308,15 @@ public class ChemmatCommands
     }
 
     @Cooldown
-    @ButtonAction(id = "halpbot:revealanswers", isEphemeral = true)
-    private MessageEmbed revealAnswer(ButtonClickEvent event, Question question) {
-        EmbedBuilder builder = new EmbedBuilder();
-        String userId = event.getUser().getId();
+    @ButtonHandler(id = "halpbot:revealanswers", isEphemeral = true)
+    private MessageEmbed revealAnswer(final ButtonClickEvent event, final Question question) {
+        final EmbedBuilder builder = new EmbedBuilder();
+        final String userId = event.getUser().getId();
 
         event.getMessage()
             .getButtons()
             .forEach(button -> {
-                String clickId = userId + button.getId();
+                final String clickId = userId + button.getId();
                 this.clickedButtons.add(clickId);
             });
 
@@ -286,52 +330,17 @@ public class ChemmatCommands
         return builder.build();
     }
 
-    private MessageEmbed buildQuestionEmbed(Question question, List<String> shuffledOptions) {
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(HalpbotUtils.capitaliseWords(this.topicService.topicFromId(question.getTopicId())));
-        embedBuilder.setColor(Color.ORANGE);
-        embedBuilder.setFooter("Chemmat notes - Question id: " + question.getId());
-        if (null != question.getImage())
-            embedBuilder.setImage(question.getImage());
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(question.getQuestion())
-            .append("\n\n");
-
-        int index = 0;
-        for (String option : shuffledOptions) {
-            builder.append(EMOJIS[index].getName()).append(" : ").append(option).append('\n');
-            index++;
-        }
-
-        embedBuilder.setDescription(builder.toString());
-        return embedBuilder.build();
-    }
-
-    private Result<Question> getRandomQuestionByTopic(String topic) {
-        return this.topicService.getIdFromTopic(topic)
-            .map(topicId -> {
-                List<Long> questionIds = this.questionService.getAllConfirmedIdsByTopicId(topicId);
-                if (questionIds.isEmpty()) {
-                    throw new ApplicationException(
-                            new ResourceNotFoundException(
-                                    "There appears to be no questions for the topic '%s'".formatted(topic)));
-                }
-                return this.getRandomQuestion(questionIds);
-            });
-    }
-
     @Command(description = "Retrieves the different topics available for the chemmat notes")
     public MessageEmbed topics() {
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        final EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Chemmat Topics");
         embedBuilder.setColor(Color.ORANGE);
         embedBuilder.setFooter("Chemmat notes");
 
-        StringBuilder builder = new StringBuilder();
-        List<Topic> topics = this.topicService.list();
+        final StringBuilder builder = new StringBuilder();
+        final List<Topic> topics = this.topicService.list();
         for (int i = 0; i < topics.size(); i++) {
-            Topic topic = topics.get(i);
+            final Topic topic = topics.get(i);
             builder.append(i + 1)
                 .append(". ")
                 .append(HalpbotUtils.capitaliseWords(topic.getTopic()))
@@ -344,17 +353,5 @@ public class ChemmatCommands
     @Command(description = "Returns the link to the halpbot dashboard where you can add questions")
     public String addQuiz() {
         return "You can add questions using the Halpbot Dashboard here: https://www.pumbas.net/questions";
-    }
-
-    private @Nullable Question getRandomQuestion(List<Long> ids) {
-        if (!ids.isEmpty()) {
-            int randomRow = this.random.nextInt(ids.size());
-            try {
-                return this.questionService.getById(ids.get(randomRow));
-            } catch (ResourceNotFoundException e) {
-                ErrorManager.handle(e);
-            }
-        }
-        return null;
     }
 }

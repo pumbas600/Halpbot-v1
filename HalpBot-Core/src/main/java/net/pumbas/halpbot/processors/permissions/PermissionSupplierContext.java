@@ -24,7 +24,7 @@ public class PermissionSupplierContext extends DefaultContext {
      * @param supplier
      *     The {@code PermissionSupplierData} to be registered
      * @param <T>
-     *     The type of the class
+     *     The type of the class the permission supplier is defined within
      *
      * @see net.pumbas.halpbot.permissions.PermissionSupplier
      * @see net.pumbas.halpbot.permissions.PermissionService

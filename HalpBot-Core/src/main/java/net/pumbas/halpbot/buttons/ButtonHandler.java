@@ -33,8 +33,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ButtonAction
-{
+public @interface ButtonHandler {
+
     String id();
 
     boolean isEphemeral() default false;

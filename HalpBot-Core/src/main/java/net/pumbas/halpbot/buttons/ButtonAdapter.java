@@ -29,39 +29,33 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.pumbas.halpbot.adapters.HalpbotAdapter;
 
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface ButtonAdapter extends HalpbotAdapter
-{
+public interface ButtonAdapter extends HalpbotAdapter {
+
     String DYNAMIC_ID_FORMAT = "%s$$%s$$%d-%d";
     Pattern DYNAMIC_ID_EXTRACTION_PATTERN = Pattern.compile(".*\\$\\$(.*)\\$\\$.*");
 
-    String dynamicPrefix();
-
-    int idSuffix();
-
-    void idSuffix(int idSuffix);
-
     @Override
-    default void onEvent(GenericEvent event) {
+    default void onEvent(final GenericEvent event) {
         if (event instanceof ButtonClickEvent buttonClickEvent)
             this.onButtonClick(buttonClickEvent);
     }
 
     void onButtonClick(ButtonClickEvent event);
 
-    default <T> void registerButtons(TypeContext<T> type) {
+    default <T> void registerButtons(final TypeContext<T> type) {
         final T instance = this.applicationContext().get(type);
-        List<MethodContext<?, T>> buttons = type.methods(ButtonAction.class);
+        final List<MethodContext<?, T>> buttons = type.methods(ButtonHandler.class);
 
-        for (MethodContext<?, T> button : buttons) {
+        for (final MethodContext<?, T> button : buttons) {
             if (!button.isPublic()) {
                 this.applicationContext().log()
                     .warn("The button action %s must be public if its annotated with @ButtonCommand"
@@ -77,48 +71,54 @@ public interface ButtonAdapter extends HalpbotAdapter
 
     <T> void registerButton(T instance, MethodContext<?, T> buttonMethodContext);
 
-    @Nullable
-    ButtonContext buttonContext(@Nullable String id);
-
-    default Result<ButtonContext> buttonContextSafely(String id) {
+    default Result<ButtonContext> buttonContextSafely(final String id) {
         return Result.of(this.buttonContext(id));
     }
 
-    Button register(Button button, Object... parameters);
+    @Nullable
+    ButtonContext buttonContext(@Nullable String id);
 
     Button register(Button button, AfterRemovalFunction afterRemoval, Object... parameters);
 
-    void unregister(String id, boolean applyRemovalFunction);
-
-    default void unregister(String id) {
+    default void unregister(final String id) {
         this.unregister(id, true);
     }
 
-    default void unregister(Button button, boolean applyRemovalFunction) {
-        String id = button.getId();
+    void unregister(String id, boolean applyRemovalFunction);
+
+    default void unregister(final Button button) {
+        this.unregister(button, true);
+    }
+
+    default void unregister(final Button button, final boolean applyRemovalFunction) {
+        final String id = button.getId();
         if (id != null)
             this.unregister(button.getId(), applyRemovalFunction);
     }
 
-    default void unregister(Button button) {
-        this.unregister(button, true);
-    }
-
-    default List<Button> register(List<Button> buttons, Object... parameters) {
+    default List<Button> register(final List<Button> buttons, final Object... parameters) {
         return buttons.stream()
             .map((button) -> this.register(button, parameters))
             .toList();
     }
 
-    default String generateDynamicId(String currentId) {
+    Button register(Button button, Object... parameters);
+
+    default String generateDynamicId(final String currentId) {
         // The id suffix prevents buttons registered within the same millisecond having the same id. 1000 is used so
         // that it won't take up any more than 3 characters
         this.idSuffix((this.idSuffix() + 1) % 1000);
         return DYNAMIC_ID_FORMAT.formatted(this.dynamicPrefix(), currentId, System.currentTimeMillis(), this.idSuffix());
     }
 
-    default Result<String> extractOriginalIdSafely(String dynamicId) {
-        String extractedId = this.extractOriginalId(dynamicId);
+    void idSuffix(int idSuffix);
+
+    int idSuffix();
+
+    String dynamicPrefix();
+
+    default Result<String> extractOriginalIdSafely(final String dynamicId) {
+        final String extractedId = this.extractOriginalId(dynamicId);
 
         if (extractedId == null)
             return Result.of(
@@ -129,20 +129,20 @@ public interface ButtonAdapter extends HalpbotAdapter
     }
 
     @Nullable
-    default String extractOriginalId(String dynamicId) {
-        Matcher matcher = DYNAMIC_ID_EXTRACTION_PATTERN.matcher(dynamicId);
+    default String extractOriginalId(final String dynamicId) {
+        final Matcher matcher = DYNAMIC_ID_EXTRACTION_PATTERN.matcher(dynamicId);
         if (matcher.matches()) {
             return matcher.group(1);
         }
         return null;
     }
 
-    default boolean isDynamic(String id) {
-        return id.startsWith(this.dynamicPrefix());
+    default boolean isDynamic(final Button button) {
+        final String id = button.getId();
+        return id != null && this.isDynamic(id);
     }
 
-    default boolean isDynamic(Button button) {
-        String id = button.getId();
-        return id != null && this.isDynamic(id);
+    default boolean isDynamic(final String id) {
+        return id.startsWith(this.dynamicPrefix());
     }
 }
