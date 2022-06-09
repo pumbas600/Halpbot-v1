@@ -1,4 +1,4 @@
-package net.pumbas.halpbot.utilities.handlervalidation;
+package net.pumbas.halpbot.utilities.validation;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.util.reflect.AccessModifier;
@@ -13,16 +13,16 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class HandlerValidator {
+public class ElementValidator {
 
     private final List<ValidationPredicate> validationPredicates;
 
-    public static HandlerValidatorBuilder build(final String handlerName) {
-        return new HandlerValidatorBuilder(handlerName);
+    public static ElementValidatorBuilder build(final String handlerName) {
+        return new ElementValidatorBuilder(handlerName);
     }
 
-    public static HandlerValidator publicModifier(final String handlerName) {
-        return new HandlerValidatorBuilder(handlerName).modifiers(AccessModifier.PUBLIC).create();
+    public static ElementValidator publicModifier(final String handlerName) {
+        return new ElementValidatorBuilder(handlerName).modifiers(AccessModifier.PUBLIC).create();
     }
 
     public boolean isValid(final ApplicationContext context,
@@ -35,16 +35,16 @@ public class HandlerValidator {
         return true;
     }
 
-    public static class HandlerValidatorBuilder {
+    public static class ElementValidatorBuilder {
 
         private final String handlerName;
         private final List<ValidationPredicate> validationPredicates = new ArrayList<>();
 
-        public HandlerValidatorBuilder(final String handlerName) {
+        public ElementValidatorBuilder(final String handlerName) {
             this.handlerName = handlerName;
         }
 
-        public HandlerValidatorBuilder modifiers(final AccessModifier... modifiers) {
+        public ElementValidatorBuilder modifiers(final AccessModifier... modifiers) {
             for (final AccessModifier modifier : modifiers) {
                 this.validationPredicates.add((context, element) -> {
                     if (!element.has(modifier)) {
@@ -58,7 +58,7 @@ public class HandlerValidator {
             return this;
         }
 
-        public HandlerValidatorBuilder returnType(final Class<?> returnType) {
+        public ElementValidatorBuilder returnType(final Class<?> returnType) {
             this.validationPredicates.add((context, element) -> {
                 if (element instanceof MethodContext<?, ?> methodContext && methodContext.returnType().is(returnType)) {
                     return true;
@@ -70,7 +70,7 @@ public class HandlerValidator {
             return this;
         }
 
-        public HandlerValidatorBuilder parameterCount(final int parameterCount) {
+        public ElementValidatorBuilder parameterCount(final int parameterCount) {
             this.validationPredicates.add((context, element) -> {
                 if (!(element instanceof ExecutableElementContext<?, ?> executable) ||
                     executable.parameterCount() != parameterCount) {
@@ -83,7 +83,7 @@ public class HandlerValidator {
             return this;
         }
 
-        public HandlerValidatorBuilder parameter(final int index, final Class<?> type) {
+        public ElementValidatorBuilder parameter(final int index, final Class<?> type) {
             this.validationPredicates.add((context, element) -> {
                 if (!(element instanceof ExecutableElementContext<?, ?> executable)) {
                     context.log().warn("The %s %s must be an executable element"
@@ -105,8 +105,8 @@ public class HandlerValidator {
             return this;
         }
 
-        public HandlerValidator create() {
-            return new HandlerValidator(this.validationPredicates);
+        public ElementValidator create() {
+            return new ElementValidator(this.validationPredicates);
         }
     }
 }

@@ -25,7 +25,7 @@
 package net.pumbas.halpbot.processors.constructors;
 
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
-import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
@@ -34,7 +34,7 @@ import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 public class CustomConstructorServicePreProcessor implements ServicePreProcessor {
 
-    private static final HandlerValidator CUSTOM_CONSTRUCTOR_VALIDATOR = HandlerValidator.publicModifier("custom constructor");
+    private static final ElementValidator CUSTOM_CONSTRUCTOR_VALIDATOR = ElementValidator.publicModifier("custom constructor");
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {

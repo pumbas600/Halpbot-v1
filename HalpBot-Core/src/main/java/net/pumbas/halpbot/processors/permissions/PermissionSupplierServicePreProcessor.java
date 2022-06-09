@@ -27,7 +27,7 @@ package net.pumbas.halpbot.processors.permissions;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.pumbas.halpbot.permissions.PermissionSupplier;
-import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
@@ -40,7 +40,7 @@ import java.util.List;
 
 public class PermissionSupplierServicePreProcessor implements ServicePreProcessor {
 
-    private static final HandlerValidator PERMISSION_SUPPLIER_VALIDATOR = HandlerValidator.build("permission supplier")
+    private static final ElementValidator PERMISSION_SUPPLIER_VALIDATOR = ElementValidator.build("permission supplier")
         .modifiers(AccessModifier.PUBLIC)
         .returnType(boolean.class)
         .parameterCount(2)

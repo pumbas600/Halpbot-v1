@@ -25,7 +25,7 @@
 package net.pumbas.halpbot.processors.buttons;
 
 import net.pumbas.halpbot.buttons.ButtonHandler;
-import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
@@ -37,7 +37,7 @@ import java.util.List;
 
 public class ButtonServicePreProcessor implements ServicePreProcessor {
 
-    private static final HandlerValidator BUTTON_VALIDATOR = HandlerValidator.publicModifier("button handler");
+    private static final ElementValidator BUTTON_VALIDATOR = ElementValidator.publicModifier("button handler");
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {

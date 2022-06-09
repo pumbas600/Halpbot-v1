@@ -1,4 +1,4 @@
-package net.pumbas.halpbot.utilities.handlervalidation;
+package net.pumbas.halpbot.utilities.validation;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.util.reflect.AnnotatedMemberContext;

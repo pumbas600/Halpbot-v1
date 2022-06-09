@@ -26,7 +26,7 @@ package net.pumbas.halpbot.processors.converters;
 
 import net.pumbas.halpbot.converters.Converter;
 import net.pumbas.halpbot.converters.annotations.Ignore;
-import net.pumbas.halpbot.utilities.handlervalidation.HandlerValidator;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
@@ -36,7 +36,7 @@ import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 public class ConverterServicePreProcessor implements ServicePreProcessor {
 
-    private static final HandlerValidator CONVERTER_VALIDATOR = HandlerValidator.build("converter")
+    private static final ElementValidator CONVERTER_VALIDATOR = ElementValidator.build("converter")
         .modifiers(AccessModifier.PUBLIC, AccessModifier.STATIC, AccessModifier.FINAL)
         .create();
 
