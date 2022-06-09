@@ -28,14 +28,15 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.pumbas.halpbot.common.HalpbotBuilder;
 
-public final class Main
-{
+public final class Main {
+
     private Main() {}
 
     public static void main(String[] args) {
+
         HalpbotBuilder.create(Halpbot.class, args)
-                .build(token -> JDABuilder.createDefault(token)
-                        .setActivity(Activity.competing("quest to halp everyone"))
-                );
+            .build(token -> JDABuilder.createDefault(token)
+                .setActivity(Activity.competing("quest to halp everyone"))
+            );
     }
 }

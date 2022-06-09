@@ -24,21 +24,16 @@
 
 package net.pumbas.halpbot.configurations;
 
-
-import org.dockbox.hartshorn.component.Service;
-import org.dockbox.hartshorn.data.ConfigurationProviders;
 import org.dockbox.hartshorn.data.annotations.Configuration;
 import org.dockbox.hartshorn.data.annotations.ConfigurationObject;
-import org.dockbox.hartshorn.data.annotations.Value;
 
 import lombok.Getter;
 
 @Getter
-@Service
 @ConfigurationObject
-@Configuration("classpath:bot-config.properties")
-public class BotConfiguration
-{
+@Configuration("classpath:bot-config")
+public class BotConfiguration {
+
     private long ownerId = -1;
     private String token = "";
     private String defaultPrefix = "!";

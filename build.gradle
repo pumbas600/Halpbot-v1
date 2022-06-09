@@ -79,6 +79,7 @@ allprojects {
             testImplementation fileTree(dir: libs, include: '*.jar')
             implementation 'org.dockbox.hartshorn:hartshorn-core:22.3'
             implementation 'org.dockbox.hartshorn:hartshorn-data:22.3'
+            //implementation 'org.dockbox.hartshorn:hartshorn-test-suite:22.3'
         }
 
         test {

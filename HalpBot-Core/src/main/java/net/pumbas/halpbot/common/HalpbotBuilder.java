@@ -43,8 +43,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 
-public class HalpbotBuilder
-{
+public class HalpbotBuilder {
+
     private final ApplicationContext applicationContext;
 
     public HalpbotBuilder(ApplicationContext applicationContext) {
@@ -75,7 +75,7 @@ public class HalpbotBuilder
         }
     }
 
-    public void build(Function<String, JDABuilder> jdaBuilder) {
+    public ApplicationContext build(Function<String, JDABuilder> jdaBuilder) {
         HalpbotCore halpbotCore = this.applicationContext.get(HalpbotCore.class);
         BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
 
@@ -87,5 +87,6 @@ public class HalpbotBuilder
         } catch (LoginException | InterruptedException e) {
             this.applicationContext.log().error("There was an error while building the JDA instance", e);
         }
+        return this.applicationContext;
     }
 }
