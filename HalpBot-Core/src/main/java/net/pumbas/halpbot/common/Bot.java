@@ -1,6 +1,6 @@
 package net.pumbas.halpbot.common;
 
-import net.pumbas.halpbot.processors.EventListenerServicePreProcessor;
+import net.pumbas.halpbot.processors.eventlistener.EventListenerServicePreProcessor;
 
 import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.component.processing.ServiceActivator;

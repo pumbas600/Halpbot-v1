@@ -1,4 +1,4 @@
-package net.pumbas.halpbot.processors;
+package net.pumbas.halpbot.processors.eventlistener;
 
 import net.dv8tion.jda.api.hooks.EventListener;
 

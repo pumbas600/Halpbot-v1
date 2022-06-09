@@ -24,6 +24,8 @@
 
 package net.pumbas.halpbot.permissions;
 
+import net.pumbas.halpbot.processors.permissions.PermissionSupplierServicePreProcessor;
+
 import org.dockbox.hartshorn.component.processing.ServiceActivator;
 
 import java.lang.annotation.ElementType;
@@ -32,9 +34,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @ServiceActivator(scanPackages = "net.pumbas.halpbot",
-                  processors = { PermissionSupplierServicePreProcessor.class })
+                  processors = {PermissionSupplierServicePreProcessor.class})
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface UsePermissions
-{
+public @interface UsePermissions {
+
 }

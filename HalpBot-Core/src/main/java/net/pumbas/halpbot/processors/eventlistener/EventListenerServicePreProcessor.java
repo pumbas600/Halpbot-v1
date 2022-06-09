@@ -22,21 +22,15 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors;
+package net.pumbas.halpbot.processors.eventlistener;
 
 import net.dv8tion.jda.api.hooks.EventListener;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.component.processing.ProcessingOrder;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
 
 public class EventListenerServicePreProcessor implements ServicePreProcessor {
-
-    @Override
-    public Integer order() {
-        return ProcessingOrder.FIRST;
-    }
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {
