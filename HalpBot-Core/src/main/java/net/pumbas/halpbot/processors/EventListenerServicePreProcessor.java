@@ -22,30 +22,31 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.common;
+package net.pumbas.halpbot.processors;
 
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.pumbas.halpbot.HalpbotCore;
 
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.processing.ProcessingOrder;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
-import org.dockbox.hartshorn.application.context.ApplicationContext;
 
-public class EventListenerServicePreProcessor implements ServicePreProcessor
-{
+public class EventListenerServicePreProcessor implements ServicePreProcessor {
+
     @Override
     public Integer order() {
-        return 1;
+        return ProcessingOrder.FIRST;
     }
 
     @Override
-    public boolean preconditions(ApplicationContext context, Key<?> key) {
+    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
         return key.type().childOf(EventListener.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> void process(ApplicationContext context, Key<T> key) {
-        context.get(HalpbotCore.class).registerEventListener(context.get((Key<? extends EventListener>) key));
+    public <T> void process(final ApplicationContext context, final Key<T> key) {
+        final EventListenerContext eventListenerContext = context.first(EventListenerContext.class).get();
+        eventListenerContext.register((Key<? extends EventListener>) key);
     }
 }
