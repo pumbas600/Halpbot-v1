@@ -27,28 +27,20 @@ package net.pumbas.halpbot;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
-import net.pumbas.halpbot.commands.annotations.UseCommands;
+import net.pumbas.halpbot.common.Bot;
 import net.pumbas.halpbot.common.HalpbotBuilder;
+import net.pumbas.halpbot.common.UseAll;
 
-import org.dockbox.hartshorn.application.Activator;
-import org.dockbox.hartshorn.component.Service;
+@Bot
+@UseAll
+public class DemoBot {
 
-// Indicates that the bot is a singleton and allows this class to be scanned for commands, etc
-@Service
-
-// Indicates that this class is an application activator
-@Activator
-
-// Activates the CommandAdapter ServicePreProcessors which scan for commands, converters, etc
-@UseCommands
-public class DemoBot
-{
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         /*
          * This starts up Halpbot and automatically begins to scan for actions
          */
         HalpbotBuilder.create(DemoBot.class, args)
-                .build(token -> JDABuilder.createDefault(token)
-                        .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!")));
+            .build(token -> JDABuilder.createDefault(token)
+                .setActivity(Activity.of(ActivityType.LISTENING, "to how cool Halpbot is!")));
     }
 }

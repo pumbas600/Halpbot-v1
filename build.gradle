@@ -7,7 +7,7 @@ plugins {
 final File libs = file('libs')
 final String groupAndProject = "$groupId.$projectId"
 
-group groupAndProject;
+group groupAndProject
 version projectVersion
 description 'Halpbot is an annotation based JDA framework designed to reduce boiler plate'
 

@@ -37,16 +37,16 @@ import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.context.ContextCarrier;
 import org.dockbox.hartshorn.util.ApplicationException;
 
-public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListener, Enableable
-{
-    default void initialise(JDA jda) {}
+public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListener, Enableable {
+
+    default void initialise(final JDA jda) {}
 
     @Override
     default void enable() throws ApplicationException {
         this.halpbotCore().registerAdapter(this);
     }
 
-    default void handleException(HalpbotEvent halpbotEvent, Throwable exception) {
+    default void handleException(final HalpbotEvent halpbotEvent, final Throwable exception) {
         if (exception instanceof ExplainedException explainedException) {
             this.halpbotCore().displayConfiguration()
                 .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
@@ -57,8 +57,8 @@ public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListen
                     30);
     }
 
-    default void displayResult(HalpbotEvent halpbotEvent, DisplayableResult displayableResult, Object result) {
-        DisplayConfiguration displayConfiguration = this.halpbotCore().displayConfiguration();
+    default void displayResult(final HalpbotEvent halpbotEvent, final DisplayableResult displayableResult, final Object result) {
+        final DisplayConfiguration displayConfiguration = this.halpbotCore().displayConfiguration();
         if (displayableResult.isEphemeral())
             displayConfiguration.displayTemporary(halpbotEvent, result, 0);
         else displayConfiguration.display(halpbotEvent, result, displayableResult.displayDuration());

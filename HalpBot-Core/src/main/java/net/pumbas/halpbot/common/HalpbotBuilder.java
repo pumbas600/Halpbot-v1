@@ -47,12 +47,12 @@ public class HalpbotBuilder {
 
     private final ApplicationContext applicationContext;
 
-    public HalpbotBuilder(ApplicationContext applicationContext) {
+    public HalpbotBuilder(final ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
-    public static HalpbotBuilder create(Class<?> main, String[] args) {
-        ApplicationContext applicationContext = new HalpbotApplicationFactory()
+    public static HalpbotBuilder create(final Class<?> main, final String[] args) {
+        final ApplicationContext applicationContext = new HalpbotApplicationFactory()
             .loadDefaults()
             .activator(TypeContext.of(main))
             .arguments(args)
@@ -75,16 +75,16 @@ public class HalpbotBuilder {
         }
     }
 
-    public ApplicationContext build(Function<String, JDABuilder> jdaBuilder) {
-        HalpbotCore halpbotCore = this.applicationContext.get(HalpbotCore.class);
-        BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
+    public ApplicationContext build(final Function<String, JDABuilder> jdaBuilder) {
+        final HalpbotCore halpbotCore = this.applicationContext.get(HalpbotCore.class);
+        final BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
 
         try {
-            JDABuilder builder = jdaBuilder.apply(botConfiguration.token());
-            JDA jda = builder.build();
+            final JDABuilder builder = jdaBuilder.apply(botConfiguration.token());
+            final JDA jda = builder.build();
             halpbotCore.initialise(jda);
             jda.awaitReady();
-        } catch (LoginException | InterruptedException e) {
+        } catch (final LoginException | InterruptedException e) {
             this.applicationContext.log().error("There was an error while building the JDA instance", e);
         }
         return this.applicationContext;

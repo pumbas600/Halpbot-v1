@@ -80,7 +80,6 @@ signing {
 }
 
 
-
 task copyPublications {
     doLast {
         final def version = projectVersion
@@ -109,5 +108,4 @@ publishToMavenLocal.finalizedBy copyPublications
 
 dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.10'
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 }
