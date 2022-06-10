@@ -36,8 +36,6 @@ import org.dockbox.hartshorn.util.reflect.AccessModifier;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-import java.util.List;
-
 public class PermissionSupplierServicePreProcessor implements ServicePreProcessor {
 
     private static final ElementValidator PERMISSION_SUPPLIER_VALIDATOR = ElementValidator.build("permission supplier")
@@ -57,11 +55,11 @@ public class PermissionSupplierServicePreProcessor implements ServicePreProcesso
     @SuppressWarnings("unchecked")
     public <T> void process(final ApplicationContext context, final Key<T> key) {
         final TypeContext<T> type = key.type();
-
         final PermissionSupplierContext permissionSupplierContext = context.first(PermissionSupplierContext.class).get();
-        final List<? extends MethodContext<?, T>> permissionSuppliers = type.methods(PermissionSupplier.class);
 
-        for (final MethodContext<?, T> permissionSupplier : permissionSuppliers) {
+        context.log().debug("Processing permission suppliers in {}", type.qualifiedName());
+        
+        for (final MethodContext<?, T> permissionSupplier : type.methods(PermissionSupplier.class)) {
             if (!PERMISSION_SUPPLIER_VALIDATOR.isValid(context, permissionSupplier))
                 continue;
 

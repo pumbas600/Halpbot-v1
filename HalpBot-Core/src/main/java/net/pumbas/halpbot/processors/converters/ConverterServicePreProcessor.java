@@ -50,6 +50,8 @@ public class ConverterServicePreProcessor implements ServicePreProcessor {
         final TypeContext<T> type = key.type();
         final ConverterContext converterContext = context.first(ConverterContext.class).get();
 
+        context.log().debug("Processing converters in {}", type.qualifiedName());
+
         for (final var fieldContext : type.fieldsOf(Converter.class)) {
             if (fieldContext.annotation(Ignore.class).present() || !CONVERTER_VALIDATOR.isValid(context, fieldContext))
                 continue;

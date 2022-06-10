@@ -48,6 +48,8 @@ public class CustomConstructorServicePreProcessor implements ServicePreProcessor
         final TypeContext<T> type = key.type();
         final CustomConstructorContext customConstructorContext = context.first(CustomConstructorContext.class).get();
 
+        context.log().debug("Processing custom constructors in {}", type.qualifiedName());
+
         type.constructors()
             .stream()
             .filter(constructor -> constructor.annotation(CustomConstructor.class).present()

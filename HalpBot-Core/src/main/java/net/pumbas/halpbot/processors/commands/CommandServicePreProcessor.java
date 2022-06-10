@@ -47,7 +47,7 @@ public class CommandServicePreProcessor implements ServicePreProcessor {
         final TypeContext<T> type = key.type();
         final CommandHandlerContext commandHandlerContext = context.first(CommandHandlerContext.class).get();
 
-        context.log().debug("Processing commands in %s".formatted(type.qualifiedName()));
+        context.log().debug("Processing command handlers in {}", type.qualifiedName());
 
         for (final MethodContext<?, T> command : type.methods(Command.class)) {
             if (!COMMAND_VALIDATOR.isValid(context, command))

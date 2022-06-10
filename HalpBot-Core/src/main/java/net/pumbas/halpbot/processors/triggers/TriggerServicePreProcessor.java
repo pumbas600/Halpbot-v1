@@ -22,26 +22,38 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.processors.triggers;
 
+import net.pumbas.halpbot.triggers.Trigger;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
+
+import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
-import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class TriggerServicePreProcessor implements ServicePreProcessor
-{
-    @Override
-    public Integer order() {
-        return 2;
-    }
+public class TriggerServicePreProcessor implements ServicePreProcessor {
+
+    private static final ElementValidator TRIGGER_VALIDATOR = ElementValidator.publicModifier("trigger handler");
 
     @Override
-    public boolean preconditions(ApplicationContext context, Key<?> key) {
+    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
         return !key.type().methods(Trigger.class).isEmpty();
     }
 
     @Override
-    public <T> void process(ApplicationContext context, Key<T> key) {
-        context.get(TriggerAdapter.class).registerTriggers(key.type());
+    public <T> void process(final ApplicationContext context, final Key<T> key) {
+        final TypeContext<T> type = key.type();
+        final TriggerHandlerContext triggerHandlerContext = context.first(TriggerHandlerContext.class).get();
+
+        context.log().debug("Processing trigger handlers in {}", type.qualifiedName());
+
+        for (final MethodContext<?, T> methodContext : type.methods(Trigger.class)) {
+            if (!TRIGGER_VALIDATOR.isValid(context, methodContext))
+                continue;
+
+            triggerHandlerContext.register(type, methodContext);
+        }
     }
 }

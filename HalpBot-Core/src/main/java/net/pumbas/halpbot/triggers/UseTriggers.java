@@ -24,6 +24,8 @@
 
 package net.pumbas.halpbot.triggers;
 
+import net.pumbas.halpbot.processors.triggers.TriggerServicePreProcessor;
+
 import org.dockbox.hartshorn.component.processing.ServiceActivator;
 
 import java.lang.annotation.ElementType;
@@ -32,9 +34,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @ServiceActivator(scanPackages = "net.pumbas.halpbot",
-                  processors = { TriggerServicePreProcessor.class })
+                  processors = {TriggerServicePreProcessor.class})
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface UseTriggers
-{
+public @interface UseTriggers {
+
 }
