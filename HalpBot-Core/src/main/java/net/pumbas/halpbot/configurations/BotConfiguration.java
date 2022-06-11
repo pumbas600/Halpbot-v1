@@ -37,7 +37,7 @@ public class BotConfiguration {
     private long ownerId = -1;
     private String token = "";
     private String defaultPrefix = "!";
-    private String displayConfiguration = "SimpleDisplayConfiguration";
-    private String usageBuilder = "TypeUsageBuilder";
+    private String displayConfiguration = "net.pumbas.halpbot.configurations.SimpleDisplayConfiguration";
+    private String usageBuilder = "net.pumbas.halpbot.commands.usage.TypeUsageBuilder";
     private boolean useRoleBinding;
 }

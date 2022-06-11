@@ -76,10 +76,10 @@ allprojects {
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
             testImplementation 'ch.qos.logback:logback-classic:1.2.10'
 
-            testImplementation fileTree(dir: libs, include: '*.jar')
-            implementation 'org.dockbox.hartshorn:hartshorn-core:22.3'
-            implementation 'org.dockbox.hartshorn:hartshorn-data:22.3'
-            //implementation 'org.dockbox.hartshorn:hartshorn-test-suite:22.3'
+            //testImplementation fileTree(dir: libs, include: '*.jar')
+            implementation 'org.dockbox.hartshorn:hartshorn-core:22.3.1'
+            implementation 'org.dockbox.hartshorn:hartshorn-data:22.3.1'
+            implementation 'org.dockbox.hartshorn:hartshorn-test-suite:22.3.1'
         }
 
         test {

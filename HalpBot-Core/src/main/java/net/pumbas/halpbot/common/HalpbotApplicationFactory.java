@@ -4,6 +4,7 @@ import net.pumbas.halpbot.permissions.UsePermissions;
 
 import org.dockbox.hartshorn.application.Activator;
 import org.dockbox.hartshorn.application.StandardApplicationFactory;
+import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.inject.binding.InjectConfig;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.AnnotatedElementModifier;
@@ -14,12 +15,12 @@ import java.lang.annotation.Annotation;
 public class HalpbotApplicationFactory extends StandardApplicationFactory {
 
     @Override
-    public StandardApplicationFactory activator(TypeContext<?> activator) {
-        Result<Bot> eBot = activator.annotation(Bot.class);
+    public StandardApplicationFactory activator(final TypeContext<?> activator) {
+        final Result<Bot> eBot = activator.annotation(Bot.class);
         if (eBot.absent())
             throw new IllegalArgumentException("The bot main class must be annotated with @Bot");
 
-        Bot bot = eBot.get();
+        final Bot bot = eBot.get();
         AnnotatedElementModifier.of(activator).add(new Activator() {
             @Override
             public Class<? extends Annotation> annotationType() {
@@ -47,13 +48,12 @@ public class HalpbotApplicationFactory extends StandardApplicationFactory {
     @Override
     public StandardApplicationFactory loadDefaults() {
         return super.loadDefaults()
-//            .serviceActivator(new UseConfigurations()
-//            {
-//                @Override
-//                public Class<? extends Annotation> annotationType() {
-//                    return UseConfigurations.class;
-//                }
-//            })
+            .serviceActivator(new UseConfigurations() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return UseConfigurations.class;
+                }
+            })
             .serviceActivator(new UsePermissions() {
                 @Override
                 public Class<? extends Annotation> annotationType() {
