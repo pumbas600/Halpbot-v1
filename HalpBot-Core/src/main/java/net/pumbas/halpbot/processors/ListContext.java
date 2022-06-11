@@ -26,4 +26,11 @@ public class ListContext<T> extends DefaultContext {
     public List<T> registeredContexts() {
         return Collections.unmodifiableList(this.registeredContexts);
     }
+
+    /**
+     * Clears all the registered contexts
+     */
+    public void clear() {
+        this.registeredContexts.clear();
+    }
 }

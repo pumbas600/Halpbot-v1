@@ -26,12 +26,11 @@ package net.pumbas.halpbot.converters;
 
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
-import net.pumbas.halpbot.converters.annotations.Ignore;
 import net.pumbas.halpbot.converters.annotations.NonCommandAnnotation;
+import net.pumbas.halpbot.processors.converters.ConverterContext;
 
 import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.context.ContextCarrier;
-import org.dockbox.hartshorn.util.reflect.FieldContext;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
@@ -40,35 +39,64 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface ConverterHandler extends ContextCarrier, Enableable
-{
+public interface ConverterHandler extends ContextCarrier, Enableable {
+
     @Override
-    @SuppressWarnings("unchecked")
     default void enable() {
-        Set<TypeContext<? extends Annotation>> nonCommandAnnotations = this.applicationContext().environment()
+        this.registerNonCommandAnnotations();
+        this.registerConverters();
+    }
+
+    @SuppressWarnings("unchecked")
+    default void registerNonCommandAnnotations() {
+        final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = this.applicationContext().environment()
             .types(NonCommandAnnotation.class)
             .stream()
             .map(type -> (TypeContext<? extends Annotation>) type)
             .collect(Collectors.toSet());
 
-        this.addNonCammandAnnotations(nonCommandAnnotations);
-        this.applicationContext().log().info("Registered %d noncommand annotations".formatted(nonCommandAnnotations.size()));
+        this.addNonCommandAnnotations(nonCommandAnnotations);
+        this.applicationContext().log().info("Registered %d non-command annotations".formatted(nonCommandAnnotations.size()));
     }
 
-    default <T, C extends InvocationContext> Converter<C, T> from(Class<T> type) {
+    default void registerConverters() {
+        final ConverterContext converterContext = this.applicationContext().first(ConverterContext.class).get();
+        for (final Converter<?, ?> converter : converterContext.registeredContexts()) {
+            this.registerConverter(converter);
+        }
+
+        this.applicationContext().log().info("Registered %d converters".formatted(converterContext.registeredContexts().size()));
+        converterContext.clear();
+    }
+
+    default void addNonCommandAnnotations(final Set<TypeContext<? extends Annotation>> types) {
+        types.forEach(this::addNonCommandAnnotation);
+    }
+
+    void registerConverter(Converter<?, ?> converter);
+
+    void addNonCommandAnnotation(TypeContext<? extends Annotation> type);
+
+    default <T, C extends InvocationContext> Converter<C, T> from(final Class<T> type) {
         return this.from(TypeContext.of(type), TypeContext.VOID);
     }
 
-    default <T, C extends InvocationContext> Converter<C, T> from(ParameterContext<T> parameterContext, List<TypeContext<? extends Annotation>> sortedAnnotations) {
-        TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
+    <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType);
+
+    default <T, C extends InvocationContext> Converter<C, T> from(final ParameterContext<T> parameterContext, final List<TypeContext<? extends Annotation>> sortedAnnotations) {
+        final TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
         return this.from(parameterContext.type(), targetAnnotationType);
     }
 
-    default <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, CommandInvocationContext invocationContext) {
-        int annotationIndex = invocationContext.currentAnnotationIndex();
-        List<TypeContext<? extends Annotation>> sortedAnnotations = invocationContext.sortedAnnotations();
+    default <T, C extends InvocationContext> Converter<C, T> from(final Class<T> type, final CommandInvocationContext invocationContext) {
+        return this.from(TypeContext.of(type), invocationContext);
+    }
 
-        TypeContext<?> targetAnnotationType = annotationIndex < sortedAnnotations.size()
+    default <T, C extends InvocationContext> Converter<C, T> from(final TypeContext<T> typeContext, final CommandInvocationContext invocationContext) {
+        final int annotationIndex = invocationContext.currentAnnotationIndex();
+        final List<TypeContext<? extends Annotation>> sortedAnnotations = invocationContext.sortedAnnotations();
+
+        final TypeContext<?> targetAnnotationType = annotationIndex < sortedAnnotations.size()
             ? sortedAnnotations.get(annotationIndex)
             : TypeContext.VOID;
 
@@ -76,46 +104,11 @@ public interface ConverterHandler extends ContextCarrier, Enableable
         return this.from(typeContext, targetAnnotationType);
     }
 
-    default <T, C extends InvocationContext> Converter<C, T> from(Class<T> type, CommandInvocationContext invocationContext) {
-        return this.from(TypeContext.of(type), invocationContext);
-    }
-
-    <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType);
-
-    @SuppressWarnings("rawtypes")
-    default <T> void register(TypeContext<T> type) {
-        int count = 0;
-        List<FieldContext<Converter>> converters = type.fieldsOf(Converter.class);
-
-        for (FieldContext<Converter> fieldContext : converters) {
-            if (fieldContext.annotation(Ignore.class).present())
-                continue;
-
-            if (!fieldContext.isStatic() || !fieldContext.isPublic() || !fieldContext.isFinal())
-                this.applicationContext().log().warn("The converter %s in %s needs to be static, public and final"
-                    .formatted(fieldContext.name(), type.qualifiedName()));
-
-            else {
-                fieldContext.get(null).present(this::registerConverter);
-                count++;
-            }
-        }
-        this.applicationContext().log().info("Registered %d converters found in %s".formatted(count, type.qualifiedName()));
-    }
-
-    void registerConverter(Converter<?, ?> converter);
-
-    void addNonCommandType(TypeContext<?> type);
-
-    default void addNonCommandTypes(Set<TypeContext<?>> types) {
+    default void addNonCommandTypes(final Set<TypeContext<?>> types) {
         types.forEach(this::addNonCommandType);
     }
 
-    void addNonCammandAnnotation(TypeContext<? extends Annotation> type);
-
-    default void addNonCammandAnnotations(Set<TypeContext<? extends Annotation>> types) {
-        types.forEach(this::addNonCammandAnnotation);
-    }
+    void addNonCommandType(TypeContext<?> type);
 
     boolean isCommandParameter(ParameterContext<?> parameterContext);
 

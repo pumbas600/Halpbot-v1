@@ -27,13 +27,13 @@ package net.pumbas.halpbot.converters;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.ArrayListMultiMap;
 import org.dockbox.hartshorn.util.MultiMap;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -44,16 +44,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
 import lombok.Getter;
 
 @Singleton
 @ComponentBinding(ConverterHandler.class)
-public class HalpbotConverterHandler implements ConverterHandler
-{
-    private final MultiMap<TypeContext<?>, Converter<?, ?>> converters = new ArrayListMultiMap<>();
-    private static final TypeContext<Object> OBJECT_TYPE = TypeContext.of(Object.class);
+public class HalpbotConverterHandler implements ConverterHandler {
 
+    private static final TypeContext<Object> OBJECT_TYPE = TypeContext.of(Object.class);
+    private final MultiMap<TypeContext<?>, Converter<?, ?>> converters = new ArrayListMultiMap<>();
     private final Set<TypeContext<?>> nonCommandTypes = ConcurrentHashMap.newKeySet();
     private final Set<TypeContext<? extends Annotation>> nonCommandAnnotations = ConcurrentHashMap.newKeySet();
 
@@ -61,26 +59,27 @@ public class HalpbotConverterHandler implements ConverterHandler
     @Inject
     private ApplicationContext applicationContext;
 
-    @Override
-    public void registerConverter(Converter<?, ?> converter) {
-        if (converter instanceof SourceConverter && converter.annotationType().isVoid())
-            this.addNonCommandType(converter.type());
-
-        this.converters.put(converter.type(), converter);
+    @SuppressWarnings("unchecked")
+    private <T, C extends InvocationContext> Result<Converter<C, T>> searchAnnotationForType(final TypeContext<T> typeContext, final TypeContext<?> targetAnnotationType) {
+        return Result.of(this.converters.values()
+            .stream()
+            .flatMap(Collection::stream)
+            .filter(converter -> converter.annotationType().equals(targetAnnotationType))
+            .filter(converter -> converter.type().parentOf(typeContext))
+            .findFirst()
+            .map(converter -> (Converter<C, T>) converter));
     }
 
     @Override
-    public <T, C extends InvocationContext> Converter<C, T> from(ParameterContext<T> parameterContext,
-                                                                 List<TypeContext<? extends Annotation>> sortedAnnotations) {
-        TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
-        return this.from(parameterContext.type(), targetAnnotationType);
+    public void addNonCommandAnnotation(final TypeContext<? extends Annotation> type) {
+        this.nonCommandAnnotations.add(type);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T, C extends InvocationContext> Converter<C, T> from(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
+    public <T, C extends InvocationContext> Converter<C, T> from(final TypeContext<T> typeContext, final TypeContext<?> targetAnnotationType) {
         if (!targetAnnotationType.isVoid()) {
-            Result<Converter<C, T>> eConverter = this.searchAnnotationForType(typeContext, targetAnnotationType);
+            final Result<Converter<C, T>> eConverter = this.searchAnnotationForType(typeContext, targetAnnotationType);
             if (eConverter.present())
                 return eConverter.get();
         }
@@ -105,29 +104,29 @@ public class HalpbotConverterHandler implements ConverterHandler
             );
     }
 
-    @SuppressWarnings("unchecked")
-    private <T, C extends InvocationContext> Result<Converter<C, T>> searchAnnotationForType(TypeContext<T> typeContext, TypeContext<?> targetAnnotationType) {
-        return Result.of(this.converters.values()
-            .stream()
-            .flatMap(Collection::stream)
-            .filter(converter -> converter.annotationType().equals(targetAnnotationType))
-            .filter(converter -> converter.type().parentOf(typeContext))
-            .findFirst()
-            .map(converter -> (Converter<C, T>) converter));
+    @Override
+    public <T, C extends InvocationContext> Converter<C, T> from(final ParameterContext<T> parameterContext,
+                                                                 final List<TypeContext<? extends Annotation>> sortedAnnotations)
+    {
+        final TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
+        return this.from(parameterContext.type(), targetAnnotationType);
     }
 
     @Override
-    public void addNonCommandType(TypeContext<?> type) {
+    public void registerConverter(final Converter<?, ?> converter) {
+        if (converter instanceof SourceConverter && converter.annotationType().isVoid())
+            this.addNonCommandType(converter.type());
+
+        this.converters.put(converter.type(), converter);
+    }
+
+    @Override
+    public void addNonCommandType(final TypeContext<?> type) {
         this.nonCommandTypes.add(type);
     }
 
     @Override
-    public void addNonCammandAnnotation(TypeContext<? extends Annotation> type) {
-        this.nonCommandAnnotations.add(type);
-    }
-
-    @Override
-    public boolean isCommandParameter(ParameterContext<?> parameterContext) {
+    public boolean isCommandParameter(final ParameterContext<?> parameterContext) {
         return this.isCommandParameter(parameterContext.type()) &&
             this.nonCommandAnnotations
                 .stream()
@@ -135,7 +134,7 @@ public class HalpbotConverterHandler implements ConverterHandler
     }
 
     @Override
-    public boolean isCommandParameter(TypeContext<?> typeContext, Set<TypeContext<? extends Annotation>> annotationTypes) {
+    public boolean isCommandParameter(final TypeContext<?> typeContext, final Set<TypeContext<? extends Annotation>> annotationTypes) {
         return this.isCommandParameter(typeContext) &&
             this.nonCommandAnnotations
                 .stream()
@@ -143,7 +142,7 @@ public class HalpbotConverterHandler implements ConverterHandler
     }
 
     @Override
-    public boolean isCommandParameter(TypeContext<?> typeContext) {
+    public boolean isCommandParameter(final TypeContext<?> typeContext) {
         return !this.nonCommandTypes.contains(typeContext) &&
             this.nonCommandTypes.stream()
                 .noneMatch(typeContext::childOf);

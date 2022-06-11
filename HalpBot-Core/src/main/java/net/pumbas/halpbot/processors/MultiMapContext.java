@@ -22,4 +22,11 @@ public class MultiMapContext<K, V> extends DefaultContext {
     public void register(final K key, final V context) {
         this.registeredContext.put(key, context);
     }
+
+    /**
+     * Clears all the registered contexts
+     */
+    public void clear() {
+        this.registeredContext.clear();
+    }
 }
