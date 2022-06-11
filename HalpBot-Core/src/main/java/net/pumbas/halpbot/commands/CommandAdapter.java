@@ -36,13 +36,15 @@ import net.pumbas.halpbot.commands.usage.TypeUsageBuilder;
 import net.pumbas.halpbot.commands.usage.UsageBuilder;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
+import net.pumbas.halpbot.processors.commands.CommandHandlerContext;
 
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.util.ApplicationException;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
-import org.dockbox.hartshorn.util.ApplicationException;
-import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -52,44 +54,38 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface CommandAdapter extends HalpbotAdapter
-{
-    ParameterAnnotationService parameterAnnotationService();
+public interface CommandAdapter extends HalpbotAdapter, Enableable {
 
     @Override
-    default void onEvent(GenericEvent event) {
+    default void onEvent(final GenericEvent event) {
         if (event instanceof MessageReceivedEvent messageReceivedEvent)
             this.onMessageReceived(messageReceivedEvent);
     }
 
     void onMessageReceived(MessageReceivedEvent event);
 
-    String defaultPrefix();
-
-    void defaultPrefix(String defaultPrefix);
-
-    String prefix(long guildId);
-
-    UsageBuilder usageBuilder();
-
-    void usageBuilder(UsageBuilder usageBuilder);
-
     @Override
     default void enable() throws ApplicationException {
-        BotConfiguration config = this.applicationContext().get(BotConfiguration.class);
+        final BotConfiguration config = this.applicationContext().get(BotConfiguration.class);
         this.defaultPrefix(config.defaultPrefix());
         if (this.defaultPrefix().isBlank())
             throw new ApplicationException(
                 "A 'defaultPrefix' must be defined in the bot-config.properties file if you're using commands");
 
         this.determineUsageBuilder(config);
-        HalpbotAdapter.super.enable();
+        final CommandHandlerContext commandHandlerContext =
+            this.applicationContext().first(CommandHandlerContext.class).get();
+        
     }
 
-    default void determineUsageBuilder(BotConfiguration config) {
-        TypeContext<?> typeContext = TypeContext.lookup(config.usageBuilder());
+    void defaultPrefix(String defaultPrefix);
+
+    String defaultPrefix();
+
+    default void determineUsageBuilder(final BotConfiguration config) {
+        final TypeContext<?> typeContext = TypeContext.lookup(config.usageBuilder());
         if (typeContext.childOf(UsageBuilder.class)) {
-            UsageBuilder usageBuilder = (UsageBuilder) this.applicationContext().get(typeContext);
+            final UsageBuilder usageBuilder = (UsageBuilder) this.applicationContext().get(typeContext);
             if (usageBuilder.isValid(this.applicationContext())) {
                 this.usageBuilder(usageBuilder);
                 return;
@@ -105,10 +101,16 @@ public interface CommandAdapter extends HalpbotAdapter
         this.usageBuilder(new TypeUsageBuilder());
     }
 
-    default <T> void registerCommands(TypeContext<T> type) {
+    void usageBuilder(UsageBuilder usageBuilder);
+
+    String prefix(long guildId);
+
+    UsageBuilder usageBuilder();
+
+    default <T> void registerCommands(final TypeContext<T> type) {
         int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
 
-        for (MethodContext<?, T> methodContext : type.methods(Command.class)) {
+        for (final MethodContext<?, T> methodContext : type.methods(Command.class)) {
             if (methodContext.annotation(SlashCommand.class).present()) {
                 slashCommands++;
                 this.registerSlashCommand(this.applicationContext().get(type), methodContext);
@@ -125,13 +127,13 @@ public interface CommandAdapter extends HalpbotAdapter
             .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
     }
 
-    <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext);
-
     <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext);
 
     void registerReflectiveCommand(MethodContext<?, ?> methodContext);
 
-    default Result<CommandContext> commandContextSafely(String alias) {
+    <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext);
+
+    default Result<CommandContext> commandContextSafely(final String alias) {
         return Result.of(this.commandContext(alias));
     }
 
@@ -142,23 +144,22 @@ public interface CommandAdapter extends HalpbotAdapter
                                                         String methodName,
                                                         Set<TypeContext<?>> reflections);
 
-
     Map<String, CommandContext> commands();
 
     Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext);
 
     void registerCustomConstructors(TypeContext<?> typeContext);
 
-    default String typeAlias(Class<?> type) {
+    default String typeAlias(final Class<?> type) {
         return this.typeAlias(TypeContext.of(type));
     }
 
     String typeAlias(TypeContext<?> typeContext);
 
-    default boolean parameterAnnotationsAreValid(ExecutableElementContext<?, ?> executable) {
-        for (ParameterContext<?> parameterContext : executable.parameters()) {
-            TypeContext<?> parameterType = parameterContext.type();
-            List<TypeContext<? extends Annotation>> parameterAnnotations = parameterContext.annotations()
+    default boolean parameterAnnotationsAreValid(final ExecutableElementContext<?, ?> executable) {
+        for (final ParameterContext<?> parameterContext : executable.parameters()) {
+            final TypeContext<?> parameterType = parameterContext.type();
+            final List<TypeContext<? extends Annotation>> parameterAnnotations = parameterContext.annotations()
                 .stream()
                 .map(annotation -> TypeContext.of(annotation.annotationType()))
                 .collect(Collectors.toList());
@@ -172,4 +173,6 @@ public interface CommandAdapter extends HalpbotAdapter
         }
         return true;
     }
+
+    ParameterAnnotationService parameterAnnotationService();
 }

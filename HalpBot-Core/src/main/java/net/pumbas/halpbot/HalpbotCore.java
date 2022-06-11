@@ -26,7 +26,6 @@ package net.pumbas.halpbot;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.pumbas.halpbot.adapters.HalpbotAdapter;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.configurations.DisplayConfiguration;
 import net.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
@@ -34,67 +33,64 @@ import net.pumbas.halpbot.permissions.HalpbotPermissions;
 import net.pumbas.halpbot.permissions.PermissionService;
 
 import org.dockbox.hartshorn.application.ExceptionHandler;
-import org.dockbox.hartshorn.component.processing.Provider;
-import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.processing.Provider;
 import org.dockbox.hartshorn.context.ContextCarrier;
 import org.dockbox.hartshorn.util.ApplicationException;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import jakarta.inject.Inject;
-
 import lombok.Getter;
 
 @Service
-public class HalpbotCore implements ContextCarrier
-{
+public class HalpbotCore implements ContextCarrier {
+
+    @Getter
+    private final ScheduledExecutorService threadpool;
+    private final List<EventListener> eventListeners = new ArrayList<>();
     @Getter
     private long ownerId = -1;
-
     @Getter
     @Inject
     private ApplicationContext applicationContext;
     @Inject
     private PermissionService permissionService;
-
     @Getter
     private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
-    @Getter
-    private final ScheduledExecutorService threadpool;
-
     @Nullable
     private JDA jda;
-
-    private final List<HalpbotAdapter> adapters = new ArrayList<>();
-    private final List<EventListener> eventListeners = new ArrayList<>();
 
     public HalpbotCore() {
         this.threadpool = Executors.newSingleThreadScheduledExecutor();
     }
 
-    /**
-     * Sets the id of the owner for this bot. This automatically assigns the user the {@link
-     * HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
-     *
-     * @param ownerId
-     *     The {@link Long id} of the owner
-     *
-     * @return Itself for chaining
-     */
-    public HalpbotCore setOwner(long ownerId) {
-        this.ownerId = ownerId;
-        return this;
+    public void initialise(final JDA jda) {
+        this.jda = jda;
+
+        // Prevent any event listeners being automatically registered twice
+        jda.removeEventListener(this.eventListeners.toArray());
+        this.eventListeners.forEach(jda::addEventListener);
+
+        this.eventListeners.clear(); // Free up the memory space, we don't to store this anymore
+        final BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
+
+        this.determineDisplayConfiguration(config);
+        if (config.ownerId() == -1)
+            this.applicationContext.log().warn("No ownerId has been set in the bot-config.properties file");
+
+        this.setOwner(config.ownerId());
+        this.permissionService.initialise();
     }
 
-    private void determineDisplayConfiguration(BotConfiguration config) {
-        TypeContext<?> typeContext = TypeContext.lookup(config.displayConfiguration());
+    private void determineDisplayConfiguration(final BotConfiguration config) {
+        final TypeContext<?> typeContext = TypeContext.lookup(config.displayConfiguration());
         if (!typeContext.childOf(DisplayConfiguration.class)) {
             this.applicationContext.log()
                 .warn("The display configuration %s specified in bot-config.properties must implement DisplayConfiguration"
@@ -107,38 +103,21 @@ public class HalpbotCore implements ContextCarrier
         }
     }
 
-    public void initialise(JDA jda) {
-        this.jda = jda;
-        this.adapters.forEach(jda::addEventListener);
-
-        // Prevent any event listeners being automatically registered twice
-        jda.removeEventListener(this.eventListeners.toArray());
-        this.eventListeners.forEach(jda::addEventListener);
-
-        this.eventListeners.clear(); // Free up the memory space, we don't to store this anymore
-        BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
-
-        this.determineDisplayConfiguration(config);
-        if (config.ownerId() == -1)
-            this.applicationContext.log().warn("No ownerId has been set in the bot-config.properties file");
-
-        this.setOwner(config.ownerId());
-        this.permissionService.initialise();
-        this.adapters.forEach(adapter -> adapter.initialise(jda));
-
-    }
-
-    public <T extends HalpbotAdapter> HalpbotCore registerAdapters(Collection<T> adapters) {
-        this.adapters.addAll(adapters);
+    /**
+     * Sets the id of the owner for this bot. This automatically assigns the user the
+     * {@link HalpbotPermissions#BOT_OWNER} permission if they don't already have it in the database.
+     *
+     * @param ownerId
+     *     The {@link Long id} of the owner
+     *
+     * @return Itself for chaining
+     */
+    public HalpbotCore setOwner(final long ownerId) {
+        this.ownerId = ownerId;
         return this;
     }
 
-    public <T extends HalpbotAdapter> HalpbotCore registerAdapter(T adapter) {
-        this.adapters.add(adapter);
-        return this;
-    }
-
-    public void registerEventListener(EventListener eventListener) {
+    public void registerEventListener(final EventListener eventListener) {
         this.eventListeners.add(eventListener);
     }
 

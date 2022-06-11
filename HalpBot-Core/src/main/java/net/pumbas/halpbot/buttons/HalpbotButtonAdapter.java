@@ -24,7 +24,6 @@
 
 package net.pumbas.halpbot.buttons;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -41,7 +40,9 @@ import net.pumbas.halpbot.objects.AsyncDuration;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.util.ApplicationException;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +63,7 @@ import lombok.experimental.Accessors;
 @Singleton
 @Accessors(chain = false)
 @ComponentBinding(ButtonAdapter.class)
-public class HalpbotButtonAdapter implements ButtonAdapter {
+public class HalpbotButtonAdapter implements ButtonAdapter, Enableable {
 
     private final Map<String, ButtonContext> registeredButtons = new ConcurrentHashMap<>();
     private final Map<String, ButtonContext> dynamicButtons = new ConcurrentHashMap<>();
@@ -90,11 +91,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
     @Inject
     @Getter
     private HalpbotCore halpbotCore;
-
-    @Override
-    public void initialise(final JDA jda) {
-        this.dynamicPrefix("HB-" + jda.getSelfUser().getAsTag());
-    }
 
     @Override
     public void onButtonClick(final ButtonClickEvent event) {
@@ -148,15 +144,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
     }
 
     @Override
-    public Button register(final Button button, final Object... parameters) {
-        if (this.isInvalid(button))
-            return button;
-
-        final ButtonContext buttonContext = this.registeredButtons.get(button.getId());
-        return this.register(button, buttonContext.afterRemoval(), parameters);
-    }
-
-    @Override
     public Button register(final Button button,
                            @Nullable final AfterRemovalFunction afterRemoval,
                            final Object... parameters)
@@ -194,6 +181,15 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
         else this.removeDynamicButton(id, applyRemovalFunction);
     }
 
+    @Override
+    public Button register(final Button button, final Object... parameters) {
+        if (this.isInvalid(button))
+            return button;
+
+        final ButtonContext buttonContext = this.registeredButtons.get(button.getId());
+        return this.register(button, buttonContext.afterRemoval(), parameters);
+    }
+
     private boolean isInvalid(final Button button) {
         final String id = button.getId();
         if (id == null) {
@@ -209,23 +205,6 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
             return true;
         }
         return false;
-    }
-
-    private void removeDynamicButton(final String id, final boolean applyRemovalFunction) {
-        if (!this.dynamicButtons.containsKey(id))
-            return;
-
-        final ButtonContext buttonContext = this.dynamicButtons.remove(id);
-        if (this.scheduledExpirations.containsKey(id)) {
-            this.scheduledExpirations.get(id).cancel(false);
-        }
-
-        if (applyRemovalFunction) {
-            final AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
-            if (afterRemoval != null) {
-                this.afterRemovalFunctions.put(id, afterRemoval);
-            }
-        }
     }
 
     private ButtonContext createButton(final String id,
@@ -288,11 +267,33 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
         }
     }
 
+    private void removeDynamicButton(final String id, final boolean applyRemovalFunction) {
+        if (!this.dynamicButtons.containsKey(id))
+            return;
+
+        final ButtonContext buttonContext = this.dynamicButtons.remove(id);
+        if (this.scheduledExpirations.containsKey(id)) {
+            this.scheduledExpirations.get(id).cancel(false);
+        }
+
+        if (applyRemovalFunction) {
+            final AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
+            if (afterRemoval != null) {
+                this.afterRemovalFunctions.put(id, afterRemoval);
+            }
+        }
+    }
+
     private boolean removalFunctionsApplies(final ButtonClickEvent event) {
         return event.getMessage().getButtons().stream()
             .anyMatch(button -> {
                 final String id = button.getId();
                 return id != null && this.afterRemovalFunctions.containsKey(id);
             });
+    }
+
+    @Override
+    public void enable() throws ApplicationException {
+        this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
     }
 }

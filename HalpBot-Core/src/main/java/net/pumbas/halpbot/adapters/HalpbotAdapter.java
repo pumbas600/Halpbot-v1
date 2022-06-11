@@ -24,7 +24,6 @@
 
 package net.pumbas.halpbot.adapters;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.pumbas.halpbot.actions.DisplayableResult;
 import net.pumbas.halpbot.common.CoreCarrier;
@@ -33,18 +32,9 @@ import net.pumbas.halpbot.common.UndisplayedException;
 import net.pumbas.halpbot.configurations.DisplayConfiguration;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.context.ContextCarrier;
-import org.dockbox.hartshorn.util.ApplicationException;
 
-public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListener, Enableable {
-
-    default void initialise(final JDA jda) {}
-
-    @Override
-    default void enable() throws ApplicationException {
-        this.halpbotCore().registerAdapter(this);
-    }
+public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListener {
 
     default void handleException(final HalpbotEvent halpbotEvent, final Throwable exception) {
         if (exception instanceof ExplainedException explainedException) {
