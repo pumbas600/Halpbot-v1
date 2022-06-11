@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.adapters.HalpbotAdapter;
 import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import net.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContext;
-import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.commands.annotations.Reflective;
 import net.pumbas.halpbot.commands.annotations.SlashCommand;
 import net.pumbas.halpbot.commands.usage.TypeUsageBuilder;
@@ -87,10 +86,12 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
             if (usageBuilder.isValid(this.applicationContext())) {
                 this.usageBuilder(usageBuilder);
                 return;
-            } else this.applicationContext().log()
+            }
+            else this.applicationContext().log()
                 .warn("The usage builder %s defined in bot-config.properties is not valid"
                     .formatted(typeContext.qualifiedName()));
-        } else this.applicationContext().log()
+        }
+        else this.applicationContext().log()
             .warn("The usage builder %s defined in bot-config.properties must implement UsageBuilder"
                 .formatted(config.displayConfiguration()));
 
@@ -99,34 +100,39 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
         this.usageBuilder(new TypeUsageBuilder());
     }
 
-    @SuppressWarnings("unchecked")
-    default <T> void registerCommands() {
+    default void registerCommands() {
         final CommandHandlerContext commandHandlerContext =
             this.applicationContext().first(CommandHandlerContext.class).get();
 
-        int slashCommands = 0, reflectiveCommands = 0, messageCommands = 0;
-        for (final TypeContext<?> type : commandHandlerContext.registeredContext().keySet()) {
-            final T instance = (T) this.applicationContext().get(type);
-            for (final MethodContext<?, ?> methodContext : commandHandlerContext.registeredContext().get(type)) {
-
-                if (methodContext.annotation(SlashCommand.class).present()) {
-                    slashCommands++;
-                    this.registerSlashCommand((T) instance, () methodContext);
-                } else if (methodContext.annotation(Reflective.class).present()) {
-                    reflectiveCommands++;
-                    this.registerReflectiveCommand(methodContext);
-                } else {
-                    messageCommands++;
-                    this.registerMessageCommand(instance, methodContext);
-                }
-            }
+        for (final TypeContext<?> type : commandHandlerContext.types()) {
+            this.processHandlers(type, commandHandlerContext);
         }
-
-        this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands found in %s"
-            .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+        commandHandlerContext.clear();
     }
 
     void usageBuilder(UsageBuilder usageBuilder);
+
+    default <T> void processHandlers(final TypeContext<T> type, final CommandHandlerContext commandHandlerContext) {
+        int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
+
+        for (final MethodContext<?, T> handler : commandHandlerContext.handlers(type)) {
+            if (handler.annotation(SlashCommand.class).present()) {
+                slashCommands++;
+                this.registerSlashCommand(this.applicationContext().get(type), handler);
+            }
+            else if (handler.annotation(Reflective.class).present()) {
+                reflectiveCommands++;
+                this.registerReflectiveCommand(handler);
+            }
+            else {
+                messageCommands++;
+                this.registerMessageCommand(this.applicationContext().get(type), handler);
+            }
+        }
+
+        this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands in %s"
+            .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+    }
 
     <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext);
 
@@ -137,26 +143,6 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
     String prefix(long guildId);
 
     UsageBuilder usageBuilder();
-
-    default <T> void registerCommands(final TypeContext<T> type) {
-        int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
-
-        for (final MethodContext<?, T> methodContext : type.methods(Command.class)) {
-            if (methodContext.annotation(SlashCommand.class).present()) {
-                slashCommands++;
-                this.registerSlashCommand(this.applicationContext().get(type), methodContext);
-            } else if (methodContext.annotation(Reflective.class).present()) {
-                reflectiveCommands++;
-                this.registerReflectiveCommand(methodContext);
-            } else {
-                messageCommands++;
-                this.registerMessageCommand(this.applicationContext().get(type), methodContext);
-            }
-        }
-
-        this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands found in %s"
-            .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
-    }
 
     default Result<CommandContext> commandContextSafely(final String alias) {
         return Result.of(this.commandContext(alias));

@@ -32,60 +32,43 @@ import net.pumbas.halpbot.converters.SourceConverter;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.proxy.Provided;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 
 @Service
-public interface TokenFactory
-{
-    @Provided
-    ConverterHandler converterHandler();
-
-    @Provided
-    ParameterAnnotationService parameterAnnotationService();
-
-    @Provided
-    InvocationContextFactory invocationContexFactory();
+public interface TokenFactory {
 
     @Factory
     PlaceholderToken createPlaceholder(boolean isOptional, String placeholder);
 
-    @Factory
-    ParsingToken createParsing(ParameterContext<?> parameterContext,
-                               List<TypeContext<? extends Annotation>> sortedAnnotations,
-                               Converter<?, ?> converter,
-                               @Nullable Object defaultValue,
-                               boolean isCommandParameter,
-                               boolean isOptional);
-
-    default ParsingToken createParsing(ParameterContext<?> parameterContext) {
+    default ParsingToken createParsing(final ParameterContext<?> parameterContext) {
         final ConverterHandler converterHandler = this.converterHandler();
         final ParameterAnnotationService annotationService = this.parameterAnnotationService();
 
-        List<TypeContext<? extends Annotation>> sortedAnnotations =
+        final List<TypeContext<? extends Annotation>> sortedAnnotations =
             annotationService.sortAndFilter(
                 parameterContext.annotations()
                     .stream()
                     .map(annotation -> TypeContext.of(annotation.annotationType())));
 
-        Converter<CommandInvocationContext, ?> converter = converterHandler.from(parameterContext, sortedAnnotations);
-        boolean isCommandParameter = !(converter instanceof SourceConverter);
+        final Converter<CommandInvocationContext, ?> converter = converterHandler.from(parameterContext, sortedAnnotations);
+        final boolean isCommandParameter = !(converter instanceof SourceConverter);
         boolean isOptional = false;
         @Nullable Object defaultValue = null;
 
-        Result<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
+        final Result<Unrequired> unrequired = parameterContext.annotation(Unrequired.class);
 
         if (unrequired.present()) {
             isOptional = true;
-            CommandInvocationContext invocationContext = this.invocationContexFactory().command(unrequired.get().value());
+            final CommandInvocationContext invocationContext = this.invocationContextFactory().command(unrequired.get().value());
             invocationContext.update(parameterContext, sortedAnnotations);
 
             defaultValue = ParsingToken.parseDefaultValue(converter, invocationContext);
@@ -99,4 +82,21 @@ public interface TokenFactory
             isCommandParameter,
             isOptional);
     }
+
+    @Provided
+    ConverterHandler converterHandler();
+
+    @Provided
+    ParameterAnnotationService parameterAnnotationService();
+
+    @Provided
+    InvocationContextFactory invocationContextFactory();
+
+    @Factory
+    ParsingToken createParsing(ParameterContext<?> parameterContext,
+                               List<TypeContext<? extends Annotation>> sortedAnnotations,
+                               Converter<?, ?> converter,
+                               @Nullable Object defaultValue,
+                               boolean isCommandParameter,
+                               boolean isOptional);
 }

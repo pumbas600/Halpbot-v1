@@ -8,6 +8,7 @@ import org.dockbox.hartshorn.util.reflect.TypeContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @AutoCreating
@@ -41,8 +42,15 @@ public class HandlerContext extends DefaultContext {
             return Collections.emptyList();
         }
 
-        final TypeHandlers<T> typeHandler = (TypeHandlers<T>) this.typeHandlers.get(type).handlers();
+        final TypeHandlers<T> typeHandler = (TypeHandlers<T>) this.typeHandlers.get(type);
         return typeHandler.handlers();
+    }
+
+    /**
+     * @return An unmodifiable set of the types which have handlers registered
+     */
+    public Set<TypeContext<?>> types() {
+        return this.typeHandlers.keySet();
     }
 
     /**
