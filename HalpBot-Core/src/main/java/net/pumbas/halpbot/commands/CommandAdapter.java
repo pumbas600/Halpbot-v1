@@ -73,9 +73,7 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
                 "A 'defaultPrefix' must be defined in the bot-config.properties file if you're using commands");
 
         this.determineUsageBuilder(config);
-        final CommandHandlerContext commandHandlerContext =
-            this.applicationContext().first(CommandHandlerContext.class).get();
-        
+        this.registerCommands();
     }
 
     void defaultPrefix(String defaultPrefix);
@@ -101,7 +99,40 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
         this.usageBuilder(new TypeUsageBuilder());
     }
 
+    @SuppressWarnings("unchecked")
+    default <T> void registerCommands() {
+        final CommandHandlerContext commandHandlerContext =
+            this.applicationContext().first(CommandHandlerContext.class).get();
+
+        int slashCommands = 0, reflectiveCommands = 0, messageCommands = 0;
+        for (final TypeContext<?> type : commandHandlerContext.registeredContext().keySet()) {
+            final T instance = (T) this.applicationContext().get(type);
+            for (final MethodContext<?, ?> methodContext : commandHandlerContext.registeredContext().get(type)) {
+
+                if (methodContext.annotation(SlashCommand.class).present()) {
+                    slashCommands++;
+                    this.registerSlashCommand((T) instance, () methodContext);
+                } else if (methodContext.annotation(Reflective.class).present()) {
+                    reflectiveCommands++;
+                    this.registerReflectiveCommand(methodContext);
+                } else {
+                    messageCommands++;
+                    this.registerMessageCommand(instance, methodContext);
+                }
+            }
+        }
+
+        this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands found in %s"
+            .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+    }
+
     void usageBuilder(UsageBuilder usageBuilder);
+
+    <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext);
+
+    void registerReflectiveCommand(MethodContext<?, ?> methodContext);
+
+    <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext);
 
     String prefix(long guildId);
 
@@ -126,12 +157,6 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
         this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands found in %s"
             .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
     }
-
-    <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext);
-
-    void registerReflectiveCommand(MethodContext<?, ?> methodContext);
-
-    <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext);
 
     default Result<CommandContext> commandContextSafely(final String alias) {
         return Result.of(this.commandContext(alias));
