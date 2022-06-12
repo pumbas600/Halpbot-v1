@@ -24,48 +24,55 @@
 
 package net.pumbas.halpbot.common;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.utilities.ErrorManager;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.function.Function;
 
-import javax.security.auth.login.LoginException;
-
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class HalpbotBuilder {
 
+    @Nullable
+    private static HalpbotBuilder instance;
+
     private final Class<?> main;
     private final String[] args;
 
+    @Getter
+    @Nullable
+    private Function<String, JDABuilder> jdaBuilder;
+
     public static HalpbotBuilder create(final Class<?> main, final String[] args) {
-        return new HalpbotBuilder(main, args);
+        if (instance == null) {
+            instance = new HalpbotBuilder(main, args);
+        }
+        else throw new IllegalStateException("HalpbotBuilder already created");
+        return instance;
+    }
+
+    public static HalpbotBuilder instance() {
+        if (instance == null) {
+            throw new IllegalStateException("HalpbotBuilder not created");
+        }
+        return instance;
     }
 
     public ApplicationContext build(final Function<String, JDABuilder> jdaBuilder) {
+        this.jdaBuilder = jdaBuilder;
+
         final ApplicationContext applicationContext = new HalpbotApplicationFactory()
             .loadDefaults()
             .activator(TypeContext.of(this.main))
             .arguments(this.args)
             .create();
-
-        final BotConfiguration botConfiguration = applicationContext.get(BotConfiguration.class);
-
-        try {
-            final JDABuilder builder = jdaBuilder.apply(botConfiguration.token());
-            final JDA jda = builder.build();
-            applicationContext.bind(JDA.class).lazySingleton(() -> jda);
-            jda.awaitReady();
-        } catch (final LoginException | InterruptedException e) {
-            applicationContext.log().error("There was an error while building the JDA instance", e);
-        }
 
         applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
         return applicationContext;
