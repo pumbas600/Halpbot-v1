@@ -48,13 +48,14 @@ import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
 import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
+import net.pumbas.halpbot.converters.tokens.TokenService;
 import net.pumbas.halpbot.converters.types.ArrayTypeContext;
 import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,8 +66,7 @@ import java.util.Set;
 
 @Service
 @SuppressWarnings({"rawtypes", "unchecked", "ClassWithTooManyFields", "NonFinalUtilityClass"})
-public class DefaultConverters
-{
+public class DefaultConverters {
     //region Converters
 
     //region Simple Converters
@@ -149,8 +149,9 @@ public class DefaultConverters
     public static final TypeConverter<Object> OBJECT_CONVERTER = TypeConverter.builder(Object.class)
         .convert(invocationContext -> {
             CommandAdapter commandAdapter = invocationContext.applicationContext().get(CommandAdapter.class);
+            TokenService tokenService = invocationContext.applicationContext().get(TokenService.class);
             TypeContext<?> typeContext = invocationContext.currentType();
-            String expectedTypeAlias = commandAdapter.typeAlias(typeContext);
+            String expectedTypeAlias = tokenService.typeAlias(typeContext);
             Result<String> typeAlias = invocationContext.next("(", true);
 
             if (typeAlias.caught())

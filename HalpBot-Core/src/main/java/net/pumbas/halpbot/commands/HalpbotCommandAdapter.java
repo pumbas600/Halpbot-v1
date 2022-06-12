@@ -37,7 +37,6 @@ import net.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomCon
 import net.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContextFactory;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
-import net.pumbas.halpbot.commands.annotations.CustomParameter;
 import net.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import net.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import net.pumbas.halpbot.commands.usage.UsageBuilder;
@@ -48,17 +47,16 @@ import net.pumbas.halpbot.decorators.DecoratorService;
 import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
-import net.pumbas.halpbot.utilities.Reflect;
 
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.ArrayListMultiMap;
 import org.dockbox.hartshorn.util.MultiMap;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.AccessModifier;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -74,7 +72,6 @@ import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -82,13 +79,12 @@ import lombok.experimental.Accessors;
 @Singleton
 @ComponentBinding(CommandAdapter.class)
 @Accessors(chain = false)
-public class HalpbotCommandAdapter implements CommandAdapter
-{
+public class HalpbotCommandAdapter implements CommandAdapter {
+
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> commands = new ConcurrentHashMap<>();
     private final Map<TypeContext<?>, MultiMap<String, CommandContext>> reflectiveCommands = new ConcurrentHashMap<>();
 
-    private final Map<TypeContext<?>, String> typeAliases = new ConcurrentHashMap<>();
     private final Map<Long, String> guildPrefixes = new ConcurrentHashMap<>();
 
     @Setter
@@ -120,29 +116,29 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
     //TODO: Setting the guild specific prefixes
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(final MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
         String message = event.getMessage().getContentRaw();
-        String prefix = event.isFromType(ChannelType.TEXT)
+        final String prefix = event.isFromType(ChannelType.TEXT)
             ? this.prefix(event.getGuild().getIdLong())
             : this.defaultPrefix;
 
-        HalpbotEvent halpbotEvent = new MessageEvent(event);
+        final HalpbotEvent halpbotEvent = new MessageEvent(event);
 
         if (message.startsWith(prefix)) {
             message = message.substring(prefix.length()).stripLeading();
 
-            String[] splitText = message.split("\\s", 2);
-            String alias = splitText[0];
+            final String[] splitText = message.split("\\s", 2);
+            final String alias = splitText[0];
             String content = (2 == splitText.length) ? splitText[1] : "";
 
-            Result<CommandContext> eCommandContext = this.commandContextSafely(alias);
+            final Result<CommandContext> eCommandContext = this.commandContextSafely(alias);
             if (eCommandContext.present()) {
-                CommandContext commandContext = eCommandContext.get();
+                final CommandContext commandContext = eCommandContext.get();
                 if (commandContext.content() != Content.RAW) {
-                    String tempContent = commandContext.content().parse(event);
-                    int startIndex = tempContent.indexOf(alias);
+                    final String tempContent = commandContext.content().parse(event);
+                    final int startIndex = tempContent.indexOf(alias);
                     if (startIndex != -1) {
                         content = tempContent.substring(startIndex + alias.length());
                     }
@@ -151,7 +147,7 @@ public class HalpbotCommandAdapter implements CommandAdapter
                 if (!commandContext.preserveWhitespace())
                     content = content.replaceAll("\\s+", " ");
 
-                Result<Object> result = this.handleCommandInvocation(halpbotEvent, commandContext, content);
+                final Result<Object> result = this.handleCommandInvocation(halpbotEvent, commandContext, content);
 
                 if (result.present())
                     this.displayResult(halpbotEvent, commandContext, result.get());
@@ -159,78 +155,29 @@ public class HalpbotCommandAdapter implements CommandAdapter
                     //this.applicationContext.log().error("Caught the error: ", result.error());
                     this.handleException(halpbotEvent, result.error());
                 }
-            } else this.halpbotCore.displayConfiguration()
+            }
+            else this.halpbotCore.displayConfiguration()
                 .displayTemporary(halpbotEvent,
                     "The command **" + alias + "** doesn't seem to exist, you may want to check your spelling",
                     30);
         }
     }
 
-    private Result<Object> handleCommandInvocation(HalpbotEvent event,
-                                                        CommandContext commandContext,
-                                                        String content) {
-        CommandInvocationContext invocationContext = this.invocationContextFactory.command(content, event);
+    private Result<Object> handleCommandInvocation(final HalpbotEvent event,
+                                                   final CommandContext commandContext,
+                                                   final String content)
+    {
+        final CommandInvocationContext invocationContext = this.invocationContextFactory.command(content, event);
         return commandContext.invoke(invocationContext);
     }
 
     @Override
-    @Nullable
-    public CommandContext commandContext(String alias) {
-        return this.commands.get(alias.toLowerCase(Locale.ROOT));
-    }
-
-    @Override
-    public Collection<CommandContext> reflectiveCommandContext(TypeContext<?> targetType,
-                                                               String methodName,
-                                                               Set<TypeContext<?>> reflections) {
-        if (!this.reflectiveCommands.containsKey(targetType))
-            return Collections.emptyList();
-
-        return this.reflectiveCommands.get(targetType).get(methodName.toLowerCase(Locale.ROOT))
-            .stream()
-            .filter(commandContext -> commandContext.executable() instanceof MethodContext methodContext
-                && reflections.contains(methodContext.parent()))
-            .toList();
-    }
-
-    @Override
-    public <T> void registerMessageCommand(T instance, MethodContext<?, T> methodContext) {
-        if (!methodContext.isPublic()) {
-            this.applicationContext.log().warn("The command method %s must be public if its annotated with @Command"
-                .formatted(methodContext.qualifiedName()));
-            return;
-        }
-
-        if (!this.parameterAnnotationsAreValid(methodContext))
-            return;
-
-        Command command = methodContext.annotation(Command.class).get();
-        List<String> aliases = this.aliases(command, methodContext);
-        CommandContext commandContext = this.createCommand(
-            aliases,
-            command,
-            methodContext,
-            new HalpbotCommandInvokable(instance, methodContext));
-
-        for (String alias : aliases) {
-            if (this.commands.containsKey(alias)) {
-                this.applicationContext.log().warn(
-                    "The alias '%s' is already being used by the command '%s'. The command %s will not be registered under this alias"
-                        .formatted(alias, this.commands.get(alias).toString(), commandContext.toString()));
-                continue;
-            }
-
-            this.commands.put(alias, commandContext);
-        }
-    }
-
-    @Override
-    public <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext) {
+    public <T> void registerSlashCommand(final T instance, final MethodContext<?, T> methodContext) {
         //TODO: Slash Commands
     }
 
     @Override
-    public void registerReflectiveCommand(MethodContext<?, ?> methodContext) {
+    public void registerReflectiveCommand(final MethodContext<?, ?> methodContext) {
         if (!methodContext.isPublic() && !methodContext.has(AccessModifier.STATIC)) {
             this.applicationContext.log().warn(
                 "The reflective method %s should be public and static if its annotated with @Reflective"
@@ -247,79 +194,89 @@ public class HalpbotCommandAdapter implements CommandAdapter
 
         if (!this.parameterAnnotationsAreValid(methodContext)) return;
 
-        Command command = methodContext.annotation(Command.class).get();
-        List<String> aliases = this.aliases(command, methodContext);
-        CommandContext commandContext = this.createCommand(
+        final Command command = methodContext.annotation(Command.class).get();
+        final List<String> aliases = this.aliases(command, methodContext);
+        final CommandContext commandContext = this.createCommand(
             aliases,
             command,
             methodContext,
             new HalpbotCommandInvokable(null, methodContext));
 
-        TypeContext<?> returnType = methodContext.genericReturnType();
+        final TypeContext<?> returnType = methodContext.genericReturnType();
         if (!this.reflectiveCommands.containsKey(returnType))
             this.reflectiveCommands.put(returnType, new ArrayListMultiMap<>());
 
-        MultiMap<String, CommandContext> aliasMappings = this.reflectiveCommands.get(returnType);
+        final MultiMap<String, CommandContext> aliasMappings = this.reflectiveCommands.get(returnType);
 
-        for (String alias : aliases) {
+        for (final String alias : aliases) {
             aliasMappings.put(alias.toLowerCase(Locale.ROOT), commandContext);
         }
     }
 
     @Override
-    public String prefix(long guildId) {
-        return this.guildPrefixes.getOrDefault(guildId, this.defaultPrefix);
-    }
-
-    private List<String> aliases(Command command, MethodContext<?, ?> methodContext) {
-        List<String> aliases = Arrays.stream(command.alias())
-            .map(alias -> alias.toLowerCase(Locale.ROOT))
-            .collect(Collectors.toList());
-
-        // If an alias hasn't been specified, use the method name
-        if (aliases.isEmpty())
-            aliases.add(methodContext.name().toLowerCase(Locale.ROOT));
-        return aliases;
-    }
-
-    private String usage(String usage, ExecutableElementContext<?, ?> executable) {
-        if (!usage.isBlank())
-            return usage;
-        else return this.usageBuilder.buildUsage(this.applicationContext, executable);
-    }
-
-    private Set<TypeContext<?>> reflections(Class<?>[] reflections) {
-        return Stream.of(reflections).map(TypeContext::of).collect(Collectors.toSet());
-    }
-
-    private <T> CommandContext createCommand(List<String> aliases,
-                                             Command command,
-                                             MethodContext<?, T> methodContext,
-                                             ActionInvokable<CommandInvocationContext> actionInvokable) {
-        TypeContext<T> parent = methodContext.parent();
-        Set<TypeContext<?>> reflections = this.reflections(command.reflections());
-
-        if (parent.annotation(Command.class).present()) {
-            Command sharedProperties = parent.annotation(Command.class).get();
-            reflections.addAll(this.reflections(sharedProperties.reflections()));
+    public <T> void registerMessageCommand(final T instance, final MethodContext<?, T> methodContext) {
+        if (!methodContext.isPublic()) {
+            this.applicationContext.log().warn("The command method %s must be public if its annotated with @Command"
+                .formatted(methodContext.qualifiedName()));
+            return;
         }
 
-        return this.commandContextFactory.create(
+        if (!this.parameterAnnotationsAreValid(methodContext))
+            return;
+
+        final Command command = methodContext.annotation(Command.class).get();
+        final List<String> aliases = this.aliases(command, methodContext);
+        final CommandContext commandContext = this.createCommand(
             aliases,
-            command.description(),
-            this.usage(command.usage(), methodContext),
-            this.decoratorService.decorate(actionInvokable),
-            this.tokenService.tokens(methodContext),
-            reflections,
-            HalpbotUtils.asDuration(command.display()),
-            command.isEphemeral(),
-            command.preserveWhitespace(),
-            command.content()
-        );
+            command,
+            methodContext,
+            new HalpbotCommandInvokable(instance, methodContext));
+
+        for (final String alias : aliases) {
+            if (this.commands.containsKey(alias)) {
+                this.applicationContext.log().warn(
+                    "The alias '%s' is already being used by the command '%s'. The command %s will not be registered under this alias"
+                        .formatted(alias, this.commands.get(alias).toString(), commandContext.toString()));
+                continue;
+            }
+
+            this.commands.put(alias, commandContext);
+        }
     }
 
     @Override
-    public Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext) {
+    public String prefix(final long guildId) {
+        return this.guildPrefixes.getOrDefault(guildId, this.defaultPrefix);
+    }
+
+    @Override
+    @Nullable
+    public CommandContext commandContext(final String alias) {
+        return this.commands.get(alias.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public Collection<CommandContext> reflectiveCommandContext(final TypeContext<?> targetType,
+                                                               final String methodName,
+                                                               final Set<TypeContext<?>> reflections)
+    {
+        if (!this.reflectiveCommands.containsKey(targetType))
+            return Collections.emptyList();
+
+        return this.reflectiveCommands.get(targetType).get(methodName.toLowerCase(Locale.ROOT))
+            .stream()
+            .filter(commandContext -> commandContext.executable() instanceof MethodContext methodContext
+                && reflections.contains(methodContext.parent()))
+            .toList();
+    }
+
+    @Override
+    public Map<String, CommandContext> commands() {
+        return Collections.unmodifiableMap(this.commands);
+    }
+
+    @Override
+    public Collection<CustomConstructorContext> customConstructors(final TypeContext<?> typeContext) {
         if (!this.customConstructors.containsKey(typeContext))
             throw new MissingResourceException(
                 "There is no custom constructor registered for the type %s".formatted(typeContext.qualifiedName()));
@@ -328,13 +285,13 @@ public class HalpbotCommandAdapter implements CommandAdapter
     }
 
     @Override
-    public void registerCustomConstructors(TypeContext<?> typeContext) {
-        List<CustomConstructorContext> constructors = typeContext.constructors()
+    public void registerCustomConstructors(final TypeContext<?> typeContext) {
+        final List<CustomConstructorContext> constructors = typeContext.constructors()
             .stream()
             .filter(constructor -> constructor.annotation(CustomConstructor.class).present())
             .map(constructor -> {
-                CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
-                List<Token> tokens = this.tokenService.tokens(constructor);
+                final CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
+                final List<Token> tokens = this.tokenService.tokens(constructor);
 
                 return this.customConstructorContextFactory.create(
                     this.usage(construction.usage(), constructor),
@@ -354,26 +311,51 @@ public class HalpbotCommandAdapter implements CommandAdapter
         this.customConstructors.putAll(typeContext, constructors);
     }
 
-    @Override
-    public Map<String, CommandContext> commands() {
-        return Collections.unmodifiableMap(this.commands);
+    private List<String> aliases(final Command command, final MethodContext<?, ?> methodContext) {
+        final List<String> aliases = Arrays.stream(command.alias())
+            .map(alias -> alias.toLowerCase(Locale.ROOT))
+            .collect(Collectors.toList());
+
+        // If an alias hasn't been specified, use the method name
+        if (aliases.isEmpty())
+            aliases.add(methodContext.name().toLowerCase(Locale.ROOT));
+        return aliases;
     }
 
-    @Override
-    public String typeAlias(TypeContext<?> typeContext) {
-        if (!this.typeAliases.containsKey(typeContext)) {
-            String alias;
-            if (typeContext.annotation(CustomParameter.class).present())
-                alias = typeContext.annotation(CustomParameter.class).get().identifier();
-            else if (typeContext.isArray())
-                alias = this.typeAlias(typeContext.elementType().get()) + "[]";
-            else if (typeContext.isPrimitive())
-                alias = Reflect.wrapPrimative(typeContext).name();
-            else
-                alias = typeContext.name();
-            this.typeAliases.put(typeContext, alias);
+    private <T> CommandContext createCommand(final List<String> aliases,
+                                             final Command command,
+                                             final MethodContext<?, T> methodContext,
+                                             final ActionInvokable<CommandInvocationContext> actionInvokable)
+    {
+        final TypeContext<T> parent = methodContext.parent();
+        final Set<TypeContext<?>> reflections = this.reflections(command.reflections());
+
+        if (parent.annotation(Command.class).present()) {
+            final Command sharedProperties = parent.annotation(Command.class).get();
+            reflections.addAll(this.reflections(sharedProperties.reflections()));
         }
 
-        return this.typeAliases.get(typeContext);
+        return this.commandContextFactory.create(
+            aliases,
+            command.description(),
+            this.usage(command.usage(), methodContext),
+            this.decoratorService.decorate(actionInvokable),
+            this.tokenService.tokens(methodContext),
+            reflections,
+            HalpbotUtils.asDuration(command.display()),
+            command.isEphemeral(),
+            command.preserveWhitespace(),
+            command.content()
+        );
+    }
+
+    private Set<TypeContext<?>> reflections(final Class<?>[] reflections) {
+        return Stream.of(reflections).map(TypeContext::of).collect(Collectors.toSet());
+    }
+
+    private String usage(final String usage, final ExecutableElementContext<?, ?> executable) {
+        if (!usage.isBlank())
+            return usage;
+        else return this.usageBuilder.buildUsage(this.applicationContext, executable);
     }
 }

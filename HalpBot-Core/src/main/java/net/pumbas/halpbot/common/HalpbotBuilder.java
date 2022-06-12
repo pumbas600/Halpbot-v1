@@ -26,67 +26,48 @@ package net.pumbas.halpbot.common;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.utilities.ErrorManager;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 
 import javax.security.auth.login.LoginException;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class HalpbotBuilder {
 
-    private final ApplicationContext applicationContext;
-
-    public HalpbotBuilder(final ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+    private final Class<?> main;
+    private final String[] args;
 
     public static HalpbotBuilder create(final Class<?> main, final String[] args) {
-        final ApplicationContext applicationContext = new HalpbotApplicationFactory()
-            .loadDefaults()
-            .activator(TypeContext.of(main))
-            .arguments(args)
-            .create();
-        applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
-
-        return new HalpbotBuilder(applicationContext);
-    }
-
-    private static void setDebugActive() {
-        final ILoggerFactory factory = LoggerFactory.getILoggerFactory();
-
-        if (factory instanceof LoggerContext loggerContext) {
-            for (final Logger logger : loggerContext.getLoggerList()) {
-                logger.setLevel(Level.DEBUG);
-            }
-        } else {
-            final Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-            rootLogger.setLevel(Level.DEBUG);
-        }
+        return new HalpbotBuilder(main, args);
     }
 
     public ApplicationContext build(final Function<String, JDABuilder> jdaBuilder) {
-        final HalpbotCore halpbotCore = this.applicationContext.get(HalpbotCore.class);
-        final BotConfiguration botConfiguration = this.applicationContext.get(BotConfiguration.class);
+        final ApplicationContext applicationContext = new HalpbotApplicationFactory()
+            .loadDefaults()
+            .activator(TypeContext.of(this.main))
+            .arguments(this.args)
+            .create();
+
+        final BotConfiguration botConfiguration = applicationContext.get(BotConfiguration.class);
 
         try {
             final JDABuilder builder = jdaBuilder.apply(botConfiguration.token());
             final JDA jda = builder.build();
-            halpbotCore.initialise(jda);
+            applicationContext.bind(JDA.class).lazySingleton(() -> jda);
             jda.awaitReady();
         } catch (final LoginException | InterruptedException e) {
-            this.applicationContext.log().error("There was an error while building the JDA instance", e);
+            applicationContext.log().error("There was an error while building the JDA instance", e);
         }
-        return this.applicationContext;
+
+        applicationContext.get(ErrorManager.class); // Create an instance of the ErrorManager
+        return applicationContext;
     }
 }

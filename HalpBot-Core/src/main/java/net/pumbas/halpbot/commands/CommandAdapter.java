@@ -161,12 +161,6 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
 
     void registerCustomConstructors(TypeContext<?> typeContext);
 
-    default String typeAlias(final Class<?> type) {
-        return this.typeAlias(TypeContext.of(type));
-    }
-
-    String typeAlias(TypeContext<?> typeContext);
-
     default boolean parameterAnnotationsAreValid(final ExecutableElementContext<?, ?> executable) {
         for (final ParameterContext<?> parameterContext : executable.parameters()) {
             final TypeContext<?> parameterType = parameterContext.type();

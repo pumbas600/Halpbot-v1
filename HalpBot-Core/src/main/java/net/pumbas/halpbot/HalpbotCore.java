@@ -32,14 +32,11 @@ import net.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import net.pumbas.halpbot.permissions.HalpbotPermissions;
 import net.pumbas.halpbot.permissions.PermissionService;
 
-import org.dockbox.hartshorn.application.ExceptionHandler;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.component.Service;
-import org.dockbox.hartshorn.component.processing.Provider;
 import org.dockbox.hartshorn.context.ContextCarrier;
-import org.dockbox.hartshorn.util.ApplicationException;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +47,7 @@ import jakarta.inject.Inject;
 import lombok.Getter;
 
 @Service
-public class HalpbotCore implements ContextCarrier {
+public class HalpbotCore implements ContextCarrier, Enableable {
 
     @Getter
     private final ScheduledExecutorService threadpool;
@@ -64,19 +61,20 @@ public class HalpbotCore implements ContextCarrier {
     private PermissionService permissionService;
     @Getter
     private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
-    @Nullable
+
+    @Getter
+    @Inject
     private JDA jda;
 
     public HalpbotCore() {
         this.threadpool = Executors.newSingleThreadScheduledExecutor();
     }
 
-    public void initialise(final JDA jda) {
-        this.jda = jda;
-
+    @Override
+    public void enable() {
         // Prevent any event listeners being automatically registered twice
-        jda.removeEventListener(this.eventListeners.toArray());
-        this.eventListeners.forEach(jda::addEventListener);
+        this.jda.removeEventListener(this.eventListeners.toArray());
+        this.eventListeners.forEach(this.jda::addEventListener);
 
         this.eventListeners.clear(); // Free up the memory space, we don't to store this anymore
         final BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
@@ -98,7 +96,8 @@ public class HalpbotCore implements ContextCarrier {
             this.applicationContext.log().warn("Falling back to %s display configuration"
                 .formatted(SimpleDisplayConfiguration.class.getCanonicalName()));
             this.displayConfiguration = new SimpleDisplayConfiguration();
-        } else {
+        }
+        else {
             this.displayConfiguration = (DisplayConfiguration) this.applicationContext.get(typeContext);
         }
     }
@@ -119,13 +118,5 @@ public class HalpbotCore implements ContextCarrier {
 
     public void registerEventListener(final EventListener eventListener) {
         this.eventListeners.add(eventListener);
-    }
-
-    @Provider
-    public JDA jda() {
-        if (this.jda == null)
-            ExceptionHandler.unchecked(
-                new ApplicationException("You are trying to access the JDA instance before it has been created"));
-        return this.jda;
     }
 }

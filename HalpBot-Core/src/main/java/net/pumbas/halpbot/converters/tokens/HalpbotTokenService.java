@@ -24,20 +24,22 @@
 
 package net.pumbas.halpbot.converters.tokens;
 
-import net.pumbas.halpbot.commands.CommandAdapter;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
+import net.pumbas.halpbot.commands.annotations.CustomParameter;
 import net.pumbas.halpbot.converters.ConverterHandler;
 import net.pumbas.halpbot.utilities.HalpbotStringTraverser;
+import net.pumbas.halpbot.utilities.Reflect;
 import net.pumbas.halpbot.utilities.StringTraverser;
 
 import org.dockbox.hartshorn.application.ExceptionHandler;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.ApplicationException;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
-import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,46 +49,61 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
 import lombok.Getter;
 
 @Singleton
 @ComponentBinding(TokenService.class)
-public class HalpbotTokenService implements TokenService
-{
+public class HalpbotTokenService implements TokenService {
+
     private final Map<ExecutableElementContext<?, ?>, List<Token>> cache = new ConcurrentHashMap<>();
+    private final Map<TypeContext<?>, String> typeAliases = new ConcurrentHashMap<>();
 
     @Inject
     @Getter
     private ApplicationContext applicationContext;
-
     @Inject
     private TokenFactory tokenFactory;
-    @Inject
-    private CommandAdapter commandAdapter;
     @Inject
     private ConverterHandler converterHandler;
 
     @Override
-    public List<Token> tokens(ExecutableElementContext<?, ?> executableContext) {
+    public String typeAlias(final TypeContext<?> typeContext) {
+        if (!this.typeAliases.containsKey(typeContext)) {
+            final String alias;
+            if (typeContext.annotation(CustomParameter.class).present())
+                alias = typeContext.annotation(CustomParameter.class).get().identifier();
+            else if (typeContext.isArray())
+                alias = this.typeAlias(typeContext.elementType().get()) + "[]";
+            else if (typeContext.isPrimitive())
+                alias = Reflect.wrapPrimative(typeContext).name();
+            else
+                alias = typeContext.name();
+            this.typeAliases.put(typeContext, alias);
+        }
+
+        return this.typeAliases.get(typeContext);
+    }
+
+    @Override
+    public List<Token> tokens(final ExecutableElementContext<?, ?> executableContext) {
         if (this.cache.containsKey(executableContext))
             return this.cache.get(executableContext);
 
-        List<Token> tokens = new ArrayList<>();
-        List<ParameterContext<?>> parameters = executableContext.parameters();
+        final List<Token> tokens = new ArrayList<>();
+        final List<ParameterContext<?>> parameters = executableContext.parameters();
         int parameterIndex = 0;
 
-        Result<String> command = this.command(executableContext);
+        final Result<String> command = this.command(executableContext);
         if (command.present() && !command.get().isBlank()) {
-            StringTraverser stringTraverser = new HalpbotStringTraverser(command.get());
+            final StringTraverser stringTraverser = new HalpbotStringTraverser(command.get());
 
             while (stringTraverser.hasNext()) {
                 if (parameterIndex < parameters.size()) {
-                    ParameterContext<?> currentParameter = parameters.get(parameterIndex);
-                    int currentIndex = stringTraverser.currentIndex();
+                    final ParameterContext<?> currentParameter = parameters.get(parameterIndex);
+                    final int currentIndex = stringTraverser.currentIndex();
 
                     if (!this.converterHandler.isCommandParameter(currentParameter) ||
-                        stringTraverser.next().equalsIgnoreCase(this.commandAdapter.typeAlias(currentParameter.type()))) {
+                        stringTraverser.next().equalsIgnoreCase(this.typeAlias(currentParameter.type()))) {
                         tokens.add(this.tokenFactory.createParsing(currentParameter));
                         parameterIndex++;
                         continue;
@@ -94,7 +111,7 @@ public class HalpbotTokenService implements TokenService
 
                     stringTraverser.currentIndex(currentIndex);
                 }
-                PlaceholderToken placeholderToken = stringTraverser.nextSurrounded("[", "]")
+                final PlaceholderToken placeholderToken = stringTraverser.nextSurrounded("[", "]")
                     .map(placeholder -> this.tokenFactory.createPlaceholder(true, placeholder))
                     .orElse(() -> stringTraverser.nextSurrounded("<", ">")
                         .map(placeholder -> this.tokenFactory.createPlaceholder(false, placeholder))
@@ -112,7 +129,8 @@ public class HalpbotTokenService implements TokenService
                             "All command parameters must be specified in the command"));
                 }
 
-        } else tokens.addAll(executableContext.parameters()
+        }
+        else tokens.addAll(executableContext.parameters()
             .stream()
             .map(parameterContext -> this.tokenFactory.createParsing(parameterContext))
             .collect(Collectors.toList()));
@@ -121,7 +139,7 @@ public class HalpbotTokenService implements TokenService
         return tokens;
     }
 
-    private Result<String> command(ExecutableElementContext<?, ?> executableContext) {
+    private Result<String> command(final ExecutableElementContext<?, ?> executableContext) {
         return executableContext.annotation(Command.class)
             .map(Command::command)
             .orElse(() -> executableContext.annotation(CustomConstructor.class).map(CustomConstructor::command).orNull());

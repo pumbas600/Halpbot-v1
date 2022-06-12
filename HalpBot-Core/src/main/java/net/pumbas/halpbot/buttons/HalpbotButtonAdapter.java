@@ -42,7 +42,6 @@ import net.pumbas.halpbot.utilities.HalpbotUtils;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.inject.binding.ComponentBinding;
-import org.dockbox.hartshorn.util.ApplicationException;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.jetbrains.annotations.Nullable;
@@ -102,22 +101,26 @@ public class HalpbotButtonAdapter implements ButtonAdapter, Enableable {
         if (this.isDynamic(id)) {
             if (this.dynamicButtons.containsKey(id)) {
                 buttonContext = this.retrieveDynamicButtonContext(id);
-            } else { // The button has expired
+            }
+            else { // The button has expired
                 this.halpbotCore().displayConfiguration()
                     .displayTemporary(halpbotEvent, "This button has expired", -30);
                 this.handleRemovalFunctions(event);
                 return;
             }
-        } else if (this.registeredButtons.containsKey(id)) {
+        }
+        else if (this.registeredButtons.containsKey(id)) {
             buttonContext = this.registeredButtons.get(id);
-        } else return; // Not a halpbot button
+        }
+        else return; // Not a halpbot button
 
         final ButtonInvocationContext invocationContext = this.invocationContextFactory.button(halpbotEvent, buttonContext);
         final Result<Object> result = buttonContext.invoke(invocationContext);
 
         if (result.present()) {
             this.displayResult(halpbotEvent, buttonContext, result.get());
-        } else if (result.caught()) {
+        }
+        else if (result.caught()) {
             event.deferEdit(); // Prevent interaction failed event
             this.handleException(halpbotEvent, result.error());
         }
@@ -293,7 +296,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter, Enableable {
     }
 
     @Override
-    public void enable() throws ApplicationException {
+    public void enable() {
         this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
     }
 }

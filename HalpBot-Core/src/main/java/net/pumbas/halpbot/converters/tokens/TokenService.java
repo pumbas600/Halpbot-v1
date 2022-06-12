@@ -26,10 +26,17 @@ package net.pumbas.halpbot.converters.tokens;
 
 import org.dockbox.hartshorn.context.ContextCarrier;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 
-public interface TokenService extends ContextCarrier
-{
+public interface TokenService extends ContextCarrier {
+
+    default String typeAlias(final Class<?> type) {
+        return this.typeAlias(TypeContext.of(type));
+    }
+
+    String typeAlias(TypeContext<?> typeContext);
+
     List<Token> tokens(ExecutableElementContext<?, ?> executableContext);
 }
