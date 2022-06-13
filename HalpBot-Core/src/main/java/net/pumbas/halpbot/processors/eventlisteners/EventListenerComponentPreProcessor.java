@@ -22,40 +22,29 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.buttons;
+package net.pumbas.halpbot.processors.eventlisteners;
 
-import net.pumbas.halpbot.buttons.ButtonHandler;
-import net.pumbas.halpbot.utilities.validation.ElementValidator;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ComponentPreProcessor;
 import org.dockbox.hartshorn.inject.Key;
-import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-import java.util.List;
-
-public class ButtonServicePreProcessor implements ServicePreProcessor {
-
-    private static final ElementValidator BUTTON_VALIDATOR = ElementValidator.publicModifier("button handler");
+public class EventListenerComponentPreProcessor implements ComponentPreProcessor {
 
     @Override
-    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
-        return !key.type().methods(ButtonHandler.class).isEmpty();
+    public boolean modifies(final ApplicationContext context, final Key<?> key) {
+        return key.type().childOf(EventListener.class);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> void process(final ApplicationContext context, final Key<T> key) {
-        final TypeContext<T> type = key.type();
+        final EventListenerContext eventListenerContext = context.first(EventListenerContext.class).get();
 
-        final ButtonHandlerContext buttonHandlerContext = context.first(ButtonHandlerContext.class).get();
-        final List<MethodContext<?, T>> buttonHandlers = type.methods(ButtonHandler.class);
+        context.log().info("Processing EventListener {}", key.type().qualifiedName());
 
-        for (final MethodContext<?, T> buttonHandler : buttonHandlers) {
-            if (!BUTTON_VALIDATOR.isValid(context, buttonHandler))
-                continue;
-
-            buttonHandlerContext.register(type, buttonHandler);
-        }
+        eventListenerContext.register((TypeContext<? extends EventListener>) key.type());
     }
 }

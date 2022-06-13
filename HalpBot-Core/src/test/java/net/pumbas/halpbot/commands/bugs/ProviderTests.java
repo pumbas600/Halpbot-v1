@@ -4,6 +4,7 @@ import net.pumbas.halpbot.buttons.ButtonAdapter;
 import net.pumbas.halpbot.buttons.UseButtons;
 import net.pumbas.halpbot.permissions.PermissionDecoratorFactory;
 
+import org.dockbox.hartshorn.application.Activator;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +14,7 @@ import jakarta.inject.Inject;
 
 @UseButtons
 @HartshornTest
+@Activator(scanPackages = "net.pumbas.halpbot.commands.bugs")
 public class ProviderTests {
 
     @Inject

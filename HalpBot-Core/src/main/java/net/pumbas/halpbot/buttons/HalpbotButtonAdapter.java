@@ -56,7 +56,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@org.dockbox.hartshorn.component.Component
 @Accessors(chain = false)
 public class HalpbotButtonAdapter implements ButtonAdapter {
 
@@ -189,8 +188,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
 
     @Override
     public void enable() {
-        ButtonAdapter.super.enable();
-        this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
+//        ButtonAdapter.super.enable();
+//        this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
     }
 
     @Override

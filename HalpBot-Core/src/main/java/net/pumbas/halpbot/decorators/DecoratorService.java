@@ -57,7 +57,7 @@ public interface DecoratorService extends Enableable, ContextCarrier {
             .toList();
 
         for (final TypeContext<?> decorator : decorators) {
-            this.register((TypeContext<? extends Annotation>) decorator);
+            //this.register((TypeContext<? extends Annotation>) decorator);
         }
 
         this.applicationContext().log().info("Registered %d decorators".formatted(decorators.size()));

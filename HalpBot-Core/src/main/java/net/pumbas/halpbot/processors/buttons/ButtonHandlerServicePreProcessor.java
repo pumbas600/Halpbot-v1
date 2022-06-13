@@ -22,26 +22,42 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlisteners;
+package net.pumbas.halpbot.processors.buttons;
 
-import net.dv8tion.jda.api.hooks.EventListener;
+import net.pumbas.halpbot.buttons.ButtonHandler;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
 import org.dockbox.hartshorn.inject.Key;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class EventListenerServicePreProcessor implements ServicePreProcessor {
+import java.util.List;
+
+public class ButtonHandlerServicePreProcessor implements ServicePreProcessor {
+
+    private static final ElementValidator BUTTON_VALIDATOR = ElementValidator.publicModifier("button handler");
 
     @Override
     public boolean preconditions(final ApplicationContext context, final Key<?> key) {
-        return key.type().childOf(EventListener.class);
+        return !key.type().methods(ButtonHandler.class).isEmpty();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> void process(final ApplicationContext context, final Key<T> key) {
-        final EventListenerContext eventListenerContext = context.first(EventListenerContext.class).get();
-        eventListenerContext.register((TypeContext<? extends EventListener>) key.type());
+        final TypeContext<T> type = key.type();
+
+        final ButtonHandlerContext buttonHandlerContext = context.first(ButtonHandlerContext.class).get();
+        final List<MethodContext<?, T>> buttonHandlers = type.methods(ButtonHandler.class);
+
+        context.log().debug("Processing button handlers in {}", type.qualifiedName());
+
+        for (final MethodContext<?, T> buttonHandler : buttonHandlers) {
+            if (!BUTTON_VALIDATOR.isValid(context, buttonHandler))
+                continue;
+
+            buttonHandlerContext.register(type, buttonHandler);
+        }
     }
 }
