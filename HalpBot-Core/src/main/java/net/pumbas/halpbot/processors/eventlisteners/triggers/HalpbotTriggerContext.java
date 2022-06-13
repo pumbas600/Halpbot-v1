@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
@@ -44,8 +44,8 @@ public record HalpbotTriggerContext(List<String> triggers,
                                     ActionInvokable<SourceInvocationContext> actionInvokable,
                                     Duration displayDuration,
                                     boolean isEphemeral)
-    implements TriggerContext
-{
+    implements TriggerContext {
+
     @Bound
     public HalpbotTriggerContext {}
 }

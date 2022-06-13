@@ -20,7 +20,7 @@ public class JDAProvider {
     private JDA jdaInstance;
 
     @Provider
-    public JDA jdaProvider(final ApplicationContext applicationContext, final BotConfiguration botConfiguration)
+    public JDA jda(final ApplicationContext applicationContext, final BotConfiguration botConfiguration)
         throws LoginException, InterruptedException
     {
         if (this.jdaInstance == null) {

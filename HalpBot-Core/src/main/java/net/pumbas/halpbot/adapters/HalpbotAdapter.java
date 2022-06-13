@@ -27,8 +27,8 @@ package net.pumbas.halpbot.adapters;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.pumbas.halpbot.actions.DisplayableResult;
 import net.pumbas.halpbot.common.CoreCarrier;
-import net.pumbas.halpbot.common.ExplainedException;
-import net.pumbas.halpbot.common.UndisplayedException;
+import net.pumbas.halpbot.common.exceptions.ExplainedException;
+import net.pumbas.halpbot.common.exceptions.UndisplayedException;
 import net.pumbas.halpbot.configurations.DisplayConfiguration;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
@@ -40,7 +40,8 @@ public interface HalpbotAdapter extends ContextCarrier, CoreCarrier, EventListen
         if (exception instanceof ExplainedException explainedException) {
             this.halpbotCore().displayConfiguration()
                 .displayTemporary(halpbotEvent, explainedException.explanation(), 30);
-        } else if (!(exception instanceof UndisplayedException) && exception.getMessage() != null)
+        }
+        else if (!(exception instanceof UndisplayedException) && exception.getMessage() != null)
             this.halpbotCore().displayConfiguration()
                 .displayTemporary(halpbotEvent,
                     "There was the following error trying to invoke this action: " + exception.getMessage(),

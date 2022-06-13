@@ -22,32 +22,29 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
-import java.util.function.BiPredicate;
+import net.pumbas.halpbot.actions.invokable.ActionInvokable;
+import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
+import net.pumbas.halpbot.converters.tokens.ParsingToken;
+import net.pumbas.halpbot.utilities.Require;
 
-import lombok.RequiredArgsConstructor;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 
-@RequiredArgsConstructor
-public enum TriggerStrategy
-{
-    START(String::startsWith),
-    ANYWHERE(String::contains);
+import java.time.Duration;
+import java.util.List;
 
-    private final BiPredicate<String, String> validator;
+@Service
+public interface TriggerContextFactory {
 
-    /**
-     * If the message contains the specified trigger. Both the message and the trigger should be lowered prior to
-     * calling this method.
-     *
-     * @param message
-     *     The lowered message
-     * @param trigger
-     *     The lowered trigger to determine if contained within the message
-     *
-     * @return If the trigger is contained within the message
-     */
-    public boolean contains(String message, String trigger) {
-        return this.validator.test(message, trigger);
-    }
+    @Factory
+    TriggerContext create(List<String> triggers,
+                          String description,
+                          TriggerStrategy strategy,
+                          Require require,
+                          List<ParsingToken> nonCommandParameterTokens,
+                          ActionInvokable<SourceInvocationContext> actionInvokable,
+                          Duration displayDuration,
+                          boolean isEphemeral);
 }

@@ -22,31 +22,32 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.common;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
-import lombok.Getter;
+import net.pumbas.halpbot.actions.DisplayableResult;
+import net.pumbas.halpbot.actions.invokable.SourceContext;
+import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
+import net.pumbas.halpbot.utilities.Require;
 
-public class ExplainedException extends RuntimeException
-{
-    @Getter
-    private final Object explanation;
+import java.util.List;
+import java.util.stream.Stream;
 
-    public ExplainedException(Object explanation) {
-        this.explanation = explanation;
+public interface TriggerContext extends SourceContext<SourceInvocationContext>, DisplayableResult {
+
+    String description();
+
+    default boolean matches(final String message) {
+        final Stream<String> stream = this.triggers().stream();
+
+        return switch (this.require()) {
+            case ALL -> stream.allMatch(trigger -> this.strategy().contains(message, trigger));
+            case ANY -> stream.anyMatch(trigger -> this.strategy().contains(message, trigger));
+        };
     }
 
-    public ExplainedException(String message) {
-        super(message);
-        this.explanation = message;
-    }
+    List<String> triggers();
 
-    public ExplainedException(String message, Throwable cause) {
-        super(message, cause);
-        this.explanation = message;
-    }
+    Require require();
 
-    public ExplainedException(Object explanation, Throwable cause) {
-        super(cause);
-        this.explanation = explanation;
-    }
+    TriggerStrategy strategy();
 }

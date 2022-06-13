@@ -22,32 +22,11 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.common.exceptions;
 
-import net.pumbas.halpbot.actions.DisplayableResult;
-import net.pumbas.halpbot.actions.invokable.SourceContext;
-import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
-import net.pumbas.halpbot.utilities.Require;
+public class UndisplayedException extends Exception {
 
-import java.util.List;
-import java.util.stream.Stream;
-
-public interface TriggerContext extends SourceContext<SourceInvocationContext>, DisplayableResult
-{
-    List<String> triggers();
-
-    String description();
-
-    TriggerStrategy strategy();
-
-    Require require();
-
-    default boolean matches(String message) {
-        Stream<String> stream = this.triggers().stream();
-
-        return switch (this.require()) {
-            case ALL -> stream.allMatch(trigger -> this.strategy().contains(message, trigger));
-            case ANY -> stream.anyMatch(trigger -> this.strategy().contains(message, trigger));
-        };
+    public UndisplayedException(final String message) {
+        super(message);
     }
 }

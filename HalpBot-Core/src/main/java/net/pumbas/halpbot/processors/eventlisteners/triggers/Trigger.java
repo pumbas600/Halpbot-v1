@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
 import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
@@ -34,8 +34,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Trigger
-{
+public @interface Trigger {
+
     String[] value();
 
     String description() default "";

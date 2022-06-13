@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
-import net.pumbas.halpbot.triggers.Trigger;
-import net.pumbas.halpbot.triggers.TriggerStrategy;
+import net.pumbas.halpbot.processors.eventlisteners.triggers.Trigger;
+import net.pumbas.halpbot.processors.eventlisteners.triggers.TriggerStrategy;
 import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
 
@@ -38,16 +38,16 @@ import org.dockbox.hartshorn.component.Service;
 import java.awt.Color;
 
 @Service
-public class ExampleTriggers
-{
+public class ExampleTriggers {
+
     // Repond to any messages that contain 'my id' or 'discord id' anywhere with their id for 30 seconds
-    @Trigger(value = { "my id", "discord id" }, strategy = TriggerStrategy.ANYWHERE, display = @Duration(30))
-    public MessageEmbed usersId(@Source User user) {
+    @Trigger(value = {"my id", "discord id"}, strategy = TriggerStrategy.ANYWHERE, display = @Duration(30))
+    public MessageEmbed usersId(@Source final User user) {
         return new EmbedBuilder()
-                .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
-                .setColor(Color.CYAN)
-                .setDescription("Your id is: " + user.getId())
-                .build();
+            .setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+            .setColor(Color.CYAN)
+            .setDescription("Your id is: " + user.getId())
+            .build();
     }
 
     // Respond to any messages that contains all the triggers. Require.ALL automatically sets the strategy to ANYWHERE

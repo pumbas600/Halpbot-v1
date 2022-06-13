@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -33,21 +33,21 @@ import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 
-public interface TriggerAdapter extends HalpbotAdapter
-{
+public interface TriggerAdapter extends HalpbotAdapter {
+
     @Override
-    default void onEvent(GenericEvent event) {
+    default void onEvent(final GenericEvent event) {
         if (event instanceof MessageReceivedEvent messageReceivedEvent)
             this.onMessageReceived(messageReceivedEvent);
     }
 
     void onMessageReceived(MessageReceivedEvent event);
 
-    default <T> void registerTriggers(TypeContext<T> type) {
-        T instance = this.applicationContext().get(type);
+    default <T> void registerTriggers(final TypeContext<T> type) {
+        final T instance = this.applicationContext().get(type);
         int triggers = 0;
 
-        for (MethodContext<?, T> trigger : type.methods(Trigger.class)) {
+        for (final MethodContext<?, T> trigger : type.methods(Trigger.class)) {
             if (!trigger.isPublic()) {
                 this.applicationContext().log().warn("Methods annotated with @Trigger must be public");
                 continue;

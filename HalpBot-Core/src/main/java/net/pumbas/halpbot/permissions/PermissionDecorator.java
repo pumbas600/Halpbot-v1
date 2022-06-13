@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
-import net.pumbas.halpbot.common.ExplainedException;
+import net.pumbas.halpbot.common.exceptions.ExplainedException;
 import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.utilities.Require;
 
@@ -44,15 +44,11 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 
 import jakarta.inject.Inject;
-
 import lombok.Getter;
 
 @ComponentBinding(PermissionDecorator.class)
-public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> implements Enableable
-{
-    @Inject
-    @Getter
-    private PermissionService permissionService;
+public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> implements Enableable {
+
     @Getter
     private final Set<String> customPermissions = new HashSet<>();
     @Getter
@@ -63,9 +59,12 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
     private final Require require;
     @Getter
     private final BiPredicate<Guild, Member> hasPermissions;
+    @Inject
+    @Getter
+    private PermissionService permissionService;
 
     @Bound
-    public PermissionDecorator(ActionInvokable<C> actionInvokable, Permissions permissions) {
+    public PermissionDecorator(final ActionInvokable<C> actionInvokable, final Permissions permissions) {
         super(actionInvokable);
         this.customPermissions.addAll(Set.of(permissions.permissions()));
         this.userPermissions.addAll(Set.of(permissions.user()));
@@ -77,11 +76,28 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         };
     }
 
+    protected boolean all(final Guild guild, final Member member) {
+        return member.hasPermission(this.userPermissions()) &&
+            this.permissionService().hasPermissions(guild, member, this.customPermissions());
+    }
+
+    protected boolean any(final Guild guild, final Member member) {
+        for (final Permission permission : this.userPermissions()) {
+            if (member.hasPermission(permission))
+                return true;
+        }
+        for (final String permission : this.customPermissions()) {
+            if (this.permissionService().hasPermission(guild, member, permission))
+                return true;
+        }
+        return false;
+    }
+
     @Override
-    public <R> Result<R> invoke(C invocationContext) {
-        HalpbotEvent event = invocationContext.halpbotEvent();
-        Guild guild = event.guild();
-        Member member = event.member();
+    public <R> Result<R> invoke(final C invocationContext) {
+        final HalpbotEvent event = invocationContext.halpbotEvent();
+        final Guild guild = event.guild();
+        final Member member = event.member();
 
         if (guild == null || member == null)
             return Result.of(new ExplainedException("This cannot be used in a private message!"));
@@ -92,30 +108,13 @@ public class PermissionDecorator<C extends InvocationContext> extends ActionInvo
         return Result.of(new ExplainedException("You do not have permission to use this command"));
     }
 
-    protected boolean botHasPermissions(Guild guild) {
+    protected boolean botHasPermissions(final Guild guild) {
         return guild.getSelfMember().hasPermission(this.selfPermissions);
     }
 
-    protected boolean hasPermissions(Guild guild, Member member) {
+    protected boolean hasPermissions(final Guild guild, final Member member) {
         // The bot owner has permission to use any command
         return this.permissionService.isOwner(member) || this.hasPermissions.test(guild, member);
-    }
-
-    protected boolean any(Guild guild, Member member) {
-        for (Permission permission : this.userPermissions()) {
-            if (member.hasPermission(permission))
-                return true;
-        }
-        for (String permission : this.customPermissions()) {
-            if (this.permissionService().hasPermission(guild, member, permission))
-                return true;
-        }
-        return false;
-    }
-
-    protected boolean all(Guild guild, Member member) {
-        return member.hasPermission(this.userPermissions()) &&
-            this.permissionService().hasPermissions(guild, member, this.customPermissions());
     }
 
     @Override

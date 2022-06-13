@@ -42,7 +42,7 @@ import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.customparameters.Shape;
 import net.pumbas.halpbot.decorators.log.Log;
 import net.pumbas.halpbot.permissions.PermissionService;
-import net.pumbas.halpbot.triggers.Trigger;
+import net.pumbas.halpbot.processors.eventlisteners.triggers.Trigger;
 import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
 

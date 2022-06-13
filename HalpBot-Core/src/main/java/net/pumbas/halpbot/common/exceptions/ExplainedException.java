@@ -22,29 +22,31 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.common.exceptions;
 
-import net.pumbas.halpbot.actions.invokable.ActionInvokable;
-import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
-import net.pumbas.halpbot.converters.tokens.ParsingToken;
-import net.pumbas.halpbot.utilities.Require;
+import lombok.Getter;
 
-import org.dockbox.hartshorn.component.factory.Factory;
-import org.dockbox.hartshorn.component.Service;
+public class ExplainedException extends RuntimeException {
 
-import java.time.Duration;
-import java.util.List;
+    @Getter
+    private final Object explanation;
 
-@Service
-public interface TriggerContextFactory
-{
-    @Factory
-    TriggerContext create(List<String> triggers,
-                          String description,
-                          TriggerStrategy strategy,
-                          Require require,
-                          List<ParsingToken> nonCommandParameterTokens,
-                          ActionInvokable<SourceInvocationContext> actionInvokable,
-                          Duration displayDuration,
-                          boolean isEphemeral);
+    public ExplainedException(final Object explanation) {
+        this.explanation = explanation;
+    }
+
+    public ExplainedException(final String message) {
+        super(message);
+        this.explanation = message;
+    }
+
+    public ExplainedException(final String message, final Throwable cause) {
+        super(message, cause);
+        this.explanation = message;
+    }
+
+    public ExplainedException(final Object explanation, final Throwable cause) {
+        super(cause);
+        this.explanation = explanation;
+    }
 }

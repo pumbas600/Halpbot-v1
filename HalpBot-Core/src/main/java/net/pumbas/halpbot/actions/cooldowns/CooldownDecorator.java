@@ -29,8 +29,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
-import net.pumbas.halpbot.common.ExplainedException;
-import net.pumbas.halpbot.common.UndisplayedException;
+import net.pumbas.halpbot.common.exceptions.ExplainedException;
+import net.pumbas.halpbot.common.exceptions.UndisplayedException;
 import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
@@ -41,32 +41,32 @@ import org.dockbox.hartshorn.util.Result;
 import java.time.Duration;
 
 @ComponentBinding(CooldownDecorator.class)
-public class CooldownDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
-{
+public class CooldownDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> {
+
     private static final long SECONDS_BETWEEN_COOLDOWN_EMBEDS = 15;
 
     private final CooldownStrategy strategy;
     private final Duration cooldownDuration;
 
     @Bound
-    public CooldownDecorator(ActionInvokable<C> actionInvokable, Cooldown cooldown) {
+    public CooldownDecorator(final ActionInvokable<C> actionInvokable, final Cooldown cooldown) {
         super(actionInvokable);
         this.cooldownDuration = HalpbotUtils.asDuration(cooldown.duration());
         this.strategy = cooldown.type().strategy();
     }
 
     @Override
-    public <R> Result<R> invoke(C invocableContext) {
-        HalpbotEvent event = invocableContext.halpbotEvent();
-        Guild guild = event.guild();
+    public <R> Result<R> invoke(final C invocableContext) {
+        final HalpbotEvent event = invocableContext.halpbotEvent();
+        final Guild guild = event.guild();
 
-        long guildId = guild == null ? -1 : guild.getIdLong();
-        long userId = event.user().getIdLong();
+        final long guildId = guild == null ? -1 : guild.getIdLong();
+        final long userId = event.user().getIdLong();
 
-        CooldownTimer cooldownTimer = this.strategy.get(guildId, userId);
+        final CooldownTimer cooldownTimer = this.strategy.get(guildId, userId);
 
         if (cooldownTimer.hasFinished()) {
-            Result<R> result = super.invoke(invocableContext);
+            final Result<R> result = super.invoke(invocableContext);
             this.strategy.put(guildId, userId, new CooldownTimer(this.cooldownDuration));
             return result;
         }

@@ -22,11 +22,31 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.common;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
-public class UndisplayedException extends Exception
-{
-    public UndisplayedException(String message) {
-        super(message);
+import java.util.function.BiPredicate;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public enum TriggerStrategy {
+    START(String::startsWith),
+    ANYWHERE(String::contains);
+
+    private final BiPredicate<String, String> validator;
+
+    /**
+     * If the message contains the specified trigger. Both the message and the trigger should be lowered prior to
+     * calling this method.
+     *
+     * @param message
+     *     The lowered message
+     * @param trigger
+     *     The lowered trigger to determine if contained within the message
+     *
+     * @return If the trigger is contained within the message
+     */
+    public boolean contains(final String message, final String trigger) {
+        return this.validator.test(message, trigger);
     }
 }

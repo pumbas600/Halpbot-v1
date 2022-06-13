@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.HalpbotCore;
@@ -36,10 +36,10 @@ import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.util.reflect.MethodContext;
+import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.MethodContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,20 +49,19 @@ import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
 import lombok.Getter;
 
 @Singleton
 @ComponentBinding(TriggerAdapter.class)
-public class HalpbotTriggerAdapter implements TriggerAdapter
-{
+public class HalpbotTriggerAdapter implements TriggerAdapter {
+
+    private final List<TriggerContext> triggerContexts = new ArrayList<>();
     @Getter
     @Inject
     private ApplicationContext applicationContext;
     @Getter
     @Inject
     private HalpbotCore halpbotCore;
-
     @Inject
     private InvocationContextFactory invocationContextFactory;
     @Inject
@@ -72,19 +71,17 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
     @Inject
     private TokenService tokenService;
 
-    private final List<TriggerContext> triggerContexts = new ArrayList<>();
-
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(final MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
-        String message = event.getMessage().getContentDisplay().toLowerCase(Locale.ROOT);
-        HalpbotEvent halpbotEvent = new MessageEvent(event);
+        final String message = event.getMessage().getContentDisplay().toLowerCase(Locale.ROOT);
+        final HalpbotEvent halpbotEvent = new MessageEvent(event);
 
 
-        for (TriggerContext triggerContext : this.triggerContexts) {
+        for (final TriggerContext triggerContext : this.triggerContexts) {
             if (triggerContext.matches(message)) {
-                Result<Object> result = triggerContext.invoke(this.invocationContextFactory.source(
+                final Result<Object> result = triggerContext.invoke(this.invocationContextFactory.source(
                     halpbotEvent,
                     triggerContext.nonCommandParameterTokens()));
 
@@ -98,12 +95,12 @@ public class HalpbotTriggerAdapter implements TriggerAdapter
     }
 
     @Override
-    public <T> void registerTrigger(T instance, MethodContext<?, T> methodContext) {
-        Trigger trigger = methodContext.annotation(Trigger.class).get();
+    public <T> void registerTrigger(final T instance, final MethodContext<?, T> methodContext) {
+        final Trigger trigger = methodContext.annotation(Trigger.class).get();
 
         // TODO: Use factory to create SourceInvokable
 
-        TriggerContext context = this.triggerContextFactory.create(
+        final TriggerContext context = this.triggerContextFactory.create(
             Stream.of(trigger.value())
                 .map(String::toLowerCase)
                 .toList(),

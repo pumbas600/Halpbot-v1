@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.triggers;
+package net.pumbas.halpbot.processors.eventlisteners.triggers;
 
 import net.pumbas.halpbot.processors.triggers.TriggerServicePreProcessor;
 
