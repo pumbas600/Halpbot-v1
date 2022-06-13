@@ -40,8 +40,6 @@ import net.pumbas.halpbot.objects.AsyncDuration;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.component.Enableable;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.jetbrains.annotations.Nullable;
@@ -54,15 +52,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Singleton
+@org.dockbox.hartshorn.component.Component
 @Accessors(chain = false)
-@ComponentBinding(ButtonAdapter.class)
-public class HalpbotButtonAdapter implements ButtonAdapter, Enableable {
+public class HalpbotButtonAdapter implements ButtonAdapter {
 
     private final Map<String, ButtonContext> registeredButtons = new ConcurrentHashMap<>();
     private final Map<String, ButtonContext> dynamicButtons = new ConcurrentHashMap<>();
@@ -126,6 +122,75 @@ public class HalpbotButtonAdapter implements ButtonAdapter, Enableable {
         }
 
         this.handleRemovalFunctions(event);
+    }
+
+    private ButtonContext retrieveDynamicButtonContext(final String id) {
+        final ButtonContext buttonContext = this.dynamicButtons.get(id);
+        // The button context has already been checked to make sure it's not past it's expiration time (If
+        // applicable) so we only need to determine if it still has any uses left.
+
+        if (buttonContext.hasUses()) {
+            buttonContext.deductUse();
+            // Now check if it no longer has any uses
+            if (!buttonContext.hasUses())
+                this.removeDynamicButton(id, true);
+        }
+
+        return buttonContext;
+    }
+
+    private void handleRemovalFunctions(final ButtonClickEvent event) {
+        if (!this.afterRemovalFunctions.isEmpty() && this.removalFunctionsApplies(event)) {
+            final List<ActionRow> rows = new ArrayList<>();
+
+            for (final ActionRow row : event.getMessage().getActionRows()) {
+                final List<Component> components = new ArrayList<>();
+                for (final Component component : row.getComponents()) {
+                    final String componentId = component.getId();
+                    final AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(componentId);
+
+                    if (null != afterRemoval) {
+                        final Component modifiedComponent = afterRemoval.apply(component);
+                        components.add(modifiedComponent);
+                        continue;
+                    }
+                    components.add(component);
+                }
+                rows.add(ActionRow.of(components));
+            }
+            event.getHook().editMessageComponentsById(event.getMessageIdLong(), rows).queue();
+        }
+    }
+
+    private void removeDynamicButton(final String id, final boolean applyRemovalFunction) {
+        if (!this.dynamicButtons.containsKey(id))
+            return;
+
+        final ButtonContext buttonContext = this.dynamicButtons.remove(id);
+        if (this.scheduledExpirations.containsKey(id)) {
+            this.scheduledExpirations.get(id).cancel(false);
+        }
+
+        if (applyRemovalFunction) {
+            final AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
+            if (afterRemoval != null) {
+                this.afterRemovalFunctions.put(id, afterRemoval);
+            }
+        }
+    }
+
+    private boolean removalFunctionsApplies(final ButtonClickEvent event) {
+        return event.getMessage().getButtons().stream()
+            .anyMatch(button -> {
+                final String id = button.getId();
+                return id != null && this.afterRemovalFunctions.containsKey(id);
+            });
+    }
+
+    @Override
+    public void enable() {
+        ButtonAdapter.super.enable();
+        this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
     }
 
     @Override
@@ -226,77 +291,9 @@ public class HalpbotButtonAdapter implements ButtonAdapter, Enableable {
                 .filter(token -> token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter())
                 .map(token -> (ParsingToken) token)
                 .collect(Collectors.toList()),
-            buttonHandler.maxUses(),
             HalpbotUtils.asAsyncDuration(buttonHandler.removeAfter()),
-            buttonHandler.afterRemoval().strategy()
+            buttonHandler.afterRemoval().strategy(),
+            buttonHandler.maxUses()
         );
-    }
-
-    private ButtonContext retrieveDynamicButtonContext(final String id) {
-        final ButtonContext buttonContext = this.dynamicButtons.get(id);
-        // The button context has already been checked to make sure it's not past it's expiration time (If
-        // applicable) so we only need to determine if it still has any uses left.
-
-        if (buttonContext.hasUses()) {
-            buttonContext.deductUse();
-            // Now check if it no longer has any uses
-            if (!buttonContext.hasUses())
-                this.removeDynamicButton(id, true);
-        }
-
-        return buttonContext;
-    }
-
-    private void handleRemovalFunctions(final ButtonClickEvent event) {
-        if (!this.afterRemovalFunctions.isEmpty() && this.removalFunctionsApplies(event)) {
-            final List<ActionRow> rows = new ArrayList<>();
-
-            for (final ActionRow row : event.getMessage().getActionRows()) {
-                final List<Component> components = new ArrayList<>();
-                for (final Component component : row.getComponents()) {
-                    final String componentId = component.getId();
-                    final AfterRemovalFunction afterRemoval = this.afterRemovalFunctions.remove(componentId);
-
-                    if (null != afterRemoval) {
-                        final Component modifiedComponent = afterRemoval.apply(component);
-                        components.add(modifiedComponent);
-                        continue;
-                    }
-                    components.add(component);
-                }
-                rows.add(ActionRow.of(components));
-            }
-            event.getHook().editMessageComponentsById(event.getMessageIdLong(), rows).queue();
-        }
-    }
-
-    private void removeDynamicButton(final String id, final boolean applyRemovalFunction) {
-        if (!this.dynamicButtons.containsKey(id))
-            return;
-
-        final ButtonContext buttonContext = this.dynamicButtons.remove(id);
-        if (this.scheduledExpirations.containsKey(id)) {
-            this.scheduledExpirations.get(id).cancel(false);
-        }
-
-        if (applyRemovalFunction) {
-            final AfterRemovalFunction afterRemoval = buttonContext.afterRemoval();
-            if (afterRemoval != null) {
-                this.afterRemovalFunctions.put(id, afterRemoval);
-            }
-        }
-    }
-
-    private boolean removalFunctionsApplies(final ButtonClickEvent event) {
-        return event.getMessage().getButtons().stream()
-            .anyMatch(button -> {
-                final String id = button.getId();
-                return id != null && this.afterRemovalFunctions.containsKey(id);
-            });
-    }
-
-    @Override
-    public void enable() {
-        this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
     }
 }

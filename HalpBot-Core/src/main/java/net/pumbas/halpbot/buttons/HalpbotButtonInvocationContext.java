@@ -27,15 +27,13 @@ package net.pumbas.halpbot.buttons;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.inject.binding.Bound;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 
 import jakarta.inject.Inject;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -43,16 +41,14 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(chain = false)
-@ComponentBinding(ButtonInvocationContext.class)
 @RequiredArgsConstructor(onConstructor_ = @Bound)
-public class HalpbotButtonInvocationContext implements ButtonInvocationContext
-{
-    @Inject
-    private ApplicationContext applicationContext;
-    @Setter
-    private TypeContext<?> currentType;
+public class HalpbotButtonInvocationContext implements ButtonInvocationContext {
 
     private final HalpbotEvent halpbotEvent;
     private final List<ParsingToken> nonCommandParameterTokens;
     private final Object[] passedParameters;
+    @Inject
+    private ApplicationContext applicationContext;
+    @Setter
+    private TypeContext<?> currentType;
 }

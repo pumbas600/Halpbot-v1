@@ -31,10 +31,10 @@ import net.pumbas.halpbot.utilities.Reflect;
 
 import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.Tuple;
 import org.dockbox.hartshorn.util.reflect.AnnotatedElementContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -45,18 +45,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public interface DecoratorService extends Enableable, ContextCarrier
-{
+public interface DecoratorService extends Enableable, ContextCarrier {
+
     @Override
     @SuppressWarnings("unchecked")
     default void enable() {
-        Collection<TypeContext<?>> decorators = this.applicationContext().environment()
+        final Collection<TypeContext<?>> decorators = this.applicationContext().environment()
             .types(Decorator.class)
             .stream()
             .filter(type -> type.childOf(Annotation.class))
             .toList();
 
-        for (TypeContext<?> decorator : decorators) {
+        for (final TypeContext<?> decorator : decorators) {
             this.register((TypeContext<? extends Annotation>) decorator);
         }
 
@@ -66,7 +66,7 @@ public interface DecoratorService extends Enableable, ContextCarrier
     void register(TypeContext<? extends Annotation> decoratedAnnotation);
 
     @Nullable
-    default DecoratorFactory<?, ?, ?> decorator(Annotation annotation) {
+    default DecoratorFactory<?, ?, ?> decorator(final Annotation annotation) {
         return this.decorator(TypeContext.of(annotation.annotationType()));
     }
 
@@ -76,16 +76,16 @@ public interface DecoratorService extends Enableable, ContextCarrier
     //TODO: Test this
     @SuppressWarnings("unchecked")
     default <C extends InvocationContext> ActionInvokable<C> decorate(ActionInvokable<C> actionInvokable) {
-        Map<TypeContext<? extends Annotation>, List<Annotation>> parentDecorators = this.decorators(actionInvokable.executable().parent());
-        Map<TypeContext<? extends Annotation>, List<Annotation>> decorators = this.decorators(actionInvokable.executable());
+        final Map<TypeContext<? extends Annotation>, List<Annotation>> parentDecorators = this.decorators(actionInvokable.executable().parent());
+        final Map<TypeContext<? extends Annotation>, List<Annotation>> decorators = this.decorators(actionInvokable.executable());
 
         // Merge the parent and action decorators using the DecoratorMerge specified
-        for (TypeContext<? extends Annotation> annotation : parentDecorators.keySet()) {
-            Decorator decorator = annotation.annotation(Decorator.class).get();
+        for (final TypeContext<? extends Annotation> annotation : parentDecorators.keySet()) {
+            final Decorator decorator = annotation.annotation(Decorator.class).get();
             decorators.merge(annotation, parentDecorators.get(annotation), decorator.merge()::merge);
         }
 
-        List<Tuple<TypeContext<? extends Annotation>, Annotation>> entries = Reflect.cast(
+        final List<Tuple<TypeContext<? extends Annotation>, Annotation>> entries = Reflect.cast(
             decorators.entrySet()
                 .stream()
                 .flatMap((entry) -> entry.getValue()
@@ -95,8 +95,8 @@ public interface DecoratorService extends Enableable, ContextCarrier
                 .toList());
 
         ActionInvokable<C> previous;
-        for (Tuple<TypeContext<? extends Annotation>, Annotation> entry : entries) {
-            DecoratorFactory<?, ?, ?> factory = this.decorator(entry.getKey());
+        for (final Tuple<TypeContext<? extends Annotation>, Annotation> entry : entries) {
+            final DecoratorFactory<?, ?, ?> factory = this.decorator(entry.getKey());
             if (factory instanceof ActionInvokableDecoratorFactory actionInvokableDecoratorFactory) {
                 previous = actionInvokable;
                 actionInvokable = (ActionInvokable<C>) actionInvokableDecoratorFactory.decorate(
@@ -108,15 +108,16 @@ public interface DecoratorService extends Enableable, ContextCarrier
                             .formatted(entry.getKey().qualifiedName(), entry.getValue().toString()));
                     actionInvokable = previous;
                 }
-            } else this.applicationContext().log()
-                .error("The command %s is annotated with the decorator %s, but this does not support commands"
+            }
+            else this.applicationContext().log()
+                .error("The action %s is annotated with the decorator %s, but this does not support actions"
                     .formatted(actionInvokable.executable().qualifiedName(), entry.getKey().qualifiedName()));
         }
 
         return actionInvokable;
     }
 
-    default Map<TypeContext<? extends Annotation>, List<Annotation>> decorators(AnnotatedElementContext<?> annotatedElementContext) {
+    default Map<TypeContext<? extends Annotation>, List<Annotation>> decorators(final AnnotatedElementContext<?> annotatedElementContext) {
         return annotatedElementContext.annotations()
             .stream()
             .filter((annotation) -> TypeContext.of(annotation.annotationType()).annotation(Decorator.class).present())
@@ -133,7 +134,7 @@ public interface DecoratorService extends Enableable, ContextCarrier
     }
 
     @SuppressWarnings("unchecked")
-    default <T extends ActionInvokable<?>> Result<T> decorator(ActionInvokable<?> actionInvokable, Class<T> type) {
+    default <T extends ActionInvokable<?>> Result<T> decorator(ActionInvokable<?> actionInvokable, final Class<T> type) {
         while (actionInvokable instanceof ActionInvokableDecorator decorator) {
             if (type.isAssignableFrom(actionInvokable.getClass()))
                 return Result.of((T) actionInvokable);
@@ -143,8 +144,8 @@ public interface DecoratorService extends Enableable, ContextCarrier
     }
 
     @SuppressWarnings("unchecked")
-    default <T extends ActionInvokable<?>> List<T> decorators(ActionInvokable<?> actionInvokable, Class<T> type) {
-        List<T> decorators = new ArrayList<>();
+    default <T extends ActionInvokable<?>> List<T> decorators(ActionInvokable<?> actionInvokable, final Class<T> type) {
+        final List<T> decorators = new ArrayList<>();
 
         while (actionInvokable instanceof ActionInvokableDecorator decorator) {
             if (type.isAssignableFrom(actionInvokable.getClass()))

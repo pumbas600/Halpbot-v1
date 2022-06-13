@@ -109,3 +109,7 @@ publishToMavenLocal.finalizedBy copyPublications
 dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.10'
 }
+
+repositories {
+    mavenCentral()
+}

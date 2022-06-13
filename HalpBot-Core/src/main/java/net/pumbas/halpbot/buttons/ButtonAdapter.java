@@ -28,7 +28,10 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.pumbas.halpbot.adapters.HalpbotAdapter;
+import net.pumbas.halpbot.processors.HandlerContext;
+import net.pumbas.halpbot.processors.buttons.ButtonHandlerContext;
 
+import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
@@ -38,7 +41,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface ButtonAdapter extends HalpbotAdapter {
+public interface ButtonAdapter extends HalpbotAdapter, Enableable {
 
     String DYNAMIC_ID_FORMAT = "%s$$%s$$%d-%d";
     Pattern DYNAMIC_ID_EXTRACTION_PATTERN = Pattern.compile(".*\\$\\$(.*)\\$\\$.*");
@@ -51,22 +54,24 @@ public interface ButtonAdapter extends HalpbotAdapter {
 
     void onButtonClick(ButtonClickEvent event);
 
-    default <T> void registerButtons(final TypeContext<T> type) {
-        final T instance = this.applicationContext().get(type);
-        final List<MethodContext<?, T>> buttons = type.methods(ButtonHandler.class);
+    @Override
+    default void enable() {
+        final ButtonHandlerContext buttonHandlerContext =
+            this.applicationContext().first(ButtonHandlerContext.class).get();
 
-        for (final MethodContext<?, T> button : buttons) {
-            if (!button.isPublic()) {
-                this.applicationContext().log()
-                    .warn("The button action %s must be public if its annotated with @ButtonCommand"
-                        .formatted(button.qualifiedName()));
-                continue;
-            }
-            this.registerButton(instance, button);
+        for (final TypeContext<?> type : buttonHandlerContext.types()) {
+            this.registerButtonHandler(type, buttonHandlerContext);
+        }
+    }
+
+    private <T> void registerButtonHandler(final TypeContext<T> type, final HandlerContext handlerContext) {
+        final T instance = this.applicationContext().get(type);
+        final List<MethodContext<?, T>> handlers = handlerContext.handlers(type);
+        for (final MethodContext<?, T> handler : handlers) {
+            this.registerButton(instance, handler);
         }
 
-        this.applicationContext().log().info("Registered %d buttons found in %s"
-            .formatted(buttons.size(), type.qualifiedName()));
+        this.applicationContext().log().info("Registered {} button handlers for {}", handlers.size(), type.qualifiedName());
     }
 
     <T> void registerButton(T instance, MethodContext<?, T> buttonMethodContext);

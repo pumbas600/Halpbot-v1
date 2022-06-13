@@ -6,6 +6,7 @@ import org.dockbox.hartshorn.application.Activator;
 import org.dockbox.hartshorn.application.StandardApplicationFactory;
 import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.inject.binding.InjectConfig;
+import org.dockbox.hartshorn.proxy.javassist.JavassistApplicationProxier;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.AnnotatedElementModifier;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
@@ -48,6 +49,7 @@ public class HalpbotApplicationFactory extends StandardApplicationFactory {
     @Override
     public StandardApplicationFactory loadDefaults() {
         return super.loadDefaults()
+            .applicationProxier((ctx) -> new JavassistApplicationProxier())
             .serviceActivator(new UseConfigurations() {
                 @Override
                 public Class<? extends Annotation> annotationType() {

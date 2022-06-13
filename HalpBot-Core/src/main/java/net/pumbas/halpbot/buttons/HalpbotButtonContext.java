@@ -29,7 +29,6 @@ import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.objects.AsyncDuration;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -40,20 +39,19 @@ import lombok.Getter;
 
 
 @Getter
-@ComponentBinding(ButtonContext.class)
 @AllArgsConstructor(onConstructor_ = @Bound)
-public class HalpbotButtonContext implements ButtonContext
-{
+public class HalpbotButtonContext implements ButtonContext {
+
     private final String id;
     private final boolean isEphemeral;
     private final Duration displayDuration;
     private final ActionInvokable<ButtonInvocationContext> actionInvokable;
     private final Object[] passedParameters;
     private final List<ParsingToken> nonCommandParameterTokens;
-    private int remainingUses;
     private final AsyncDuration removeAfter;
     @Nullable
     private final AfterRemovalFunction afterRemoval;
+    private int remainingUses;
 
     @Override
     public void deductUse() {

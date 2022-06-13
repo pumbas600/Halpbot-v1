@@ -25,15 +25,13 @@
 package net.pumbas.halpbot.buttons;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.jetbrains.annotations.Nullable;
 
-@ComponentBinding(ButtonInvokable.class)
 public record HalpbotButtonInvokable(@Nullable Object instance,
                                      ExecutableElementContext<?, ?> executable)
-    implements ButtonInvokable
-{
+    implements ButtonInvokable {
+
     @Bound
     public HalpbotButtonInvokable {}
 }

@@ -28,31 +28,21 @@ import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.objects.AsyncDuration;
 
-import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.List;
 
 @Service
-public interface ButtonContextFactory
-{
-    @Factory
-    ButtonContext create(String id,
-                         boolean isEphemeral,
-                         Duration displayDuration,
-                         ActionInvokable<ButtonInvocationContext> actionInvokable,
-                         Object[] passedParameters,
-                         List<ParsingToken> nonCommandParameterTokens,
-                         int remainingUses,
-                         AsyncDuration removeAfter,
-                         @Nullable AfterRemovalFunction afterRemoval);
+public interface ButtonContextFactory {
 
-    default ButtonContext create(String id,
-                                 Object[] passedParameters,
-                                 ButtonContext buttonContext,
-                                 @Nullable AfterRemovalFunction afterRemoval) {
+    default ButtonContext create(final String id,
+                                 final Object[] passedParameters,
+                                 final ButtonContext buttonContext,
+                                 @Nullable final AfterRemovalFunction afterRemoval)
+    {
         return this.create(
             id,
             buttonContext.isEphemeral(),
@@ -60,8 +50,19 @@ public interface ButtonContextFactory
             buttonContext.actionInvokable(),
             passedParameters,
             buttonContext.nonCommandParameterTokens(),
-            buttonContext.remainingUses(),
             buttonContext.removeAfter(),
-            afterRemoval);
+            afterRemoval,
+            buttonContext.remainingUses());
     }
+
+    @Factory
+    ButtonContext create(String id,
+                         boolean isEphemeral,
+                         Duration displayDuration,
+                         ActionInvokable<ButtonInvocationContext> actionInvokable,
+                         Object[] passedParameters,
+                         List<ParsingToken> nonCommandParameterTokens,
+                         AsyncDuration removeAfter,
+                         @Nullable AfterRemovalFunction afterRemoval,
+                         int remainingUses);
 }
