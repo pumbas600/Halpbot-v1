@@ -31,6 +31,7 @@ import net.pumbas.halpbot.configurations.DisplayConfiguration;
 import net.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import net.pumbas.halpbot.permissions.HalpbotPermissions;
 import net.pumbas.halpbot.permissions.PermissionService;
+import net.pumbas.halpbot.processors.eventlisteners.EventListenerContext;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.Enableable;
@@ -38,7 +39,6 @@ import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.context.ContextCarrier;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -51,7 +51,6 @@ public class HalpbotCore implements ContextCarrier, Enableable {
 
     @Getter
     private final ScheduledExecutorService threadpool;
-    private final List<EventListener> eventListeners = new ArrayList<>();
     @Getter
     private long ownerId = -1;
     @Getter
@@ -72,11 +71,6 @@ public class HalpbotCore implements ContextCarrier, Enableable {
 
     @Override
     public void enable() {
-        // Prevent any event listeners being automatically registered twice
-        this.jda.removeEventListener(this.eventListeners.toArray());
-        this.eventListeners.forEach(this.jda::addEventListener);
-
-        this.eventListeners.clear(); // Free up the memory space, we don't to store this anymore
         final BotConfiguration config = this.applicationContext.get(BotConfiguration.class);
 
         this.determineDisplayConfiguration(config);
@@ -84,6 +78,7 @@ public class HalpbotCore implements ContextCarrier, Enableable {
             this.applicationContext.log().warn("No ownerId has been set in the bot-config.properties file");
 
         this.setOwner(config.ownerId());
+        this.registerEventListeners();
         this.permissionService.initialise();
     }
 
@@ -116,7 +111,16 @@ public class HalpbotCore implements ContextCarrier, Enableable {
         return this;
     }
 
-    public void registerEventListener(final EventListener eventListener) {
-        this.eventListeners.add(eventListener);
+    protected void registerEventListeners() {
+        final EventListenerContext eventListenerContext = this.applicationContext.first(EventListenerContext.class).get();
+        final List<TypeContext<? extends EventListener>> eventListeners = eventListenerContext.registeredContexts();
+
+        eventListenerContext.registeredContexts().forEach(type -> {
+            final Object instance = this.applicationContext.get(type);
+            this.jda.addEventListener(instance);
+        });
+
+        this.applicationContext.log().info("Registered {} event listeners", eventListeners.size());
+        eventListenerContext.clear();
     }
 }

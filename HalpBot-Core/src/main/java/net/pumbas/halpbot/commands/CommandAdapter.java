@@ -130,8 +130,8 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
             }
         }
 
-        this.applicationContext().log().info("Registered %d message; %d slash; %d reflective commands in %s"
-            .formatted(messageCommands, slashCommands, reflectiveCommands, type.qualifiedName()));
+        this.applicationContext().log().info("Registered {} message; {} slash; {} reflective commands in {}",
+            messageCommands, slashCommands, reflectiveCommands, type.qualifiedName());
     }
 
     <T> void registerSlashCommand(T instance, MethodContext<?, T> methodContext);
