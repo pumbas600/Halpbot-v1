@@ -1,5 +1,6 @@
 package net.pumbas.halpbot.decorators;
 
+import net.pumbas.halpbot.decorators.cooldowns.CooldownDecorator;
 import net.pumbas.halpbot.decorators.log.LogDecorator;
 
 import org.dockbox.hartshorn.component.Service;
@@ -17,5 +18,11 @@ public class DecoratorProviders {
     @SuppressWarnings("rawtypes")
     public Class<? extends LogDecorator> logDecorator() {
         return LogDecorator.class;
+    }
+
+    @Provider
+    @SuppressWarnings("rawtypes")
+    public Class<? extends CooldownDecorator> cooldownDecorator() {
+        return CooldownDecorator.class;
     }
 }

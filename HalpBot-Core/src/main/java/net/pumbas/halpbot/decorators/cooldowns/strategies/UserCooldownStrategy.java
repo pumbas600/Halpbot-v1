@@ -22,22 +22,30 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns;
+package net.pumbas.halpbot.decorators.cooldowns.strategies;
 
-import net.pumbas.halpbot.decorators.Decorator;
-import net.pumbas.halpbot.utilities.Duration;
+import net.pumbas.halpbot.decorators.cooldowns.CooldownStrategy;
+import net.pumbas.halpbot.decorators.cooldowns.CooldownTimer;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-@Decorator(CooldownDecoratorFactory.class)
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
-public @interface Cooldown
-{
-    Duration duration() default @Duration(5);
+public class UserCooldownStrategy implements CooldownStrategy {
 
-    CooldownType type() default CooldownType.MEMBER;
+    private final Map<Long, CooldownTimer> cooldownTimers = new ConcurrentHashMap<>();
+
+    @Override
+    public CooldownTimer get(final long guildId, final long userId) {
+        return this.cooldownTimers.getOrDefault(userId, CooldownTimer.Empty);
+    }
+
+    @Override
+    public void put(final long guildId, final long userId, final CooldownTimer cooldownTimer) {
+        this.cooldownTimers.put(userId, cooldownTimer);
+    }
+
+    @Override
+    public String message() {
+        return "Please wait, you're on cooldown";
+    }
 }

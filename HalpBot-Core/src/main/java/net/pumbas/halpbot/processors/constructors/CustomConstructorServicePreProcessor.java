@@ -46,7 +46,7 @@ public class CustomConstructorServicePreProcessor implements ServicePreProcessor
     @Override
     public <T> void process(final ApplicationContext context, final Key<T> key) {
         final TypeContext<T> type = key.type();
-        final CustomConstructorContext customConstructorContext = context.first(CustomConstructorContext.class).get();
+        final CustomConstructorHandlerContext customConstructorContext = context.first(CustomConstructorHandlerContext.class).get();
 
         context.log().debug("Processing custom constructors in {}", type.qualifiedName());
 

@@ -22,13 +22,16 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns;
+package net.pumbas.halpbot.actions.invokable;
 
-public interface CooldownStrategy
-{
-    CooldownTimer get(long guildId, long userId);
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
+import org.jetbrains.annotations.Nullable;
 
-    void put(long guildId, long userId, CooldownTimer cooldownTimer);
+@Service
+public interface InvokableFactory {
 
-    String message();
+    @Factory
+    Invokable create(@Nullable Object instance, ExecutableElementContext<?, ?> executable);
 }

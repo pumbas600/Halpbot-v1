@@ -7,6 +7,6 @@ import org.dockbox.hartshorn.util.reflect.ConstructorContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 @AutoCreating
-public class CustomConstructorContext extends MultiMapContext<TypeContext<?>, ConstructorContext<?>> {
+public class CustomConstructorHandlerContext extends MultiMapContext<TypeContext<?>, ConstructorContext<?>> {
 
 }

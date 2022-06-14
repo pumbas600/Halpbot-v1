@@ -22,16 +22,22 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.methods;
+package net.pumbas.halpbot.decorators.cooldowns;
 
-import org.dockbox.hartshorn.component.factory.Factory;
-import org.dockbox.hartshorn.component.Service;
-import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
-import org.jetbrains.annotations.Nullable;
+import net.pumbas.halpbot.decorators.Decorator;
+import net.pumbas.halpbot.utilities.Duration;
 
-@Service
-public interface InvokableFactory
-{
-    @Factory
-    Invokable create(@Nullable Object instance, ExecutableElementContext<?, ?> executable);
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Decorator(CooldownDecoratorFactory.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface Cooldown {
+
+    Duration duration() default @Duration(5);
+
+    CooldownType type() default CooldownType.MEMBER;
 }

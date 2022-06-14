@@ -36,11 +36,14 @@ import net.pumbas.halpbot.commands.usage.UsageBuilder;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 import net.pumbas.halpbot.processors.commands.CommandHandlerContext;
+import net.pumbas.halpbot.processors.constructors.CustomConstructorHandlerContext;
 
 import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.ApplicationException;
+import org.dockbox.hartshorn.util.MultiMap;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.ConstructorContext;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
@@ -74,6 +77,7 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
                 "A 'defaultPrefix' must be defined in the bot-config.properties file if you're using commands");
 
         this.determineUsageBuilder(config);
+        this.registerCustomConstructors();
         this.registerCommands();
     }
 
@@ -102,6 +106,19 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
         this.usageBuilder(new TypeUsageBuilder());
     }
 
+    default void registerCustomConstructors() {
+        final CustomConstructorHandlerContext customConstructorHandlerContext =
+            this.applicationContext().first(CustomConstructorHandlerContext.class).get();
+        final MultiMap<TypeContext<?>, ConstructorContext<?>> constructorHandlers =
+            customConstructorHandlerContext.registeredContext();
+
+        for (final TypeContext<?> type : constructorHandlers.keySet()) {
+            this.registerCustomConstructors(type, constructorHandlers.get(type));
+        }
+
+        customConstructorHandlerContext.clear();
+    }
+
     default void registerCommands() {
         final CommandHandlerContext commandHandlerContext =
             this.applicationContext().first(CommandHandlerContext.class).get();
@@ -113,6 +130,8 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
     }
 
     void usageBuilder(UsageBuilder usageBuilder);
+
+    void registerCustomConstructors(TypeContext<?> type, Collection<ConstructorContext<?>> customConstructors);
 
     default <T> void processHandlers(final TypeContext<T> type, final CommandHandlerContext commandHandlerContext) {
         int messageCommands = 0, slashCommands = 0, reflectiveCommands = 0;
@@ -160,8 +179,6 @@ public interface CommandAdapter extends HalpbotAdapter, Enableable {
     Map<String, CommandContext> commands();
 
     Collection<CustomConstructorContext> customConstructors(TypeContext<?> typeContext);
-
-    void registerCustomConstructors(TypeContext<?> typeContext);
 
     default boolean parameterAnnotationsAreValid(final ExecutableElementContext<?, ?> executable) {
         for (final ParameterContext<?> parameterContext : executable.parameters()) {

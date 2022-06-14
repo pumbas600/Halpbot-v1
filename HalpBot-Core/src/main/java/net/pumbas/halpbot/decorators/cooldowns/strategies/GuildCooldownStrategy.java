@@ -22,38 +22,30 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns;
+package net.pumbas.halpbot.decorators.cooldowns.strategies;
 
-import net.pumbas.halpbot.actions.cooldowns.strategies.GuildCooldownStrategy;
-import net.pumbas.halpbot.actions.cooldowns.strategies.MemberCooldownStrategy;
-import net.pumbas.halpbot.actions.cooldowns.strategies.UserCooldownStrategy;
+import net.pumbas.halpbot.decorators.cooldowns.CooldownStrategy;
+import net.pumbas.halpbot.decorators.cooldowns.CooldownTimer;
 
-import java.util.function.Supplier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public enum CooldownType
-{
-    /**
-     * Make the action cooldown everytime a user invokes it, irrespective of which guild it's invoked within.
-     */
-    USER(UserCooldownStrategy::new),
+public class GuildCooldownStrategy implements CooldownStrategy {
 
-    /**
-     * Make the action cooldown everytime a user invokes it within the same guild.
-     */
-    MEMBER(MemberCooldownStrategy::new),
+    private final Map<Long, CooldownTimer> cooldownTimers = new ConcurrentHashMap<>();
 
-    /**
-     * Make the action cooldown everytime it's used within a guild, irrespective of who invokes it.
-     */
-    GUILD(GuildCooldownStrategy::new);
-
-    private final Supplier<CooldownStrategy> cooldownStrategy;
-
-    CooldownType(Supplier<CooldownStrategy> cooldownStrategy) {
-        this.cooldownStrategy = cooldownStrategy;
+    @Override
+    public CooldownTimer get(final long guildId, final long userId) {
+        return this.cooldownTimers.getOrDefault(guildId, CooldownTimer.Empty);
     }
 
-    public CooldownStrategy strategy() {
-        return this.cooldownStrategy.get();
+    @Override
+    public void put(final long guildId, final long userId, final CooldownTimer cooldownTimer) {
+        this.cooldownTimers.put(guildId, cooldownTimer);
+    }
+
+    @Override
+    public String message() {
+        return "Please wait, your guild is on cooldown";
     }
 }

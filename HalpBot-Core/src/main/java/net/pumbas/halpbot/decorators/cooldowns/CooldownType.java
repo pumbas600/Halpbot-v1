@@ -22,33 +22,37 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns.strategies;
+package net.pumbas.halpbot.decorators.cooldowns;
 
-import net.pumbas.halpbot.actions.cooldowns.CooldownStrategy;
-import net.pumbas.halpbot.actions.cooldowns.CooldownTimer;
+import net.pumbas.halpbot.decorators.cooldowns.strategies.GuildCooldownStrategy;
+import net.pumbas.halpbot.decorators.cooldowns.strategies.MemberCooldownStrategy;
+import net.pumbas.halpbot.decorators.cooldowns.strategies.UserCooldownStrategy;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
-public class MemberCooldownStrategy implements CooldownStrategy
-{
-    private final Map<Long, Map<Long, CooldownTimer>> cooldownTimers = new ConcurrentHashMap<>();
+public enum CooldownType {
+    /**
+     * Make the action cooldown everytime a user invokes it, irrespective of which guild it's invoked within.
+     */
+    USER(UserCooldownStrategy::new),
 
-    @Override
-    public CooldownTimer get(long guildId, long userId) {
-        return this.cooldownTimers.getOrDefault(guildId, Collections.emptyMap())
-            .getOrDefault(userId, CooldownTimer.Empty);
+    /**
+     * Make the action cooldown everytime a user invokes it within the same guild.
+     */
+    MEMBER(MemberCooldownStrategy::new),
+
+    /**
+     * Make the action cooldown everytime it's used within a guild, irrespective of who invokes it.
+     */
+    GUILD(GuildCooldownStrategy::new);
+
+    private final Supplier<CooldownStrategy> cooldownStrategy;
+
+    CooldownType(final Supplier<CooldownStrategy> cooldownStrategy) {
+        this.cooldownStrategy = cooldownStrategy;
     }
 
-    @Override
-    public void put(long guildId, long userId, CooldownTimer cooldownTimer) {
-        this.cooldownTimers.computeIfAbsent(guildId, (id) -> new ConcurrentHashMap<>())
-            .put(userId, cooldownTimer);
-    }
-
-    @Override
-    public String message() {
-        return "Please wait, you're on cooldown";
+    public CooldownStrategy strategy() {
+        return this.cooldownStrategy.get();
     }
 }

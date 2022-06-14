@@ -22,18 +22,33 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns;
+package net.pumbas.halpbot.decorators.cooldowns.strategies;
 
-import net.pumbas.halpbot.actions.invokable.ActionInvokable;
-import net.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
+import net.pumbas.halpbot.decorators.cooldowns.CooldownStrategy;
+import net.pumbas.halpbot.decorators.cooldowns.CooldownTimer;
 
-import org.dockbox.hartshorn.component.factory.Factory;
-import org.dockbox.hartshorn.component.Service;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-@Service
-public interface CooldownDecoratorFactory extends ActionInvokableDecoratorFactory<CooldownDecorator<?>, Cooldown>
-{
-    @Factory
+public class MemberCooldownStrategy implements CooldownStrategy {
+
+    private final Map<Long, Map<Long, CooldownTimer>> cooldownTimers = new ConcurrentHashMap<>();
+
     @Override
-    CooldownDecorator<?> decorate(ActionInvokable<?> element, Cooldown annotation);
+    public CooldownTimer get(final long guildId, final long userId) {
+        return this.cooldownTimers.getOrDefault(guildId, Collections.emptyMap())
+            .getOrDefault(userId, CooldownTimer.Empty);
+    }
+
+    @Override
+    public void put(final long guildId, final long userId, final CooldownTimer cooldownTimer) {
+        this.cooldownTimers.computeIfAbsent(guildId, (id) -> new ConcurrentHashMap<>())
+            .put(userId, cooldownTimer);
+    }
+
+    @Override
+    public String message() {
+        return "Please wait, you're on cooldown";
+    }
 }

@@ -22,30 +22,18 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns.strategies;
+package net.pumbas.halpbot.decorators.cooldowns;
 
-import net.pumbas.halpbot.actions.cooldowns.CooldownStrategy;
-import net.pumbas.halpbot.actions.cooldowns.CooldownTimer;
+import net.pumbas.halpbot.actions.invokable.ActionInvokable;
+import net.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 
-public class GuildCooldownStrategy implements CooldownStrategy
-{
-    private final Map<Long, CooldownTimer> cooldownTimers = new ConcurrentHashMap<>();
+@Service
+public interface CooldownDecoratorFactory extends ActionInvokableDecoratorFactory<CooldownDecorator<?>, Cooldown> {
 
+    @Factory
     @Override
-    public CooldownTimer get(long guildId, long userId) {
-        return this.cooldownTimers.getOrDefault(guildId, CooldownTimer.Empty);
-    }
-
-    @Override
-    public void put(long guildId, long userId, CooldownTimer cooldownTimer) {
-        this.cooldownTimers.put(guildId, cooldownTimer);
-    }
-
-    @Override
-    public String message() {
-        return "Please wait, your guild is on cooldown";
-    }
+    CooldownDecorator<?> decorate(ActionInvokable<?> element, Cooldown annotation);
 }

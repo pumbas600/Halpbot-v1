@@ -22,39 +22,39 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.methods;
+package net.pumbas.halpbot.actions.invokable;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ConstructorContext;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
-import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
-public interface Invokable
-{
-    @Nullable
-    Object instance();
-
-    ExecutableElementContext<?, ?> executable();
+public interface Invokable {
 
     @SuppressWarnings("unchecked")
-    default <R> Result<R> invoke(Object... parameters) {
+    default <R> Result<R> invoke(final Object... parameters) {
         final ExecutableElementContext<?, ?> executable = this.executable();
         if (executable instanceof MethodContext methodContext) {
             return methodContext.invoke(this.instance(), parameters);
         }
-        ConstructorContext<R> constructorContext = (ConstructorContext<R>) executable;
+        final ConstructorContext<R> constructorContext = (ConstructorContext<R>) executable;
         return constructorContext.createInstance(parameters);
     }
 
+    ExecutableElementContext<?, ?> executable();
+
+    @Nullable
+    Object instance();
+
     @SuppressWarnings("unchecked")
-    default <R> Result<R> invoke(ApplicationContext applicationContext) {
+    default <R> Result<R> invoke(final ApplicationContext applicationContext) {
         final ExecutableElementContext<?, ?> executable = this.executable();
         if (executable instanceof MethodContext methodContext) {
             return methodContext.invoke(applicationContext, this.instance());
         }
-        ConstructorContext<R> constructorContext = (ConstructorContext<R>) executable;
+        final ConstructorContext<R> constructorContext = (ConstructorContext<R>) executable;
         return constructorContext.createInstance(applicationContext);
     }
 }

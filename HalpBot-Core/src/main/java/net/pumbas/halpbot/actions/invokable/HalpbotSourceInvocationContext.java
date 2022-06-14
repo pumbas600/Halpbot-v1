@@ -27,31 +27,29 @@ package net.pumbas.halpbot.actions.invokable;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Component;
+import org.dockbox.hartshorn.inject.binding.Bound;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 
 import jakarta.inject.Inject;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter
+@Component
 @Accessors(chain = false)
-@ComponentBinding(SourceInvocationContext.class)
 @RequiredArgsConstructor(onConstructor_ = @Bound)
-public class HalpbotSourceInvocationContext implements SourceInvocationContext
-{
+public class HalpbotSourceInvocationContext implements SourceInvocationContext {
+
+    private final HalpbotEvent halpbotEvent;
+    private final List<ParsingToken> nonCommandParameterTokens;
     @Inject
     private ApplicationContext applicationContext;
     @Setter
     private TypeContext<?> currentType;
-
-    private final HalpbotEvent halpbotEvent;
-    private final List<ParsingToken> nonCommandParameterTokens;
 }

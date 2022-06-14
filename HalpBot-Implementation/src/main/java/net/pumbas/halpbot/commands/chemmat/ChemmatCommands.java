@@ -35,7 +35,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.Button;
-import net.pumbas.halpbot.actions.cooldowns.Cooldown;
 import net.pumbas.halpbot.buttons.ButtonAdapter;
 import net.pumbas.halpbot.buttons.ButtonHandler;
 import net.pumbas.halpbot.commands.annotations.Command;
@@ -44,6 +43,7 @@ import net.pumbas.halpbot.converters.annotations.parameter.Description;
 import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
+import net.pumbas.halpbot.decorators.cooldowns.Cooldown;
 import net.pumbas.halpbot.hibernate.exceptions.ResourceNotFoundException;
 import net.pumbas.halpbot.hibernate.models.Question;
 import net.pumbas.halpbot.hibernate.models.Topic;
@@ -191,11 +191,13 @@ public class ChemmatCommands {
         final Result<Question> eQuestion;
         if (0 <= quizId) {
             eQuestion = Result.of(() -> this.questionService.getById(quizId));
-        } else if (topic.isEmpty()) {
+        }
+        else if (topic.isEmpty()) {
             eQuestion = this.questionHandlers
                 .getOrDefault(interaction.getChannel().getIdLong(), this.defaultQuestionHandler)
                 .getNextQuestion();
-        } else {
+        }
+        else {
             eQuestion = this.getRandomQuestionByTopic(topic);
         }
         if (eQuestion.caught())
@@ -300,7 +302,8 @@ public class ChemmatCommands {
 
                 builder.setDescription(STREAK_MESSAGES[response].replace("{NAME}", event.getUser().getName()));
             }
-        } else {
+        }
+        else {
             builder.setTitle("Incorrect: :x:");
             builder.setColor(Color.RED);
         }

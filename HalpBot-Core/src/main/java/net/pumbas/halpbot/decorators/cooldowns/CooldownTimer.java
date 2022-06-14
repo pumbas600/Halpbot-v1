@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns;
+package net.pumbas.halpbot.decorators.cooldowns;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -32,14 +32,14 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 
-public class CooldownTimer
-{
+public class CooldownTimer {
+
     public static final CooldownTimer Empty = new CooldownTimer(Duration.ZERO);
 
     private final OffsetDateTime end;
     private OffsetDateTime previousRemainingTime = OffsetDateTime.MIN;
 
-    public CooldownTimer(Duration duration) {
+    public CooldownTimer(final Duration duration) {
         this.end = OffsetDateTime.now().plus(duration);
     }
 
@@ -51,12 +51,12 @@ public class CooldownTimer
         return OffsetDateTime.now().until(this.end, ChronoUnit.MILLIS);
     }
 
-    public boolean canSendEmbed(long secondsPassed) {
+    public boolean canSendEmbed(final long secondsPassed) {
         return this.previousRemainingTime.until(OffsetDateTime.now(), ChronoUnit.SECONDS) >= secondsPassed;
     }
 
-    public MessageEmbed remainingTimeEmbed(String title) {
-        double remainingTimeSeconds = this.remainingTime() / 1000D;
+    public MessageEmbed remainingTimeEmbed(final String title) {
+        final double remainingTimeSeconds = this.remainingTime() / 1000D;
         this.previousRemainingTime = OffsetDateTime.now();
 
         return new EmbedBuilder()

@@ -24,8 +24,6 @@
 
 package net.pumbas.halpbot.commands;
 
-import net.pumbas.halpbot.actions.cooldowns.Cooldown;
-import net.pumbas.halpbot.actions.cooldowns.CooldownDecorator;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.actions.invokable.ActionInvokableDecorator;
 import net.pumbas.halpbot.commands.actioninvokable.CommandInvokable;
@@ -33,6 +31,8 @@ import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContex
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.commands.annotations.UseCommands;
 import net.pumbas.halpbot.decorators.DecoratorService;
+import net.pumbas.halpbot.decorators.cooldowns.Cooldown;
+import net.pumbas.halpbot.decorators.cooldowns.CooldownDecorator;
 import net.pumbas.halpbot.decorators.log.Log;
 import net.pumbas.halpbot.decorators.log.LogDecorator;
 import net.pumbas.halpbot.permissions.PermissionDecorator;
@@ -54,10 +54,12 @@ import jakarta.inject.Inject;
 @UseCommands
 @Service
 @HartshornTest
-public class DecoratorServiceTests
-{
-    @Inject private CommandAdapter commandAdapter;
-    @Inject private DecoratorService decoratorService;
+public class DecoratorServiceTests {
+
+    @Inject
+    private CommandAdapter commandAdapter;
+    @Inject
+    private DecoratorService decoratorService;
 
     @Log
     @Cooldown
@@ -72,7 +74,7 @@ public class DecoratorServiceTests
 
     @Test
     public void usesActionDecoratorsUnlessMergeSpecifiesOtherwise() {
-        CommandContext commandContext = this.commandAdapter.commandContext("decoratedCommandTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("decoratedCommandTest");
         Assertions.assertNotNull(commandContext);
 
         ActionInvokable<?> actionInvokable = commandContext.actionInvokable();
@@ -96,7 +98,7 @@ public class DecoratorServiceTests
 
     @Test
     public void usesClassDecorators() {
-        CommandContext commandContext = this.commandAdapter.commandContext("undecoratedCommandTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("undecoratedCommandTest");
         Assertions.assertNotNull(commandContext);
 
         ActionInvokable<?> actionInvokable = commandContext.actionInvokable();
@@ -115,16 +117,16 @@ public class DecoratorServiceTests
     @Test
     @SuppressWarnings("rawtypes")
     public void findingDecoratorsOfTypeTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("decoratedCommandTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("decoratedCommandTest");
         Assertions.assertNotNull(commandContext);
 
-        ActionInvokable<?> actionInvokable = commandContext.actionInvokable();
-        List<PermissionDecorator> permissionDecorators =
-                this.decoratorService.decorators(actionInvokable, PermissionDecorator.class);
-        List<CooldownDecorator> cooldownDecorators =
-                this.decoratorService.decorators(actionInvokable, CooldownDecorator.class);
-        List<LogDecorator> logDecorators =
-                this.decoratorService.decorators(actionInvokable, LogDecorator.class);
+        final ActionInvokable<?> actionInvokable = commandContext.actionInvokable();
+        final List<PermissionDecorator> permissionDecorators =
+            this.decoratorService.decorators(actionInvokable, PermissionDecorator.class);
+        final List<CooldownDecorator> cooldownDecorators =
+            this.decoratorService.decorators(actionInvokable, CooldownDecorator.class);
+        final List<LogDecorator> logDecorators =
+            this.decoratorService.decorators(actionInvokable, LogDecorator.class);
 
         Assertions.assertEquals(2, permissionDecorators.size());
         Assertions.assertEquals(1, cooldownDecorators.size());

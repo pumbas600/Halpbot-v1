@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.cooldowns;
+package net.pumbas.halpbot.decorators.cooldowns;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -35,12 +35,10 @@ import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.Result;
 
 import java.time.Duration;
 
-@ComponentBinding(CooldownDecorator.class)
 public class CooldownDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> {
 
     private static final long SECONDS_BETWEEN_COOLDOWN_EMBEDS = 15;

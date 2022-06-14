@@ -22,18 +22,16 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.methods;
+package net.pumbas.halpbot.actions.invokable;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.jetbrains.annotations.Nullable;
 
-@ComponentBinding(Invokable.class)
 public record HalpbotInvokable(@Nullable Object instance,
                                ExecutableElementContext<?, ?> executable)
-    implements Invokable
-{
+    implements Invokable {
+
     @Bound
     public HalpbotInvokable {}
 }

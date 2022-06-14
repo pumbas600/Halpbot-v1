@@ -37,7 +37,6 @@ import net.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomCon
 import net.pumbas.halpbot.commands.actioninvokable.context.constructor.CustomConstructorContextFactory;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
-import net.pumbas.halpbot.commands.exceptions.IllegalCustomParameterException;
 import net.pumbas.halpbot.commands.exceptions.MissingResourceException;
 import net.pumbas.halpbot.commands.usage.UsageBuilder;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
@@ -47,6 +46,7 @@ import net.pumbas.halpbot.decorators.DecoratorService;
 import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
+import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.Component;
@@ -54,6 +54,7 @@ import org.dockbox.hartshorn.util.ArrayListMultiMap;
 import org.dockbox.hartshorn.util.MultiMap;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.AccessModifier;
+import org.dockbox.hartshorn.util.reflect.ConstructorContext;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
@@ -78,6 +79,11 @@ import lombok.experimental.Accessors;
 @Component
 @Accessors(chain = false)
 public class HalpbotCommandAdapter implements CommandAdapter {
+
+    private static final ElementValidator REFLECTIVE_COMMAND_VALIDATOR = ElementValidator.build("reflective command")
+        .modifiers(AccessModifier.PUBLIC, AccessModifier.STATIC)
+        .returnTypeNot(Void.class)
+        .create();
 
     private final MultiMap<TypeContext<?>, CustomConstructorContext> customConstructors = new ArrayListMultiMap<>();
     private final Map<String, CommandContext> commands = new ConcurrentHashMap<>();
@@ -170,25 +176,37 @@ public class HalpbotCommandAdapter implements CommandAdapter {
     }
 
     @Override
+    public void registerCustomConstructors(final TypeContext<?> type,
+                                           final Collection<ConstructorContext<?>> customConstructors)
+    {
+        if (customConstructors.isEmpty()) return;
+
+        final List<CustomConstructorContext> constructors = customConstructors.stream()
+            .map(constructor -> {
+                final CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
+                final List<Token> tokens = this.tokenService.tokens(constructor);
+
+                return this.customConstructorContextFactory.create(
+                    this.usage(construction.usage(), constructor),
+                    this.decoratorService.decorate(new HalpbotCommandInvokable(null, constructor)),
+                    this.reflections(construction.reflections()),
+                    tokens);
+            })
+            .collect(Collectors.toList());
+
+        this.applicationContext.log().info("Registered {} custom constructors found in {}", constructors.size(), type.qualifiedName());
+        this.customConstructors.putAll(type, constructors);
+    }
+
+    @Override
     public <T> void registerSlashCommand(final T instance, final MethodContext<?, T> methodContext) {
         //TODO: Slash Commands
     }
 
     @Override
     public void registerReflectiveCommand(final MethodContext<?, ?> methodContext) {
-        if (!methodContext.isPublic() && !methodContext.has(AccessModifier.STATIC)) {
-            this.applicationContext.log().warn(
-                "The reflective method %s should be public and static if its annotated with @Reflective"
-                    .formatted(methodContext.qualifiedName()));
+        if (!REFLECTIVE_COMMAND_VALIDATOR.isValid(this.applicationContext, methodContext))
             return;
-        }
-
-        if (methodContext.returnType().isVoid()) {
-            this.applicationContext.log().warn(
-                "The reflective method %s cannot return void if it is annotated with @Reflective"
-                    .formatted(methodContext.qualifiedName()));
-            return;
-        }
 
         if (!this.parameterAnnotationsAreValid(methodContext)) return;
 
@@ -213,12 +231,6 @@ public class HalpbotCommandAdapter implements CommandAdapter {
 
     @Override
     public <T> void registerMessageCommand(final T instance, final MethodContext<?, T> methodContext) {
-        if (!methodContext.isPublic()) {
-            this.applicationContext.log().warn("The command method %s must be public if its annotated with @Command"
-                .formatted(methodContext.qualifiedName()));
-            return;
-        }
-
         if (!this.parameterAnnotationsAreValid(methodContext))
             return;
 
@@ -282,33 +294,6 @@ public class HalpbotCommandAdapter implements CommandAdapter {
 
     }
 
-    @Override
-    public void registerCustomConstructors(final TypeContext<?> typeContext) {
-        final List<CustomConstructorContext> constructors = typeContext.constructors()
-            .stream()
-            .filter(constructor -> constructor.annotation(CustomConstructor.class).present())
-            .map(constructor -> {
-                final CustomConstructor construction = constructor.annotation(CustomConstructor.class).get();
-                final List<Token> tokens = this.tokenService.tokens(constructor);
-
-                return this.customConstructorContextFactory.create(
-                    this.usage(construction.usage(), constructor),
-                    this.decoratorService.decorate(new HalpbotCommandInvokable(null, constructor)),
-                    this.reflections(construction.reflections()),
-                    tokens);
-            })
-            .collect(Collectors.toList());
-
-        if (constructors.isEmpty())
-            throw new IllegalCustomParameterException(
-                "The custom class %s, must define a constructor annotated with @ParameterConstructor"
-                    .formatted(typeContext.qualifiedName()));
-
-        this.applicationContext.log().info("Registered %d custom constructors found in %s"
-            .formatted(constructors.size(), typeContext.qualifiedName()));
-        this.customConstructors.putAll(typeContext, constructors);
-    }
-
     private List<String> aliases(final Command command, final MethodContext<?, ?> methodContext) {
         final List<String> aliases = Arrays.stream(command.alias())
             .map(alias -> alias.toLowerCase(Locale.ROOT))
@@ -347,13 +332,13 @@ public class HalpbotCommandAdapter implements CommandAdapter {
         );
     }
 
-    private Set<TypeContext<?>> reflections(final Class<?>[] reflections) {
-        return Stream.of(reflections).map(TypeContext::of).collect(Collectors.toSet());
-    }
-
     private String usage(final String usage, final ExecutableElementContext<?, ?> executable) {
         if (!usage.isBlank())
             return usage;
         else return this.usageBuilder.buildUsage(this.applicationContext, executable);
+    }
+
+    private Set<TypeContext<?>> reflections(final Class<?>[] reflections) {
+        return Stream.of(reflections).map(TypeContext::of).collect(Collectors.toSet());
     }
 }
