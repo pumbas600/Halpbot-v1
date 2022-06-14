@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.decorators;
 
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,14 +34,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
 import lombok.Getter;
 
-@Singleton
-@ComponentBinding(DecoratorService.class)
-public class HalpbotDecoratorService implements DecoratorService
-{
+@Service
+public class HalpbotDecoratorService implements DecoratorService {
+
     private final Map<TypeContext<? extends Annotation>, DecoratorFactory<?, ?, ?>> decorators = new ConcurrentHashMap<>();
 
     @Getter
@@ -49,12 +46,12 @@ public class HalpbotDecoratorService implements DecoratorService
     private ApplicationContext applicationContext;
 
     @Override
-    public void register(TypeContext<? extends Annotation> decoratedAnnotation) {
-        Class<? extends DecoratorFactory<?, ?, ?>> factoryType = decoratedAnnotation.annotation(Decorator.class)
+    public void register(final TypeContext<? extends Annotation> decoratedAnnotation) {
+        final Class<? extends DecoratorFactory<?, ?, ?>> factoryType = decoratedAnnotation.annotation(Decorator.class)
             .map(Decorator::value)
             .get();
 
-        DecoratorFactory<?, ?, ?> factory = this.applicationContext.get(factoryType);
+        final DecoratorFactory<?, ?, ?> factory = this.applicationContext.get(factoryType);
         if (factory == null) {
             this.applicationContext.log().error("There was an error retrieving the decorator factory %s"
                 .formatted(factoryType.getCanonicalName()));
@@ -66,7 +63,7 @@ public class HalpbotDecoratorService implements DecoratorService
 
     @Override
     @Nullable
-    public DecoratorFactory<?, ?, ?> decorator(TypeContext<? extends Annotation> decoratedAnnotation) {
+    public DecoratorFactory<?, ?, ?> decorator(final TypeContext<? extends Annotation> decoratedAnnotation) {
         return this.decorators.get(decoratedAnnotation);
     }
 }

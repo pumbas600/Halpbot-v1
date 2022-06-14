@@ -33,28 +33,26 @@ import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.utilities.LogLevel;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.Result;
 
 import lombok.Getter;
 
-@ComponentBinding(LogDecorator.class)
-public class LogDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
-{
+public class LogDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> {
+
     @Getter
     private final LogLevel logLevel;
 
     @Bound
-    public LogDecorator(ActionInvokable<C> actionInvokable, Log log) {
+    public LogDecorator(final ActionInvokable<C> actionInvokable, final Log log) {
         super(actionInvokable);
         this.logLevel = log.value();
     }
 
     @Override
-    public <R> Result<R> invoke(C invocationContext) {
-        HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
-        AbstractChannel channel = halpbotEvent.channel();
-        Guild guild = halpbotEvent.guild();
+    public <R> Result<R> invoke(final C invocationContext) {
+        final HalpbotEvent halpbotEvent = invocationContext.halpbotEvent();
+        final AbstractChannel channel = halpbotEvent.channel();
+        final Guild guild = halpbotEvent.guild();
 
         this.logLevel.log(invocationContext.applicationContext(),
             "[%s][%s] %s has invoked the action %s".formatted(
