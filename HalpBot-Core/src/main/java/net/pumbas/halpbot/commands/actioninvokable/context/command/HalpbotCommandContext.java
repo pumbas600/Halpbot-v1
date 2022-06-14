@@ -30,14 +30,12 @@ import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationCont
 import net.pumbas.halpbot.converters.tokens.Token;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-@ComponentBinding(CommandContext.class)
 public record HalpbotCommandContext(List<String> aliases,
                                     String description,
                                     String usage,
@@ -48,8 +46,7 @@ public record HalpbotCommandContext(List<String> aliases,
                                     boolean isEphemeral,
                                     boolean preserveWhitespace,
                                     Content content)
-    implements CommandContext
-{
+    implements CommandContext {
 
     @Bound
     public HalpbotCommandContext {}

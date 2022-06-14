@@ -37,10 +37,10 @@ import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 
-public class NameUsageBuilder implements UsageBuilder
-{
+public class NameUsageBuilder implements UsageBuilder {
+
     @Override
-    public boolean isValid(ApplicationContext applicationContext) {
+    public boolean isValid(final ApplicationContext applicationContext) {
         if ("applicationContext".equals(TypeContext.of(this)
             .method("isValid", ApplicationContext.class)
             .get()
@@ -62,14 +62,14 @@ public class NameUsageBuilder implements UsageBuilder
     }
 
     @Override
-    public String buildUsage(ApplicationContext applicationContext, ExecutableElementContext<?, ?> executableContext) {
-        TokenService tokenService = applicationContext.get(TokenService.class);
-        StringBuilder stringBuilder = new StringBuilder();
-        List<ParameterContext<?>> parameters = executableContext.parameters();
+    public String buildUsage(final ApplicationContext applicationContext, final ExecutableElementContext<?, ?> executableContext) {
+        final TokenService tokenService = applicationContext.get(TokenService.class);
+        final StringBuilder stringBuilder = new StringBuilder();
+        final List<ParameterContext<?>> parameters = executableContext.parameters();
         int parameterIndex = 0;
 
-        List<Token> tokens = tokenService.tokens(executableContext);
-        for (Token token : tokens) {
+        final List<Token> tokens = tokenService.tokens(executableContext);
+        for (final Token token : tokens) {
             if (token instanceof ParsingToken parsingToken && !parsingToken.isCommandParameter()) {
                 parameterIndex++;
                 continue;
@@ -78,9 +78,10 @@ public class NameUsageBuilder implements UsageBuilder
             stringBuilder.append(token.isOptional() ? '[' : '<');
 
             if (token instanceof ParsingToken) {
-                ParameterContext<?> parameterContext = parameters.get(parameterIndex++);
+                final ParameterContext<?> parameterContext = parameters.get(parameterIndex++);
                 stringBuilder.append(HalpbotUtils.variableNameToSplitLowercase(parameterContext.name()));
-            } else if (token instanceof HalpbotPlaceholderToken placeholderToken)
+            }
+            else if (token instanceof HalpbotPlaceholderToken placeholderToken)
                 stringBuilder.append(placeholderToken.placeholder());
 
             stringBuilder.append(token.isOptional() ? ']' : '>')

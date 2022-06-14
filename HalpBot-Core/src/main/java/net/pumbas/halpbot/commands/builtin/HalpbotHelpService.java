@@ -35,7 +35,7 @@ import net.pumbas.halpbot.utilities.HalpbotUtils;
 import net.pumbas.halpbot.utilities.Reflect;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,45 +49,45 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-@ComponentBinding(HelpService.class)
-public class HalpbotHelpService implements HelpService
-{
+@Service
+public class HalpbotHelpService implements HelpService {
+
+    private final Map<CommandContext, MessageEmbed> commandHelpEmbeds = new ConcurrentHashMap<>();
     @Inject
     private DecoratorService decoratorService;
     @Nullable
     private MessageEmbed allCommandHelpEmbed;
-    private final Map<CommandContext, MessageEmbed> commandHelpEmbeds = new ConcurrentHashMap<>();
 
     @Override
-    public MessageEmbed build(CommandAdapter commandAdapter) {
+    public MessageEmbed build(final CommandAdapter commandAdapter) {
         if (this.allCommandHelpEmbed == null) {
-            EmbedBuilder embedBuilder = new EmbedBuilder()
+            final EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Color.ORANGE)
                 .setTitle("HALP");
 
-            Map<Object, List<CommandContext>> commands = commandAdapter.commands()
+            final Map<Object, List<CommandContext>> commands = commandAdapter.commands()
                 .values()
                 .stream()
                 .collect(Collectors.groupingBy(ActionInvokable::instance));
 
-            List<Object> sortedKeys = commands.keySet()
+            final List<Object> sortedKeys = commands.keySet()
                 .stream()
                 .sorted(Comparator.comparing(key -> -commands.get(key).size()))
-                .collect(Collectors.toList());
+                .toList();
 
-            for (Object instance : sortedKeys) {
-                String title = HalpbotUtils.splitVariableName(
+            for (final Object instance : sortedKeys) {
+                final String title = HalpbotUtils.splitVariableName(
                     TypeContext.unproxy(commandAdapter.applicationContext(), instance).name());
-                StringBuilder stringBuilder = new StringBuilder();
+                final StringBuilder stringBuilder = new StringBuilder();
                 // distinct() prevents double ups from multiple aliases occuring
-                List<String> commandAliases = commands.get(instance)
+                final List<String> commandAliases = commands.get(instance)
                     .stream()
                     .distinct()
                     .map(CommandContext::aliasesString)
                     .sorted()
-                    .collect(Collectors.toList());
+                    .toList();
 
-                for (String aliases : commandAliases) {
+                for (final String aliases : commandAliases) {
                     stringBuilder.append("- ")
                         .append(aliases)
                         .append("\n");
@@ -102,7 +102,7 @@ public class HalpbotHelpService implements HelpService
     }
 
     @Override
-    public MessageEmbed build(CommandAdapter commandAdapter, CommandContext commandContext) {
+    public MessageEmbed build(final CommandAdapter commandAdapter, final CommandContext commandContext) {
         if (!this.commandHelpEmbeds.containsKey(commandContext)) {
             final EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Color.cyan)
@@ -112,11 +112,11 @@ public class HalpbotHelpService implements HelpService
             if (!commandContext.description().isBlank())
                 embedBuilder.setDescription(commandContext.description());
 
-            List<PermissionDecorator<?>> permissionDecorators = Reflect.cast(
+            final List<PermissionDecorator<?>> permissionDecorators = Reflect.cast(
                 this.decoratorService.decorators(commandContext.actionInvokable(), PermissionDecorator.class));
 
             if (!permissionDecorators.isEmpty()) {
-                String permissions = this.permissions(permissionDecorators);
+                final String permissions = this.permissions(permissionDecorators);
                 embedBuilder.addField("Permissions", permissions, false);
             }
             this.commandHelpEmbeds.put(commandContext, embedBuilder.build());
@@ -124,25 +124,25 @@ public class HalpbotHelpService implements HelpService
         return this.commandHelpEmbeds.get(commandContext);
     }
 
-    public String permissions(List<PermissionDecorator<?>> permissionDecorators) {
-        StringBuilder permissions = new StringBuilder();
-        boolean notAllAndMerger = permissionDecorators.stream()
+    public String permissions(final List<PermissionDecorator<?>> permissionDecorators) {
+        final StringBuilder permissions = new StringBuilder();
+        final boolean notAllAndMerger = permissionDecorators.stream()
             .anyMatch((decorator) -> decorator.require() != Require.ALL);
 
         for (int i = 0; i < permissionDecorators.size(); i++) {
-            PermissionDecorator<?> decorator = permissionDecorators.get(i);
-            String delimeter = " %s ".formatted(decorator.require().name().toLowerCase(Locale.ROOT));
+            final PermissionDecorator<?> decorator = permissionDecorators.get(i);
+            final String delimiter = " %s ".formatted(decorator.require().name().toLowerCase(Locale.ROOT));
 
             if (notAllAndMerger)
                 permissions.append("(");
 
-            List<String> decoratorPermissions = decorator.userPermissions()
+            final List<String> decoratorPermissions = decorator.userPermissions()
                 .stream()
                 .map((permission) -> HalpbotUtils.capitaliseWords(permission.getName().replace('_', ' ')))
                 .collect(Collectors.toList());
             decoratorPermissions.addAll(decorator.customPermissions());
 
-            permissions.append(String.join(delimeter, decoratorPermissions));
+            permissions.append(String.join(delimiter, decoratorPermissions));
 
             if (notAllAndMerger)
                 permissions.append(")");

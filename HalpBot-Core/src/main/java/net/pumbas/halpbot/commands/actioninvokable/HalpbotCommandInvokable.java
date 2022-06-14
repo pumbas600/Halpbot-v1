@@ -25,15 +25,13 @@
 package net.pumbas.halpbot.commands.actioninvokable;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.jetbrains.annotations.Nullable;
 
-@ComponentBinding(CommandInvokable.class)
 public record HalpbotCommandInvokable(@Nullable Object instance,
                                       ExecutableElementContext<?, ?> executable)
-    implements CommandInvokable
-{
+    implements CommandInvokable {
+
     @Bound
     public HalpbotCommandInvokable {}
 }

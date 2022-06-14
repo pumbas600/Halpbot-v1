@@ -29,19 +29,17 @@ import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationCont
 import net.pumbas.halpbot.converters.tokens.Token;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 import java.util.Set;
 
-@ComponentBinding(CustomConstructorContext.class)
 public record HalpbotCustomConstructorContext(String usage,
                                               ActionInvokable<CommandInvocationContext> actionInvokable,
                                               Set<TypeContext<?>> reflections,
                                               List<Token> tokens)
-    implements CustomConstructorContext
-{
+    implements CustomConstructorContext {
+
     @Bound
     public HalpbotCustomConstructorContext {}
 }

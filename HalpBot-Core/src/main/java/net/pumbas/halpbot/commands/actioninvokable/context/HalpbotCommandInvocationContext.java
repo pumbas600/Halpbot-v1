@@ -27,9 +27,9 @@ package net.pumbas.halpbot.commands.actioninvokable.context;
 import net.pumbas.halpbot.converters.tokens.Token;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Component;
+import org.dockbox.hartshorn.inject.binding.Bound;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,21 +39,19 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.inject.Inject;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter
-@ComponentBinding(CommandInvocationContext.class)
+@Component
 @Accessors(chain = false)
-public class HalpbotCommandInvocationContext implements CommandInvocationContext
-{
-    @Inject
-    private ApplicationContext applicationContext;
+public class HalpbotCommandInvocationContext implements CommandInvocationContext {
+
     private final String content;
     private final @Nullable HalpbotEvent halpbotEvent;
-
+    @Inject
+    private ApplicationContext applicationContext;
     @Setter
     private Set<TypeContext<?>> reflections = Collections.emptySet();
     @Setter
@@ -72,7 +70,7 @@ public class HalpbotCommandInvocationContext implements CommandInvocationContext
     private List<Token> tokens = Collections.emptyList();
 
     @Bound
-    public HalpbotCommandInvocationContext(String content, @Nullable HalpbotEvent halpbotEvent) {
+    public HalpbotCommandInvocationContext(final String content, @Nullable final HalpbotEvent halpbotEvent) {
         this.content = content;
         this.halpbotEvent = halpbotEvent;
     }
@@ -83,12 +81,12 @@ public class HalpbotCommandInvocationContext implements CommandInvocationContext
     }
 
     @Override
-    public void incrementIndex() {
-        this.currentIndex++;
+    public void incrementAnnotationIndex() {
+        this.currentAnnotationIndex++;
     }
 
     @Override
-    public void incrementAnnotationIndex() {
-        this.currentAnnotationIndex++;
+    public void incrementIndex() {
+        this.currentIndex++;
     }
 }
