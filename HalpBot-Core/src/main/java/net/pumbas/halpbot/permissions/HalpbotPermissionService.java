@@ -35,13 +35,12 @@ import net.pumbas.halpbot.permissions.repositories.GuildPermission;
 import net.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 import net.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
-import org.dockbox.hartshorn.component.Enableable;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.util.reflect.MethodContext;
-import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
 import org.dockbox.hartshorn.data.remote.PersistenceConnection;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 
 import java.io.File;
@@ -55,29 +54,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
 import lombok.Getter;
 
-@Singleton
-@ComponentBinding(PermissionService.class)
-public class HalpbotPermissionService implements PermissionService, Enableable
-{
+@Service
+public class HalpbotPermissionService implements PermissionService, Enableable {
+
+    private final Set<String> permissions = new HashSet<>();
+    private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
     @Getter
     @Inject
     private ApplicationContext applicationContext;
     @Getter
     @Inject
     private HalpbotCore halpbotCore;
-
     @Inject
     private InvokableFactory invokableFactory;
     @Inject
     private PermissionRepository permissionRepository;
-
-    private final Set<String> permissions = new HashSet<>();
-    private final Map<String, Invokable> permissionSuppliers = new HashMap<>();
-
     @Getter
     private boolean useRoleBinding;
 
@@ -86,8 +79,8 @@ public class HalpbotPermissionService implements PermissionService, Enableable
         this.useRoleBinding = this.applicationContext.get(BotConfiguration.class).useRoleBinding();
 
         if (this.useRoleBinding) {
-            Path path = new File("Halpbot-Core-DB").toPath();
-            PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
+            final Path path = new File("Halpbot-Core-DB").toPath();
+            final PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
             this.applicationContext.log().info("Role binding database connection created");
             this.applicationContext.get(PermissionRepository.class).connection(connection);
         }
@@ -103,7 +96,7 @@ public class HalpbotPermissionService implements PermissionService, Enableable
     }
 
     private void deleteOldPermissions() {
-        List<GuildPermission> oldPermissions = this.permissionRepository.findAll()
+        final List<GuildPermission> oldPermissions = this.permissionRepository.findAll()
             .stream()
             .filter((gp) -> !this.isRegistered(gp.permission()))
             .toList();
@@ -115,67 +108,48 @@ public class HalpbotPermissionService implements PermissionService, Enableable
     }
 
     @Override
-    public boolean isRegistered(String permission) {
-        return this.permissions.contains(permission);
-    }
-
-    @Override
-    public boolean isRoleBound(long guildId, long roleId) {
-        if (!this.useRoleBinding)
-            return false;
-        return this.permissionRepository.countPermissionsWithRole(guildId, roleId) != 0;
-    }
-
-    @Override
-    public boolean isPermissionBound(long guildId, String permission) {
-        if (!this.useRoleBinding)
-            return false;
-        return this.permissionRepository.countPermissions(guildId, permission) != 0;
-    }
-
-    @Override
-    public <T> void registerPermissionSupplier(T instance, String permission, MethodContext<Boolean, T> predicate) {
+    public <T> void registerPermissionSupplier(final T instance, final String permission, final MethodContext<Boolean, T> predicate) {
         if (this.permissionSuppliers.containsKey(permission))
             this.applicationContext.log().warn("There is already a supplier for the permission %s".formatted(permission));
         else {
-            Invokable invokable = this.invokableFactory.create(instance, predicate);
+            final Invokable invokable = this.invokableFactory.create(instance, predicate);
             this.permissionSuppliers.put(permission, invokable);
         }
     }
 
     @Override
-    public GuildPermission updateOrSave(GuildPermission guildPermission) {
+    public GuildPermission updateOrSave(final GuildPermission guildPermission) {
         if (!this.useRoleBinding)
             return guildPermission;
         return this.permissionRepository.updateOrSave(guildPermission);
     }
 
     @Override
-    public GuildPermission update(GuildPermission guildPermission) {
+    public GuildPermission update(final GuildPermission guildPermission) {
         if (!this.useRoleBinding)
             return guildPermission;
         return this.permissionRepository.update(guildPermission);
     }
 
     @Override
-    public GuildPermission save(GuildPermission guildPermission) {
+    public GuildPermission save(final GuildPermission guildPermission) {
         if (!this.useRoleBinding)
             return guildPermission;
         return this.permissionRepository.save(guildPermission);
     }
 
     @Override
-    public Result<GuildPermission> findById(GuildPermissionId id) {
-        if (!this.useRoleBinding)
-            return Result.empty();
-        return this.permissionRepository.findById(id);
-    }
-
-    @Override
-    public void delete(GuildPermission guildPermission) {
+    public void delete(final GuildPermission guildPermission) {
         if (!this.useRoleBinding)
             return;
         this.permissionRepository.delete(guildPermission);
+    }
+
+    @Override
+    public Result<GuildPermission> findById(final GuildPermissionId id) {
+        if (!this.useRoleBinding)
+            return Result.empty();
+        return this.permissionRepository.findById(id);
     }
 
     @Override
@@ -186,18 +160,31 @@ public class HalpbotPermissionService implements PermissionService, Enableable
     }
 
     @Override
-    public void addPermissions(Set<String> permissions) {
-        this.permissions.addAll(permissions);
-    }
-
-    private boolean evaluatePermissionSupplier(String permission, Guild guild, Member member) {
-        return Boolean.TRUE.equals(this.permissionSuppliers.get(permission)
-            .invoke(guild, member)
-            .or(false));
+    public boolean isRegistered(final String permission) {
+        return this.permissions.contains(permission);
     }
 
     @Override
-    public boolean hasPermission(Guild guild, Member member, String permission) {
+    public boolean isRoleBound(final long guildId, final long roleId) {
+        if (!this.useRoleBinding)
+            return false;
+        return this.permissionRepository.countPermissionsWithRole(guildId, roleId) != 0;
+    }
+
+    @Override
+    public boolean isPermissionBound(final long guildId, final String permission) {
+        if (!this.useRoleBinding)
+            return false;
+        return this.permissionRepository.countPermissions(guildId, permission) != 0;
+    }
+
+    @Override
+    public void addPermissions(final Set<String> permissions) {
+        this.permissions.addAll(permissions);
+    }
+
+    @Override
+    public boolean hasPermission(final Guild guild, final Member member, final String permission) {
         // The owner has permission to use any command
         if (this.isOwner(member))
             return true;
@@ -213,8 +200,14 @@ public class HalpbotPermissionService implements PermissionService, Enableable
         );
     }
 
+    private boolean evaluatePermissionSupplier(final String permission, final Guild guild, final Member member) {
+        return Boolean.TRUE.equals(this.permissionSuppliers.get(permission)
+            .invoke(guild, member)
+            .or(false));
+    }
+
     @Override
-    public Set<String> permissions(long guildId, Member member) {
+    public Set<String> permissions(final long guildId, final Member member) {
         if (!this.useRoleBinding)
             Collections.emptySet();
         return this.permissionRepository
@@ -239,11 +232,11 @@ public class HalpbotPermissionService implements PermissionService, Enableable
     }
 
     @Override
-    public Map<String, Long> roleBindings(Guild guild) {
+    public Map<String, Long> roleBindings(final Guild guild) {
         if (!this.useRoleBinding)
             return Collections.emptyMap();
 
-        Map<String, Long> bindings = new HashMap<>();
+        final Map<String, Long> bindings = new HashMap<>();
         this.permissionRepository.guildPermissions(guild.getIdLong())
             .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
 

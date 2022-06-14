@@ -36,7 +36,6 @@ import net.pumbas.halpbot.utilities.Require;
 
 import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.Result;
 
 import java.util.HashSet;
@@ -46,7 +45,6 @@ import java.util.function.BiPredicate;
 import jakarta.inject.Inject;
 import lombok.Getter;
 
-@ComponentBinding(PermissionDecorator.class)
 public class PermissionDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> implements Enableable {
 
     @Getter
