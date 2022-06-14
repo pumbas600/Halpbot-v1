@@ -4,14 +4,11 @@ import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.component.condition.RequiresActivator;
 import org.dockbox.hartshorn.component.processing.Provider;
 
-import jakarta.inject.Singleton;
-
 @Service
 @RequiresActivator(UseButtons.class)
 public class ButtonProviders {
 
     @Provider
-    @Singleton
     public Class<? extends ButtonAdapter> buttonAdapter() {
         return HalpbotButtonAdapter.class;
     }

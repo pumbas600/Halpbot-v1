@@ -38,6 +38,7 @@ import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService
 import net.pumbas.halpbot.processors.commands.CommandHandlerContext;
 
 import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.ApplicationException;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
@@ -53,6 +54,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public interface CommandAdapter extends HalpbotAdapter, Enableable {
 
     @Override

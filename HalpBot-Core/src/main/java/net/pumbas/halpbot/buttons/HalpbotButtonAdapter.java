@@ -57,6 +57,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(chain = false)
+@org.dockbox.hartshorn.component.Component
 public class HalpbotButtonAdapter implements ButtonAdapter {
 
     private final Map<String, ButtonContext> registeredButtons = new ConcurrentHashMap<>();
@@ -188,8 +189,8 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
 
     @Override
     public void enable() {
-//        ButtonAdapter.super.enable();
-//        this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
+        ButtonAdapter.super.enable();
+        this.dynamicPrefix("HB-" + this.halpbotCore.jda().getSelfUser().getAsTag());
     }
 
     @Override

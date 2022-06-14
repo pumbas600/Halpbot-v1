@@ -32,6 +32,7 @@ import net.pumbas.halpbot.processors.HandlerContext;
 import net.pumbas.halpbot.processors.buttons.ButtonHandlerContext;
 
 import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Service
 public interface ButtonAdapter extends HalpbotAdapter, Enableable {
 
     String DYNAMIC_ID_FORMAT = "%s$$%s$$%d-%d";
@@ -71,7 +73,7 @@ public interface ButtonAdapter extends HalpbotAdapter, Enableable {
             this.registerButton(instance, handler);
         }
 
-        this.applicationContext().log().info("Registered {} button handlers for {}", handlers.size(), type.qualifiedName());
+        this.applicationContext().log().info("Registered {} button handlers in {}", handlers.size(), type.qualifiedName());
     }
 
     <T> void registerButton(T instance, MethodContext<?, T> buttonMethodContext);

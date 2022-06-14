@@ -49,7 +49,7 @@ import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.Component;
 import org.dockbox.hartshorn.util.ArrayListMultiMap;
 import org.dockbox.hartshorn.util.MultiMap;
 import org.dockbox.hartshorn.util.Result;
@@ -75,7 +75,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Service
+@Component
 @Accessors(chain = false)
 public class HalpbotCommandAdapter implements CommandAdapter {
 

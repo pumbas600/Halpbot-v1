@@ -1,6 +1,6 @@
 package net.pumbas.halpbot.common;
 
-import net.pumbas.halpbot.processors.eventlisteners.EventListenerComponentPreProcessor;
+import net.pumbas.halpbot.processors.eventlisteners.EventListenerServicePreProcessor;
 
 import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.component.processing.ServiceActivator;
@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @ServiceActivator(scanPackages = "net.pumbas.halpbot",
                   processors = {
-                      EventListenerComponentPreProcessor.class
+                      EventListenerServicePreProcessor.class
                   })
 public @interface Bot {
 
