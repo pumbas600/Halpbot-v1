@@ -34,7 +34,7 @@ import net.pumbas.halpbot.utilities.StringTraverser;
 
 import org.dockbox.hartshorn.application.ExceptionHandler;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.ApplicationException;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
@@ -48,11 +48,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import lombok.Getter;
 
-@Singleton
-@ComponentBinding(TokenService.class)
+@Service
 public class HalpbotTokenService implements TokenService {
 
     private final Map<ExecutableElementContext<?, ?>, List<Token>> cache = new ConcurrentHashMap<>();

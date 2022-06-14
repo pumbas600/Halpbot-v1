@@ -25,7 +25,6 @@
 package net.pumbas.halpbot.converters.parametercontext;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
@@ -39,10 +38,9 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(chain = false)
-@ComponentBinding(ParameterAnnotationContext.class)
 @AllArgsConstructor(onConstructor_ = @Bound)
-public class HalpbotParameterAnnotationContext implements ParameterAnnotationContext
-{
+public class HalpbotParameterAnnotationContext implements ParameterAnnotationContext {
+
     public static final HalpbotParameterAnnotationContext GENERIC = generic();
 
     private final Set<TypeContext<? extends Annotation>> afterAnnotations;
@@ -52,15 +50,15 @@ public class HalpbotParameterAnnotationContext implements ParameterAnnotationCon
     @Setter
     private Set<TypeContext<?>> allowedTypes;
 
-    @Override
-    public void addAfterAnnotation(TypeContext<? extends Annotation> afterAnnotation) {
-        this.afterAnnotations.add(afterAnnotation);
-    }
-
     public static HalpbotParameterAnnotationContext generic() {
         return new HalpbotParameterAnnotationContext(
             Collections.emptySet(),
             Collections.emptySet(),
             Set.of(TypeContext.of(Object.class)));
+    }
+
+    @Override
+    public void addAfterAnnotation(final TypeContext<? extends Annotation> afterAnnotation) {
+        this.afterAnnotations.add(afterAnnotation);
     }
 }

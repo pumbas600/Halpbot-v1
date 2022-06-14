@@ -27,16 +27,11 @@ package net.pumbas.halpbot.converters.tokens;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 
-/**
- * A placeholder token. These are usually when you add flavouring text in commands. For example, in the command: {@code
- * <my name is> #String}, the text 'my name is' are {@link HalpbotPlaceholderToken placeholder tokens}.
- */
-@ComponentBinding(PlaceholderToken.class)
+
 public record HalpbotPlaceholderToken(boolean isOptional, String placeholder)
-    implements PlaceholderToken
-{
+    implements PlaceholderToken {
+
     @Bound
     public HalpbotPlaceholderToken {}
 
@@ -49,13 +44,13 @@ public record HalpbotPlaceholderToken(boolean isOptional, String placeholder)
      * @return If the {@link CommandInvocationContext context} matches this {@link Token}
      */
     @Override
-    public boolean matches(CommandInvocationContext invocationContext) {
+    public boolean matches(final CommandInvocationContext invocationContext) {
         return invocationContext.nextMatches(this.placeholder());
     }
 
     /**
-     * @return A {@link String} representation of this token in the format {@code PlaceholderToken{isOptional=%s,
-     *     placeholder=%s}}
+     * @return A {@link String} representation of this token in the format
+     *     {@code PlaceholderToken{isOptional=%s, placeholder=%s}}
      */
     @Override
     public String toString() {

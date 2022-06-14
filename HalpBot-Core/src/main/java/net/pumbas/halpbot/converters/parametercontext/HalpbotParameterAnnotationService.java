@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
@@ -34,24 +34,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
 import lombok.Getter;
 
-@Singleton
-@ComponentBinding(ParameterAnnotationService.class)
-public class HalpbotParameterAnnotationService implements ParameterAnnotationService
-{
+@Service
+public class HalpbotParameterAnnotationService implements ParameterAnnotationService {
+
     private final Map<TypeContext<? extends Annotation>, ParameterAnnotationContext> parameterAnnotationContextMap
         = new ConcurrentHashMap<>();
-
-    @Inject
-    @Getter
-    private ApplicationContext applicationContext;
-    @Inject
-    @Getter
-    private ParameterAnnotationContextFactory factory;
-
     @Getter
     private final Comparator<TypeContext<? extends Annotation>> comparator = (typeA, typeB) -> {
         ParameterAnnotationContext contextA = this.get(typeA);
@@ -67,26 +56,33 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
             return -1;
         return 0;
     };
+    @Inject
+    @Getter
+    private ApplicationContext applicationContext;
+    @Inject
+    @Getter
+    private ParameterAnnotationContextFactory factory;
 
     @Override
-    public ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType) {
+    public ParameterAnnotationContext get(final TypeContext<? extends Annotation> annotationType) {
         return this.parameterAnnotationContextMap
             .getOrDefault(annotationType, HalpbotParameterAnnotationContext.GENERIC);
     }
 
     @Override
-    public boolean isRegisteredParameterAnnotation(TypeContext<? extends Annotation> annotationType) {
+    public boolean isRegisteredParameterAnnotation(final TypeContext<? extends Annotation> annotationType) {
         return this.parameterAnnotationContextMap.containsKey(annotationType);
     }
 
     @Override
-    public void add(TypeContext<? extends Annotation> annotationType,
-                    ParameterAnnotationContext annotationContext) {
+    public void add(final TypeContext<? extends Annotation> annotationType,
+                    final ParameterAnnotationContext annotationContext)
+    {
         this.parameterAnnotationContextMap.put(annotationType, annotationContext);
     }
 
     @Override
-    public boolean contains(TypeContext<? extends Annotation> annotationType) {
+    public boolean contains(final TypeContext<? extends Annotation> annotationType) {
         return this.parameterAnnotationContextMap.containsKey(annotationType);
     }
 }

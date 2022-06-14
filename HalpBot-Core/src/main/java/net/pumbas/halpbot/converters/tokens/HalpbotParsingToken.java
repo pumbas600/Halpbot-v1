@@ -27,7 +27,6 @@ package net.pumbas.halpbot.converters.tokens;
 import net.pumbas.halpbot.converters.Converter;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
@@ -35,15 +34,14 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-@ComponentBinding(ParsingToken.class)
 public record HalpbotParsingToken(ParameterContext<?> parameterContext,
                                   List<TypeContext<? extends Annotation>> sortedAnnotations,
                                   Converter<?, ?> converter,
                                   @Nullable Object defaultValue,
                                   boolean isCommandParameter,
                                   boolean isOptional)
-    implements ParsingToken
-{
+    implements ParsingToken {
+
     @Bound
     public HalpbotParsingToken {}
 }

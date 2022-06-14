@@ -28,7 +28,7 @@ import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.utilities.Reflect;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.ArrayListMultiMap;
 import org.dockbox.hartshorn.util.MultiMap;
 import org.dockbox.hartshorn.util.Result;
@@ -43,11 +43,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import lombok.Getter;
 
-@Singleton
-@ComponentBinding(ConverterHandler.class)
+@Service
 public class HalpbotConverterHandler implements ConverterHandler {
 
     private static final TypeContext<Object> OBJECT_TYPE = TypeContext.of(Object.class);
@@ -68,6 +66,14 @@ public class HalpbotConverterHandler implements ConverterHandler {
             .filter(converter -> converter.type().parentOf(typeContext))
             .findFirst()
             .map(converter -> (Converter<C, T>) converter));
+    }
+
+    @Override
+    public void registerConverter(final Converter<?, ?> converter) {
+        if (converter instanceof SourceConverter && converter.annotationType().isVoid())
+            this.addNonCommandType(converter.type());
+
+        this.converters.put(converter.type(), converter);
     }
 
     @Override
@@ -110,14 +116,6 @@ public class HalpbotConverterHandler implements ConverterHandler {
     {
         final TypeContext<?> targetAnnotationType = sortedAnnotations.isEmpty() ? TypeContext.VOID : sortedAnnotations.get(0);
         return this.from(parameterContext.type(), targetAnnotationType);
-    }
-
-    @Override
-    public void registerConverter(final Converter<?, ?> converter) {
-        if (converter instanceof SourceConverter && converter.annotationType().isVoid())
-            this.addNonCommandType(converter.type());
-
-        this.converters.put(converter.type(), converter);
     }
 
     @Override
