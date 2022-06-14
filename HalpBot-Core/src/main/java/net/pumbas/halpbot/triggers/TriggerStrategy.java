@@ -22,32 +22,31 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlisteners.triggers;
+package net.pumbas.halpbot.triggers;
 
-import net.pumbas.halpbot.actions.DisplayableResult;
-import net.pumbas.halpbot.actions.invokable.SourceContext;
-import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
-import net.pumbas.halpbot.utilities.Require;
+import java.util.function.BiPredicate;
 
-import java.util.List;
-import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 
-public interface TriggerContext extends SourceContext<SourceInvocationContext>, DisplayableResult {
+@RequiredArgsConstructor
+public enum TriggerStrategy {
+    START(String::startsWith),
+    ANYWHERE(String::contains);
 
-    String description();
+    private final BiPredicate<String, String> validator;
 
-    default boolean matches(final String message) {
-        final Stream<String> stream = this.triggers().stream();
-
-        return switch (this.require()) {
-            case ALL -> stream.allMatch(trigger -> this.strategy().contains(message, trigger));
-            case ANY -> stream.anyMatch(trigger -> this.strategy().contains(message, trigger));
-        };
+    /**
+     * If the message contains the specified trigger. Both the message and the trigger should be lowered prior to
+     * calling this method.
+     *
+     * @param message
+     *     The lowered message
+     * @param trigger
+     *     The lowered trigger to determine if contained within the message
+     *
+     * @return If the trigger is contained within the message
+     */
+    public boolean contains(final String message, final String trigger) {
+        return this.validator.test(message, trigger);
     }
-
-    List<String> triggers();
-
-    Require require();
-
-    TriggerStrategy strategy();
 }

@@ -2,7 +2,7 @@ package net.pumbas.halpbot.common;
 
 import net.pumbas.halpbot.buttons.UseButtons;
 import net.pumbas.halpbot.commands.annotations.UseCommands;
-import net.pumbas.halpbot.processors.eventlisteners.triggers.UseTriggers;
+import net.pumbas.halpbot.triggers.UseTriggers;
 
 import org.dockbox.hartshorn.component.processing.ServiceActivator;
 

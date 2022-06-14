@@ -24,7 +24,7 @@
 
 package net.pumbas.halpbot.processors.triggers;
 
-import net.pumbas.halpbot.processors.eventlisteners.triggers.Trigger;
+import net.pumbas.halpbot.triggers.Trigger;
 import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;

@@ -22,30 +22,29 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlisteners.triggers;
+package net.pumbas.halpbot.triggers;
 
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.utilities.Require;
 
-import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 
 import java.time.Duration;
 import java.util.List;
 
-@ComponentBinding(TriggerContext.class)
-public record HalpbotTriggerContext(List<String> triggers,
-                                    String description,
-                                    TriggerStrategy strategy,
-                                    Require require,
-                                    List<ParsingToken> nonCommandParameterTokens,
-                                    ActionInvokable<SourceInvocationContext> actionInvokable,
-                                    Duration displayDuration,
-                                    boolean isEphemeral)
-    implements TriggerContext {
+@Service
+public interface TriggerContextFactory {
 
-    @Bound
-    public HalpbotTriggerContext {}
+    @Factory
+    TriggerContext create(List<String> triggers,
+                          String description,
+                          TriggerStrategy strategy,
+                          Require require,
+                          List<ParsingToken> nonCommandParameterTokens,
+                          ActionInvokable<SourceInvocationContext> actionInvokable,
+                          Duration displayDuration,
+                          boolean isEphemeral);
 }

@@ -42,7 +42,7 @@ import net.pumbas.halpbot.decorators.cooldowns.Cooldown;
 import net.pumbas.halpbot.decorators.cooldowns.CooldownType;
 import net.pumbas.halpbot.decorators.log.Log;
 import net.pumbas.halpbot.permissions.PermissionService;
-import net.pumbas.halpbot.processors.eventlisteners.triggers.Trigger;
+import net.pumbas.halpbot.triggers.Trigger;
 import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
 

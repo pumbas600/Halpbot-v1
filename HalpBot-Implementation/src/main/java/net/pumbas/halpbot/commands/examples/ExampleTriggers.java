@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.pumbas.halpbot.converters.annotations.parameter.Source;
-import net.pumbas.halpbot.processors.eventlisteners.triggers.Trigger;
-import net.pumbas.halpbot.processors.eventlisteners.triggers.TriggerStrategy;
+import net.pumbas.halpbot.triggers.Trigger;
+import net.pumbas.halpbot.triggers.TriggerStrategy;
 import net.pumbas.halpbot.utilities.Duration;
 import net.pumbas.halpbot.utilities.Require;
 

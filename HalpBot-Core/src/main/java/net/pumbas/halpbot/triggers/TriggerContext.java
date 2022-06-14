@@ -22,37 +22,32 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.utilities;
+package net.pumbas.halpbot.triggers;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import net.pumbas.halpbot.actions.DisplayableResult;
+import net.pumbas.halpbot.actions.invokable.SourceContext;
+import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
+import net.pumbas.halpbot.utilities.Require;
 
-public class ConcurrentManager
-{
-    private final ScheduledExecutorService scheduler;
+import java.util.List;
+import java.util.stream.Stream;
 
-    public ConcurrentManager() {
-        this.scheduler = Executors.newScheduledThreadPool(5);
+public interface TriggerContext extends SourceContext<SourceInvocationContext>, DisplayableResult {
+
+    String description();
+
+    default boolean matches(final String message) {
+        final Stream<String> stream = this.triggers().stream();
+
+        return switch (this.require()) {
+            case ALL -> stream.allMatch(trigger -> this.strategy().contains(message, trigger));
+            case ANY -> stream.anyMatch(trigger -> this.strategy().contains(message, trigger));
+        };
     }
 
-    public <T> Future<T> schedule(long delay, TimeUnit timeUnit, Callable<T> callable) {
-        return this.scheduler.schedule(callable, delay, timeUnit);
-    }
+    List<String> triggers();
 
-    public Future<?> schedule(long delay, TimeUnit timeUnit, Runnable runnable) {
-        return this.scheduler.schedule(runnable, delay, timeUnit);
-    }
+    Require require();
 
-    public ScheduledFuture<?> scheduleRegularly(long initialDelay, long interval, TimeUnit timeUnit,
-                                                Runnable runnable) {
-        return this.scheduler.scheduleAtFixedRate(runnable, initialDelay, interval, timeUnit);
-    }
-
-    public void shutdown() {
-        this.scheduler.shutdown();
-    }
+    TriggerStrategy strategy();
 }

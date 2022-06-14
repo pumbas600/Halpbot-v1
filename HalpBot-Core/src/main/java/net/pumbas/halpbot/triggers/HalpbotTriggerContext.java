@@ -22,33 +22,28 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlisteners.triggers;
+package net.pumbas.halpbot.triggers;
 
-import net.pumbas.halpbot.utilities.Duration;
+import net.pumbas.halpbot.actions.invokable.ActionInvokable;
+import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
+import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.utilities.Require;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.dockbox.hartshorn.inject.binding.Bound;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Trigger {
+import java.time.Duration;
+import java.util.List;
 
-    String[] value();
+public record HalpbotTriggerContext(List<String> triggers,
+                                    String description,
+                                    TriggerStrategy strategy,
+                                    Require require,
+                                    List<ParsingToken> nonCommandParameterTokens,
+                                    ActionInvokable<SourceInvocationContext> actionInvokable,
+                                    Duration displayDuration,
+                                    boolean isEphemeral)
+    implements TriggerContext {
 
-    String description() default "";
-
-    TriggerStrategy strategy() default TriggerStrategy.START;
-
-    /**
-     * If using {@link Require#ALL}, this will force the trigger strategy to be {@link TriggerStrategy#ANYWHERE}
-     * regardless of what is manually set.
-     */
-    Require require() default Require.ANY;
-
-    Duration display() default @Duration(-1);
-
-    boolean isEphemeral() default false;
+    @Bound
+    public HalpbotTriggerContext {}
 }

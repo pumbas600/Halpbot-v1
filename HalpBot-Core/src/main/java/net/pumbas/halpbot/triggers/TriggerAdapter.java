@@ -22,17 +22,19 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlisteners.triggers;
+package net.pumbas.halpbot.triggers;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.adapters.HalpbotAdapter;
 
+import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 
+@Service
 public interface TriggerAdapter extends HalpbotAdapter {
 
     @Override

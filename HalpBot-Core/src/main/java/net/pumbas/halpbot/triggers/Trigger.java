@@ -22,31 +22,33 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlisteners.triggers;
+package net.pumbas.halpbot.triggers;
 
-import java.util.function.BiPredicate;
+import net.pumbas.halpbot.utilities.Duration;
+import net.pumbas.halpbot.utilities.Require;
 
-import lombok.RequiredArgsConstructor;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@RequiredArgsConstructor
-public enum TriggerStrategy {
-    START(String::startsWith),
-    ANYWHERE(String::contains);
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Trigger {
 
-    private final BiPredicate<String, String> validator;
+    String[] value();
+
+    String description() default "";
+
+    TriggerStrategy strategy() default TriggerStrategy.START;
 
     /**
-     * If the message contains the specified trigger. Both the message and the trigger should be lowered prior to
-     * calling this method.
-     *
-     * @param message
-     *     The lowered message
-     * @param trigger
-     *     The lowered trigger to determine if contained within the message
-     *
-     * @return If the trigger is contained within the message
+     * If using {@link Require#ALL}, this will force the trigger strategy to be {@link TriggerStrategy#ANYWHERE}
+     * regardless of what is manually set.
      */
-    public boolean contains(final String message, final String trigger) {
-        return this.validator.test(message, trigger);
-    }
+    Require require() default Require.ANY;
+
+    Duration display() default @Duration(-1);
+
+    boolean isEphemeral() default false;
 }

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.processors.eventlisteners.triggers;
+package net.pumbas.halpbot.triggers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.HalpbotCore;
@@ -37,7 +37,7 @@ import net.pumbas.halpbot.utilities.HalpbotUtils;
 import net.pumbas.halpbot.utilities.Require;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
+import org.dockbox.hartshorn.component.Component;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 
@@ -48,11 +48,9 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import lombok.Getter;
 
-@Singleton
-@ComponentBinding(TriggerAdapter.class)
+@Component
 public class HalpbotTriggerAdapter implements TriggerAdapter {
 
     private final List<TriggerContext> triggerContexts = new ArrayList<>();
