@@ -40,7 +40,7 @@ import java.awt.Color;
 @Service
 public class ExampleTriggers {
 
-    // Repond to any messages that contain 'my id' or 'discord id' anywhere with their id for 30 seconds
+    // Respond to any messages that contain 'my id' or 'discord id' anywhere with their id for 30 seconds
     @Trigger(value = {"my id", "discord id"}, strategy = TriggerStrategy.ANYWHERE, display = @Duration(30))
     public MessageEmbed usersId(@Source final User user) {
         return new EmbedBuilder()

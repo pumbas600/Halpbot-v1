@@ -27,7 +27,9 @@ package net.pumbas.halpbot.triggers;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.adapters.HalpbotAdapter;
+import net.pumbas.halpbot.processors.triggers.TriggerHandlerContext;
 
+import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
@@ -35,7 +37,7 @@ import org.dockbox.hartshorn.util.reflect.TypeContext;
 import java.util.List;
 
 @Service
-public interface TriggerAdapter extends HalpbotAdapter {
+public interface TriggerAdapter extends HalpbotAdapter, Enableable {
 
     @Override
     default void onEvent(final GenericEvent event) {
@@ -45,19 +47,22 @@ public interface TriggerAdapter extends HalpbotAdapter {
 
     void onMessageReceived(MessageReceivedEvent event);
 
-    default <T> void registerTriggers(final TypeContext<T> type) {
-        final T instance = this.applicationContext().get(type);
-        int triggers = 0;
+    @Override
+    default void enable() {
+        final TriggerHandlerContext triggerHandlerContext =
+            this.applicationContext().first(TriggerHandlerContext.class).get();
 
-        for (final MethodContext<?, T> trigger : type.methods(Trigger.class)) {
-            if (!trigger.isPublic()) {
-                this.applicationContext().log().warn("Methods annotated with @Trigger must be public");
-                continue;
-            }
-            this.registerTrigger(instance, trigger);
-            triggers++;
+        for (final TypeContext<?> type : triggerHandlerContext.types()) {
+            this.registerTriggers(type, triggerHandlerContext);
         }
-        this.applicationContext().log().info("Registered %d triggers found in %s".formatted(triggers, type.qualifiedName()));
+    }
+
+    default <T> void registerTriggers(final TypeContext<T> type, final TriggerHandlerContext triggerHandlerContext) {
+        final T instance = this.applicationContext().get(type);
+        final List<MethodContext<?, T>> triggerHandlers = triggerHandlerContext.handlers(type);
+
+        triggerHandlers.forEach(triggerHandler -> this.registerTrigger(instance, triggerHandler));
+        this.applicationContext().log().info("Registered {} triggers found in {}", triggerHandlers.size(), type.qualifiedName());
     }
 
     <T> void registerTrigger(T instance, MethodContext<?, T> methodContext);
