@@ -4,7 +4,6 @@ import net.pumbas.halpbot.processors.eventlisteners.EventListenerServicePreProce
 
 import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.component.processing.ServiceActivator;
-import org.dockbox.hartshorn.inject.binding.InjectConfig;
 import org.dockbox.hartshorn.util.reflect.Extends;
 
 import java.lang.annotation.ElementType;
@@ -24,6 +23,4 @@ public @interface Bot {
     boolean includeBasePackage() default true;
 
     String[] scanPackages() default {};
-
-    InjectConfig[] configs() default {};
 }

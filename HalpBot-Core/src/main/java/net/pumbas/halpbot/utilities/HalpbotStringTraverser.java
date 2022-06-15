@@ -24,8 +24,6 @@
 
 package net.pumbas.halpbot.utilities;
 
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -34,9 +32,8 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(chain = false)
 @RequiredArgsConstructor
-@ComponentBinding(StringTraverser.class)
-public class HalpbotStringTraverser implements StringTraverser
-{
+public class HalpbotStringTraverser implements StringTraverser {
+
     private final String content;
 
     @Setter

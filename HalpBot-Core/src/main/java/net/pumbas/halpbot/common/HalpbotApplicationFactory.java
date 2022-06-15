@@ -5,7 +5,6 @@ import net.pumbas.halpbot.permissions.UsePermissions;
 import org.dockbox.hartshorn.application.Activator;
 import org.dockbox.hartshorn.application.StandardApplicationFactory;
 import org.dockbox.hartshorn.data.annotations.UseConfigurations;
-import org.dockbox.hartshorn.inject.binding.InjectConfig;
 import org.dockbox.hartshorn.proxy.javassist.JavassistApplicationProxier;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.AnnotatedElementModifier;
@@ -36,11 +35,6 @@ public class HalpbotApplicationFactory extends StandardApplicationFactory {
             @Override
             public String[] scanPackages() {
                 return bot.scanPackages();
-            }
-
-            @Override
-            public InjectConfig[] configs() {
-                return bot.configs();
             }
         });
         return super.activator(activator);
