@@ -25,6 +25,7 @@
 package net.pumbas.halpbot.permissions.repositories;
 
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.data.annotations.DataSource;
 import org.dockbox.hartshorn.data.annotations.Query;
 import org.dockbox.hartshorn.data.jpa.JpaRepository;
 
@@ -32,8 +33,9 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public abstract class PermissionRepository implements JpaRepository<GuildPermission, GuildPermissionId>
-{
+@DataSource("halpbot-core-db")
+public abstract class PermissionRepository implements JpaRepository<GuildPermission, GuildPermissionId> {
+
     @Query("SELECT gp FROM GuildPermission gp WHERE gp.guildId = :guildId")
     public abstract List<GuildPermission> guildPermissions(long guildId);
 
