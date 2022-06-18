@@ -25,6 +25,7 @@
 package net.pumbas.halpbot.permissions.repositories;
 
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.condition.RequiresProperty;
 import org.dockbox.hartshorn.data.annotations.DataSource;
 import org.dockbox.hartshorn.data.annotations.Query;
 import org.dockbox.hartshorn.data.jpa.JpaRepository;
@@ -34,6 +35,7 @@ import java.util.Set;
 
 @Service
 @DataSource("halpbot-core-db")
+@RequiresProperty(name = "useRoleBinding")
 public abstract class PermissionRepository implements JpaRepository<GuildPermission, GuildPermissionId> {
 
     @Query("SELECT gp FROM GuildPermission gp WHERE gp.guildId = :guildId")
