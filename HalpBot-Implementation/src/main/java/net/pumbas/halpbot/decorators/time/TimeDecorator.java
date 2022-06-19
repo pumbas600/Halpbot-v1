@@ -30,35 +30,32 @@ import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.utilities.LogLevel;
 
 import org.dockbox.hartshorn.inject.binding.Bound;
-import org.dockbox.hartshorn.inject.binding.ComponentBinding;
 import org.dockbox.hartshorn.util.Result;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 
-// Bind the TimeDecorator to this instance so that the factory knows to instantiate this
-@ComponentBinding(TimeDecorator.class)
-public class TimeDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C>
-{
+public class TimeDecorator<C extends InvocationContext> extends ActionInvokableDecorator<C> {
+
     private final LogLevel logLevel;
 
     // Its important that you're @Bound constructor contains the ActionInvokable and the annotation so that
     // it can be used by the constructor. If this doesn't match, an exception will be thrown during startup
     @Bound
-    public TimeDecorator(ActionInvokable<C> actionInvokable, Time time) {
+    public TimeDecorator(final ActionInvokable<C> actionInvokable, final Time time) {
         super(actionInvokable);
         this.logLevel = time.value();
     }
 
     @Override
-    public <R> Result<R> invoke(C invocationContext) {
-        OffsetDateTime start = OffsetDateTime.now();
-        Result<R> result = super.invoke(invocationContext);
+    public <R> Result<R> invoke(final C invocationContext) {
+        final OffsetDateTime start = OffsetDateTime.now();
+        final Result<R> result = super.invoke(invocationContext);
 
         // Measure the time in milliseconds between now and before the action was invoked to see how long it took
-        double ms = start.until(OffsetDateTime.now(), ChronoUnit.NANOS) / 1_000_000D;
+        final double ms = start.until(OffsetDateTime.now(), ChronoUnit.NANOS) / 1_000_000D;
         this.logLevel.log(invocationContext.applicationContext(), "Invoked %s %s in %.5fms"
-                .formatted(this.executable().qualifiedName(), result.caught() ? "Unsuccessfully" : "Successfully", ms));
+            .formatted(this.executable().qualifiedName(), result.caught() ? "Unsuccessfully" : "Successfully", ms));
 
         return result;
     }
