@@ -33,7 +33,7 @@ import org.dockbox.hartshorn.data.jpa.JpaRepository;
 import java.util.List;
 import java.util.Set;
 
-@Service
+@Service(lazy = true)
 @DataSource("halpbot-core-db")
 @RequiresProperty(name = "useRoleBinding")
 public abstract class PermissionRepository implements JpaRepository<GuildPermission, GuildPermissionId> {

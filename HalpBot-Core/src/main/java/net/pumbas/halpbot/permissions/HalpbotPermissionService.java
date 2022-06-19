@@ -1,54 +1,23 @@
-/*
- * MIT License
- *
- * Copyright (c) 2021 pumbas600
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package net.pumbas.halpbot.permissions;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.actions.invokable.Invokable;
 import net.pumbas.halpbot.actions.invokable.InvokableFactory;
 import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.permissions.repositories.GuildPermission;
 import net.pumbas.halpbot.permissions.repositories.GuildPermissionId;
-import net.pumbas.halpbot.permissions.repositories.PermissionRepository;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.component.Service;
-import org.dockbox.hartshorn.data.remote.DerbyFileRemote;
-import org.dockbox.hartshorn.data.remote.PersistenceConnection;
 import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 
-import java.io.File;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,47 +33,20 @@ public class HalpbotPermissionService implements PermissionService, Enableable {
     @Getter
     @Inject
     private ApplicationContext applicationContext;
+
     @Getter
     @Inject
     private HalpbotCore halpbotCore;
+
+    @Inject
+    private BotConfiguration configuration;
+
     @Inject
     private InvokableFactory invokableFactory;
-    @Inject
-    private PermissionRepository permissionRepository;
-    @Getter
-    private boolean useRoleBinding;
 
     @Override
-    public void enable() {
-        this.useRoleBinding = this.applicationContext.get(BotConfiguration.class).useRoleBinding();
-
-        if (this.useRoleBinding) {
-            final Path path = new File("Halpbot-Core-DB").toPath();
-            final PersistenceConnection connection = DerbyFileRemote.INSTANCE.connection(path, "root", "");
-            this.applicationContext.log().info("Role binding database connection created");
-            this.applicationContext.get(PermissionRepository.class).connection(connection);
-        }
-    }
-
-    @Override
-    public void initialise() {
-        if (!this.useRoleBinding && !this.rolePermissions().isEmpty())
-            this.applicationContext.log()
-                .error("You haven't enabled custom permissions in the bot-config but you have some defined.");
-        if (this.useRoleBinding)
-            this.deleteOldPermissions();
-    }
-
-    private void deleteOldPermissions() {
-        final List<GuildPermission> oldPermissions = this.permissionRepository.findAll()
-            .stream()
-            .filter((gp) -> !this.isRegistered(gp.permission()))
-            .toList();
-        if (!oldPermissions.isEmpty()) {
-            this.applicationContext.log().info("Deleting the following deprecated permissions from the database: %s"
-                .formatted(String.join(", ", oldPermissions.stream().map(GuildPermission::permission).toList())));
-            oldPermissions.forEach(this::delete);
-        }
+    public boolean useRoleBinding() {
+        return this.configuration.useRoleBinding();
     }
 
     @Override
@@ -119,44 +61,22 @@ public class HalpbotPermissionService implements PermissionService, Enableable {
 
     @Override
     public GuildPermission updateOrSave(final GuildPermission guildPermission) {
-        if (!this.useRoleBinding)
-            return guildPermission;
-        return this.permissionRepository.updateOrSave(guildPermission);
+        return guildPermission;
     }
 
     @Override
     public GuildPermission update(final GuildPermission guildPermission) {
-        if (!this.useRoleBinding)
-            return guildPermission;
-        return this.permissionRepository.update(guildPermission);
+        return guildPermission;
     }
 
     @Override
     public GuildPermission save(final GuildPermission guildPermission) {
-        if (!this.useRoleBinding)
-            return guildPermission;
-        return this.permissionRepository.save(guildPermission);
+        return guildPermission;
     }
 
     @Override
     public void delete(final GuildPermission guildPermission) {
-        if (!this.useRoleBinding)
-            return;
-        this.permissionRepository.delete(guildPermission);
-    }
 
-    @Override
-    public Result<GuildPermission> findById(final GuildPermissionId id) {
-        if (!this.useRoleBinding)
-            return Result.empty();
-        return this.permissionRepository.findById(id);
-    }
-
-    @Override
-    public void close() {
-        if (!this.useRoleBinding)
-            return;
-        this.permissionRepository.entityManager().close();
     }
 
     @Override
@@ -166,16 +86,12 @@ public class HalpbotPermissionService implements PermissionService, Enableable {
 
     @Override
     public boolean isRoleBound(final long guildId, final long roleId) {
-        if (!this.useRoleBinding)
-            return false;
-        return this.permissionRepository.countPermissionsWithRole(guildId, roleId) != 0;
+        return false;
     }
 
     @Override
     public boolean isPermissionBound(final long guildId, final String permission) {
-        if (!this.useRoleBinding)
-            return false;
-        return this.permissionRepository.countPermissions(guildId, permission) != 0;
+        return false;
     }
 
     @Override
@@ -190,32 +106,17 @@ public class HalpbotPermissionService implements PermissionService, Enableable {
             return true;
         if (this.permissionSuppliers.containsKey(permission))
             return this.evaluatePermissionSupplier(permission, guild, member);
-
-        if (!this.useRoleBinding)
-            return false;
-        return Boolean.TRUE.equals(
-            this.permissionRepository.findById(new GuildPermissionId(guild.getIdLong(), permission))
-                .map((gp) -> member.getRoles().contains(guild.getRoleById(gp.roleId())))
-                .or(false)
-        );
+        return false;
     }
 
-    private boolean evaluatePermissionSupplier(final String permission, final Guild guild, final Member member) {
-        return Boolean.TRUE.equals(this.permissionSuppliers.get(permission)
-            .invoke(guild, member)
-            .or(false));
+    @Override
+    public Result<GuildPermission> findById(final GuildPermissionId id) {
+        return Result.empty();
     }
 
     @Override
     public Set<String> permissions(final long guildId, final Member member) {
-        if (!this.useRoleBinding)
-            Collections.emptySet();
-        return this.permissionRepository
-            .permissions(guildId, member.getRoles()
-                .stream()
-                .map(Role::getIdLong)
-                .collect(Collectors.toSet())
-            );
+        return Collections.emptySet();
     }
 
     @Override
@@ -233,14 +134,20 @@ public class HalpbotPermissionService implements PermissionService, Enableable {
 
     @Override
     public Map<String, Long> roleBindings(final Guild guild) {
-        if (!this.useRoleBinding)
-            return Collections.emptyMap();
+        return Collections.emptyMap();
+    }
 
-        final Map<String, Long> bindings = new HashMap<>();
-        this.permissionRepository.guildPermissions(guild.getIdLong())
-            .forEach((gp) -> bindings.put(gp.permission(), gp.roleId()));
 
-        this.rolePermissions().forEach((permission) -> bindings.putIfAbsent(permission, null));
-        return bindings;
+    protected boolean evaluatePermissionSupplier(final String permission, final Guild guild, final Member member) {
+        return Boolean.TRUE.equals(this.permissionSuppliers.get(permission)
+            .invoke(guild, member)
+            .or(false));
+    }
+
+    @Override
+    public void enable() {
+        if (!this.rolePermissions().isEmpty())
+            this.applicationContext.log()
+                .error("You haven't enabled role binding in the bot-config but you have some defined.");
     }
 }

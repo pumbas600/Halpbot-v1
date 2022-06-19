@@ -34,17 +34,17 @@ import net.pumbas.halpbot.permissions.repositories.GuildPermission;
 import net.pumbas.halpbot.permissions.repositories.GuildPermissionId;
 
 import org.dockbox.hartshorn.context.ContextCarrier;
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public interface PermissionService extends ContextCarrier, CoreCarrier
-{
+public interface PermissionService extends ContextCarrier, CoreCarrier {
+
     /**
      * Determines if the member is the owner of this bot.
      *
@@ -53,7 +53,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      *
      * @return Whether the member is the owner of this bot
      */
-    default boolean isOwner(Member member) {
+    default boolean isOwner(final Member member) {
         return this.halpbotCore().ownerId() == member.getIdLong();
     }
 
@@ -79,15 +79,15 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      *     The type being scanned for permission suppliers
      */
     @SuppressWarnings("unchecked")
-    default <T> void registerPermissionSuppliers(TypeContext<T> typeContext) {
-        T instance = this.applicationContext().get(typeContext);
-        List<? extends MethodContext<?, T>> permissionSuppliers = typeContext.methods(PermissionSupplier.class);
+    default <T> void registerPermissionSuppliers(final TypeContext<T> typeContext) {
+        final T instance = this.applicationContext().get(typeContext);
+        final List<? extends MethodContext<?, T>> permissionSuppliers = typeContext.methods(PermissionSupplier.class);
 
         int validPermissionSuppliers = 0;
 
         // First validate the permission suppliers
-        for (MethodContext<?, ?> permissionSupplier : permissionSuppliers) {
-            List<TypeContext<?>> parameters = permissionSupplier.parameterTypes();
+        for (final MethodContext<?, ?> permissionSupplier : permissionSuppliers) {
+            final List<TypeContext<?>> parameters = permissionSupplier.parameterTypes();
             if (parameters.size() != 2 || !parameters.get(0).is(Guild.class) || !parameters.get(1).is(Member.class)) {
                 this.applicationContext().log()
                     .warn("The permission supplier %s must only have the parameters %s and %s"
@@ -104,7 +104,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
             }
 
             validPermissionSuppliers++;
-            String permission = permissionSupplier.annotation(PermissionSupplier.class).get().value();
+            final String permission = permissionSupplier.annotation(PermissionSupplier.class).get().value();
             this.registerPermissionSupplier(instance, permission, (MethodContext<Boolean, T>) permissionSupplier);
         }
         this.applicationContext().log().info("Registered %d permission suppliers in %s"
@@ -171,23 +171,6 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
     void delete(GuildPermission guildPermission);
 
     /**
-     * Finds a stored guild permission by the {@link GuildPermissionId id}. If there is no role bound to the particular
-     * permission in that guild then an empty Result will be returned. If role binding is disabled it will always
-     * return an empty Result.
-     *
-     * @param id
-     *     The {@link GuildPermissionId} containing the guild and permission that you're looking for
-     *
-     * @return An {@link Result} containing the guild permission it exists.
-     */
-    Result<GuildPermission> findById(GuildPermissionId id);
-
-    /**
-     * Closes any persistent entity applications. If role binding has been disabled this does nothing.
-     */
-    void close();
-
-    /**
      * Returns true if the custom permission is registered.
      *
      * @param permission
@@ -230,9 +213,11 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * @param permissions
      *     The permissions to add to the service
      *
-     * @see PermissionService#addPermissions(String...)
+     * @see PermissionService#addPermissions(Set)
      */
-    void addPermissions(Set<String> permissions);
+    default void addPermissions(final String... permissions) {
+        this.addPermissions(Set.of(permissions));
+    }
 
     /**
      * Adds the custom permissions. This should include both role bindable permissions and permission supplied
@@ -241,10 +226,31 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * @param permissions
      *     The permissions to add to the service
      *
-     * @see PermissionService#addPermissions(Set)
+     * @see PermissionService#addPermissions(String...)
      */
-    default void addPermissions(String... permissions) {
-        this.addPermissions(Set.of(permissions));
+    void addPermissions(Set<String> permissions);
+
+    /**
+     * Determines whether the member has ALL the specified permissions within the guild or not. This will first check if
+     * there's a permission supplier for the permission otherwise it will check if they have the permissions bound role.
+     * If role binding has been disabled, it will instantly return false rather than check the members roles. This
+     * returns a {@link CompletableFuture} as the {@link Member} object may need to be fetched from Discord if it's not
+     * cached.
+     *
+     * @param guild
+     *     The guild to check the users permissions within
+     * @param user
+     *     The user to check the permissions against
+     * @param permissions
+     *     The permissions to check that the user has all of
+     *
+     * @return A {@link CompletableFuture} containing whether the user has ALL the permissions
+     * @see PermissionService#hasPermission(Guild, Member, String)
+     * @see PermissionService#hasPermissions(Guild, Member, Set)
+     */
+    default CompletableFuture<Boolean> hasPermissions(final Guild guild, final User user, final Set<String> permissions) {
+        return guild.retrieveMember(user).submit()
+            .thenApply((member) -> this.hasPermissions(guild, member, permissions));
     }
 
     /**
@@ -263,8 +269,8 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * @see PermissionService#hasPermissions(Guild, User, Set)
      * @see PermissionService#hasPermission(Guild, Member, String)
      */
-    default boolean hasPermissions(Guild guild, Member member, Set<String> permissions) {
-        for (String permission : permissions) {
+    default boolean hasPermissions(final Guild guild, final Member member, final Set<String> permissions) {
+        for (final String permission : permissions) {
             if (!this.hasPermission(guild, member, permission))
                 return false;
         }
@@ -290,29 +296,6 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
     boolean hasPermission(Guild guild, Member member, String permission);
 
     /**
-     * Determines whether the member has ALL the specified permissions within the guild or not. This will first check if
-     * there's a permission supplier for the permission otherwise it will check if they have the permissions bound role.
-     * If role binding has been disabled, it will instantly return false rather than check the members roles. This
-     * returns a {@link CompletableFuture} as the {@link Member} object may need to be fetched from Discord if it's not
-     * cached.
-     *
-     * @param guild
-     *     The guild to check the users permissions within
-     * @param user
-     *     The user to check the permissions against
-     * @param permissions
-     *     The permissions to check that the user has all of
-     *
-     * @return A {@link CompletableFuture} containing whether the user has ALL the permissions
-     * @see PermissionService#hasPermission(Guild, Member, String)
-     * @see PermissionService#hasPermissions(Guild, Member, Set)
-     */
-    default CompletableFuture<Boolean> hasPermissions(Guild guild, User user, Set<String> permissions) {
-        return guild.retrieveMember(user).submit()
-            .thenApply((member) -> this.hasPermissions(guild, member, permissions));
-    }
-
-    /**
      * Retrieves an {@link Result} containing the bound role for the specified permission in the guild.
      *
      * @param guild
@@ -323,16 +306,28 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * @return An {@link Result} containing the bound role
      * @see PermissionService#findById(GuildPermissionId)
      */
-    default Result<Role> guildRole(Guild guild, String permission) {
+    default Result<Role> guildRole(final Guild guild, final String permission) {
         return this.findById(new GuildPermissionId(guild.getIdLong(), permission))
             .map((gp) -> guild.getRoleById(gp.roleId()));
 
     }
 
     /**
+     * Finds a stored guild permission by the {@link GuildPermissionId id}. If there is no role bound to the particular
+     * permission in that guild then an empty Result will be returned. If role binding is disabled it will always return
+     * an empty Result.
+     *
+     * @param id
+     *     The {@link GuildPermissionId} containing the guild and permission that you're looking for
+     *
+     * @return An {@link Result} containing the guild permission it exists.
+     */
+    Result<GuildPermission> findById(GuildPermissionId id);
+
+    /**
      * Retrieves the role bindable permissions that the specified member has in a particular guild. This is achieved by
-     * retreiving all the members roles and then matching those roles to bound permissions. This returns a {@link
-     * CompletableFuture} as the {@link Member} object may need to be fetched from Discord if it's not cached.
+     * retreiving all the members roles and then matching those roles to bound permissions. This returns a
+     * {@link CompletableFuture} as the {@link Member} object may need to be fetched from Discord if it's not cached.
      *
      * @param guild
      *     The guild to check the users permissions within
@@ -342,7 +337,7 @@ public interface PermissionService extends ContextCarrier, CoreCarrier
      * @return A {@link CompletableFuture} of the users bindable permissions within the specified guild
      * @see PermissionService#permissions(long, Member)
      */
-    default CompletableFuture<Set<String>> permissions(Guild guild, User user) {
+    default CompletableFuture<Set<String>> permissions(final Guild guild, final User user) {
         final long guildId = guild.getIdLong();
         return guild.retrieveMember(user).submit()
             .thenApply(member -> this.permissions(guildId, member));

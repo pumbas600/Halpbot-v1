@@ -57,15 +57,15 @@ import java.util.stream.Collectors;
 import jakarta.inject.Inject;
 
 @Service
-public class BuiltInCommands
-{
+public class BuiltInCommands {
+
     @Inject
     private PermissionService permissionService;
     @Inject
     private HelpService helpService;
 
     @Command(description = "Displays the current information of this bot")
-    public void info(MessageReceivedEvent event, JDA jda) {
+    public void info(final MessageReceivedEvent event, final JDA jda) {
         final Runtime runtime = Runtime.getRuntime();
         final User selfUser = jda.getSelfUser();
 
@@ -88,17 +88,17 @@ public class BuiltInCommands
     }
 
     @Command(alias = {"help", "halp"}, description = "Displays the help information for the specified command")
-    public Object halp(@Source Guild guild, CommandAdapter commandAdapter, @Unrequired("") String commandAlias) {
+    public Object halp(@Source final Guild guild, final CommandAdapter commandAdapter, @Unrequired("") final String commandAlias) {
         if (commandAlias.isEmpty()) {
             return this.helpService.build(commandAdapter);
         }
 
-        String prefix = commandAdapter.prefix(guild.getIdLong());
+        final String prefix = commandAdapter.prefix(guild.getIdLong());
         String alias = commandAlias.toLowerCase(Locale.ROOT);
         if (alias.startsWith(prefix))
             alias = alias.substring(prefix.length()).stripLeading();
 
-        Result<CommandContext> commandContext = commandAdapter.commandContextSafely(alias);
+        final Result<CommandContext> commandContext = commandAdapter.commandContextSafely(alias);
         if (commandContext.absent())
             return "That doesn't seem to be a registered command :sob:";
 
@@ -107,18 +107,18 @@ public class BuiltInCommands
 
     @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Shuts the bot down. Any existing RestActions will be completed first.")
-    public void shutdown(JDA jda) {
+    public void shutdown(final JDA jda) {
         jda.shutdown();
     }
 
     @Permissions(permissions = HalpbotPermissions.BOT_OWNER)
     @Command(description = "Shuts the bot down immediately")
-    public void forceShutdown(JDA jda) {
+    public void forceShutdown(final JDA jda) {
         jda.shutdownNow();
     }
 
     @Command(description = "Retrieves the current status of the bot")
-    public String status(JDA jda) {
+    public String status(final JDA jda) {
         return String.format("The current status of the bot is: **%s**",
             HalpbotUtils.capitalise(jda.getStatus().toString()));
     }
@@ -126,7 +126,7 @@ public class BuiltInCommands
     //TODO: Make it so that it automatically throws an error when a field is null
     @Permissions(user = Permission.MANAGE_PERMISSIONS)
     @Command(description = "Binds a permission to a role")
-    public String bind(@Source @Nullable Guild guild, String permission, @Nullable Role newRole) {
+    public String bind(@Source @Nullable final Guild guild, final String permission, @Nullable final Role newRole) {
         if (!this.permissionService.useRoleBinding())
             return "Role binding has been disabled for this bot";
         if (guild == null)
@@ -136,43 +136,43 @@ public class BuiltInCommands
         if (!this.permissionService.isRegistered(permission))
             return "%s is not a bindable permission".formatted(permission);
 
-        Result<GuildPermission> oldGp =
+        final Result<GuildPermission> oldGp =
             this.permissionService.findById(new GuildPermissionId(guild.getIdLong(), permission));
         String result = "Binding the permission `%s` to `%s`".formatted(permission, newRole.getName());
 
         if (oldGp.present()) {
-            Role oldRole = guild.getRoleById(oldGp.get().roleId());
+            final Role oldRole = guild.getRoleById(oldGp.get().roleId());
             if (oldRole != null) {
                 if (oldRole.getIdLong() == newRole.getIdLong())
                     return "The permission `%s` is already bound to `%s`".formatted(permission, newRole.getName());
                 result = "Updating the binding of the permission `%s` from `%s` to `%s`"
                     .formatted(permission, oldRole.getName(), newRole.getName());
             }
-            this.permissionService.close();
+            //this.permissionService.close();
         }
         this.permissionService.updateOrSave(new GuildPermission(guild.getIdLong(), permission, newRole.getIdLong()));
-        this.permissionService.close();
+        //this.permissionService.close();
         return result;
     }
 
     @Permissions(user = Permission.MANAGE_PERMISSIONS)
     @Command(description = "Returns the role bindings for the permissions in the specified guild")
-    public Object guildPermissions(@Source @Nullable Guild guild) {
+    public Object guildPermissions(@Source @Nullable final Guild guild) {
         if (!this.permissionService.useRoleBinding())
             return "Role binding has been disabled for this bot";
         if (guild == null)
             return "This cannot be used in a private message";
 
-        Map<String, Long> bindings = this.permissionService.roleBindings(guild);
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        final Map<String, Long> bindings = this.permissionService.roleBindings(guild);
+        final EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("%s's Permission Bindings".formatted(guild.getName()))
             .setColor(Color.ORANGE);
 
-        for (String permission : bindings.keySet().stream().sorted().collect(Collectors.toList())) {
-            Long roleId = bindings.get(permission);
+        for (final String permission : bindings.keySet().stream().sorted().collect(Collectors.toList())) {
+            final Long roleId = bindings.get(permission);
             String role = "Unbound";
             if (roleId != null) {
-                Role guildRole = guild.getRoleById(roleId);
+                final Role guildRole = guild.getRoleById(roleId);
                 if (guildRole != null)
                     role = guildRole.getName();
             }
