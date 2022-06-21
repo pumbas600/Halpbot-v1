@@ -38,24 +38,24 @@ import org.dockbox.hartshorn.component.factory.Factory;
 import java.util.List;
 
 @Service
-public interface InvocationContextFactory
-{
+public interface InvocationContextFactory {
+
+    default CommandInvocationContext command(final String content) {
+        return this.command(content, new MessageEvent(MockMessageEvent.INSTANCE));
+    }
+
     @Factory
     CommandInvocationContext command(String content,
                                      HalpbotEvent halpbotEvent);
 
-    default CommandInvocationContext command(String content) {
-        return this.command(content, new MessageEvent(MockMessageEvent.INSTANCE));
+    default ButtonInvocationContext button(final HalpbotEvent halpbotEvent, final ButtonContext buttonContext) {
+        return this.button(halpbotEvent, buttonContext.nonCommandParameterTokens(), buttonContext.passedParameters());
     }
 
     @Factory
     ButtonInvocationContext button(HalpbotEvent halpbotEvent,
                                    List<ParsingToken> nonCommandParameterTokens,
                                    Object[] passedParameters);
-
-    default ButtonInvocationContext button(HalpbotEvent halpbotEvent, ButtonContext buttonContext) {
-        return this.button(halpbotEvent, buttonContext.nonCommandParameterTokens(), buttonContext.passedParameters());
-    }
 
     @Factory
     SourceInvocationContext source(HalpbotEvent halpbotEvent,

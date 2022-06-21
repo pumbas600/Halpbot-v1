@@ -43,8 +43,8 @@ import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.mocks.MockMessageEvent;
 
 import org.dockbox.hartshorn.component.Service;
-import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
+import org.dockbox.hartshorn.util.Result;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -57,14 +57,16 @@ import jakarta.inject.Inject;
 @Service
 @UseCommands
 @HartshornTest
-public class CommandContextTests
-{
-    @Inject CommandAdapter commandAdapter;
-    @Inject InvocationContextFactory invocationFactory;
+public class CommandContextTests {
+
+    @Inject
+    CommandAdapter commandAdapter;
+    @Inject
+    InvocationContextFactory invocationFactory;
 
     @Test
     public void commandContextParsedValuesPresentTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
 
         Assertions.assertNotNull(commandContext);
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 [2 3 4 1]")).present());
@@ -76,12 +78,12 @@ public class CommandContextTests
 
     @Test
     public void commandContextParsingTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
 
         Assertions.assertNotNull(commandContext);
 
-        Result<Boolean> result1 = commandContext.invoke(this.invocationFactory.command("1 [2 1 4 3]"));
-        Result<Boolean> result2 = commandContext.invoke(this.invocationFactory.command("2 [9 5 4 3]"));
+        final Result<Boolean> result1 = commandContext.invoke(this.invocationFactory.command("1 [2 1 4 3]"));
+        final Result<Boolean> result2 = commandContext.invoke(this.invocationFactory.command("2 [9 5 4 3]"));
 
         Assertions.assertTrue(result1.present());
         Assertions.assertTrue(result2.present());
@@ -91,11 +93,11 @@ public class CommandContextTests
 
     @Test
     public void commandContextUsesDefaultValueIfNotPresent() {
-        CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
 
         Assertions.assertNotNull(commandContext);
 
-        Result<Boolean> result = commandContext.invoke(this.invocationFactory.command("1"));
+        final Result<Boolean> result = commandContext.invoke(this.invocationFactory.command("1"));
 
         Assertions.assertTrue(result.present());
         Assertions.assertFalse(result.get());
@@ -103,7 +105,7 @@ public class CommandContextTests
 
     @Test
     public void commandContextParsingAndValuesPresentTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("containedWithinArrayTest");
 
         Assertions.assertNotNull(commandContext);
 
@@ -113,15 +115,15 @@ public class CommandContextTests
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("alpha")).absent());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 [1 4 c]")).absent());
 
-        Result<Boolean> result = commandContext.invoke(this.invocationFactory.command("2 [1 2 3]"));
+        final Result<Boolean> result = commandContext.invoke(this.invocationFactory.command("2 [1 2 3]"));
         Assertions.assertTrue(result.present());
         Assertions.assertTrue(result.get());
 
     }
 
     @Command(alias = "containedWithinArrayTest", description = "Returns if the item is within the specified elements")
-    public boolean containedWithinArrayTestMethod(int num, @Unrequired("[]") int[] numbers) {
-        for (int element : numbers) {
+    public boolean containedWithinArrayTestMethod(final int num, @Unrequired("[]") final int[] numbers) {
+        for (final int element : numbers) {
             if (num == element)
                 return true;
         }
@@ -130,33 +132,33 @@ public class CommandContextTests
 
     @Test
     public void commandContextCustomObjectParameterCommandTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("customObjectParameterTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("customObjectParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Token token = commandContext.tokens().get(0);
+        final Token token = commandContext.tokens().get(0);
 
         Assertions.assertTrue(token instanceof ParsingToken);
-        Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER,((ParsingToken) token).converter());
+        Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER, ((ParsingToken) token).converter());
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Vector3(1 2 3)")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Vector3(3 1)")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("#Vector3(3 1)")).absent());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("(3 1 2)")).absent());
 
-        Result<Double> result = commandContext.invoke(this.invocationFactory.command("Vector3(1 2 3)"));
+        final Result<Double> result = commandContext.invoke(this.invocationFactory.command("Vector3(1 2 3)"));
         Assertions.assertTrue(result.present());
         Assertions.assertEquals(2, result.get());
 
     }
 
     @Command(alias = "customObjectParameterTest", description = "Tests if it successfully parses a custom object")
-    public double customObjectParameterTestMethod(Vector3 vector3) {
+    public double customObjectParameterTestMethod(final Vector3 vector3) {
         return vector3.getY();
     }
 
     @Test
     public void commandContextImplicitArrayTokenTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("implicitArrayTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("implicitArrayTest");
 
         Assertions.assertNotNull(commandContext);
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 3 2 1 4 Heyo")).present());
@@ -165,26 +167,26 @@ public class CommandContextTests
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 Hi")).absent());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("a 1 2 Hi")).absent());
 
-        Result<Object> result = commandContext.invoke(this.invocationFactory.command("2 3 2 1 4 Heyo"));
+        final Result<Object> result = commandContext.invoke(this.invocationFactory.command("2 3 2 1 4 Heyo"));
         Assertions.assertTrue(result.present());
         Assertions.assertEquals("2 - [3, 2, 1, 4] - Heyo", result.get());
     }
 
     @Command(alias = "implicitArrayTest", description = "Tests the @Implicit attribute on arrays")
-    public String implicitArrayTokenTestMethod(int num, @Implicit int[] array, String stop) {
+    public String implicitArrayTokenTestMethod(final int num, @Implicit final int[] array, final String stop) {
         return "%s - %s - %s".formatted(num, Arrays.toString(array), stop);
     }
 
     @Test
     public void commandContextImplicitArrayTokenAtEndTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("implicitArrayAtEndTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("implicitArrayAtEndTest");
 
         Assertions.assertNotNull(commandContext);
-        Result<Double> result1 = commandContext.invoke(this.invocationFactory.command(""));
-        Result<Double> result2 = commandContext.invoke(this.invocationFactory.command(
-                "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150)"));
-        Result<Double> result3 = commandContext.invoke(this.invocationFactory.command(
-                "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150) Shape(Rectangle 200 50 100 275)"));
+        final Result<Double> result1 = commandContext.invoke(this.invocationFactory.command(""));
+        final Result<Double> result2 = commandContext.invoke(this.invocationFactory.command(
+            "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150)"));
+        final Result<Double> result3 = commandContext.invoke(this.invocationFactory.command(
+            "Shape(Rectangle 200 50 100 25) Shape(Rectangle 50 200 25 150) Shape(Rectangle 200 50 100 275)"));
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command(
             "Shape(Rectangle 200 50 100 25)")).present());
@@ -197,9 +199,9 @@ public class CommandContextTests
 
     @Command(alias = "implicitArrayAtEndTest",
              description = "Tests the @Implicit attribute with no parameter after it")
-    public double implicitArrayTokenAtEndTestMethod(@Implicit Shape[] shapes) {
+    public double implicitArrayTokenAtEndTestMethod(@Implicit final Shape[] shapes) {
         double totalArea = 0;
-        for (Shape shape : shapes) {
+        for (final Shape shape : shapes) {
             totalArea += shape.getArea();
         }
 
@@ -208,7 +210,7 @@ public class CommandContextTests
 
     @Test
     public void commandContextStringDefaultValueTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("stringDefaultValueTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("stringDefaultValueTest");
 
         Assertions.assertNotNull(commandContext);
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("")).present());
@@ -216,24 +218,24 @@ public class CommandContextTests
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("-1")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("a -1")).absent());
 
-        Result<String> result = commandContext.invoke(this.invocationFactory.command(""));
+        final Result<String> result = commandContext.invoke(this.invocationFactory.command(""));
         Assertions.assertTrue(result.present());
         Assertions.assertEquals("default value", result.get());
     }
 
     @Command(alias = "stringDefaultValueTest")
-    public String stringDefaultValueTestMethod(@Unrequired("default value") String string) {
+    public String stringDefaultValueTestMethod(@Unrequired("default value") final String string) {
         return string;
     }
 
     @Test
     public void commandContextWithMessageReceivedEventParameterTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithMessageReceivedEventParameterTest");
-        CommandInvocationContext invocationContext = this.invocationFactory.command("", new MessageEvent(new MockMessageEvent()));
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithMessageReceivedEventParameterTest");
+        final CommandInvocationContext invocationContext = this.invocationFactory.command("", new MessageEvent(new MockMessageEvent()));
 
         Assertions.assertNotNull(commandContext);
-        Result<Boolean> result1 = commandContext.invoke(this.invocationFactory.command(""));
-        Result<Boolean> result2 = commandContext.invoke(invocationContext);
+        final Result<Boolean> result1 = commandContext.invoke(this.invocationFactory.command(""));
+        final Result<Boolean> result2 = commandContext.invoke(invocationContext);
 
         Assertions.assertEquals(1, commandContext.tokens().size());
         Assertions.assertTrue(result1.present());
@@ -241,16 +243,16 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandWithMessageReceivedEventParameterTest")
-    public boolean commandWithMessageReceivedEventParameterTestMethod(MessageReceivedEvent event) {
+    public boolean commandWithMessageReceivedEventParameterTestMethod(final MessageReceivedEvent event) {
         return true;
     }
 
     @Test
     public void commandContextWithMultipleAnnotationsTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithMultipleAnnotationsTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithMultipleAnnotationsTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens();
+        final List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(1, tokens.size());
         Assertions.assertTrue(tokens.get(0) instanceof ParsingToken);
@@ -264,18 +266,18 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandWithMultipleAnnotationsTest")
-    public int commandWithMultipleAnnotationsTestMethod(@Unrequired("[]") @Implicit int[] array) {
+    public int commandWithMultipleAnnotationsTestMethod(@Unrequired("[]") @Implicit final int[] array) {
         return -1;
     }
 
     @Test
     public void commandContextWithVarargsTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithVarargsTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithVarargsTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens();
+        final List<Token> tokens = commandContext.tokens();
 
-        Assertions.assertEquals(1,tokens.size());
+        Assertions.assertEquals(1, tokens.size());
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, ((ParsingToken) tokens.get(0)).converter());
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[1 2 3]")).errorAbsent());
@@ -286,13 +288,13 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandWithVarargsTest")
-    public void commandWithVarargsTestMethod(int... values) {
+    public void commandWithVarargsTestMethod(final int... values) {
     }
 
     @Test
     public void commandContextMultipleAliasesTest() {
-        CommandContext commandContext1 = this.commandAdapter.commandContext("commandWithMultipleAliases1");
-        CommandContext commandContext2 = this.commandAdapter.commandContext("commandWithMultipleAliases2");
+        final CommandContext commandContext1 = this.commandAdapter.commandContext("commandWithMultipleAliases1");
+        final CommandContext commandContext2 = this.commandAdapter.commandContext("commandWithMultipleAliases2");
 
         Assertions.assertNotNull(commandContext1);
         Assertions.assertNotNull(commandContext2);
@@ -307,11 +309,11 @@ public class CommandContextTests
 
     @Test
     public void commandContextWithAListTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithAListTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithAListTest");
 
         Assertions.assertNotNull(commandContext);
-        Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("[]"));
-        Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("[1 5 3 4]"));
+        final Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("[]"));
+        final Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("[1 5 3 4]"));
 
         Assertions.assertTrue(result1.present());
         Assertions.assertTrue(result2.present());
@@ -320,9 +322,9 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandWithAListTest")
-    public int commandWithAListTestMethod(List<Integer> values) {
+    public int commandWithAListTestMethod(final List<Integer> values) {
         int sum = 0;
-        for (int value : values) {
+        for (final int value : values) {
             sum += value;
         }
         return sum;
@@ -330,18 +332,18 @@ public class CommandContextTests
 
     @Test
     public void commandContextWithOptionalPlaceholderTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithOptionalPlaceholderTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithOptionalPlaceholderTest");
 
         Assertions.assertNotNull(commandContext);
 
-        List<Token> tokens = commandContext.tokens();
+        final List<Token> tokens = commandContext.tokens();
         Assertions.assertEquals(2, tokens.size());
         Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(0));
         Assertions.assertEquals("My name is", ((PlaceholderToken) tokens.get(0)).placeholder());
         Assertions.assertInstanceOf(ParsingToken.class, tokens.get(1));
 
-        Result<String> result1 = commandContext.invoke(this.invocationFactory.command("pumbas600"));
-        Result<String> result2 = commandContext.invoke(this.invocationFactory.command("My name is pumbas600"));
+        final Result<String> result1 = commandContext.invoke(this.invocationFactory.command("pumbas600"));
+        final Result<String> result2 = commandContext.invoke(this.invocationFactory.command("My name is pumbas600"));
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("my name is pumbas600")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("My NaMe IS pumbas600")).present());
@@ -356,16 +358,16 @@ public class CommandContextTests
 
     @Command(alias = "commandWithOptionalPlaceholderTest",
              command = "[My name is] String")
-    public String commandWithOptionalPlaceholderTestMethod(String name) {
+    public String commandWithOptionalPlaceholderTestMethod(final String name) {
         return name;
     }
 
     @Test
     public void commandContextWithMultiplePlaceholdersTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithMultiplePlaceholdersTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithMultiplePlaceholdersTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens();
+        final List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(4, tokens.size());
         Assertions.assertInstanceOf(PlaceholderToken.class, tokens.get(0));
@@ -386,16 +388,16 @@ public class CommandContextTests
 
     @Command(alias = "commandWithMultiplePlaceholdersTest",
              command = "[Hi] [,] <my name is> String")
-    public String commandWithMultiplePlaceholdersTestMethod(String name) {
+    public String commandWithMultiplePlaceholdersTestMethod(final String name) {
         return name;
     }
 
     @Test
     public void commandContextWithPlaceholdersAndPrimativeTypesTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithPlaceholdersAndPrimativeTypesTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithPlaceholdersAndPrimativeTypesTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens();
+        final List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(6, tokens.size());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("1 2 [1 2 3 4]")).present());
@@ -411,9 +413,9 @@ public class CommandContextTests
 
     @Command(alias = "commandWithPlaceholdersAndPrimativeTypesTest",
              command = "[add] Integer [and] Byte [and] Integer[]")
-    public int commandWithPlaceholdersAndPrimativeTypesTestMethod(int a, byte b, int[] nums) {
+    public int commandWithPlaceholdersAndPrimativeTypesTestMethod(final int a, final byte b, final int[] nums) {
         int sum = a + b;
-        for (int num : nums) {
+        for (final int num : nums) {
             sum += num;
         }
         return sum;
@@ -421,10 +423,10 @@ public class CommandContextTests
 
     @Test
     public void commandContextCommandStringWithMultipleAnnotationsTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandStringWithMultipleAnnotationsTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandStringWithMultipleAnnotationsTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens();
+        final List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(4, tokens.size());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("2 x 3")).present());
@@ -438,17 +440,18 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandStringWithMultipleAnnotationsTest", command = "Integer [x] Integer Integer[]")
-    public int commandStringWithMultipleAnnotationsTestMethod(int rows, int columns,
-                                                              @Unrequired("[]") @Implicit int... values) {
+    public int commandStringWithMultipleAnnotationsTestMethod(final int rows, final int columns,
+                                                              @Unrequired("[]") @Implicit final int... values)
+    {
         return rows;
     }
 
     @Test
     public void commandContextWithNestedGenericParametersTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithNestedGenericParametersTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithNestedGenericParametersTest");
 
         Assertions.assertNotNull(commandContext);
-        List<Token> tokens = commandContext.tokens();
+        final List<Token> tokens = commandContext.tokens();
 
         Assertions.assertEquals(1, tokens.size());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("[[1 2 3] [1 4 6]]")).present());
@@ -460,10 +463,10 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandWithNestedGenericParametersTest")
-    public int commandWithNestedGenericParametersTestMethod(@Implicit List<List<Integer>> matrix) {
+    public int commandWithNestedGenericParametersTestMethod(@Implicit final List<List<Integer>> matrix) {
         int sum = 0;
-        for (List<Integer> row : matrix) {
-            for (int num : row) {
+        for (final List<Integer> row : matrix) {
+            for (final int num : row) {
                 sum += num;
             }
         }
@@ -472,12 +475,12 @@ public class CommandContextTests
 
     @Test
     public void commandContextWithComplexCustomParameterMatchesTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Result<Object> result1 = commandContext.invoke(this.invocationFactory.command("Matrix(2 2 x 1 0 0 1)"));
-        Result<Object> result2 = commandContext.invoke(this.invocationFactory.command("Matr(2 2 [1 2 0.0 3])"));
-        Result<Object> result3 = commandContext.invoke(this.invocationFactory.command("Matrix(2 2 [1 2 1 3]"));
+        final Result<Object> result1 = commandContext.invoke(this.invocationFactory.command("Matrix(2 2 x 1 0 0 1)"));
+        final Result<Object> result2 = commandContext.invoke(this.invocationFactory.command("Matr(2 2 [1 2 0.0 3])"));
+        final Result<Object> result3 = commandContext.invoke(this.invocationFactory.command("Matrix(2 2 [1 2 1 3]"));
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 x 3)")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix(2 x 2 [1 0 0 1])")).present());
@@ -503,10 +506,10 @@ public class CommandContextTests
 
     @Test
     public void commandContentWithComplexParameterInvocationTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
-        Result<Integer> result = commandContext.invoke(this.invocationFactory.command("Matrix(2 3 [1 2 3 4 5 6])"));
+        final Result<Integer> result = commandContext.invoke(this.invocationFactory.command("Matrix(2 3 [1 2 3 4 5 6])"));
 
         Assertions.assertTrue(result.present());
         Assertions.assertEquals(3, result.get());
@@ -514,7 +517,7 @@ public class CommandContextTests
 
     @Test
     public void commandContextWith2DArrayTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("Matrix()")).present());
@@ -525,12 +528,12 @@ public class CommandContextTests
 
     @Test
     public void commandContextWithReflectiveMethodsTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
 
-        Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("yShear(4"));
-        Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("scale(3)"));
+        final Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("yShear(4"));
+        final Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("scale(3)"));
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("scale(2)")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("roTaTe(45)")).present());
@@ -544,12 +547,12 @@ public class CommandContextTests
 
     @Test
     public void commandContextWithReflectiveMethodAliasesTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithComplexParameterTest");
 
         Assertions.assertNotNull(commandContext);
 
-        Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("unitSquare()"));
-        Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("us()"));
+        final Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("unitSquare()"));
+        final Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("us()"));
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("mirrorX()")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("xReflection()")).present());
@@ -566,18 +569,18 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandWithComplexParameterTest", reflections = Matrix.class)
-    public int commandWithComplexCustomParameterTestMethod(Matrix matrix) {
+    public int commandWithComplexCustomParameterTestMethod(final Matrix matrix) {
         return matrix.getColumns();
     }
 
     @Test
     public void commandContextWithReflectiveListTest() {
-        CommandContext commandContext = this.commandAdapter.commandContext("commandWithListOfCustomObjectTest");
+        final CommandContext commandContext = this.commandAdapter.commandContext("commandWithListOfCustomObjectTest");
 
         Assertions.assertNotNull(commandContext);
 
-        Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("mirrorX() us()"));
-        Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("Matrix([1 0 0 1]) us()"));
+        final Result<Integer> result1 = commandContext.invoke(this.invocationFactory.command("mirrorX() us()"));
+        final Result<Integer> result2 = commandContext.invoke(this.invocationFactory.command("Matrix([1 0 0 1]) us()"));
 
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("mirrorX() scale(2) us()")).present());
         Assertions.assertTrue(commandContext.invoke(this.invocationFactory.command("reflection()")).absent());
@@ -590,7 +593,7 @@ public class CommandContextTests
     }
 
     @Command(alias = "commandWithListOfCustomObjectTest", reflections = Matrix.class)
-    public int commandWithListOfCustomObjectTestMethod(@Implicit List<Matrix> matrices) {
+    public int commandWithListOfCustomObjectTestMethod(@Implicit final List<Matrix> matrices) {
         return matrices.size();
     }
 }

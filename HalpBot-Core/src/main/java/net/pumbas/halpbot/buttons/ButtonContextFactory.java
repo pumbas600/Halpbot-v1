@@ -29,6 +29,7 @@ import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.objects.AsyncDuration;
 
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.condition.RequiresActivator;
 import org.dockbox.hartshorn.component.factory.Factory;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +37,7 @@ import java.time.Duration;
 import java.util.List;
 
 @Service
+@RequiresActivator(UseButtons.class)
 public interface ButtonContextFactory {
 
     default ButtonContext create(final String id,

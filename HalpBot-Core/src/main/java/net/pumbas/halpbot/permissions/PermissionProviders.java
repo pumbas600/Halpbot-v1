@@ -5,10 +5,9 @@ import net.pumbas.halpbot.configurations.BotConfiguration;
 import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.component.condition.RequiresActivator;
 import org.dockbox.hartshorn.component.processing.Provider;
-import org.dockbox.hartshorn.data.annotations.UsePersistence;
 
 @Service
-@RequiresActivator(UsePersistence.class)
+@RequiresActivator(UsePermissions.class)
 public class PermissionProviders {
 
     @Provider
