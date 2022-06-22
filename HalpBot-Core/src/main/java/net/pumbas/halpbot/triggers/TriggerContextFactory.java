@@ -30,12 +30,14 @@ import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.utilities.Require;
 
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.condition.RequiresActivator;
 import org.dockbox.hartshorn.component.factory.Factory;
 
 import java.time.Duration;
 import java.util.List;
 
 @Service
+@RequiresActivator(UseTriggers.class)
 public interface TriggerContextFactory {
 
     @Factory
