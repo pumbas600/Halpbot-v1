@@ -1,0 +1,219 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2021 pumbas600
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package net.pumbas.halpbot.commands;
+
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Invite.Channel;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.pumbas.halpbot.HalpbotCore;
+import net.pumbas.halpbot.adapters.HalpbotAdapter;
+import net.pumbas.halpbot.commands.objects.ShapeType;
+import net.pumbas.halpbot.commands.objects.Vector3;
+import net.pumbas.halpbot.converters.Converter;
+import net.pumbas.halpbot.converters.ConverterHandler;
+import net.pumbas.halpbot.converters.DefaultConverters;
+import net.pumbas.halpbot.converters.ParameterConverter;
+import net.pumbas.halpbot.converters.SourceConverter;
+import net.pumbas.halpbot.converters.annotations.UseConverters;
+import net.pumbas.halpbot.converters.annotations.parameter.Children;
+import net.pumbas.halpbot.converters.annotations.parameter.Implicit;
+import net.pumbas.halpbot.converters.annotations.parameter.Remaining;
+import net.pumbas.halpbot.converters.annotations.parameter.Source;
+import net.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
+import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
+
+import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.data.annotations.UseConfigurations;
+import org.dockbox.hartshorn.testsuite.HartshornTest;
+import org.dockbox.hartshorn.testsuite.InjectTest;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
+import org.junit.jupiter.api.Assertions;
+
+import java.util.List;
+import java.util.Set;
+
+@SuppressWarnings("AssertBetweenInconvertibleTypes")
+@UseConfigurations
+@UseConverters
+@HartshornTest
+public class ConverterHandlerTests {
+
+    @InjectTest
+    public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
+        Converter<?, Object[]> converter = converterHandler.from(Object[].class);
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingMessageReceivedEventConverterTest(ConverterHandler converterHandler) {
+        Converter<?, MessageReceivedEvent> converter = converterHandler.from(MessageReceivedEvent.class);
+
+        Assertions.assertInstanceOf(SourceConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.EVENT_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingObjectConverterForUnknownTypesTest(ConverterHandler converterHandler) {
+        Converter<?, Vector3> converter = converterHandler.from(Vector3.class);
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.OBJECT_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingIntegerConverterTest(ConverterHandler converterHandler) {
+        Converter<?, Integer> converter = converterHandler.from(Integer.class);
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.INTEGER_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingListConverterTest(ConverterHandler converterHandler) {
+        Converter<?, List> converter = converterHandler.from(List.class);
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.LIST_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingSetConverterTest(ConverterHandler converterHandler) {
+        Converter<?, Set> converter = converterHandler.from(Set.class);
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.SET_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingUnmodifiableListConverterTest(ConverterHandler converterHandler) {
+        Converter<?, List> converter = converterHandler.from(TypeContext.of(List.class), TypeContext.of(Unmodifiable.class));
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.UNMODIFIABLE_LIST_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingEnumConverterTest(ConverterHandler converterHandler) {
+        Converter<?, ShapeType> converter = converterHandler.from(ShapeType.class);
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.ENUM_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingRemainingStringsConverterTest(ConverterHandler converterHandler) {
+        Converter<?, String> converter = converterHandler
+            .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingImplicitListConverterTest(ConverterHandler converterHandler) {
+        Converter<?, int[]> converter = converterHandler
+            .from(TypeContext.of(int[].class), TypeContext.of(Implicit.class));
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void retrievingChildrenConverterTest(ConverterHandler converterHandler) {
+        Converter<?, List> converter = converterHandler
+            .from(TypeContext.of(List.class), TypeContext.of(Children.class));
+
+        Assertions.assertInstanceOf(ParameterConverter.class, converter);
+        Assertions.assertEquals(DefaultConverters.CHILDREN_TYPE_CONVERTER, converter);
+    }
+
+    @InjectTest
+    public void isCommandParameterTests(ConverterHandler converterHandler) {
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(int.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(byte.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(double.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(long.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(float.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(boolean.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(short.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(String.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(Vector3.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(int[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(boolean[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(float[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(double[].class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(List.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(Set.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(User.class)));
+        Assertions.assertTrue(converterHandler.isCommandParameter(TypeContext.of(MessageChannel.class)));
+    }
+
+    @InjectTest
+    public void isNotCommandParameterTests(ConverterHandler converterHandler) {
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(JDA.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(GenericEvent.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(MessageReceivedEvent.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(Interaction.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(HalpbotAdapter.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(HalpbotCore.class)));
+        Assertions.assertFalse(converterHandler.isCommandParameter(TypeContext.of(ApplicationContext.class)));
+    }
+
+    @InjectTest
+    public void isNotCommandParameterWhenAnnotatedWithSourceTests(ConverterHandler converterHandler) {
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+            TypeContext.of(User.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+            TypeContext.of(Member.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+            TypeContext.of(MessageChannel.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+            TypeContext.of(Channel.class), Set.of(TypeContext.of(Source.class))));
+        Assertions.assertFalse(converterHandler.isCommandParameter(
+            TypeContext.of(VoiceChannel.class), Set.of(TypeContext.of(Source.class))));
+    }
+
+    @InjectTest
+    public void isCommandParameterWhenAnnotated(ConverterHandler converterHandler) {
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+            TypeContext.of(int.class), Set.of(TypeContext.of(Unrequired.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+            TypeContext.of(User.class), Set.of(TypeContext.of(Unrequired.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+            TypeContext.of(String.class), Set.of(TypeContext.of(Remaining.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+            TypeContext.of(String[].class), Set.of(TypeContext.of(Implicit.class))));
+        Assertions.assertTrue(converterHandler.isCommandParameter(
+            TypeContext.of(List.class), Set.of(TypeContext.of(Implicit.class))));
+    }
+}
