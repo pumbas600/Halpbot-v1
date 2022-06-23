@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.converters.parametercontext;
 
-import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +33,8 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 
 @Service
-public interface ParameterAnnotationContextFactory
-{
+public interface ParameterAnnotationContextFactory {
+
     @Factory
     ParameterAnnotationContext create(@NotNull Set<TypeContext<? extends Annotation>> afterAnnotations,
                                       @NotNull Set<TypeContext<? extends Annotation>> conflictingAnnotations,

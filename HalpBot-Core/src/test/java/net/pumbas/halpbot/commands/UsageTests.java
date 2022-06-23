@@ -40,14 +40,14 @@ import org.junit.jupiter.api.Assertions;
 
 @UseCommands
 @HartshornTest
-public class UsageTests
-{
+public class UsageTests {
+
     @InjectTest
     public void generateTypeUsageTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod1"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod1"));
 
         Assertions.assertEquals("<String> <Integer>", usage);
     }
@@ -56,8 +56,8 @@ public class UsageTests
     public void generateTypeUsageExcludeEventTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod2"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod2"));
 
         Assertions.assertEquals("<Float>", usage);
     }
@@ -66,8 +66,8 @@ public class UsageTests
     public void generateTypeUsageExcludeSourceTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod3"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod3"));
 
         Assertions.assertEquals("", usage);
     }
@@ -76,8 +76,8 @@ public class UsageTests
     public void generateTypeUsageWithOptionalParameterTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new TypeUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod4"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod4"));
 
         Assertions.assertEquals("[User]", usage);
     }
@@ -86,8 +86,8 @@ public class UsageTests
     public void generateNameUsageTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod1"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod1"));
 
         Assertions.assertEquals("<first> <second>", usage);
     }
@@ -96,8 +96,8 @@ public class UsageTests
     public void generateNameUsageExcludeEventTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod2"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod2"));
 
         Assertions.assertEquals("<number>", usage);
     }
@@ -106,8 +106,8 @@ public class UsageTests
     public void generateNameUsageExcludeSourceTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod3"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod3"));
 
         Assertions.assertEquals("", usage);
     }
@@ -116,8 +116,8 @@ public class UsageTests
     public void generateNameUsageWithOptionalParameterTest(ApplicationContext applicationContext) {
         UsageBuilder usageBuilder = new NameUsageBuilder();
         String usage = usageBuilder.buildUsage(
-                applicationContext,
-                TestUtil.method(UsageTests.class, "testMethod4"));
+            applicationContext,
+            TestUtil.method(UsageTests.class, "testMethod4"));
 
         Assertions.assertEquals("[user]", usage);
     }

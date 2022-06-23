@@ -36,6 +36,6 @@ import java.util.Collection;
 @ParameterAnnotation(after = Unmodifiable.class, allowedType = {ArrayTypeContext.class, Collection.class})
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Implicit
-{
+public @interface Implicit {
+
 }

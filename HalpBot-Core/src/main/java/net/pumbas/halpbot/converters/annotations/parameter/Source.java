@@ -37,6 +37,6 @@ import java.lang.annotation.Target;
 @ParameterAnnotation(conflictingAnnotations = Any.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Source
-{
+public @interface Source {
+
 }

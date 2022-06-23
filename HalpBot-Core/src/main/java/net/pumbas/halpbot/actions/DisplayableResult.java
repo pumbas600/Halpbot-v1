@@ -26,8 +26,8 @@ package net.pumbas.halpbot.actions;
 
 import java.time.Duration;
 
-public interface DisplayableResult
-{
+public interface DisplayableResult {
+
     Duration displayDuration();
 
     boolean isEphemeral();

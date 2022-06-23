@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
-public @interface CustomConstructor
-{
+public @interface CustomConstructor {
+
     String command() default "";
 
     String usage() default "";

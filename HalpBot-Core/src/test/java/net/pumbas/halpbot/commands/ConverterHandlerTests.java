@@ -51,10 +51,10 @@ import net.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
@@ -64,8 +64,8 @@ import java.util.Set;
 @UseConfigurations
 @UseConverters
 @HartshornTest
-public class ConverterHandlerTests
-{
+public class ConverterHandlerTests {
+
     @InjectTest
     public void retrievingArrayConverterTest(ConverterHandler converterHandler) {
         Converter<?, Object[]> converter = converterHandler.from(Object[].class);
@@ -133,7 +133,7 @@ public class ConverterHandlerTests
     @InjectTest
     public void retrievingRemainingStringsConverterTest(ConverterHandler converterHandler) {
         Converter<?, String> converter = converterHandler
-                .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
+            .from(TypeContext.of(String.class), TypeContext.of(Remaining.class));
 
         Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.REMAINING_STRINGS_CONVERTER, converter);
@@ -142,7 +142,7 @@ public class ConverterHandlerTests
     @InjectTest
     public void retrievingImplicitListConverterTest(ConverterHandler converterHandler) {
         Converter<?, int[]> converter = converterHandler
-                .from(TypeContext.of(int[].class), TypeContext.of(Implicit.class));
+            .from(TypeContext.of(int[].class), TypeContext.of(Implicit.class));
 
         Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.ARRAY_CONVERTER, converter);
@@ -151,7 +151,7 @@ public class ConverterHandlerTests
     @InjectTest
     public void retrievingChildrenConverterTest(ConverterHandler converterHandler) {
         Converter<?, List> converter = converterHandler
-                .from(TypeContext.of(List.class), TypeContext.of(Children.class));
+            .from(TypeContext.of(List.class), TypeContext.of(Children.class));
 
         Assertions.assertInstanceOf(ParameterConverter.class, converter);
         Assertions.assertEquals(DefaultConverters.CHILDREN_TYPE_CONVERTER, converter);
@@ -192,28 +192,28 @@ public class ConverterHandlerTests
     @InjectTest
     public void isNotCommandParameterWhenAnnotatedWithSourceTests(ConverterHandler converterHandler) {
         Assertions.assertFalse(converterHandler.isCommandParameter(
-                TypeContext.of(User.class), Set.of(TypeContext.of(Source.class))));
+            TypeContext.of(User.class), Set.of(TypeContext.of(Source.class))));
         Assertions.assertFalse(converterHandler.isCommandParameter(
-                TypeContext.of(Member.class), Set.of(TypeContext.of(Source.class))));
+            TypeContext.of(Member.class), Set.of(TypeContext.of(Source.class))));
         Assertions.assertFalse(converterHandler.isCommandParameter(
-                TypeContext.of(MessageChannel.class), Set.of(TypeContext.of(Source.class))));
+            TypeContext.of(MessageChannel.class), Set.of(TypeContext.of(Source.class))));
         Assertions.assertFalse(converterHandler.isCommandParameter(
-                TypeContext.of(Channel.class), Set.of(TypeContext.of(Source.class))));
+            TypeContext.of(Channel.class), Set.of(TypeContext.of(Source.class))));
         Assertions.assertFalse(converterHandler.isCommandParameter(
-                TypeContext.of(VoiceChannel.class), Set.of(TypeContext.of(Source.class))));
+            TypeContext.of(VoiceChannel.class), Set.of(TypeContext.of(Source.class))));
     }
 
     @InjectTest
     public void isCommandParameterWhenAnnotated(ConverterHandler converterHandler) {
         Assertions.assertTrue(converterHandler.isCommandParameter(
-                TypeContext.of(int.class), Set.of(TypeContext.of(Unrequired.class))));
+            TypeContext.of(int.class), Set.of(TypeContext.of(Unrequired.class))));
         Assertions.assertTrue(converterHandler.isCommandParameter(
-                TypeContext.of(User.class), Set.of(TypeContext.of(Unrequired.class))));
+            TypeContext.of(User.class), Set.of(TypeContext.of(Unrequired.class))));
         Assertions.assertTrue(converterHandler.isCommandParameter(
-                TypeContext.of(String.class), Set.of(TypeContext.of(Remaining.class))));
+            TypeContext.of(String.class), Set.of(TypeContext.of(Remaining.class))));
         Assertions.assertTrue(converterHandler.isCommandParameter(
-                TypeContext.of(String[].class), Set.of(TypeContext.of(Implicit.class))));
+            TypeContext.of(String[].class), Set.of(TypeContext.of(Implicit.class))));
         Assertions.assertTrue(converterHandler.isCommandParameter(
-                TypeContext.of(List.class), Set.of(TypeContext.of(Implicit.class))));
+            TypeContext.of(List.class), Set.of(TypeContext.of(Implicit.class))));
     }
 }

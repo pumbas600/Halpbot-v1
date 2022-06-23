@@ -38,9 +38,9 @@ import net.pumbas.halpbot.converters.annotations.parameter.Unmodifiable;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.junit.jupiter.api.Assertions;
 
 import java.lang.annotation.Annotation;
@@ -52,185 +52,185 @@ import java.util.stream.Stream;
 
 @UseCommands
 @HartshornTest
-public class ParameterAnnotationServiceTests
-{
+public class ParameterAnnotationServiceTests {
+
+    @InjectTest
+    public void remainingAnnotationAllowedTypesTest(ParameterAnnotationService parameterAnnotationService) {
+        Assertions.assertTrue(this.isValid(
+            parameterAnnotationService,
+            String.class,
+            Remaining.class));
+        Assertions.assertFalse(this.isValid(
+            parameterAnnotationService,
+            int.class,
+            Remaining.class));
+        Assertions.assertFalse(this.isValid(
+            parameterAnnotationService,
+            Object.class,
+            Remaining.class));
+        Assertions.assertFalse(this.isValid(
+            parameterAnnotationService,
+            float.class,
+            Remaining.class));
+        Assertions.assertFalse(this.isValid(
+            parameterAnnotationService,
+            User.class,
+            Remaining.class));
+        Assertions.assertFalse(this.isValid(
+            parameterAnnotationService,
+            HalpbotCore.class,
+            Remaining.class));
+    }
+
     @SafeVarargs
     private boolean isValid(ParameterAnnotationService parameterAnnotationService,
                             Class<?> parameterType,
                             Class<? extends Annotation>... parameterAnnotations)
     {
         return parameterAnnotationService.isValid(
-                TypeContext.of(parameterType),
-                Stream.of(parameterAnnotations).map(TypeContext::of).collect(Collectors.toList())
+            TypeContext.of(parameterType),
+            Stream.of(parameterAnnotations).map(TypeContext::of).collect(Collectors.toList())
         );
-    }
-
-    @InjectTest
-    public void remainingAnnotationAllowedTypesTest(ParameterAnnotationService parameterAnnotationService) {
-        Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                String.class,
-                Remaining.class));
-        Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                int.class,
-                Remaining.class));
-        Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                Object.class,
-                Remaining.class));
-        Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                float.class,
-                Remaining.class));
-        Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                User.class,
-                Remaining.class));
-        Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                HalpbotCore.class,
-                Remaining.class));
     }
 
     @InjectTest
     public void unrequiredAnnotationAllowedTypesTest(ParameterAnnotationService parameterAnnotationService) {
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                String.class,
-                Unrequired.class));
+            parameterAnnotationService,
+            String.class,
+            Unrequired.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                int.class,
-                Unrequired.class));
+            parameterAnnotationService,
+            int.class,
+            Unrequired.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                Object.class,
-                Unrequired.class));
+            parameterAnnotationService,
+            Object.class,
+            Unrequired.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                float[].class,
-                Unrequired.class));
+            parameterAnnotationService,
+            float[].class,
+            Unrequired.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                List.class,
-                Unrequired.class));
+            parameterAnnotationService,
+            List.class,
+            Unrequired.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                HalpbotCore.class,
-                Unrequired.class));
+            parameterAnnotationService,
+            HalpbotCore.class,
+            Unrequired.class));
     }
 
     @InjectTest
     public void implicitAnnotationAllowedTypesTest(ParameterAnnotationService parameterAnnotationService) {
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                String[].class,
-                Implicit.class));
+            parameterAnnotationService,
+            String[].class,
+            Implicit.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                int[].class,
-                Implicit.class));
+            parameterAnnotationService,
+            int[].class,
+            Implicit.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                Object[].class,
-                Implicit.class));
+            parameterAnnotationService,
+            Object[].class,
+            Implicit.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                float[].class,
-                Implicit.class));
+            parameterAnnotationService,
+            float[].class,
+            Implicit.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                List.class,
-                Implicit.class));
+            parameterAnnotationService,
+            List.class,
+            Implicit.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                Set.class,
-                Implicit.class));
+            parameterAnnotationService,
+            Set.class,
+            Implicit.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                Collection.class,
-                Implicit.class));
+            parameterAnnotationService,
+            Collection.class,
+            Implicit.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                String.class,
-                Implicit.class));
+            parameterAnnotationService,
+            String.class,
+            Implicit.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                int.class,
-                Implicit.class));
+            parameterAnnotationService,
+            int.class,
+            Implicit.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                Object.class,
-                Implicit.class));
+            parameterAnnotationService,
+            Object.class,
+            Implicit.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                HalpbotCore.class,
-                Implicit.class));
+            parameterAnnotationService,
+            HalpbotCore.class,
+            Implicit.class));
     }
 
     @InjectTest
     public void sourceAnnotationAllowedTypesAndConflictingAnnotationsTest(ParameterAnnotationService parameterAnnotationService) {
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                String.class,
-                Source.class));
+            parameterAnnotationService,
+            String.class,
+            Source.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                int.class,
-                Source.class));
+            parameterAnnotationService,
+            int.class,
+            Source.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                Object.class,
-                Source.class));
+            parameterAnnotationService,
+            Object.class,
+            Source.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                User.class,
-                Source.class));
+            parameterAnnotationService,
+            User.class,
+            Source.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                String.class,
-                Source.class, Unrequired.class));
+            parameterAnnotationService,
+            String.class,
+            Source.class, Unrequired.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                User.class,
-                Source.class, Unrequired.class));
+            parameterAnnotationService,
+            User.class,
+            Source.class, Unrequired.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                HalpbotCore.class,
-                Source.class, Unrequired.class));
+            parameterAnnotationService,
+            HalpbotCore.class,
+            Source.class, Unrequired.class));
     }
 
     @InjectTest
     public void unmodifableAnnotationAllowedTypesTest(ParameterAnnotationService parameterAnnotationService) {
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                List.class,
-                Unmodifiable.class));
+            parameterAnnotationService,
+            List.class,
+            Unmodifiable.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                Set.class,
-                Unmodifiable.class));
+            parameterAnnotationService,
+            Set.class,
+            Unmodifiable.class));
         Assertions.assertTrue(this.isValid(
-                parameterAnnotationService,
-                Collection.class,
-                Unmodifiable.class));
+            parameterAnnotationService,
+            Collection.class,
+            Unmodifiable.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                User.class,
-                Unmodifiable.class));
+            parameterAnnotationService,
+            User.class,
+            Unmodifiable.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                String.class,
-                Unmodifiable.class));
+            parameterAnnotationService,
+            String.class,
+            Unmodifiable.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                int.class,
-                Unmodifiable.class));
+            parameterAnnotationService,
+            int.class,
+            Unmodifiable.class));
         Assertions.assertFalse(this.isValid(
-                parameterAnnotationService,
-                HalpbotCore.class,
-                Unmodifiable.class));
+            parameterAnnotationService,
+            HalpbotCore.class,
+            Unmodifiable.class));
     }
 
     @InjectTest
@@ -249,11 +249,11 @@ public class ParameterAnnotationServiceTests
     @InjectTest
     public void sortAndFilterTest(ParameterAnnotationService parameterAnnotationService) {
         Stream<TypeContext<? extends Annotation>> types = Stream.of(Unrequired.class, Unmodifiable.class, Implicit.class)
-                .map(TypeContext::of);
+            .map(TypeContext::of);
         List<TypeContext<? extends Annotation>> processed = parameterAnnotationService.sortAndFilter(types);
 
         Assertions.assertEquals(2, processed.size());
-        Assertions.assertEquals(Unmodifiable.class,processed.get(0).type());
-        Assertions.assertEquals(Implicit.class,processed.get(1).type());
+        Assertions.assertEquals(Unmodifiable.class, processed.get(0).type());
+        Assertions.assertEquals(Implicit.class, processed.get(1).type());
     }
 }

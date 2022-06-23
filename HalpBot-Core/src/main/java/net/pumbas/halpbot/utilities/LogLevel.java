@@ -31,8 +31,7 @@ import org.slf4j.Logger;
 import java.util.function.BiConsumer;
 
 @LogExclude
-public enum LogLevel
-{
+public enum LogLevel {
     DEBUG(Logger::debug),
     INFO(Logger::info),
     WARN(Logger::warn),

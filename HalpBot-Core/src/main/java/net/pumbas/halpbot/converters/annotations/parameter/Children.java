@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
 @ParameterAnnotation(after = Implicit.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Children
-{
+public @interface Children {
+
     Class<?>[] value();
 }

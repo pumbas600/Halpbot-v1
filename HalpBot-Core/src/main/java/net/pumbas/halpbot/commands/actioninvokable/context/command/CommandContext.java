@@ -30,16 +30,16 @@ import net.pumbas.halpbot.commands.actioninvokable.context.TokenActionContext;
 
 import java.util.List;
 
-public interface CommandContext extends TokenActionContext, DisplayableResult
-{
-    /**
-     * @return The {@link String alias} for this command.
-     */
-    List<String> aliases();
+public interface CommandContext extends TokenActionContext, DisplayableResult {
 
     default String aliasesString() {
         return String.join(" | ", this.aliases());
     }
+
+    /**
+     * @return The {@link String alias} for this command.
+     */
+    List<String> aliases();
 
     /**
      * @return The {@link String description} if present, otherwise null

@@ -31,8 +31,8 @@ import net.pumbas.halpbot.utilities.HalpbotUtils;
 
 import java.awt.Color;
 
-public class EmbedStringsDisplayConfiguration implements DisplayConfiguration
-{
+public class EmbedStringsDisplayConfiguration implements DisplayConfiguration {
+
     @Override
     public void display(HalpbotEvent event, String message) {
         this.display(event, this.createEmbed(message));

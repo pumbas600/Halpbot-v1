@@ -29,8 +29,8 @@ import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 import org.dockbox.hartshorn.component.Service;
 
 @Service(singleton = false)
-public class Vector3
-{
+public class Vector3 {
+
     public static final Vector3 Zero = new Vector3(0, 0, 0);
     public static final Vector3 i = new Vector3(1, 0, 0);
     public static final Vector3 j = new Vector3(0, 1, 0);
@@ -65,36 +65,24 @@ public class Vector3
         return this.z;
     }
 
-    public double getSquareMagnitude() {
-        return this.x * this.x + this.y * this.y + this.z * this.z;
-    }
-
-    public double getMagnitude() {
-        return Math.sqrt(this.getSquareMagnitude());
-    }
-
-    public Vector3 divide(double divisor) {
-        return new Vector3(this.x / divisor, this.y / divisor, this.z / divisor);
-    }
-
-    public Vector3 multiply(double multiplier) {
-        return new Vector3(this.x * multiplier, this.y * multiplier, this.z * multiplier);
-    }
-
     public Vector3 add(Vector3 other) {
         return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
-    }
-
-    public Vector3 subtract(Vector3 other) {
-        return new Vector3(this.x - other.x, this.y - other.y, this.z - other.z);
     }
 
     public Vector3 getUnitVector() {
         return this.divide(this.getMagnitude());
     }
 
-    public double dot(Vector3 other) {
-        return this.x * other.x + this.y * other.y + this.z * other.z;
+    public Vector3 divide(double divisor) {
+        return new Vector3(this.x / divisor, this.y / divisor, this.z / divisor);
+    }
+
+    public double getMagnitude() {
+        return Math.sqrt(this.getSquareMagnitude());
+    }
+
+    public double getSquareMagnitude() {
+        return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 
     public double getAngleBetween(Vector3 other) {
@@ -103,13 +91,25 @@ public class Vector3
         ));
     }
 
+    public double dot(Vector3 other) {
+        return this.x * other.x + this.y * other.y + this.z * other.z;
+    }
+
+    public Vector3 getPerpendicularComponent(Vector3 other) {
+        return this.subtract(this.getParallelComponent(other));
+    }
+
+    public Vector3 subtract(Vector3 other) {
+        return new Vector3(this.x - other.x, this.y - other.y, this.z - other.z);
+    }
+
     public Vector3 getParallelComponent(Vector3 other) {
         // (u.v/v.v)v
         return other.multiply(this.dot(other) / other.dot(other));
     }
 
-    public Vector3 getPerpendicularComponent(Vector3 other) {
-        return this.subtract(this.getParallelComponent(other));
+    public Vector3 multiply(double multiplier) {
+        return new Vector3(this.x * multiplier, this.y * multiplier, this.z * multiplier);
     }
 
     public Vector3 cross(Vector3 other) {

@@ -32,8 +32,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum Removal
-{
+public enum Removal {
     /**
      * Just remove the dynamic component, but do nothing afterwards.
      */

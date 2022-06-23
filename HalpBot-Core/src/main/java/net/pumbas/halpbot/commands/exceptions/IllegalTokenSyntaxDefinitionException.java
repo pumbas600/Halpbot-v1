@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.commands.exceptions;
 
-public class IllegalTokenSyntaxDefinitionException extends IllegalArgumentException
-{
+public class IllegalTokenSyntaxDefinitionException extends IllegalArgumentException {
+
     public IllegalTokenSyntaxDefinitionException(String message) {
         super(message);
     }

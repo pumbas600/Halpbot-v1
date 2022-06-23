@@ -33,13 +33,12 @@ import org.dockbox.hartshorn.component.Service;
 import jakarta.inject.Inject;
 
 @Service
-public class HalpbotPermissions
-{
-    @Inject
-    private HalpbotCore halpbotCore;
+public class HalpbotPermissions {
 
     public static final String BOT_OWNER = "halpbot.bot.owner";
     public static final String GUILD_OWNER = "halpbot.guild.owner";
+    @Inject
+    private HalpbotCore halpbotCore;
 
     @PermissionSupplier(GUILD_OWNER)
     public boolean isGuildOwner(Guild guild, Member member) {

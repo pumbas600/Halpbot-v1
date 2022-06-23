@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.pumbas.halpbot.commands.CommandAdapter;
 import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 
-public interface HelpService
-{
+public interface HelpService {
+
     MessageEmbed build(CommandAdapter commandAdapter);
 
     MessageEmbed build(CommandAdapter commandAdapter, CommandContext commandContext);

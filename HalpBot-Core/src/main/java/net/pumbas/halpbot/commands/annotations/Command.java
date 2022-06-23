@@ -34,8 +34,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface Command
-{
+public @interface Command {
+
     /**
      * The aliases for this command. If left empty, then it will use the method name
      */

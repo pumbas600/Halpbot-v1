@@ -41,8 +41,8 @@ import java.util.Map;
  * @param <V>
  *     The type of the value elements
  */
-public interface ExpiringMap<K, V> extends Map<K, V>
-{
+public interface ExpiringMap<K, V> extends Map<K, V> {
+
     /**
      * Renews the specified key if it's contained within the map. This resets the expiration duration for this key.
      *

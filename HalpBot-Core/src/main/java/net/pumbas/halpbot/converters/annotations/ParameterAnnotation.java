@@ -36,8 +36,8 @@ import java.lang.annotation.Target;
 @Extends(Component.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface ParameterAnnotation
-{
+public @interface ParameterAnnotation {
+
     /**
      * The annotations, which if present, should be processed before this one. Note: That this is equivalent to setting
      * the {@link ParameterAnnotation#before()} of the specified annotations to this.

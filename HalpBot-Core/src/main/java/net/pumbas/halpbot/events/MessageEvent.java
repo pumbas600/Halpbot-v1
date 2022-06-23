@@ -42,8 +42,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
-public class MessageEvent implements HalpbotEvent
-{
+public class MessageEvent implements HalpbotEvent {
+
     private final GenericMessageEvent event;
 
     public MessageEvent(GenericMessageEvent event) {

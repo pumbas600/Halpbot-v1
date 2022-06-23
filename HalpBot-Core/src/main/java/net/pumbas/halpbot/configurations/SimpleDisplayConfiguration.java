@@ -27,12 +27,7 @@ package net.pumbas.halpbot.configurations;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.pumbas.halpbot.events.HalpbotEvent;
 
-public class SimpleDisplayConfiguration implements DisplayConfiguration
-{
-    @Override
-    public void display(HalpbotEvent event, String message) {
-        event.reply(message);
-    }
+public class SimpleDisplayConfiguration implements DisplayConfiguration {
 
     @Override
     public void display(HalpbotEvent event, MessageEmbed embed) {
@@ -40,12 +35,17 @@ public class SimpleDisplayConfiguration implements DisplayConfiguration
     }
 
     @Override
-    public void displayTemporary(HalpbotEvent event, String message, long seconds) {
-        event.replyTemporarily(message, seconds);
+    public void display(HalpbotEvent event, String message) {
+        event.reply(message);
     }
 
     @Override
     public void displayTemporary(HalpbotEvent event, MessageEmbed embed, long seconds) {
         event.replyTemporarily(embed, seconds);
+    }
+
+    @Override
+    public void displayTemporary(HalpbotEvent event, String message, long seconds) {
+        event.replyTemporarily(message, seconds);
     }
 }

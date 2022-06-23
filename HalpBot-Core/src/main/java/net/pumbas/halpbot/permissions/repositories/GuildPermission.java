@@ -39,8 +39,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(GuildPermissionId.class)
-public class GuildPermission
-{
+public class GuildPermission {
+
     @Id
     private long guildId;
     @Id

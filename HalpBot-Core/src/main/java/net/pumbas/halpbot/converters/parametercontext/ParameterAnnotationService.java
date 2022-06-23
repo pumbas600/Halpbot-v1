@@ -30,8 +30,8 @@ import net.pumbas.halpbot.utilities.Reflect;
 
 import org.dockbox.hartshorn.component.Enableable;
 import org.dockbox.hartshorn.context.ContextCarrier;
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -40,9 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface ParameterAnnotationService extends ContextCarrier, Enableable
-{
-    Comparator<TypeContext<? extends Annotation>> comparator();
+public interface ParameterAnnotationService extends ContextCarrier, Enableable {
 
     ParameterAnnotationContextFactory factory();
 
@@ -66,7 +64,8 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
         // It's possible to specify that an annotation comes after another one which doesn't have the annotation
         if (eParameterAnnotation.absent()) {
             this.add(annotationType, HalpbotParameterAnnotationContext.generic());
-        } else {
+        }
+        else {
             ParameterAnnotation parameterAnnotation = eParameterAnnotation.get();
             this.add(annotationType,
                 this.factory()
@@ -99,7 +98,8 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
     }
 
     default boolean isValid(TypeContext<?> parameterType,
-                            List<TypeContext<? extends Annotation>> parameterAnnotations) {
+                            List<TypeContext<? extends Annotation>> parameterAnnotations)
+    {
         return parameterAnnotations.stream()
             .map(this::get)
             .allMatch(annotationContext ->
@@ -108,8 +108,6 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
     }
 
     ParameterAnnotationContext get(TypeContext<? extends Annotation> annotationType);
-
-    boolean isRegisteredParameterAnnotation(TypeContext<? extends Annotation> annotationType);
 
     void add(TypeContext<? extends Annotation> annotationType,
              ParameterAnnotationContext annotationContext);
@@ -126,4 +124,8 @@ public interface ParameterAnnotationService extends ContextCarrier, Enableable
             .sorted(this.comparator())
             .collect(Collectors.toList());
     }
+
+    boolean isRegisteredParameterAnnotation(TypeContext<? extends Annotation> annotationType);
+
+    Comparator<TypeContext<? extends Annotation>> comparator();
 }

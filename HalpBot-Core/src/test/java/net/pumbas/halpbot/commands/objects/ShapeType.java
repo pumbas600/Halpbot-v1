@@ -24,7 +24,6 @@
 
 package net.pumbas.halpbot.commands.objects;
 
-public enum ShapeType
-{
+public enum ShapeType {
     SQUARE, CIRCLE, TRIANGLE, RECTANGLE
 }

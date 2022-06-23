@@ -26,8 +26,8 @@ package net.pumbas.halpbot.utilities;
 
 import java.time.temporal.ChronoUnit;
 
-public @interface Duration
-{
+public @interface Duration {
+
     long value();
 
     ChronoUnit unit() default ChronoUnit.SECONDS;

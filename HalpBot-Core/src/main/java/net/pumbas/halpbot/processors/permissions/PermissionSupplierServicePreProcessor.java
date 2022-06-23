@@ -58,7 +58,7 @@ public class PermissionSupplierServicePreProcessor implements ServicePreProcesso
         final PermissionSupplierContext permissionSupplierContext = context.first(PermissionSupplierContext.class).get();
 
         context.log().debug("Processing permission suppliers in {}", type.qualifiedName());
-        
+
         for (final MethodContext<?, T> permissionSupplier : type.methods(PermissionSupplier.class)) {
             if (!PERMISSION_SUPPLIER_VALIDATOR.isValid(context, permissionSupplier))
                 continue;

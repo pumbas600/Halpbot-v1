@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
-import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.converters.tokens.TokenService;
 import net.pumbas.halpbot.decorators.DecoratorService;
@@ -76,7 +75,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
     @Inject
     private DecoratorService decoratorService;
     @Inject
-    private InvocationContextFactory invocationContextFactory;
+    private ButtonInvocationContextFactory invocationContextFactory;
     @Inject
     private ButtonContextFactory buttonContextFactory;
 
@@ -110,7 +109,7 @@ public class HalpbotButtonAdapter implements ButtonAdapter {
         }
         else return; // Not a halpbot button
 
-        final ButtonInvocationContext invocationContext = this.invocationContextFactory.button(halpbotEvent, buttonContext);
+        final ButtonInvocationContext invocationContext = this.invocationContextFactory.create(halpbotEvent, buttonContext);
         final Result<Object> result = buttonContext.invoke(invocationContext);
 
         if (result.present()) {

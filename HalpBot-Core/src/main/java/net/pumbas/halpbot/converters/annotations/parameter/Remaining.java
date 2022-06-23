@@ -34,6 +34,6 @@ import java.lang.annotation.Target;
 @ParameterAnnotation(allowedType = String.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Remaining
-{
+public @interface Remaining {
+
 }

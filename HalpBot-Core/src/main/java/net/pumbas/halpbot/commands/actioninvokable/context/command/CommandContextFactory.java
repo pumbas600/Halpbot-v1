@@ -29,8 +29,8 @@ import net.pumbas.halpbot.commands.Content;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.converters.tokens.Token;
 
-import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.time.Duration;
@@ -38,8 +38,8 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public interface CommandContextFactory
-{
+public interface CommandContextFactory {
+
     @Factory
     CommandContext create(List<String> aliases,
                           String description,

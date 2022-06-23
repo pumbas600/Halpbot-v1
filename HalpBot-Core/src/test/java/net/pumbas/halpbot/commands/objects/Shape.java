@@ -31,8 +31,8 @@ import net.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 import org.dockbox.hartshorn.component.Service;
 
 @Service(singleton = false)
-public class Shape
-{
+public class Shape {
+
     private final ShapeType shapeType;
     private final double area;
     private final double xPos;
@@ -46,11 +46,13 @@ public class Shape
             this.area = Math.PI * length * length;
             this.xPos = xPos;
             this.yPos = yPos;
-        } else if (ShapeType.SQUARE == shapeType) {
+        }
+        else if (ShapeType.SQUARE == shapeType) {
             this.area = length * length;
             this.xPos = xPos + length / 2;
             this.yPos = yPos + length / 2;
-        } else throw new ErrorMessageException("Only circles and squares can define 1 length.");
+        }
+        else throw new ErrorMessageException("Only circles and squares can define 1 length.");
 
     }
 
@@ -62,7 +64,8 @@ public class Shape
             this.area = width * height;
             this.xPos = xPos + width / 2;
             this.yPos = yPos + height / 2;
-        } else throw new UnimplementedFeatureException("Still working on the other shapes...");
+        }
+        else throw new UnimplementedFeatureException("Still working on the other shapes...");
     }
 
     public double getArea() {

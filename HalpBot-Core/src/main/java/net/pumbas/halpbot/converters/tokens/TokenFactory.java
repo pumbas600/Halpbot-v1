@@ -24,15 +24,18 @@
 
 package net.pumbas.halpbot.converters.tokens;
 
-import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
+import net.pumbas.halpbot.commands.CommandInvocationContextFactory;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
+import net.pumbas.halpbot.commands.annotations.UseCommands;
 import net.pumbas.halpbot.converters.Converter;
 import net.pumbas.halpbot.converters.ConverterHandler;
 import net.pumbas.halpbot.converters.SourceConverter;
+import net.pumbas.halpbot.converters.annotations.UseConverters;
 import net.pumbas.halpbot.converters.annotations.parameter.Unrequired;
 import net.pumbas.halpbot.converters.parametercontext.ParameterAnnotationService;
 
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.condition.RequiresActivator;
 import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.proxy.Provided;
 import org.dockbox.hartshorn.util.Result;
@@ -44,6 +47,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 
 @Service
+@RequiresActivator({UseConverters.class, UseCommands.class})
 public interface TokenFactory {
 
     @Factory
@@ -90,7 +94,7 @@ public interface TokenFactory {
     ParameterAnnotationService parameterAnnotationService();
 
     @Provided
-    InvocationContextFactory invocationContextFactory();
+    CommandInvocationContextFactory invocationContextFactory();
 
     @Factory
     ParsingToken createParsing(ParameterContext<?> parameterContext,

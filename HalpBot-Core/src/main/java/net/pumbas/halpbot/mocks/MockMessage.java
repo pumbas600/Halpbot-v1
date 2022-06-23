@@ -64,8 +64,8 @@ import java.util.Formatter;
 import java.util.List;
 
 @SuppressWarnings({"ReturnOfNull", "ConstantConditions"})
-public class MockMessage implements Message
-{
+public class MockMessage implements Message {
+
     private final String content;
     private Member member;
     private Guild guild;

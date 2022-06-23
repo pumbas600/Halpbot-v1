@@ -31,8 +31,8 @@ import net.pumbas.halpbot.mocks.MockJDA;
 
 import org.jetbrains.annotations.NotNull;
 
-public class MockGuild extends GuildImpl
-{
+public class MockGuild extends GuildImpl {
+
     private final Member selfMember;
 
     public MockGuild(long id, Permission... selfMemberPermissions) {

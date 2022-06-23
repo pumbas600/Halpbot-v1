@@ -24,7 +24,6 @@
 
 package net.pumbas.halpbot.decorators;
 
-public enum Order
-{
+public enum Order {
     FIRST, EARLY, DEFAULT, LATE, LAST
 }

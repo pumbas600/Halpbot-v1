@@ -28,23 +28,21 @@ import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.converters.tokens.Token;
 import net.pumbas.halpbot.utilities.StringTraverser;
 
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
-public interface CommandInvocationContext extends StringTraverser, InvocationContext
-{
+public interface CommandInvocationContext extends StringTraverser, InvocationContext {
+
     Set<TypeContext<?>> reflections();
 
     int currentAnnotationIndex();
 
     List<TypeContext<? extends Annotation>> sortedAnnotations();
-
-    Set<Annotation> annotations();
 
     List<Token> tokens();
 
@@ -52,13 +50,7 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
 
     void reflections(Set<TypeContext<?>> reflections);
 
-    void currentAnnotationIndex(int index);
-
     void incrementCurrentAnnotationIndex();
-
-    void sortedAnnotations(List<TypeContext<? extends Annotation>> sortedAnnotations);
-
-    void annotations(Set<Annotation> annotations);
 
     void canHaveContextLeft(boolean canHaveContextLeft);
 
@@ -74,12 +66,19 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
      *     The new sorted annotations to use
      */
     default void update(ParameterContext<?> parameterContext,
-                        List<TypeContext<? extends Annotation>> sortedAnnotations) {
+                        List<TypeContext<? extends Annotation>> sortedAnnotations)
+    {
         this.currentType(parameterContext.genericType());
         this.annotations(parameterContext.annotations());
         this.sortedAnnotations(sortedAnnotations);
         this.currentAnnotationIndex(0);
     }
+
+    void annotations(Set<Annotation> annotations);
+
+    void sortedAnnotations(List<TypeContext<? extends Annotation>> sortedAnnotations);
+
+    void currentAnnotationIndex(int index);
 
     /**
      * Increments the {@link CommandInvocationContext#currentAnnotationIndex()} by one.
@@ -87,8 +86,8 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
     void incrementAnnotationIndex();
 
     /**
-     * Retrieves an {@link Result} containing the first annotation with the specified type, or {@link
-     * Result#empty()} if there are no matching annotations.
+     * Retrieves an {@link Result} containing the first annotation with the specified type, or {@link Result#empty()} if
+     * there are no matching annotations.
      *
      * @param annotationType
      *     The {@link Class} of the annotation
@@ -104,4 +103,6 @@ public interface CommandInvocationContext extends StringTraverser, InvocationCon
             .findFirst()
             .map(annotation -> (T) annotation));
     }
+
+    Set<Annotation> annotations();
 }

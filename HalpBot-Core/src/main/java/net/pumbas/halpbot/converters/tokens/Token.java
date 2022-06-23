@@ -29,8 +29,8 @@ import net.pumbas.halpbot.commands.annotations.Command;
 /**
  * A representation of an individual element in an {@link Command}.
  */
-public interface Token
-{
+public interface Token {
+
     /**
      * @return If this {@link Token} is optional or not
      */

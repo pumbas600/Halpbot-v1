@@ -28,7 +28,6 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
-import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import net.pumbas.halpbot.commands.actioninvokable.HalpbotCommandInvokable;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
@@ -110,7 +109,7 @@ public class HalpbotCommandAdapter implements CommandAdapter {
     @Inject
     private CommandContextFactory commandContextFactory;
     @Inject
-    private InvocationContextFactory invocationContextFactory;
+    private CommandInvocationContextFactory invocationContextFactory;
     @Inject
     private CustomConstructorContextFactory customConstructorContextFactory;
     @Inject

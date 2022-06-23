@@ -35,6 +35,6 @@ import java.util.Collection;
 @ParameterAnnotation(allowedType = Collection.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Unmodifiable
-{
+public @interface Unmodifiable {
+
 }

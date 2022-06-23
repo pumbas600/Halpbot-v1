@@ -70,11 +70,6 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
     }
 
     @Override
-    public boolean isRegisteredParameterAnnotation(final TypeContext<? extends Annotation> annotationType) {
-        return this.parameterAnnotationContextMap.containsKey(annotationType);
-    }
-
-    @Override
     public void add(final TypeContext<? extends Annotation> annotationType,
                     final ParameterAnnotationContext annotationContext)
     {
@@ -83,6 +78,11 @@ public class HalpbotParameterAnnotationService implements ParameterAnnotationSer
 
     @Override
     public boolean contains(final TypeContext<? extends Annotation> annotationType) {
+        return this.parameterAnnotationContextMap.containsKey(annotationType);
+    }
+
+    @Override
+    public boolean isRegisteredParameterAnnotation(final TypeContext<? extends Annotation> annotationType) {
         return this.parameterAnnotationContextMap.containsKey(annotationType);
     }
 }

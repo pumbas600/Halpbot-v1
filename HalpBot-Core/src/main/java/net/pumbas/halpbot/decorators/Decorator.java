@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Decorator
-{
+public @interface Decorator {
+
     /**
      * The factory that constructors the decorator
      */

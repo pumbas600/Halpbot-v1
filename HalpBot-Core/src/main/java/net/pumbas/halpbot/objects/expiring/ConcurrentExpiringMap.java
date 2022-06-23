@@ -33,8 +33,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> implements ExpiringMap<K, V>
-{
+public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> implements ExpiringMap<K, V> {
+
     private final Map<K, Long> expirationKeys = new ConcurrentHashMap<>();
     private final long expirationDurationMs;
     private final BiConsumer<K, V> removalCallback;
@@ -44,8 +44,8 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
      * this has been implemented, the key won't be removed before the expiration duration, however, it may take up to
      * 1.5 * the expiration duration for it to be actually removed due to extreme looping.
      * <p>
-     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an {@link
-     * IllegalArgumentException} will be thrown.
+     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an
+     * {@link IllegalArgumentException} will be thrown.
      *
      * @param expirationDuration
      *     The time that must pass before an entry is removed
@@ -65,8 +65,8 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
      * another thread. Due to how this has been implemented, the key won't be removed before the expiration duration,
      * however, it may take up to 1.5 * the expiration duration for it to be actually removed due to extreme looping.
      * <p>
-     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an {@link
-     * IllegalArgumentException} will be thrown.
+     * Note that if you try and specifiy an expiration duration unit that is smaller than milliseconds an
+     * {@link IllegalArgumentException} will be thrown.
      *
      * @param expirationDuration
      *     The time that must pass before an entry is removed
@@ -82,7 +82,8 @@ public class ConcurrentExpiringMap<K, V> extends ConcurrentHashMap<K, V> impleme
     public ConcurrentExpiringMap(
         long expirationDuration,
         TimeUnit expirationDurationUnit,
-        BiConsumer<K, V> removalCallback) {
+        BiConsumer<K, V> removalCallback)
+    {
         if (0 >= expirationDuration)
             throw new IllegalArgumentException("The expiration duration must be greater than 0");
 

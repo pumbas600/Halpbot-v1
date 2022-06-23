@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
 @Decorator(value = LogDecoratorFactory.class, order = Order.LATE)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Log
-{
+public @interface Log {
+
     LogLevel value() default LogLevel.INFO;
 }

@@ -32,29 +32,20 @@ import org.dockbox.hartshorn.util.Result;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface StringTraverser
-{
-    String content();
+public interface StringTraverser {
 
-    int currentIndex();
-
-    void currentIndex(int index);
-
-    /**
-     * Increments the current index by one.
-     */
-    void incrementIndex();
-
-    /**
-     * @return If there is any more content left
-     */
-    default boolean hasNext() {
-        return this.currentIndex() < this.content().length();
+    static Result<String> next(String content, Pattern pattern) {
+        Matcher matcher = pattern.matcher(content);
+        if (matcher.lookingAt()) { // Will return true if the start of the string matches the Regex
+            String match = content.substring(0, matcher.end());
+            return Result.of(match);
+        }
+        return Result.empty();
     }
 
     /**
-     * @return An {@link Result} containing the next {@link String word} from the current index or {@link
-     *     Result#empty()} if there are no more words
+     * @return An {@link Result} containing the next {@link String word} from the current index or
+     *     {@link Result#empty()} if there are no more words
      * @see CommandInvocationContext#next()
      */
     default Result<String> nextSafe() {
@@ -82,8 +73,8 @@ public interface StringTraverser
 
     /**
      * Gets the next string up until (exclusive) the specified string. If the ending string is not contained in the
-     * remainder of the content, an {@link Result#empty()} is returned. This will automatically move the current
-     * index past the until string and any whitespace.
+     * remainder of the content, an {@link Result#empty()} is returned. This will automatically move the current index
+     * past the until string and any whitespace.
      *
      * @param until
      *     The {@link String} to stop at
@@ -127,6 +118,39 @@ public interface StringTraverser
     }
 
     /**
+     * @return If there is any more content left
+     */
+    default boolean hasNext() {
+        return this.currentIndex() < this.content().length();
+    }
+
+    String content();
+
+    int currentIndex();
+
+    void currentIndex(int index);
+
+    /**
+     * While the current index is on a whitespace, it will continue incrementing the current index.
+     */
+    default void skipPastWhitespaces() {
+        while (this.currentlyOnWhitespace())
+            this.incrementIndex();
+    }
+
+    /**
+     * @return If the current character is whitespace
+     */
+    default boolean currentlyOnWhitespace() {
+        return this.hasNext() && Character.isWhitespace(this.content().charAt(this.currentIndex()));
+    }
+
+    /**
+     * Increments the current index by one.
+     */
+    void incrementIndex();
+
+    /**
      * Gets the next string that matches the specified {@link Pattern}. If there is no matching string or the matching
      * string is not next then an {@link Result} containing an {@link IllegalFormatException} is returned.
      *
@@ -156,21 +180,12 @@ public interface StringTraverser
             new IllegalFormatException("The start of " + this.next() + " doesn't match the expected format"));
     }
 
-    static Result<String> next(String content, Pattern pattern) {
-        Matcher matcher = pattern.matcher(content);
-        if (matcher.lookingAt()) { // Will return true if the start of the string matches the Regex
-            String match = content.substring(0, matcher.end());
-            return Result.of(match);
-        }
-        return Result.empty();
-    }
-
     /**
      * Returns the next string which is contained between the start and stop specified while respecting any nested start
      * and stops too. This will automatically step past the stop characters and any whitespace.
      * <p>
-     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code nextSurrounded("[", "]")} will return {@code #Block[1 2 3]
-     * #Block[2 3 4]}.
+     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code nextSurrounded("[", "]")} will return
+     * {@code #Block[1 2 3] #Block[2 3 4]}.
      *
      * @param start
      *     The {@link String} defining the starting characters
@@ -188,8 +203,8 @@ public interface StringTraverser
      * Returns the next string which is contained between the start and stop specified while respecting any nested start
      * and stops too.
      * <p>
-     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code #nextSurrounded("[", "]", false)} will return {@code
-     * #Block[1 2 3] #Block[2 3 4]}.
+     * E.g: for {@code [#Block[1 2 3] #Block[2 3 4]]}, {@code #nextSurrounded("[", "]", false)} will return
+     * {@code #Block[1 2 3] #Block[2 3 4]}.
      *
      * @param start
      *     The {@link String} defining the starting characters
@@ -265,21 +280,6 @@ public interface StringTraverser
     }
 
     /**
-     * @return If the current character is whitespace
-     */
-    default boolean currentlyOnWhitespace() {
-        return this.hasNext() && Character.isWhitespace(this.content().charAt(this.currentIndex()));
-    }
-
-    /**
-     * While the current index is on a whitespace, it will continue incrementing the current index.
-     */
-    default void skipPastWhitespaces() {
-        while (this.currentlyOnWhitespace())
-            this.incrementIndex();
-    }
-
-    /**
      * Returns if the character at the current index is the one specified. If it is, then it steps past this character
      * automatically, along with any whitespace.
      *
@@ -319,8 +319,8 @@ public interface StringTraverser
     }
 
     /**
-     * Assets that the next character is the one specified. If it's not, then it throws an {@link
-     * IllegalFormatException}.
+     * Assets that the next character is the one specified. If it's not, then it throws an
+     * {@link IllegalFormatException}.
      *
      * @param character
      *     The character to assert is next

@@ -26,7 +26,6 @@ package net.pumbas.halpbot.actions.invokable;
 
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
-public interface CommandInvokable extends ActionContextDecorator<CommandInvocationContext>
-{
+public interface CommandInvokable extends ActionContextDecorator<CommandInvocationContext> {
 
 }

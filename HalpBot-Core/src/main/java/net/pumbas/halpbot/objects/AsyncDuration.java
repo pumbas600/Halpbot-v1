@@ -27,8 +27,8 @@ package net.pumbas.halpbot.objects;
 
 import java.util.concurrent.TimeUnit;
 
-public record AsyncDuration(long value, TimeUnit unit)
-{
+public record AsyncDuration(long value, TimeUnit unit) {
+
     public boolean isZero() {
         return this.value == 0;
     }

@@ -27,8 +27,8 @@ package net.pumbas.halpbot.converters.types;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
-public class ArrayTypeContext extends TypeContext<Object>
-{
+public class ArrayTypeContext extends TypeContext<Object> {
+
     public static final ArrayTypeContext TYPE = new ArrayTypeContext();
 
     protected ArrayTypeContext() {
@@ -44,13 +44,8 @@ public class ArrayTypeContext extends TypeContext<Object>
     }
 
     @Override
-    public boolean childOf(TypeContext<?> type) {
-        return type.isArray();
-    }
-
-    @Override
-    public boolean childOf(@Nullable Class<?> to) {
-        return to != null && to.isArray();
+    public boolean isArray() {
+        return true;
     }
 
     @Override
@@ -64,8 +59,13 @@ public class ArrayTypeContext extends TypeContext<Object>
     }
 
     @Override
-    public boolean isArray() {
-        return true;
+    public boolean childOf(TypeContext<?> type) {
+        return type.isArray();
+    }
+
+    @Override
+    public boolean childOf(@Nullable Class<?> to) {
+        return to != null && to.isArray();
     }
 
     @Override

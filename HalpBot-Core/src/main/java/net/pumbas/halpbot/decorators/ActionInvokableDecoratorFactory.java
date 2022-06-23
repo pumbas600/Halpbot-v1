@@ -29,6 +29,6 @@ import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import java.lang.annotation.Annotation;
 
 public interface ActionInvokableDecoratorFactory<R extends ActionInvokable<?>, A extends Annotation>
-    extends DecoratorFactory<R, ActionInvokable<?>, A>
-{
+    extends DecoratorFactory<R, ActionInvokable<?>, A> {
+
 }

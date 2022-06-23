@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
 @ParameterAnnotation
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Description
-{
+public @interface Description {
+
     String value();
 }

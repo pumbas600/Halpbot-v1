@@ -63,12 +63,6 @@ public interface PermissionService extends ContextCarrier, CoreCarrier {
     boolean useRoleBinding();
 
     /**
-     * Any initialisation that needs to be done after all the permission suppliers have been registered should be done
-     * here.
-     */
-    default void initialise() {}
-
-    /**
      * Registers all the permission suppliers located within type. It automatically checks if the permission supplier
      * methods has the parameters {@code Guild} and {@code Member} respectively and return a boolean. If it doesn't then
      * it logs a warning and ignores the method.

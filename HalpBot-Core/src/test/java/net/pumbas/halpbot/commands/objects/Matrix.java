@@ -37,8 +37,8 @@ import org.dockbox.hartshorn.component.Service;
 import java.util.Arrays;
 
 @Service(singleton = false)
-public class Matrix
-{
+public class Matrix {
+
     public static final Matrix UnitSquare = new Matrix(2, 4, 0, 0, 1, 1, 0, 1, 0, 1);
     public static final Matrix XReflection = new Matrix(2, 2, 1, 0, 0, -1);
     public static final Matrix YReflection = new Matrix(2, 2, -1, 0, 0, 1);
@@ -80,89 +80,8 @@ public class Matrix
         this.values = values;
     }
 
-    public int getRows() {
-        return this.rows;
-    }
-
     public int getColumns() {
         return this.columns;
-    }
-
-    public double[][] getValues() {
-        return this.values;
-    }
-
-    public Vector getRow(int row) {
-        return new Vector(this.values[row]);
-    }
-
-    public Vector getColumn(int column) {
-        double[] values = new double[this.rows];
-        for (int row = 0; row < this.getRows(); row++) {
-            values[row] = this.values[row][column];
-        }
-
-        return new Vector(values);
-    }
-
-    public Matrix transpose() {
-        double[][] transposedValues = new double[this.columns][this.rows];
-        for (int row = 0; row < this.getRows(); row++) {
-            for (int column = 0; column < this.getColumns(); column++) {
-                transposedValues[column][row] = this.values[row][column];
-            }
-        }
-
-        return new Matrix(transposedValues);
-    }
-
-    public boolean isSquare(int size) {
-        return size == this.getColumns() && size == this.getRows();
-    }
-
-    public boolean isSquare() {
-        return this.getColumns() == this.getRows();
-    }
-
-    public double getDeterminant() {
-        if (this.isSquare(2))
-            // ad - bc
-            return this.values[0][0] * this.values[1][1] - this.values[0][1] * this.values[1][0];
-
-        throw new UnimplementedFeatureException("Still implementing finding the determinant of matrixes larger than 2x2");
-    }
-
-    public Matrix multiply(Matrix other) {
-        if (this.getColumns() != other.getRows())
-            throw new IllegalArgumentException(
-                String.format("The matrix %s doesn't have the same number of columns as the matrix %s has rows",
-                    this, other));
-
-        double[][] newValues = new double[this.rows][other.columns];
-        for (int row = 0; row < this.getRows(); row++) {
-            for (int column = 0; column < other.getColumns(); column++) {
-                newValues[row][column] = this.getRow(row).dot(other.getColumn(column));
-            }
-        }
-
-        return new Matrix(newValues);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("```csharp\n")
-            .append(this.rows)
-            .append(" x ")
-            .append(this.columns)
-            .append("\n");
-
-        for (double[] row : this.values) {
-            stringBuilder.append(Arrays.toString(row)).append("\n");
-        }
-        stringBuilder.append("```");
-
-        return stringBuilder.toString();
     }
 
     @Reflective
@@ -221,5 +140,86 @@ public class Matrix
     @Command(alias = {"unitSquare", "us"})
     public static Matrix unitSquare() {
         return UnitSquare;
+    }
+
+    public double[][] getValues() {
+        return this.values;
+    }
+
+    public Matrix transpose() {
+        double[][] transposedValues = new double[this.columns][this.rows];
+        for (int row = 0; row < this.getRows(); row++) {
+            for (int column = 0; column < this.getColumns(); column++) {
+                transposedValues[column][row] = this.values[row][column];
+            }
+        }
+
+        return new Matrix(transposedValues);
+    }
+
+    public int getRows() {
+        return this.rows;
+    }
+
+    public boolean isSquare() {
+        return this.getColumns() == this.getRows();
+    }
+
+    public double getDeterminant() {
+        if (this.isSquare(2))
+            // ad - bc
+            return this.values[0][0] * this.values[1][1] - this.values[0][1] * this.values[1][0];
+
+        throw new UnimplementedFeatureException("Still implementing finding the determinant of matrixes larger than 2x2");
+    }
+
+    public boolean isSquare(int size) {
+        return size == this.getColumns() && size == this.getRows();
+    }
+
+    public Matrix multiply(Matrix other) {
+        if (this.getColumns() != other.getRows())
+            throw new IllegalArgumentException(
+                String.format("The matrix %s doesn't have the same number of columns as the matrix %s has rows",
+                    this, other));
+
+        double[][] newValues = new double[this.rows][other.columns];
+        for (int row = 0; row < this.getRows(); row++) {
+            for (int column = 0; column < other.getColumns(); column++) {
+                newValues[row][column] = this.getRow(row).dot(other.getColumn(column));
+            }
+        }
+
+        return new Matrix(newValues);
+    }
+
+    public Vector getRow(int row) {
+        return new Vector(this.values[row]);
+    }
+
+    public Vector getColumn(int column) {
+        double[] values = new double[this.rows];
+        for (int row = 0; row < this.getRows(); row++) {
+            values[row] = this.values[row][column];
+        }
+
+        return new Vector(values);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("```csharp\n")
+            .append(this.rows)
+            .append(" x ")
+            .append(this.columns)
+            .append("\n");
+
+        for (double[] row : this.values) {
+            stringBuilder.append(Arrays.toString(row)).append("\n");
+        }
+        stringBuilder.append("```");
+
+        return stringBuilder.toString();
     }
 }

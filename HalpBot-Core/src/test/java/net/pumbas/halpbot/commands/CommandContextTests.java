@@ -25,7 +25,6 @@
 package net.pumbas.halpbot.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import net.pumbas.halpbot.commands.annotations.Command;
@@ -62,7 +61,7 @@ public class CommandContextTests {
     @Inject
     CommandAdapter commandAdapter;
     @Inject
-    InvocationContextFactory invocationFactory;
+    CommandInvocationContextFactory invocationFactory;
 
     @Test
     public void commandContextParsedValuesPresentTest() {

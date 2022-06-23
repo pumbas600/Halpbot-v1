@@ -27,15 +27,15 @@ package net.pumbas.halpbot.commands;
 import org.dockbox.hartshorn.util.reflect.MethodContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public final class TestUtil
-{
+public final class TestUtil {
+
     private TestUtil() {}
 
     public static MethodContext<?, ?> method(Class<?> type, String name) {
         return TypeContext.of(type).methods()
-                .stream()
-                .filter(method -> method.name().equals(name))
-                .findFirst()
-                .get();
+            .stream()
+            .filter(method -> method.name().equals(name))
+            .findFirst()
+            .get();
     }
 }

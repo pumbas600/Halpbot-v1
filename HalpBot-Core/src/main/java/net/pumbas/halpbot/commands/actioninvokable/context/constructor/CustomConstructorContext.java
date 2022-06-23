@@ -26,7 +26,7 @@ package net.pumbas.halpbot.commands.actioninvokable.context.constructor;
 
 import net.pumbas.halpbot.commands.actioninvokable.context.TokenActionContext;
 
-public interface CustomConstructorContext extends TokenActionContext
-{
+public interface CustomConstructorContext extends TokenActionContext {
+
     String usage();
 }

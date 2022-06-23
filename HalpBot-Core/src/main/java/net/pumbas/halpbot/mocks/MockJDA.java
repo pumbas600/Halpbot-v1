@@ -35,8 +35,8 @@ import net.dv8tion.jda.internal.utils.config.ThreadingConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MockJDA extends JDAImpl
-{
+public class MockJDA extends JDAImpl {
+
     public static final MockJDA INSTANCE = new MockJDA();
     @Nullable
     private SelfUser selfUser;

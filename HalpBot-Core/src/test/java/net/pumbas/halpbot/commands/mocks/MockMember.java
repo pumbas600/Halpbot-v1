@@ -33,8 +33,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-public class MockMember extends MemberImpl
-{
+public class MockMember extends MemberImpl {
+
     private final Set<Permission> permissions;
 
     public MockMember(GuildImpl guild, User user, Permission... permissions) {

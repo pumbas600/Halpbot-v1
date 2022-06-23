@@ -30,8 +30,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import org.jetbrains.annotations.NotNull;
 
-public class MockMessageEvent extends MessageReceivedEvent
-{
+public class MockMessageEvent extends MessageReceivedEvent {
+
     public static final MockMessageEvent INSTANCE = new MockMessageEvent();
 
     public MockMessageEvent() {

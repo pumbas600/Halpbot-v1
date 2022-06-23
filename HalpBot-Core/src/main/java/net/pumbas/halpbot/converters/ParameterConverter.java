@@ -27,15 +27,14 @@ package net.pumbas.halpbot.converters;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
 //TODO: Make converters support use of $Default
-public interface ParameterConverter<T> extends Converter<CommandInvocationContext, T>, ReflectionConverter
-{
+public interface ParameterConverter<T> extends Converter<CommandInvocationContext, T>, ReflectionConverter {
 
     @Override
     @SuppressWarnings("unchecked")

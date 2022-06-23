@@ -26,8 +26,8 @@ package net.pumbas.halpbot.converters.tokens;
 
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
-public interface PlaceholderToken extends Token
-{
+public interface PlaceholderToken extends Token {
+
     String placeholder();
 
     boolean matches(CommandInvocationContext invocationContext);

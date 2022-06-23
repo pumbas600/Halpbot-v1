@@ -29,8 +29,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.function.Function;
 
-public enum Content
-{
+public enum Content {
     RAW(Message::getContentRaw),
     DISPLAY(Message::getContentDisplay),
     STRIPPED(Message::getContentStripped);

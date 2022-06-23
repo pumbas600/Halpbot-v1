@@ -27,26 +27,26 @@ package net.pumbas.halpbot.converters;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
-public interface Converter<C extends InvocationContext, T>
-{
+public interface Converter<C extends InvocationContext, T> {
+
     TypeContext<T> type();
 
     TypeContext<? extends Annotation> annotationType();
-
-    /**
-     * @return The {@link Function mapper} for this {@link ParameterConverter}
-     */
-    Function<C, Result<T>> mapper();
 
     OptionType optionType();
 
     default Result<T> apply(C invocationContext) {
         return this.mapper().apply(invocationContext);
     }
+
+    /**
+     * @return The {@link Function mapper} for this {@link ParameterConverter}
+     */
+    Function<C, Result<T>> mapper();
 }

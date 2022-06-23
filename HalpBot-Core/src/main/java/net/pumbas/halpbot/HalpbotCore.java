@@ -30,7 +30,6 @@ import net.pumbas.halpbot.configurations.BotConfiguration;
 import net.pumbas.halpbot.configurations.DisplayConfiguration;
 import net.pumbas.halpbot.configurations.SimpleDisplayConfiguration;
 import net.pumbas.halpbot.permissions.HalpbotPermissions;
-import net.pumbas.halpbot.permissions.PermissionService;
 import net.pumbas.halpbot.processors.eventlisteners.EventListenerContext;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
@@ -56,8 +55,6 @@ public class HalpbotCore implements ContextCarrier, Enableable {
     @Getter
     @Inject
     private ApplicationContext applicationContext;
-    @Inject
-    private PermissionService permissionService;
     @Getter
     private DisplayConfiguration displayConfiguration = new SimpleDisplayConfiguration();
 
@@ -79,7 +76,6 @@ public class HalpbotCore implements ContextCarrier, Enableable {
 
         this.setOwner(config.ownerId());
         this.registerEventListeners();
-        this.permissionService.initialise();
     }
 
     private void determineDisplayConfiguration(final BotConfiguration config) {

@@ -27,8 +27,8 @@ package net.pumbas.halpbot.converters;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
@@ -38,23 +38,22 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class SourceConverter<T> implements Converter<InvocationContext, T>
-{
+public class SourceConverter<T> implements Converter<InvocationContext, T> {
+
     private final TypeContext<T> type;
     private final TypeContext<? extends Annotation> annotationType;
     private final Function<InvocationContext, Result<T>> mapper;
     private final OptionType optionType;
 
-    public static <T> SourceConverterBuilder<T> builder(TypeContext<T> type) {
-        return new SourceConverterBuilder<>(type);
-    }
-
     public static <T> SourceConverterBuilder<T> builder(Class<T> type) {
         return builder(TypeContext.of(type));
     }
 
-    public static class SourceConverterBuilder<T> extends ConverterBuilder<SourceConverter<T>, InvocationContext, T>
-    {
+    public static <T> SourceConverterBuilder<T> builder(TypeContext<T> type) {
+        return new SourceConverterBuilder<>(type);
+    }
+
+    public static class SourceConverterBuilder<T> extends ConverterBuilder<SourceConverter<T>, InvocationContext, T> {
 
         protected SourceConverterBuilder(TypeContext<T> type) {
             super(type);

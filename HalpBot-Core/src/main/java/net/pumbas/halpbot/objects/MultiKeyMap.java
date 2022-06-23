@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public class MultiKeyMap<K, V>
-{
+public class MultiKeyMap<K, V> {
+
     private final Map<K, Integer> indexMappings;
     private final List<V> values;
 

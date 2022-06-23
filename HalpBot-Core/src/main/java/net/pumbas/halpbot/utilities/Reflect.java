@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.utilities;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -41,14 +41,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public final class Reflect
-{
-
-    private Reflect() {}
+public final class Reflect {
 
     private static final Pattern IntegerPattern = Pattern.compile("[-|+]?\\d+");
     private static final Pattern DecimalNumberPattern = Pattern.compile("[-|+]?\\d+\\.?\\d*");
-
     /**
      * An {@link Map} of the built-in {@link Class classes} and their regex syntax.
      */
@@ -63,7 +59,6 @@ public final class Reflect
         Character.class, Pattern.compile("."),
         Boolean.class, Pattern.compile("true|yes|false|no|t|f|y|n|1|0", Pattern.CASE_INSENSITIVE)
     );
-
     /**
      * An {@link Map} of the wrapper {@link Class classes} and their respective primitive {@link Class}.
      */
@@ -77,7 +72,6 @@ public final class Reflect
         TypeContext.of(char.class), TypeContext.of(Character.class),
         TypeContext.of(boolean.class), TypeContext.of(Boolean.class)
     );
-
     private static final Map<Class<?>, Object> DefaultValues = Map.of(
         Byte.class, 0,
         Short.class, 0,
@@ -88,6 +82,8 @@ public final class Reflect
         Character.class, '\u0000',
         Boolean.class, false
     );
+
+    private Reflect() {}
 
     /**
      * Checks if the string matches the required syntax of the specified type.
@@ -126,18 +122,6 @@ public final class Reflect
     }
 
     /**
-     * Returns the wrapper for a primative, or the passed in type if it has no primative type.
-     *
-     * @param type
-     *     The {@link TypeContext} to get the wrapper type of
-     *
-     * @return the wrapper for a primative, or the passed in type if it has no primative type
-     */
-    public static TypeContext<?> wrapPrimative(TypeContext<?> type) {
-        return PrimativeWrappers.getOrDefault(type, type);
-    }
-
-    /**
      * Retrieves the default value for the specified {@link Class type}.
      *
      * @param type
@@ -148,6 +132,18 @@ public final class Reflect
     @Nullable
     public static Object getDefaultValue(Class<?> type) { //TODO: Make this accept TypeContext
         return DefaultValues.getOrDefault(wrapPrimative(TypeContext.of(type)).type(), null);
+    }
+
+    /**
+     * Returns the wrapper for a primative, or the passed in type if it has no primative type.
+     *
+     * @param type
+     *     The {@link TypeContext} to get the wrapper type of
+     *
+     * @return the wrapper for a primative, or the passed in type if it has no primative type
+     */
+    public static TypeContext<?> wrapPrimative(TypeContext<?> type) {
+        return PrimativeWrappers.getOrDefault(type, type);
     }
 
     /**
@@ -170,20 +166,6 @@ public final class Reflect
         return Result.empty();
     }
 
-
-    /**
-     * Returns the {@link Class type} of an array. If its not an array, it'll just return the passed in {@link Class}.
-     * For example the array type of int[] is int.
-     *
-     * @param clazz
-     *     The {@link Class} to get the array type of
-     *
-     * @return The {@link Class type} of the array, or the passed in {@link Class} if its not an array
-     */
-    public static Class<?> getArrayType(Class<?> clazz) {
-        return clazz.isArray() ? clazz.getComponentType() : clazz;
-    }
-
     /**
      * Retrieves the generic type of a {@link Type}. If the type is an array, it will return the type of the elements in
      * the array.
@@ -196,13 +178,27 @@ public final class Reflect
     public static Type getGenericType(Type type) {
         if (type instanceof Class<?>) {
             return Reflect.getArrayType((Class<?>) type);
-        } else if (type instanceof ParameterizedType) {
+        }
+        else if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type[] genericTypes = parameterizedType.getActualTypeArguments();
             if (0 < genericTypes.length)
                 return genericTypes[0];
         }
         return Void.class;
+    }
+
+    /**
+     * Returns the {@link Class type} of an array. If its not an array, it'll just return the passed in {@link Class}.
+     * For example the array type of int[] is int.
+     *
+     * @param clazz
+     *     The {@link Class} to get the array type of
+     *
+     * @return The {@link Class type} of the array, or the passed in {@link Class} if its not an array
+     */
+    public static Class<?> getArrayType(Class<?> clazz) {
+        return clazz.isArray() ? clazz.getComponentType() : clazz;
     }
 
     /**
@@ -327,7 +323,8 @@ public final class Reflect
      * @return if the {@link String value} is a valid value of the {@link Enum}
      */
     public static Result<Enum<?>> parseEnumValue(TypeContext<Enum<?>> enumType,
-                                                      String value) {
+                                                 String value)
+    {
         return Result.of(
                 enumType.enumConstants().stream()
                     .filter(e -> e.name().equalsIgnoreCase(value))

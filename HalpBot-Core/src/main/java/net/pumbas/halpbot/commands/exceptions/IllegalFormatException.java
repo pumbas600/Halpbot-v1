@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.commands.exceptions;
 
-public class IllegalFormatException extends IllegalArgumentException
-{
+public class IllegalFormatException extends IllegalArgumentException {
+
     public IllegalFormatException() {
         super();
     }

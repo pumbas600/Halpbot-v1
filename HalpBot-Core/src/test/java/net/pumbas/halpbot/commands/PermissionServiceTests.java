@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.pumbas.halpbot.HalpbotCore;
-import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import net.pumbas.halpbot.commands.annotations.Command;
 import net.pumbas.halpbot.commands.annotations.UseCommands;
@@ -58,24 +57,25 @@ import jakarta.inject.Inject;
 @UseCommands
 @HartshornTest
 @UsePermissions
-public class PermissionServiceTests
-{
-    private final long randomMemberId = 2;
-    public static final String RANDOM_MEMBER = "halpbot.test.randommember";
+public class PermissionServiceTests {
 
+    public static final String RANDOM_MEMBER = "halpbot.test.randommember";
+    private final long randomMemberId = 2;
+    private final GuildImpl guild = new MockGuild(1);
     @Inject
     private PermissionService permissionService;
-    @Inject private HalpbotCore halpbotCore;
-    @Inject private CommandAdapter commandAdapter;
-    @Inject private InvocationContextFactory factory;
-
-    private final GuildImpl guild = new MockGuild(1);
+    @Inject
+    private HalpbotCore halpbotCore;
+    @Inject
+    private CommandAdapter commandAdapter;
+    @Inject
+    private CommandInvocationContextFactory factory;
     private Member guildOwner;
     private Member botOwner;
     private Member randomMember;
 
     @PermissionSupplier(RANDOM_MEMBER)
-    public boolean isRandomMember(Guild guild, Member member) {
+    public boolean isRandomMember(final Guild guild, final Member member) {
         return member.getIdLong() == this.randomMemberId;
     }
 
@@ -96,35 +96,31 @@ public class PermissionServiceTests
     @Test
     public void guildOwnerPermissionTest() {
         Assertions.assertTrue(this.permissionService.hasPermission(
-                this.guild, this.guildOwner, HalpbotPermissions.GUILD_OWNER));
+            this.guild, this.guildOwner, HalpbotPermissions.GUILD_OWNER));
         Assertions.assertTrue(this.permissionService.hasPermission(
-                this.guild, this.botOwner, HalpbotPermissions.GUILD_OWNER));
+            this.guild, this.botOwner, HalpbotPermissions.GUILD_OWNER));
         Assertions.assertFalse(this.permissionService.hasPermission(
-                this.guild, this.randomMember, HalpbotPermissions.GUILD_OWNER));
+            this.guild, this.randomMember, HalpbotPermissions.GUILD_OWNER));
     }
 
     @Test
     public void botOwnerPermissionTest() {
         Assertions.assertFalse(this.permissionService.hasPermission(
-                this.guild, this.guildOwner, HalpbotPermissions.BOT_OWNER));
+            this.guild, this.guildOwner, HalpbotPermissions.BOT_OWNER));
         Assertions.assertTrue(this.permissionService.hasPermission(
-                this.guild, this.botOwner, HalpbotPermissions.BOT_OWNER));
+            this.guild, this.botOwner, HalpbotPermissions.BOT_OWNER));
         Assertions.assertFalse(this.permissionService.hasPermission(
-                this.guild, this.randomMember, HalpbotPermissions.BOT_OWNER));
+            this.guild, this.randomMember, HalpbotPermissions.BOT_OWNER));
     }
 
     @Test
     public void customPermissionTest() {
         Assertions.assertFalse(this.permissionService.hasPermission(
-                this.guild, this.guildOwner, RANDOM_MEMBER));
+            this.guild, this.guildOwner, RANDOM_MEMBER));
         Assertions.assertTrue(this.permissionService.hasPermission(
-                this.guild, this.botOwner, RANDOM_MEMBER));
+            this.guild, this.botOwner, RANDOM_MEMBER));
         Assertions.assertTrue(this.permissionService.hasPermission(
-                this.guild, this.randomMember, RANDOM_MEMBER));
-    }
-
-    private HalpbotEvent createEvent(Member member) {
-        return new MessageEvent(new MockMessageEvent(this.guild, member));
+            this.guild, this.randomMember, RANDOM_MEMBER));
     }
 
     @Test
@@ -135,16 +131,20 @@ public class PermissionServiceTests
 
         Assertions.assertTrue(commandContext.invoke(
                 this.factory.command("1 3", this.createEvent(this.guildOwner)))
-                .present());
+            .present());
         Assertions.assertTrue(commandContext.invoke(
                 this.factory.command("1 3", this.createEvent(this.botOwner)))
-                .present());
+            .present());
         Assertions.assertTrue(commandContext.invoke(
                 this.factory.command("1 3", this.createEvent(this.randomMember)))
-                .present());
+            .present());
         Assertions.assertFalse(commandContext.invoke(
                 this.factory.command("1 3", this.createEvent(anotherMember)))
-                .present());
+            .present());
+    }
+
+    private HalpbotEvent createEvent(final Member member) {
+        return new MessageEvent(new MockMessageEvent(this.guild, member));
     }
 
     @Test
@@ -153,14 +153,14 @@ public class PermissionServiceTests
         Assertions.assertNotNull(commandContext);
 
         Assertions.assertTrue(commandContext.invoke(
-                        this.factory.command("1 3", this.createEvent(this.guildOwner)))
-                .present());
+                this.factory.command("1 3", this.createEvent(this.guildOwner)))
+            .present());
         Assertions.assertTrue(commandContext.invoke(
-                        this.factory.command("1 3", this.createEvent(this.botOwner)))
-                .present());
+                this.factory.command("1 3", this.createEvent(this.botOwner)))
+            .present());
         Assertions.assertFalse(commandContext.invoke(
-                        this.factory.command("1 3", this.createEvent(this.randomMember)))
-                .present());
+                this.factory.command("1 3", this.createEvent(this.randomMember)))
+            .present());
     }
 
     @Test
@@ -169,31 +169,31 @@ public class PermissionServiceTests
         Assertions.assertNotNull(commandContext);
 
         Assertions.assertFalse(commandContext.invoke(
-                        this.factory.command("1 3", this.createEvent(this.guildOwner)))
-                .present());
+                this.factory.command("1 3", this.createEvent(this.guildOwner)))
+            .present());
         Assertions.assertTrue(commandContext.invoke(
-                        this.factory.command("1 3", this.createEvent(this.botOwner)))
-                .present());
+                this.factory.command("1 3", this.createEvent(this.botOwner)))
+            .present());
         Assertions.assertFalse(commandContext.invoke(
-                        this.factory.command("1 3", this.createEvent(this.randomMember)))
-                .present());
+                this.factory.command("1 3", this.createEvent(this.randomMember)))
+            .present());
     }
 
     @Permissions(permissions = {RANDOM_MEMBER, HalpbotPermissions.GUILD_OWNER}, merger = Require.ANY)
     @Command(alias = "orPermissionTest", description = "Tests that the @Permissions annotation works")
-    public int orPermissionTest(int a, int b) {
+    public int orPermissionTest(final int a, final int b) {
         return a + b;
     }
 
     @Permissions(permissions = HalpbotPermissions.GUILD_OWNER)
     @Command(alias = "singlePermissionTest", description = "Tests that the @Permissions annotation works")
-    public int singlePermissionTest(int a, int b) {
+    public int singlePermissionTest(final int a, final int b) {
         return a + b;
     }
 
     @Permissions(permissions = {RANDOM_MEMBER, HalpbotPermissions.GUILD_OWNER})
     @Command(alias = "andPermissionTest", description = "Tests that the @Permissions annotation works")
-    public int andPermissionTest(int a, int b) {
+    public int andPermissionTest(final int a, final int b) {
         return a + b;
     }
 }

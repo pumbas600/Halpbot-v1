@@ -29,8 +29,8 @@ import net.pumbas.halpbot.events.HalpbotEvent;
 import org.dockbox.hartshorn.context.ContextCarrier;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public interface InvocationContext extends ContextCarrier
-{
+public interface InvocationContext extends ContextCarrier {
+
     HalpbotEvent halpbotEvent();
 
     TypeContext<?> currentType();

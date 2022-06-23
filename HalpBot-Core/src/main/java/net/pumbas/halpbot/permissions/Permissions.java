@@ -38,8 +38,8 @@ import java.lang.annotation.Target;
 @Decorator(value = PermissionDecoratorFactory.class, order = Order.FIRST, merge = DecoratorMerge.KEEP_BOTH)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Permissions
-{
+public @interface Permissions {
+
     String[] permissions() default {};
 
     Permission[] user() default {};

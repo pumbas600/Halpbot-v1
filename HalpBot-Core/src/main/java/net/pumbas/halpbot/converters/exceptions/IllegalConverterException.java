@@ -24,8 +24,8 @@
 
 package net.pumbas.halpbot.converters.exceptions;
 
-public class IllegalConverterException extends RuntimeException
-{
+public class IllegalConverterException extends RuntimeException {
+
     public IllegalConverterException(String message) {
         super(message);
     }

@@ -26,7 +26,7 @@ package net.pumbas.halpbot.buttons;
 
 import net.pumbas.halpbot.actions.invokable.SourceInvocationContext;
 
-public interface ButtonInvocationContext extends SourceInvocationContext
-{
+public interface ButtonInvocationContext extends SourceInvocationContext {
+
     Object[] passedParameters();
 }

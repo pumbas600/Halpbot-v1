@@ -28,15 +28,15 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.actions.invokable.InvocationContext;
 import net.pumbas.halpbot.converters.exceptions.IllegalConverterException;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
-public abstract class ConverterBuilder<R extends Converter<C, T>, C extends InvocationContext, T>
-{
+public abstract class ConverterBuilder<R extends Converter<C, T>, C extends InvocationContext, T> {
+
     protected final TypeContext<T> type;
     protected @Nullable Function<C, Result<T>> converter;
     protected @Nullable Class<? extends Annotation> annotation;

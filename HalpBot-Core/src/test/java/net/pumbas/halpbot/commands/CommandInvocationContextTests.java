@@ -24,29 +24,27 @@
 
 package net.pumbas.halpbot.commands;
 
-import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
 import org.dockbox.hartshorn.application.Activator;
-import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.data.annotations.UseConfigurations;
 import org.dockbox.hartshorn.testsuite.HartshornTest;
 import org.dockbox.hartshorn.testsuite.InjectTest;
+import org.dockbox.hartshorn.util.Result;
 import org.junit.jupiter.api.Assertions;
 
 @HartshornTest
 @UseConfigurations
 @Activator(scanPackages = "net.pumbas.halpbot")
-public class CommandInvocationContextTests
-{
+public class CommandInvocationContextTests {
 
     @InjectTest
-    public void getNextSurroundedTest(InvocationContextFactory invocationContextFactory) {
-        CommandInvocationContext invocationContext = invocationContextFactory.command("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
+    public void getNextSurroundedTest(final CommandInvocationContextFactory invocationContextFactory) {
+        final CommandInvocationContext invocationContext = invocationContextFactory.command("[1 2 3] [#Block[1 2 3] #Block[2 3 4]]");
 
-        Result<String> oArray1 = invocationContext.nextSurrounded("[", "]");
-        Result<String> oArray2 = invocationContext.nextSurrounded("[", "]");
-        Result<String> oArray3 = invocationContext.nextSurrounded("[", "]");
+        final Result<String> oArray1 = invocationContext.nextSurrounded("[", "]");
+        final Result<String> oArray2 = invocationContext.nextSurrounded("[", "]");
+        final Result<String> oArray3 = invocationContext.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertTrue(oArray2.present());
@@ -57,13 +55,13 @@ public class CommandInvocationContextTests
     }
 
     @InjectTest
-    public void getNextSurroundedIncompleteTest(InvocationContextFactory invocationContextFactory) {
-        CommandInvocationContext invocationContext1 = invocationContextFactory.command("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
-        CommandInvocationContext invocationContext2 = invocationContextFactory.command("#Block[1 2 3]]");
+    public void getNextSurroundedIncompleteTest(final CommandInvocationContextFactory invocationContextFactory) {
+        final CommandInvocationContext invocationContext1 = invocationContextFactory.command("[1 2 3] [#Block[1 2 3] #Block[2 3 4] ");
+        final CommandInvocationContext invocationContext2 = invocationContextFactory.command("#Block[1 2 3]]");
 
-        Result<String> oArray1 = invocationContext1.nextSurrounded("[", "]");
-        Result<String> oArray2 = invocationContext1.nextSurrounded("[", "]");
-        Result<String> oArray3 = invocationContext2.nextSurrounded("[", "]");
+        final Result<String> oArray1 = invocationContext1.nextSurrounded("[", "]");
+        final Result<String> oArray2 = invocationContext1.nextSurrounded("[", "]");
+        final Result<String> oArray3 = invocationContext2.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oArray1.present());
         Assertions.assertFalse(oArray2.present());
@@ -73,11 +71,11 @@ public class CommandInvocationContextTests
     }
 
     @InjectTest
-    public void getNextSurroundedStepPastTest(InvocationContextFactory invocationContextFactory) {
-        CommandInvocationContext invocationContext = invocationContextFactory.command("#Block[1 2 3]");
+    public void getNextSurroundedStepPastTest(final CommandInvocationContextFactory invocationContextFactory) {
+        final CommandInvocationContext invocationContext = invocationContextFactory.command("#Block[1 2 3]");
 
-        Result<String> oType = invocationContext.nextSurrounded("#", "[", false);
-        Result<String> oParameters = invocationContext.nextSurrounded("[", "]");
+        final Result<String> oType = invocationContext.nextSurrounded("#", "[", false);
+        final Result<String> oParameters = invocationContext.nextSurrounded("[", "]");
 
         Assertions.assertTrue(oType.present());
         Assertions.assertTrue(oParameters.present());

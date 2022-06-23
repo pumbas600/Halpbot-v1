@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Unrequired
-{
+public @interface Unrequired {
+
     String value() default "${Default}";
 }

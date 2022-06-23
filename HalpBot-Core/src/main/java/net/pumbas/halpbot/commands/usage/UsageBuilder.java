@@ -28,8 +28,8 @@ import org.dockbox.hartshorn.application.context.ApplicationContext;
 import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 
 @FunctionalInterface
-public interface UsageBuilder
-{
+public interface UsageBuilder {
+
     default boolean isValid(ApplicationContext applicationContext) {
         return true;
     }

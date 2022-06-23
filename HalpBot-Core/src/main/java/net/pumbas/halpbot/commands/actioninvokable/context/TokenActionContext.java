@@ -27,17 +27,13 @@ package net.pumbas.halpbot.commands.actioninvokable.context;
 import net.pumbas.halpbot.actions.invokable.ActionContextDecorator;
 import net.pumbas.halpbot.converters.tokens.Token;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 import java.util.Set;
 
-public interface TokenActionContext extends ActionContextDecorator<CommandInvocationContext>
-{
-    List<Token> tokens();
-
-    Set<TypeContext<?>> reflections();
+public interface TokenActionContext extends ActionContextDecorator<CommandInvocationContext> {
 
     //TODO: Perhaps pass in TokenActionContext rather than each value individually
     @Override
@@ -51,4 +47,8 @@ public interface TokenActionContext extends ActionContextDecorator<CommandInvoca
         invocableContext.tokens(originalTokens);
         return result;
     }
+
+    Set<TypeContext<?>> reflections();
+
+    List<Token> tokens();
 }

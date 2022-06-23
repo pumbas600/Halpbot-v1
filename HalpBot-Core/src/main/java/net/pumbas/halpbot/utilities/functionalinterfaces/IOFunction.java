@@ -27,7 +27,7 @@ package net.pumbas.halpbot.utilities.functionalinterfaces;
 import java.io.IOException;
 
 @FunctionalInterface
-public interface IOFunction<T, R>
-{
+public interface IOFunction<T, R> {
+
     R apply(T input) throws IOException;
 }

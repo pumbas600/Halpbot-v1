@@ -25,23 +25,27 @@
 package net.pumbas.halpbot.actions.invokable;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.ExecutableElementContext;
 import org.jetbrains.annotations.Nullable;
 
-public interface ActionContextDecorator<C extends InvocationContext> extends ActionInvokable<C>
-{
-    ActionInvokable<C> actionInvokable();
+public interface ActionContextDecorator<C extends InvocationContext> extends ActionInvokable<C> {
+
+    @Override
+    default <R> Result<R> invoke(C invocationContext) {
+        return this.actionInvokable().invoke(invocationContext);
+    }
 
     @Override
     default Result<Object[]> parameters(C invocationContext) {
         return this.actionInvokable().parameters(invocationContext);
     }
 
+    ActionInvokable<C> actionInvokable();
+
     @Override
-    @Nullable
-    default Object instance() {
-        return this.actionInvokable().instance();
+    default <R> Result<R> invoke(Object... parameters) {
+        return this.actionInvokable().invoke(parameters);
     }
 
     @Override
@@ -50,13 +54,9 @@ public interface ActionContextDecorator<C extends InvocationContext> extends Act
     }
 
     @Override
-    default <R> Result<R> invoke(C invocationContext) {
-        return this.actionInvokable().invoke(invocationContext);
-    }
-
-    @Override
-    default <R> Result<R> invoke(Object... parameters) {
-        return this.actionInvokable().invoke(parameters);
+    @Nullable
+    default Object instance() {
+        return this.actionInvokable().instance();
     }
 
     @Override

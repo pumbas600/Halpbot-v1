@@ -30,25 +30,25 @@ import net.pumbas.halpbot.objects.AsyncDuration;
 
 import org.jetbrains.annotations.Nullable;
 
-public interface ButtonContext extends SourceContext<ButtonInvocationContext>, DisplayableResult
-{
+public interface ButtonContext extends SourceContext<ButtonInvocationContext>, DisplayableResult {
+
     String id();
 
     Object[] passedParameters();
 
-    int remainingUses();
-
     void deductUse();
-
-    AsyncDuration removeAfter();
 
     default boolean hasUses() {
         return this.remainingUses() > 0;
     }
 
+    int remainingUses();
+
     default boolean isUsingDuration() {
         return !this.removeAfter().isNegative();
     }
+
+    AsyncDuration removeAfter();
 
     @Nullable
     AfterRemovalFunction afterRemoval();

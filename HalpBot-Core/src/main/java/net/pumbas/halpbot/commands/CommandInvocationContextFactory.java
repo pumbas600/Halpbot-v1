@@ -22,23 +22,21 @@
  * SOFTWARE.
  */
 
-package net.pumbas.halpbot.actions.invokable;
+package net.pumbas.halpbot.commands;
 
-import net.pumbas.halpbot.buttons.ButtonContext;
-import net.pumbas.halpbot.buttons.ButtonInvocationContext;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
-import net.pumbas.halpbot.converters.tokens.ParsingToken;
+import net.pumbas.halpbot.commands.annotations.UseCommands;
 import net.pumbas.halpbot.events.HalpbotEvent;
 import net.pumbas.halpbot.events.MessageEvent;
 import net.pumbas.halpbot.mocks.MockMessageEvent;
 
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.condition.RequiresActivator;
 import org.dockbox.hartshorn.component.factory.Factory;
 
-import java.util.List;
-
 @Service
-public interface InvocationContextFactory {
+@RequiresActivator(UseCommands.class)
+public interface CommandInvocationContextFactory {
 
     default CommandInvocationContext command(final String content) {
         return this.command(content, new MessageEvent(MockMessageEvent.INSTANCE));
@@ -47,17 +45,4 @@ public interface InvocationContextFactory {
     @Factory
     CommandInvocationContext command(String content,
                                      HalpbotEvent halpbotEvent);
-
-    default ButtonInvocationContext button(final HalpbotEvent halpbotEvent, final ButtonContext buttonContext) {
-        return this.button(halpbotEvent, buttonContext.nonCommandParameterTokens(), buttonContext.passedParameters());
-    }
-
-    @Factory
-    ButtonInvocationContext button(HalpbotEvent halpbotEvent,
-                                   List<ParsingToken> nonCommandParameterTokens,
-                                   Object[] passedParameters);
-
-    @Factory
-    SourceInvocationContext source(HalpbotEvent halpbotEvent,
-                                   List<ParsingToken> nonCommandParameterTokens);
 }

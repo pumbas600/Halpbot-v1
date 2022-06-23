@@ -29,8 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public enum DecoratorMerge
-{
+public enum DecoratorMerge {
     KEEP_PARENT((action, parent) -> parent),
     KEEP_ACTION((action, parent) -> action),
     KEEP_BOTH((action, parent) -> {

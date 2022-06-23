@@ -28,12 +28,12 @@ import net.pumbas.halpbot.actions.exceptions.ActionException;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.utilities.Int;
 
+import org.dockbox.hartshorn.util.Result;
 import org.dockbox.hartshorn.util.reflect.ParameterContext;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
-import org.dockbox.hartshorn.util.Result;
 
-public interface SourceInvokable<C extends SourceInvocationContext> extends ActionInvokable<C>
-{
+public interface SourceInvokable<C extends SourceInvocationContext> extends ActionInvokable<C> {
+
     @Override
     default Result<Object[]> parameters(C invocationContext) {
         final Object[] parameters = new Object[this.executable().parameterCount()];
@@ -56,7 +56,8 @@ public interface SourceInvokable<C extends SourceInvocationContext> extends Acti
 
     @SuppressWarnings("unchecked")
     default Result<Object> parameter(C invocationContext, ParameterContext<?> parameterContext,
-                                          Int nonCommandParameterIndex) {
+                                     Int nonCommandParameterIndex)
+    {
         if (nonCommandParameterIndex.lessThen(invocationContext.nonCommandParameterTokens().size())) {
             ParsingToken token = invocationContext.nonCommandParameterTokens().get(nonCommandParameterIndex.incrementAfter());
             if (token.parameterContext().equals(parameterContext)) {

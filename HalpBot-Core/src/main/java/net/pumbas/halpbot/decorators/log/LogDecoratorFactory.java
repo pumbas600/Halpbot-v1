@@ -27,12 +27,12 @@ package net.pumbas.halpbot.decorators.log;
 import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.decorators.ActionInvokableDecoratorFactory;
 
-import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 
 @Service
-public interface LogDecoratorFactory extends ActionInvokableDecoratorFactory<LogDecorator<?>, Log>
-{
+public interface LogDecoratorFactory extends ActionInvokableDecoratorFactory<LogDecorator<?>, Log> {
+
     @Factory
     @Override
     LogDecorator<?> decorate(ActionInvokable<?> element, Log annotation);

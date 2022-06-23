@@ -24,7 +24,6 @@
 
 package net.pumbas.halpbot.utilities;
 
-public enum Require
-{
+public enum Require {
     ANY, ALL
 }

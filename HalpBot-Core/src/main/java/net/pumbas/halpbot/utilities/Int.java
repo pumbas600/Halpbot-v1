@@ -26,8 +26,8 @@ package net.pumbas.halpbot.utilities;
 
 import org.jetbrains.annotations.NotNull;
 
-public class Int extends Number implements Comparable<Integer>
-{
+public class Int extends Number implements Comparable<Integer> {
+
     private int value;
 
     public Int(int value) {

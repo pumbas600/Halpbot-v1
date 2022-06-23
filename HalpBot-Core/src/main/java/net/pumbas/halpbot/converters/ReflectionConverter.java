@@ -29,13 +29,13 @@ import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationCont
 import net.pumbas.halpbot.commands.actioninvokable.context.command.CommandContext;
 import net.pumbas.halpbot.utilities.HalpbotUtils;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.Collection;
 
-public interface ReflectionConverter
-{
+public interface ReflectionConverter {
+
     default Result<Object> parseReflection(CommandInvocationContext invocationContext) {
         if (!invocationContext.reflections().isEmpty()) {
             TypeContext<?> targetType = invocationContext.currentType();

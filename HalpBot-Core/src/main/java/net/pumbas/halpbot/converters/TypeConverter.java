@@ -27,8 +27,8 @@ package net.pumbas.halpbot.converters;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 
-import org.dockbox.hartshorn.util.reflect.TypeContext;
 import org.dockbox.hartshorn.util.Result;
+import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
@@ -37,8 +37,8 @@ public record TypeConverter<T>(TypeContext<T> type,
                                TypeContext<? extends Annotation> annotationType,
                                Function<CommandInvocationContext, Result<T>> mapper,
                                OptionType optionType)
-    implements ParameterConverter<T>
-{
+    implements ParameterConverter<T> {
+
     public static <T> TypeConverterBuilder<T> builder(Class<T> type) {
         return builder(TypeContext.of(type));
     }
@@ -57,15 +57,15 @@ public record TypeConverter<T>(TypeContext<T> type,
         return new TypeConverterBuilder<>(type);
     }
 
-    public static class TypeConverterBuilder<T> extends ConverterBuilder<TypeConverter<T>, CommandInvocationContext, T>
-    {
+    public static class TypeConverterBuilder<T> extends ConverterBuilder<TypeConverter<T>, CommandInvocationContext, T> {
+
         protected TypeConverterBuilder(TypeContext<T> type) {
             super(type);
         }
 
         /**
-         * Specifies the parsing {@link Function}. If an error is caught in the {@link Result} returned by the
-         * function, then it will automatically reset the current index of the {@link CommandInvocationContext}.
+         * Specifies the parsing {@link Function}. If an error is caught in the {@link Result} returned by the function,
+         * then it will automatically reset the current index of the {@link CommandInvocationContext}.
          *
          * @param mapper
          *     The {@link Function} to be used to parse the type
@@ -80,8 +80,8 @@ public record TypeConverter<T>(TypeContext<T> type,
         }
 
         /**
-         * Builds the {@link TypeConverter} with the specified information but doesn't register it with {@link
-         * HalpbotConverterHandler}.
+         * Builds the {@link TypeConverter} with the specified information but doesn't register it with
+         * {@link HalpbotConverterHandler}.
          *
          * @return The built {@link TypeConverter}
          */

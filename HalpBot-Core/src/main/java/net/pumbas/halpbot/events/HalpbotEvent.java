@@ -38,9 +38,11 @@ import net.dv8tion.jda.api.entities.User;
 import org.dockbox.hartshorn.util.Result;
 import org.jetbrains.annotations.Nullable;
 
-public interface HalpbotEvent
-{
-    Object rawEvent();
+public interface HalpbotEvent {
+
+    default <T> Result<T> eventSafely(Class<T> type) {
+        return Result.of(() -> this.event(type));
+    }
 
     @SuppressWarnings("unchecked")
     default <T> T event(Class<T> type) {
@@ -50,9 +52,7 @@ public interface HalpbotEvent
         throw new UnsupportedOperationException("The raw event is not of the specified type: " + type.getSimpleName());
     }
 
-    default <T> Result<T> eventSafely(Class<T> type) {
-        return Result.of(() -> this.event(type));
-    }
+    Object rawEvent();
 
     MessageChannel messageChannel();
 

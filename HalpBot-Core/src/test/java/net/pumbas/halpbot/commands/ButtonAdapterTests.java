@@ -35,8 +35,8 @@ import jakarta.inject.Inject;
 
 @UseButtons
 @HartshornTest
-public class ButtonAdapterTests
-{
+public class ButtonAdapterTests {
+
     @Inject
     private ButtonAdapter buttonAdapter;
 

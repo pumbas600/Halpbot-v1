@@ -38,8 +38,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GuildPermissionId implements Serializable
-{
+public class GuildPermissionId implements Serializable {
+
     private long guildId;
     private String permission;
 

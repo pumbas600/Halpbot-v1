@@ -36,8 +36,8 @@ import org.dockbox.hartshorn.util.Result;
 
 import java.util.List;
 
-public interface CommandInvokable extends ActionInvokable<CommandInvocationContext>
-{
+public interface CommandInvokable extends ActionInvokable<CommandInvocationContext> {
+
     @Override
     default Result<Object[]> parameters(CommandInvocationContext invocationContext) {
         final List<Token> tokens = invocationContext.tokens();
@@ -59,7 +59,8 @@ public interface CommandInvokable extends ActionInvokable<CommandInvocationConte
 
                 if (currentToken instanceof ParsingToken parsingToken)
                     parsedTokens[parameterIndex++] = parsingToken.defaultValue();
-            } else if (parameter.orNull() != HalpbotUtils.IGNORE_RESULT)
+            }
+            else if (parameter.orNull() != HalpbotUtils.IGNORE_RESULT)
                 parsedTokens[parameterIndex++] = parameter.orNull();
         }
 
@@ -74,7 +75,8 @@ public interface CommandInvokable extends ActionInvokable<CommandInvocationConte
             return parsingToken.converter()
                 .apply(invocationContext)
                 .map(o -> o);
-        } else if (token instanceof PlaceholderToken placeholderToken) {
+        }
+        else if (token instanceof PlaceholderToken placeholderToken) {
             if (placeholderToken.matches(invocationContext)) {
                 return Result.of(HalpbotUtils.IGNORE_RESULT);
             }

@@ -28,16 +28,16 @@ import net.pumbas.halpbot.actions.invokable.ActionInvokable;
 import net.pumbas.halpbot.commands.actioninvokable.context.CommandInvocationContext;
 import net.pumbas.halpbot.converters.tokens.Token;
 
-import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.factory.Factory;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
 import java.util.List;
 import java.util.Set;
 
 @Service
-public interface CustomConstructorContextFactory
-{
+public interface CustomConstructorContextFactory {
+
     @Factory
     CustomConstructorContext create(String usage,
                                     ActionInvokable<CommandInvocationContext> actionInvokable,

@@ -28,7 +28,7 @@ import net.pumbas.halpbot.converters.tokens.ParsingToken;
 
 import java.util.List;
 
-public interface SourceInvocationContext extends InvocationContext
-{
+public interface SourceInvocationContext extends InvocationContext {
+
     List<ParsingToken> nonCommandParameterTokens();
 }

@@ -30,10 +30,10 @@ import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import net.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
-import org.dockbox.hartshorn.component.Enableable;
-import org.dockbox.hartshorn.context.AutoCreating;
-import org.dockbox.hartshorn.component.Service;
 import org.dockbox.hartshorn.application.context.ApplicationContext;
+import org.dockbox.hartshorn.component.Enableable;
+import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.context.AutoCreating;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -42,8 +42,8 @@ import jakarta.inject.Inject;
 
 @Service
 @AutoCreating
-public class ErrorManager implements Enableable
-{
+public class ErrorManager implements Enableable {
+
     @Nullable
     private static ErrorManager instance;
 
@@ -51,24 +51,6 @@ public class ErrorManager implements Enableable
     private ApplicationContext applicationContext;
     @Inject
     private HalpbotCore halpbotCore;
-
-    @Override
-    public boolean canEnable() {
-        return instance == null;
-    }
-
-    @Override
-    public void enable() {
-        instance = this;
-        this.applicationContext.log().info("Error manager initialised");
-    }
-
-    private static ErrorManager instance() {
-        if (instance == null)
-            throw new UnsupportedOperationException(
-                "You're trying to access the ErrorManager instance before it's been created");
-        return instance;
-    }
 
     public static void handle(Throwable e) {
         handle(e, "Caught the error: ");
@@ -79,30 +61,11 @@ public class ErrorManager implements Enableable
         sendToLoggerUser(null, e, message);
     }
 
-    public static void handle(GenericMessageEvent event, Throwable e) {
-        handle(event, e, "Caught the error: ");
-    }
-
-    public static void handle(GenericMessageEvent event, Throwable e, String message) {
-
-        if (e instanceof UnimplementedFeatureException) {
-            unimplementedFeatureEmbed(event, e.getMessage());
-        } else if (e instanceof ErrorMessageException) {
-            String warningMessage = ":warning: " + e.getMessage();
-            //HalpbotUtils.logger().warn(warningMessage);
-            event.getChannel().sendMessage(warningMessage).queue();
-        } else {
-            sendToLoggerUser(event, e, message);
-        }
-    }
-
-    public static void unimplementedFeatureEmbed(GenericMessageEvent event, String message) {
-        event.getChannel().sendMessageEmbeds(
-                new EmbedBuilder().setTitle(":confounded: Sorry...")
-                    .setColor(Color.red)
-                    .addField("This feature is not implemented yet", message, false)
-                    .build())
-            .queue();
+    private static ErrorManager instance() {
+        if (instance == null)
+            throw new UnsupportedOperationException(
+                "You're trying to access the ErrorManager instance before it's been created");
+        return instance;
     }
 
     private static void sendToLoggerUser(@Nullable GenericMessageEvent event, Throwable e, String message) {
@@ -123,5 +86,44 @@ public class ErrorManager implements Enableable
 //            .flatMap(User::openPrivateChannel)
 //            .flatMap(channel -> channel.sendMessageEmbeds(error.build()))
 //            .queue();
+    }
+
+    public static void handle(GenericMessageEvent event, Throwable e) {
+        handle(event, e, "Caught the error: ");
+    }
+
+    public static void handle(GenericMessageEvent event, Throwable e, String message) {
+
+        if (e instanceof UnimplementedFeatureException) {
+            unimplementedFeatureEmbed(event, e.getMessage());
+        }
+        else if (e instanceof ErrorMessageException) {
+            String warningMessage = ":warning: " + e.getMessage();
+            //HalpbotUtils.logger().warn(warningMessage);
+            event.getChannel().sendMessage(warningMessage).queue();
+        }
+        else {
+            sendToLoggerUser(event, e, message);
+        }
+    }
+
+    public static void unimplementedFeatureEmbed(GenericMessageEvent event, String message) {
+        event.getChannel().sendMessageEmbeds(
+                new EmbedBuilder().setTitle(":confounded: Sorry...")
+                    .setColor(Color.red)
+                    .addField("This feature is not implemented yet", message, false)
+                    .build())
+            .queue();
+    }
+
+    @Override
+    public boolean canEnable() {
+        return instance == null;
+    }
+
+    @Override
+    public void enable() {
+        instance = this;
+        this.applicationContext.log().info("Error manager initialised");
     }
 }

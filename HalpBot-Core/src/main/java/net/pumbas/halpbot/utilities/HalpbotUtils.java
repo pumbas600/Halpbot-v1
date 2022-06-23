@@ -65,8 +65,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class HalpbotUtils
-{
+public final class HalpbotUtils {
+
     public static final Color Blurple = new Color(85, 57, 204);
 
     public static final float fullRotation = 360F;
@@ -94,8 +94,8 @@ public final class HalpbotUtils
     }
 
     /**
-     * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than {@link
-     * MessageEmbed#DESCRIPTION_MAX_LENGTH} it will cause an error to be thrown. This method simply checks if the
+     * When you set a {@link net.dv8tion.jda.api.entities.MessageEmbed} description that is larger than
+     * {@link MessageEmbed#DESCRIPTION_MAX_LENGTH} it will cause an error to be thrown. This method simply checks if the
      * description exceeds this limit and if it does, then it creates a substring of the maximum displayable message.
      *
      * @param description
@@ -107,14 +107,14 @@ public final class HalpbotUtils
         return limitLength(description, MessageEmbed.DESCRIPTION_MAX_LENGTH);
     }
 
-    public static String limitMessageLength(String message) {
-        return limitLength(message, Message.MAX_CONTENT_LENGTH);
-    }
-
     private static String limitLength(String string, int length) {
         if (string.length() > length)
             return string.substring(0, length - 3) + "...";
         return string;
+    }
+
+    public static String limitMessageLength(String message) {
+        return limitLength(message, Message.MAX_CONTENT_LENGTH);
     }
 
     /**
@@ -146,6 +146,34 @@ public final class HalpbotUtils
     }
 
     /**
+     * Parses a file using the {@link IOFunction fileParser} provided.
+     *
+     * @param fileParser
+     *     The {@link IOFunction} to parse the file
+     * @param defaultValue
+     *     The value to be returned if there is an error opening the file
+     * @param <T>
+     *     The type of the parsed file
+     *
+     * @return The parsed file
+     */
+    public static <T> T parseFile(InputStream inputStream, IOFunction<BufferedReader, T> fileParser,
+                                  T defaultValue)
+    {
+        try (InputStreamReader inputReader = new InputStreamReader(inputStream)) {
+            BufferedReader reader = new BufferedReader(inputReader);
+            T parsedFile = fileParser.apply(reader);
+            reader.close();
+
+            return parsedFile;
+
+        } catch (IOException e) {
+            ErrorManager.handle(e);
+            return defaultValue;
+        }
+    }
+
+    /**
      * Retrieves the first line from a file.
      *
      * @return The first line, or an empty {@link String} if there was an error reading the line
@@ -161,30 +189,15 @@ public final class HalpbotUtils
     }
 
     /**
-     * Parses a file using the {@link IOFunction fileParser} provided.
+     * Retrieves the InputStream for a file in the resources folder.
      *
-     * @param fileParser
-     *     The {@link IOFunction} to parse the file
-     * @param defaultValue
-     *     The value to be returned if there is an error opening the file
-     * @param <T>
-     *     The type of the parsed file
+     * @param filename
+     *     The name of the file to retrieve
      *
-     * @return The parsed file
+     * @return The InputStream, if there were no errors retrieving it
      */
-    public static <T> T parseFile(InputStream inputStream, IOFunction<BufferedReader, T> fileParser,
-                                  T defaultValue) {
-        try (InputStreamReader inputReader = new InputStreamReader(inputStream)) {
-            BufferedReader reader = new BufferedReader(inputReader);
-            T parsedFile = fileParser.apply(reader);
-            reader.close();
-
-            return parsedFile;
-
-        } catch (IOException e) {
-            ErrorManager.handle(e);
-            return defaultValue;
-        }
+    public static Result<InputStream> retrieveReader(String filename) {
+        return Result.of(ClassLoader.getSystemClassLoader().getResourceAsStream(filename));
     }
 
     /**
@@ -206,18 +219,6 @@ public final class HalpbotUtils
             ErrorManager.handle(e);
         }
         return null;
-    }
-
-    /**
-     * Retrieves the InputStream for a file in the resources folder.
-     *
-     * @param filename
-     *     The name of the file to retrieve
-     *
-     * @return The InputStream, if there were no errors retrieving it
-     */
-    public static Result<InputStream> retrieveReader(String filename) {
-        return Result.of(ClassLoader.getSystemClassLoader().getResourceAsStream(filename));
     }
 
     /**
@@ -294,20 +295,6 @@ public final class HalpbotUtils
     }
 
     /**
-     * Capitalises the first letter of the {@link String} and sets the rest of the word to lowercase.
-     *
-     * @param str
-     *     The {@link String} to capitalise
-     *
-     * @return The capitalised {@link String}
-     */
-    public static String capitalise(String str) {
-        if (str.isEmpty()) return str;
-
-        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
-    }
-
-    /**
      * Capitalises the first letter of each word in the {@link String} and sets the rest of the word to lowercase.
      *
      * @param str
@@ -320,6 +307,20 @@ public final class HalpbotUtils
         return Arrays.stream(words)
             .map(HalpbotUtils::capitalise)
             .collect(Collectors.joining(" "));
+    }
+
+    /**
+     * Capitalises the first letter of the {@link String} and sets the rest of the word to lowercase.
+     *
+     * @param str
+     *     The {@link String} to capitalise
+     *
+     * @return The capitalised {@link String}
+     */
+    public static String capitalise(String str) {
+        if (str.isEmpty()) return str;
+
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
     /**
@@ -437,8 +438,8 @@ public final class HalpbotUtils
     }
 
     /**
-     * Removes the first element in the collection that passes the filter wrapped in an {@link Result}. If no
-     * elements in the collection pass the filter than nothing is removed and an empty Result is returned.
+     * Removes the first element in the collection that passes the filter wrapped in an {@link Result}. If no elements
+     * in the collection pass the filter than nothing is removed and an empty Result is returned.
      *
      * @param collection
      *     The collection to remove the element from
@@ -549,9 +550,9 @@ public final class HalpbotUtils
     }
 
     /**
-     * returns the disabled version of a {@link Component} by checking if it's either a {@link Button} or a {@link
-     * SelectionMenu} and calling their appropriate {@code #asDisabled} method. If the component is neither of those
-     * then it's returned as is.
+     * returns the disabled version of a {@link Component} by checking if it's either a {@link Button} or a
+     * {@link SelectionMenu} and calling their appropriate {@code #asDisabled} method. If the component is neither of
+     * those then it's returned as is.
      *
      * @param component
      *     The {@link Component} to disable

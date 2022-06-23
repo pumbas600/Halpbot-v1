@@ -27,7 +27,7 @@ package net.pumbas.halpbot.triggers;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.pumbas.halpbot.HalpbotCore;
 import net.pumbas.halpbot.actions.invokable.HalpbotSourceInvokable;
-import net.pumbas.halpbot.actions.invokable.InvocationContextFactory;
+import net.pumbas.halpbot.converters.invocation.SourceInvocationContextFactory;
 import net.pumbas.halpbot.converters.tokens.ParsingToken;
 import net.pumbas.halpbot.converters.tokens.TokenService;
 import net.pumbas.halpbot.decorators.DecoratorService;
@@ -61,7 +61,7 @@ public class HalpbotTriggerAdapter implements TriggerAdapter {
     @Inject
     private HalpbotCore halpbotCore;
     @Inject
-    private InvocationContextFactory invocationContextFactory;
+    private SourceInvocationContextFactory invocationContextFactory;
     @Inject
     private TriggerContextFactory triggerContextFactory;
     @Inject
@@ -79,7 +79,7 @@ public class HalpbotTriggerAdapter implements TriggerAdapter {
 
         for (final TriggerContext triggerContext : this.triggerContexts) {
             if (triggerContext.matches(message)) {
-                final Result<Object> result = triggerContext.invoke(this.invocationContextFactory.source(
+                final Result<Object> result = triggerContext.invoke(this.invocationContextFactory.create(
                     halpbotEvent,
                     triggerContext.nonCommandParameterTokens()));
 

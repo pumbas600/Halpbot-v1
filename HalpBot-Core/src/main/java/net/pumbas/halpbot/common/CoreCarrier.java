@@ -26,8 +26,8 @@ package net.pumbas.halpbot.common;
 
 import net.pumbas.halpbot.HalpbotCore;
 
-public interface CoreCarrier
-{
+public interface CoreCarrier {
+
     /**
      * This dependency can be injected where necessary
      *

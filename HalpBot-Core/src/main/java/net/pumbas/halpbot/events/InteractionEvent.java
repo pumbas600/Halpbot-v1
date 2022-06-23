@@ -41,8 +41,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
-public class InteractionEvent implements HalpbotEvent
-{
+public class InteractionEvent implements HalpbotEvent {
+
     private final Interaction interaction;
 
     public InteractionEvent(Interaction interaction) {
@@ -69,6 +69,12 @@ public class InteractionEvent implements HalpbotEvent
         return this.interaction.getPrivateChannel();
     }
 
+    @Nullable
+    @Override
+    public AbstractChannel channel() {
+        return this.interaction.getChannel();
+    }
+
     @Override
     public ChannelType channelType() {
         return this.interaction.getChannelType();
@@ -83,12 +89,6 @@ public class InteractionEvent implements HalpbotEvent
     @Override
     public User user() {
         return this.interaction.getUser();
-    }
-
-    @Nullable
-    @Override
-    public AbstractChannel channel() {
-        return this.interaction.getChannel();
     }
 
     @Override

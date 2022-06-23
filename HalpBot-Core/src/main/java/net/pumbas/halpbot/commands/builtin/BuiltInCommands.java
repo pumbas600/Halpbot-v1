@@ -88,7 +88,9 @@ public class BuiltInCommands {
     }
 
     @Command(alias = {"help", "halp"}, description = "Displays the help information for the specified command")
-    public Object halp(@Source final Guild guild, final CommandAdapter commandAdapter, @Unrequired("") final String commandAlias) {
+    public Object halp(@Source final Guild guild, final CommandAdapter commandAdapter, @Unrequired(
+        "") final String commandAlias)
+    {
         if (commandAlias.isEmpty()) {
             return this.helpService.build(commandAdapter);
         }

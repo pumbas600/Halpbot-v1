@@ -31,8 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class ExpiringHashSet<T> extends HashSet<T> implements ExpiringCollection<T>
-{
+public class ExpiringHashSet<T> extends HashSet<T> implements ExpiringCollection<T> {
+
     private final long expirationDurationMs;
     private final Map<T, Long> expiringValues = new ConcurrentHashMap<>();
 

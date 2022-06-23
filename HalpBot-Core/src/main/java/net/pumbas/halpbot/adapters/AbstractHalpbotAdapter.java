@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.pumbas.halpbot.HalpbotCore;
 
-public abstract class AbstractHalpbotAdapter extends ListenerAdapter
-{
+public abstract class AbstractHalpbotAdapter extends ListenerAdapter {
+
     protected HalpbotCore halpBotCore;
 
     public void accept(JDA jda) {}

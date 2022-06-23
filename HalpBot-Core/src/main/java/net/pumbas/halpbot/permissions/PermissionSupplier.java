@@ -46,8 +46,8 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PermissionSupplier
-{
+public @interface PermissionSupplier {
+
     /**
      * @return The permission being supplied
      */

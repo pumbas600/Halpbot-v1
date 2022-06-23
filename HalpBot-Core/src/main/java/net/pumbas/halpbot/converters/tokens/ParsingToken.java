@@ -41,8 +41,32 @@ import java.util.List;
  * {@link ParsingToken Parsing tokens} are tokens which have a specific type and can parse an inputted {@link String} to
  * this type.
  */
-public interface ParsingToken extends Token
-{
+public interface ParsingToken extends Token {
+
+    /**
+     * Parses the {@link CommandInvocationContext} of the default value.
+     *
+     * @param invocationContext
+     *     {@link CommandInvocationContext} containing the default value to be parsed into an {@link Object} using the
+     *     token's {@link TypeConverter}
+     *
+     * @return The parsed {@link Object default value}
+     */
+    @Nullable
+    static Object parseDefaultValue(Converter<CommandInvocationContext, ?> converter,
+                                    CommandInvocationContext invocationContext)
+    {
+        //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
+        if ("${Default}".equalsIgnoreCase(invocationContext.content()))
+            return Reflect.getDefaultValue(invocationContext.currentType().type());
+        if (invocationContext.currentType().childOf(String.class))
+            return invocationContext.content();
+        return converter.apply(invocationContext)
+            .rethrowUnchecked()
+            .get();
+
+    }
+
     /**
      * @return The {@link ParameterContext} this {@link ParsingToken} represents
      */
@@ -66,27 +90,4 @@ public interface ParsingToken extends Token
      *     source event or command adapter.
      */
     boolean isCommandParameter();
-
-    /**
-     * Parses the {@link CommandInvocationContext} of the default value.
-     *
-     * @param invocationContext
-     *     {@link CommandInvocationContext} containing the default value to be parsed into an {@link Object} using the
-     *     token's {@link TypeConverter}
-     *
-     * @return The parsed {@link Object default value}
-     */
-    @Nullable
-    static Object parseDefaultValue(Converter<CommandInvocationContext, ?> converter,
-                                    CommandInvocationContext invocationContext) {
-        //TODO: Move ${Default} parsing to the converter, so that it can be used in commands too
-        if ("${Default}".equalsIgnoreCase(invocationContext.content()))
-            return Reflect.getDefaultValue(invocationContext.currentType().type());
-        if (invocationContext.currentType().childOf(String.class))
-            return invocationContext.content();
-        return converter.apply(invocationContext)
-            .rethrowUnchecked()
-            .get();
-
-    }
 }
