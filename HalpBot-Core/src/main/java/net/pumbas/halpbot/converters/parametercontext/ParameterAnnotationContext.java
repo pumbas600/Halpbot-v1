@@ -33,35 +33,35 @@ import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings("ConstantDeclaredInInterface")
-public interface ParameterAnnotationContext
-{
+public interface ParameterAnnotationContext {
+
     TypeContext<Any> ANY = TypeContext.of(Any.class);
 
-    Set<TypeContext<? extends Annotation>> afterAnnotations();
-
-    default boolean comesAfter(TypeContext<? extends Annotation> annotationType) {
+    default boolean comesAfter(final TypeContext<? extends Annotation> annotationType) {
         return this.afterAnnotations().contains(annotationType);
     }
 
-    void addAfterAnnotation(TypeContext<? extends Annotation> afterAnnotation);
+    Set<TypeContext<? extends Annotation>> afterAnnotations();
 
-    Set<TypeContext<? extends Annotation>> conflictingAnnotations();
+    void addAfterAnnotation(TypeContext<? extends Annotation> afterAnnotation);
 
     void conflictingAnnotations(Set<TypeContext<? extends Annotation>> conflictingAnnotations);
 
-    Set<TypeContext<?>> allowedTypes();
-
     void allowedTypes(Set<TypeContext<?>> allowedTypes);
 
-    default boolean isValidType(TypeContext<?> typeContext) {
+    default boolean isValidType(final TypeContext<?> typeContext) {
         return this.allowedTypes()
             .stream()
             .anyMatch(type -> type.parentOf(typeContext));
     }
 
-    default boolean noConflictingAnnotations(List<TypeContext<? extends Annotation>> annotationTypes) {
+    Set<TypeContext<?>> allowedTypes();
+
+    default boolean noConflictingAnnotations(final List<TypeContext<? extends Annotation>> annotationTypes) {
         return (!this.conflictingAnnotations().contains(ANY) || annotationTypes.size() == 1) &&
             annotationTypes.stream()
                 .noneMatch(annotationType -> this.conflictingAnnotations().contains(annotationType));
     }
+
+    Set<TypeContext<? extends Annotation>> conflictingAnnotations();
 }
