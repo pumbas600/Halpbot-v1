@@ -28,18 +28,18 @@ import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 import net.pumbas.halpbot.commands.exceptions.ErrorMessageException;
 import net.pumbas.halpbot.commands.exceptions.UnimplementedFeatureException;
 
-import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.Component;
 
-@Service(singleton = false)
-public class Shape
-{
+@Component
+public class Shape {
+
     private final ShapeType shapeType;
     private final double area;
     private final double xPos;
     private final double yPos;
 
     @CustomConstructor
-    public Shape(ShapeType shapeType, double length, double xPos, double yPos)
+    public Shape(final ShapeType shapeType, final double length, final double xPos, final double yPos)
     {
         this.shapeType = shapeType;
 
@@ -58,7 +58,7 @@ public class Shape
     }
 
     @CustomConstructor
-    public Shape(ShapeType shapeType, double width, double height, double xPos, double yPos)
+    public Shape(final ShapeType shapeType, final double width, final double height, final double xPos, final double yPos)
     {
         this.shapeType = shapeType;
 

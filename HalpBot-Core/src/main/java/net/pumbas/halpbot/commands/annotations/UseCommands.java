@@ -26,7 +26,7 @@ package net.pumbas.halpbot.commands.annotations;
 
 import net.pumbas.halpbot.converters.annotations.UseConverters;
 import net.pumbas.halpbot.processors.commands.CommandServicePreProcessor;
-import net.pumbas.halpbot.processors.constructors.CustomConstructorServicePreProcessor;
+import net.pumbas.halpbot.processors.constructors.CustomConstructorComponentPreProcessor;
 
 import org.dockbox.hartshorn.component.processing.ServiceActivator;
 
@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
 @UseConverters
 @ServiceActivator(scanPackages = "net.pumbas.halpbot",
                   processors = {
-                      CustomConstructorServicePreProcessor.class,
+                      CustomConstructorComponentPreProcessor.class,
                       CommandServicePreProcessor.class
                   })
 @Retention(RetentionPolicy.RUNTIME)

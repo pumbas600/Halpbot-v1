@@ -26,15 +26,15 @@ package net.pumbas.halpbot.customparameters.electrical;
 
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 
-import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.Component;
 
-@Service(singleton = false)
+@Component
 public class Resistor extends ElectricalComponent {
 
     protected double resistance;
 
     @CustomConstructor
-    public Resistor(double resistance) {
+    public Resistor(final double resistance) {
         this.resistance = resistance;
     }
 

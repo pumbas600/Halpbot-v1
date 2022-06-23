@@ -28,16 +28,16 @@ import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ComponentPreProcessor;
 import org.dockbox.hartshorn.inject.Key;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class CustomConstructorServicePreProcessor implements ServicePreProcessor {
+public class CustomConstructorComponentPreProcessor implements ComponentPreProcessor {
 
     private static final ElementValidator CUSTOM_CONSTRUCTOR_VALIDATOR = ElementValidator.publicModifier("custom constructor");
 
     @Override
-    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
+    public boolean modifies(final ApplicationContext context, final Key<?> key) {
         return key.type().constructors()
             .stream()
             .anyMatch(constructorContext -> constructorContext.annotation(CustomConstructor.class).present());

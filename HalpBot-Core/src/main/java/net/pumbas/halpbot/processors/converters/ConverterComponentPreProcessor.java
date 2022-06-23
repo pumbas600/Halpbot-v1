@@ -29,19 +29,19 @@ import net.pumbas.halpbot.converters.annotations.Ignore;
 import net.pumbas.halpbot.utilities.validation.ElementValidator;
 
 import org.dockbox.hartshorn.application.context.ApplicationContext;
-import org.dockbox.hartshorn.component.processing.ServicePreProcessor;
+import org.dockbox.hartshorn.component.processing.ComponentPreProcessor;
 import org.dockbox.hartshorn.inject.Key;
 import org.dockbox.hartshorn.util.reflect.AccessModifier;
 import org.dockbox.hartshorn.util.reflect.TypeContext;
 
-public class ConverterServicePreProcessor implements ServicePreProcessor {
+public class ConverterComponentPreProcessor implements ComponentPreProcessor {
 
     private static final ElementValidator CONVERTER_VALIDATOR = ElementValidator.build("converter")
         .modifiers(AccessModifier.PUBLIC, AccessModifier.STATIC, AccessModifier.FINAL)
         .create();
 
     @Override
-    public boolean preconditions(final ApplicationContext context, final Key<?> key) {
+    public boolean modifies(final ApplicationContext context, final Key<?> key) {
         return !key.type().fieldsOf(Converter.class).isEmpty();
     }
 

@@ -26,23 +26,22 @@ package net.pumbas.halpbot.customparameters.electrical;
 
 import java.util.List;
 
-public class CircuitManager
-{
-    public void solve(List<ElectricalComponent> electricalComponents) {
-        double totalResistance = this.totalResistance(electricalComponents);
-        double totalVoltage = this.totalVoltage(electricalComponents);
+public class CircuitManager {
 
-        double current = totalVoltage / totalResistance;
-        for (ElectricalComponent electricalComponent : electricalComponents) {
+    public void solve(final List<ElectricalComponent> electricalComponents) {
+        final double totalResistance = this.totalResistance(electricalComponents);
+        final double totalVoltage = this.totalVoltage(electricalComponents);
+
+        final double current = totalVoltage / totalResistance;
+        for (final ElectricalComponent electricalComponent : electricalComponents) {
             electricalComponent.currentAcross(current);
-            if (electricalComponent instanceof Resistor) {
-                Resistor resistor = (Resistor) electricalComponent;
+            if (electricalComponent instanceof final Resistor resistor) {
                 resistor.voltageDrop(current * resistor.resistance());
             }
         }
     }
 
-    public double totalResistance(List<ElectricalComponent> electricalComponents) {
+    public double totalResistance(final List<ElectricalComponent> electricalComponents) {
         return electricalComponents.stream()
             .filter(e -> e instanceof Resistor)
             .map(e -> (Resistor) e)
@@ -50,7 +49,7 @@ public class CircuitManager
             .sum();
     }
 
-    public double totalVoltage(List<ElectricalComponent> electricalComponents) {
+    public double totalVoltage(final List<ElectricalComponent> electricalComponents) {
         return electricalComponents.stream()
             .filter(e -> e instanceof PowerSupply)
             .map(e -> (PowerSupply) e)
@@ -58,8 +57,8 @@ public class CircuitManager
             .sum();
     }
 
-    public String buildCircuitOutput(List<ElectricalComponent> electricalComponents) {
-        StringBuilder builder = new StringBuilder();
+    public String buildCircuitOutput(final List<ElectricalComponent> electricalComponents) {
+        final StringBuilder builder = new StringBuilder();
         if (!electricalComponents.isEmpty())
             builder.append(electricalComponents.get(0).toString());
 

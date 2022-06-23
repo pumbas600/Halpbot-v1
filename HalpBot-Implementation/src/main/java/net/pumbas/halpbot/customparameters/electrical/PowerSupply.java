@@ -26,13 +26,13 @@ package net.pumbas.halpbot.customparameters.electrical;
 
 import net.pumbas.halpbot.commands.annotations.CustomConstructor;
 
-import org.dockbox.hartshorn.component.Service;
+import org.dockbox.hartshorn.component.Component;
 
-@Service(singleton = false)
+@Component
 public class PowerSupply extends ElectricalComponent {
 
     @CustomConstructor
-    public PowerSupply(double rating) {
+    public PowerSupply(final double rating) {
         this.voltageDrop = -rating;
     }
 
